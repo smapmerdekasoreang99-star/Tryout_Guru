@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<script>window.TKA_SUPABASE = { url: "https://jzxcnfetpjkltjjbglxz.supabase.co", key: "sb_publishable_9pl5IOJl-Vx0KEnHtCs3nA_ioZOkacq" };</script>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <!-- Baris ke-2: isi url proyek Supabase (Tryout_Guru) dan kunci "anon public". Sama persis dengan baris ke-2 index.html. -->
 <html lang="id">
 <head>
@@ -51,19 +51,37 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   </div>
   <div id="pin-status" class="small" style="margin-top:6px"></div>
 </div>
-<div class="tabs"><button class="on" data-tab="unggah">Unggah paket</button><button data-tab="daftar">Daftar paket</button><button data-tab="impor">Impor kode hasil</button><button data-tab="bantuan">Bantuan</button></div>
+<div class="tabs"><button class="on" data-tab="kisi">Langkah 1 · Kisi-kisi</button><button data-tab="unggah">Langkah 2 · Soal</button><button data-tab="daftar">Daftar paket</button><button data-tab="impor">Impor kode hasil</button><button data-tab="bantuan">Bantuan</button></div>
 
-<section id="tab-unggah">
+<section id="tab-kisi">
   <div class="card">
-    <h2>1. Pilih berkas</h2>
+    <h2>Langkah 1 — Unggah kisi-kisi</h2>
+    <p class="muted">Guru mengisi <b>Template_Kisi_Kisi.docx</b> (INFORMASI UJIAN + tabel kisi-kisi: No, Kompetensi/Materi/Sub-materi, Indikator, Level Kesulitan, Bentuk, Kode Teks [opsional, untuk teks bacaan bersama]). Setelah diunggah dan disimpan, aplikasi membuatkan <b>Template Soal</b> yang sudah terisi kisi-kisinya untuk diisi guru.</p>
+    <div class="drop" id="drop-k"><p><b>Seret file kisi-kisi ke sini</b> atau <label style="color:var(--acc);text-decoration:underline;cursor:pointer">pilih file<input type="file" id="file-k" accept=".docx" class="hidden"></label></p></div>
+    <div id="k-status" class="small" style="margin-top:8px"></div>
+  </div>
+  <div class="card hidden" id="k-hasil">
+    <h2>Hasil pembacaan kisi-kisi</h2>
+    <div id="k-ringkas"></div><div id="k-errs"></div>
+    <div class="tbl-wrap"><table class="t" id="k-bp"></table></div>
+    <div id="k-komposisi" class="small" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:12px"><button id="btn-k-simpan" class="good">Simpan ke server &amp; unduh Template Soal</button><button class="ghost" id="btn-k-unduh">Unduh Template Soal saja</button></div>
+    <div id="k-simpan-status" class="small" style="margin-top:8px"></div>
+  </div>
+</section>
+
+<section id="tab-unggah" class="hidden">
+  <div class="card">
+    <h2>Langkah 2 — Unggah soal terisi</h2>
+    <p class="muted">Unggah Template Soal yang sudah diisi guru. Aplikasi mencocokkannya dengan kisi-kisi di server (kode ujian, nomor, varian, bentuk); bila menyimpang, paket ditolak sampai diperbaiki.</p>
     <div class="drop" id="drop">
-      <p><b>Seret file ke sini</b> atau <label style="color:var(--acc);text-decoration:underline;cursor:pointer">pilih file<input type="file" id="file" accept=".docx,.json" class="hidden"></label></p>
-      <p class="muted">Berkas Word dari <i>Template_Soal_TKA.docx</i>, atau berkas .json cadangan paket.</p>
+      <p><b>Seret file soal ke sini</b> atau <label style="color:var(--acc);text-decoration:underline;cursor:pointer">pilih file<input type="file" id="file" accept=".docx,.json" class="hidden"></label></p>
+      <p class="muted">Berkas .docx dari Template Soal, atau .json cadangan paket.</p>
     </div>
     <div id="parse-status" class="small" style="margin-top:8px"></div>
   </div>
   <div class="card hidden" id="hasil-card">
-    <h2>2. Hasil pembacaan</h2>
+    <h2>Hasil pembacaan &amp; pencocokan dengan kisi-kisi</h2>
     <div id="ringkas"></div>
     <div id="errs"></div>
     <div class="tbl-wrap"><table class="t" id="bp"></table></div>
@@ -71,7 +89,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <div id="prev"></div>
   </div>
   <div class="card hidden" id="terbit-card">
-    <h2>3. Terbitkan</h2>
+    <h2>Terbitkan</h2>
     <div class="row"><label class="small"><input type="checkbox" id="aktif" checked> langsung aktif (siswa bisa mengerjakan)</label></div>
     <div class="row" style="margin-top:8px"><button id="btn-terbit" class="good">Terbitkan ke Supabase</button><button class="ghost" id="btn-json">Unduh JSON cadangan</button></div>
     <div id="terbit-status" class="small" style="margin-top:8px"></div>
@@ -80,7 +98,9 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 </section>
 
 <section id="tab-daftar" class="hidden">
-  <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Paket yang diterbitkan</h2><button class="soft" id="btn-muat">Muat ulang</button></div>
+  <div class="card"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Kisi-kisi (Langkah 1)</h2><button class="soft" id="btn-muat">Muat ulang</button></div>
+  <div class="tbl-wrap"><table class="t" id="daftar-kisi"></table></div></div>
+  <div class="card"><h2 style="margin:0 0 8px">Paket yang diterbitkan (Langkah 2)</h2>
   <div class="tbl-wrap"><table class="t" id="daftar"></table></div>
   <div id="daftar-tautan" class="hidden" style="margin-top:10px"></div></div>
 </section>
@@ -96,8 +116,8 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 <section id="tab-bantuan" class="hidden">
   <div class="card"><h2>Alur kerja</h2>
   <ol class="small" style="padding-left:20px">
-    <li>Guru mengisi <b>Template_Soal_TKA.docx</b> (satu tabel per soal per varian), simpan sebagai .docx.</li>
-    <li>Admin membuka halaman ini → masukkan PIN → <b>Unggah paket</b> → periksa galat/peringatan dan pratinjau → <b>Terbitkan</b>.</li>
+    <li>Guru mengisi <b>Template_Kisi_Kisi.docx</b> → unggah di <b>Langkah 1</b> → simpan → unduh <b>Template Soal</b> (sudah terisi nomor, bentuk, indikator, level untuk setiap varian).</li>
+    <li>Guru mengisi Template Soal (stimulus, pertanyaan, pilihan, kunci, pembahasan) → unggah di <b>Langkah 2</b> → periksa galat/peringatan & pratinjau → <b>Terbitkan</b>. Soal yang menyimpang dari kisi-kisi ditolak.</li>
     <li>Bagikan tautan/QR yang muncul ke siswa. Tautan berbentuk <code>index.html?ujian=KODE</code>.</li>
     <li>Rekap dan analisis: buka <code>index.html</code> → "Masuk sebagai guru" → pilih ujian. Saklar pembahasan ada di <b>Daftar paket</b> dan di dasbor guru.</li>
     <li>Revisi soal: perbaiki Word, unggah ulang dengan <b>kode ujian yang sama</b> → paket lama ditimpa (hasil siswa tetap tersimpan).</li>
@@ -121,6 +141,20 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', bmp: 'image/bmp', webp: 'image/webp', emf: null, wmf: null, svg: 'image/svg+xml' };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const kids = (el, ns, name) => Array.from(el.childNodes).filter(n => n.nodeType === 1 && n.localName === name && n.namespaceURI === ns);
+  // label kolom kiri → bentuk baku (huruf kecil, tanpa keterangan dalam kurung, sinonim disatukan)
+  function canonLabel(s) {
+    let l = String(s || '').toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[:：]\s*$/, '').replace(/\s+/g, ' ').trim();
+    if (/^kompetensi|sub-?\s?materi/.test(l)) return 'sub-materi';
+    if (l.startsWith('kode ujian')) return 'kode ujian';
+    if (l.startsWith('durasi')) return 'durasi';
+    if (l.startsWith('petunjuk')) return 'petunjuk';
+    if (l.startsWith('data/rumus') || l.startsWith('data umum') || l.startsWith('rumus')) return 'data/rumus umum';
+    if (l.startsWith('mata pelajaran') || l === 'mapel') return 'mata pelajaran';
+    if (l.startsWith('jumlah varian')) return 'jumlah varian';
+    if (l.startsWith('label')) return 'label kategori';
+    if (l.startsWith('jawaban alternatif') || l.startsWith('alternatif')) return 'jawaban alternatif';
+    return l;
+  }
   const attrW = (el, name) => el.getAttributeNS(NS_W, name) ?? el.getAttribute('w:' + name);
 
   async function parseDocx(buf, JSZip, DOMParserImpl) {
@@ -199,12 +233,16 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     for (const tbl of kids(body, NS_W, 'tbl')) {
       const rows = kids(tbl, NS_W, 'tr'); if (!rows.length) continue;
       const first = kids(rows[0], NS_W, 'tc'); const title = first.length ? (await cellHtml(first[0])).text.toUpperCase() : '';
-      const type = title.startsWith('INFORMASI UJIAN') ? 'INFO' : title.startsWith('TEKS BACAAN') ? 'TEKS' : title.startsWith('SOAL') ? 'SOAL' : null;
-      if (!type) continue;
+      const type = title.startsWith('INFORMASI UJIAN') ? 'INFO' : title.startsWith('TEKS BACAAN') ? 'TEKS' : title.startsWith('SOAL') ? 'SOAL' : 'GRID';
+      if (type === 'GRID') { // tabel bebas (mis. kisi-kisi): simpan semua baris
+        const grid = [];
+        for (const tr of rows) { const cells = []; for (const tc of kids(tr, NS_W, 'tc')) cells.push(await cellHtml(tc)); grid.push(cells); }
+        tables.push({ type, title, grid }); continue;
+      }
       const fields = {}; const order = [];
       for (const tr of rows.slice(1)) {
         const tcs = kids(tr, NS_W, 'tc'); if (tcs.length < 2) continue;
-        const label = (await cellHtml(tcs[0])).text.toLowerCase().replace(/[:：]\s*$/, '').replace(/\s+/g, ' ').trim();
+        const label = canonLabel((await cellHtml(tcs[0])).text);
         const val = await cellHtml(tcs[1]);
         fields[label] = val; order.push(label);
       }
@@ -215,6 +253,25 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 
   // ---------------- membangun paket ----------------
   const LET = 'ABCDEFGH', LOW = 'abcdefgh';
+  const BENTUK_LABEL = { PG: 'PG', PGK: 'PG Kompleks', KATEGORI: 'Benar - Salah', JODOH: 'Menjodohkan', ISIAN: 'Isian' };
+  function normBentuk(raw) {
+    const r = String(raw || '').toUpperCase().replace(/[^A-Z]/g, '');
+    if (!r) return null;
+    if (/^(PGK|MCMA|PGKMCMA|PGKOMPLEKS|PILIHANGANDAKOMPLEKS|PGKOMPLEK)$/.test(r)) return 'PGK';
+    if (/^(PG|PILIHANGANDA|PGAE|PILIHANGANDABIASA)$/.test(r)) return 'PG';
+    if (/KATEGORI|BENARSALAH|BENAR$|BS$/.test(r)) return 'KATEGORI';
+    if (/JODOH|MENDODOHKAN|MENJODOHKAN|MEMASANGKAN/.test(r)) return 'JODOH';
+    if (/ISIAN|JAWABANSINGKAT|URAIANSINGKAT/.test(r)) return 'ISIAN';
+    return null;
+  }
+  function normLevel(raw) { // menerima C1–C6 atau Knowing/Applying/Reasoning; hasil: label TKA
+    const r = String(raw || '').trim().toUpperCase().replace(/\s+/g, '');
+    if (!r) return '';
+    if (/^C[1-2]$|^KNOWING|^PEMAHAMAN|^MEMAHAMI|^L1$/.test(r)) return 'Knowing';
+    if (/^C3$|^APPLYING|^PENERAPAN|^MENERAPKAN|^APLIKASI|^L2$/.test(r)) return 'Applying';
+    if (/^C[4-6]$|^REASONING|^PENALARAN|^BERNALAR|^L3$|^HOTS/.test(r)) return 'Reasoning';
+    return null;
+  }
   const numStr = s => String(s ?? '').trim().replace(',', '.');
   const isNum = s => /^-?\d+(\.\d+)?$/.test(numStr(s));
   function buildPaket(parsed) {
@@ -227,7 +284,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     const H = (t, k) => F(t, k).html;
     const kode = T(info, 'kode ujian').toUpperCase().replace(/\s+/g, '-');
     if (!/^[A-Z0-9][A-Z0-9-]{2,30}$/.test(kode)) errors.push(`Kode ujian "${kode}" tidak valid: huruf besar/angka/strip, 3–31 karakter, tanpa spasi (contoh KIM-STO-01).`);
-    const durasi = parseInt(T(info, 'durasi (menit)') || T(info, 'durasi'), 10);
+    const durasi = parseInt(T(info, 'durasi'), 10);
     if (!(durasi > 0)) errors.push('Durasi (menit) harus angka > 0.');
     const nvar = parseInt(T(info, 'jumlah varian') || '1', 10);
     if (!(nvar >= 1 && nvar <= 4)) errors.push('Jumlah varian harus 1–4.');
@@ -249,7 +306,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       const v = (T(t, 'varian') || 'A').toUpperCase().slice(0, 1); if (!/[A-D]/.test(v)) { errors.push(`${tag} (no. ${no}): Varian harus A–D.`); return; }
       const id = `no. ${no} varian ${v}`;
       const bentukRaw = T(t, 'bentuk').toUpperCase().replace(/[^A-Z]/g, '');
-      const bentuk = { PG: 'PG', PILIHANGANDA: 'PG', PGK: 'PGK', MCMA: 'PGK', PGKMCMA: 'PGK', KATEGORI: 'KATEGORI', PGKKATEGORI: 'KATEGORI', BENARSALAH: 'KATEGORI', JODOH: 'JODOH', MENJODOHKAN: 'JODOH', ISIAN: 'ISIAN', ISIANSINGKAT: 'ISIAN', ISIANSINGKATANGKA: 'ISIAN' }[bentukRaw];
+      const bentuk = normBentuk(bentukRaw);
       if (!bentuk) { errors.push(`${id}: Bentuk "${T(t, 'bentuk')}" tidak dikenal (PG/PGK/KATEGORI/JODOH/ISIAN).`); return; }
       const q = { bentuk, stimulus: H(t, 'stimulus'), pertanyaan: H(t, 'pertanyaan'), pembahasan: H(t, 'pembahasan') };
       if (!T(t, 'pertanyaan')) errors.push(`${id}: Pertanyaan kosong.`);
@@ -296,8 +353,9 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
         if (tol && !isNum(kunciT)) warnings.push(`${id}: Toleransi diisi tetapi kunci bukan angka; toleransi diabaikan.`);
         q.kunci = { nilai: kunciT, tol, alt: T(t, 'jawaban alternatif').split('|').map(s => s.trim()).filter(Boolean) };
       }
-      const meta = { sub: T(t, 'sub-materi') || T(t, 'sub materi'), indikator: T(t, 'indikator'), level: T(t, 'level').toUpperCase().replace(/\s/g, ''), tka: T(t, 'level tka'), konteks: T(t, 'konteks'), teks: T(t, 'kode teks').toUpperCase() };
-      if (meta.level && !/^C[1-6]$/.test(meta.level)) errors.push(`${id}: Level harus C1–C6 (ditulis "${T(t, 'level')}").`);
+      const lv = normLevel(T(t, 'level'));
+      const meta = { sub: T(t, 'sub-materi'), indikator: T(t, 'indikator'), level: lv || '', tka: T(t, 'level tka'), konteks: T(t, 'konteks'), teks: T(t, 'kode teks').toUpperCase() };
+      if (lv === null) errors.push(`${id}: Level harus Knowing / Applying / Reasoning (ditulis "${T(t, 'level')}").`);
       if (meta.teks && !teks[meta.teks]) errors.push(`${id}: Kode teks ${meta.teks} tidak ada di tabel TEKS BACAAN.`);
       if (!soalMap[no]) soalMap[no] = { no, meta: null, varian: {} };
       if (soalMap[no].varian[v]) errors.push(`${id}: ganda (dua tabel dengan nomor & varian sama).`);
@@ -328,11 +386,216 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       if (q.kiri) { p.kiri = q.kiri; p.kanan = q.kanan; } return [v, p]; })) })) };
     const kunci = { teks, soal };
     const paket = { kode, judul: T(info, 'judul') || kode, mapel: T(info, 'mata pelajaran') || T(info, 'mapel'), kelas: T(info, 'kelas'), materi: T(info, 'materi'),
-      durasi: durasi || 60, n_soal: n, n_varian: nvar || 1, meta: { data_umum: H(info, 'data/rumus umum'), petunjuk: H(info, 'petunjuk tambahan'), blueprint }, publik, kunci };
+      durasi: durasi || 60, n_soal: n, n_varian: nvar || 1, meta: { data_umum: H(info, 'data/rumus umum'), petunjuk: H(info, 'petunjuk'), blueprint }, publik, kunci };
     const size = JSON.stringify(paket).length; if (size > 4_000_000) warnings.push(`Ukuran paket ${Math.round(size / 1e6 * 10) / 10} MB — terlalu besar untuk HP; perkecil gambar.`);
     return { ok: errors.length === 0, errors, warnings, paket };
   }
-  root.TKA = { parseDocx, buildPaket };
+  // ---------------- kisi-kisi (langkah 1) ----------------
+  function buildKisi(parsed) {
+    const errors = [], warnings = [...(parsed.warnings || [])];
+    const tables = parsed.tables;
+    const info = tables.find(t => t.type === 'INFO');
+    const F = (t, k) => (t && t.fields[k]) ? t.fields[k] : { html: '', text: '' };
+    const T = (t, k) => F(t, k).text, H = (t, k) => F(t, k).html;
+    if (!info) errors.push('Tabel INFORMASI UJIAN tidak ditemukan.');
+    const kode = T(info, 'kode ujian').toUpperCase().replace(/\s+/g, '-');
+    if (!/^[A-Z0-9][A-Z0-9-]{2,30}$/.test(kode)) errors.push(`Kode ujian "${kode}" tidak valid: huruf besar/angka/strip, 3–31 karakter, tanpa spasi (contoh KIM-STO-01).`);
+    const durasi = parseInt(T(info, 'durasi'), 10); if (!(durasi > 0)) errors.push('Durasi (menit) harus angka > 0.');
+    const nvar = parseInt(T(info, 'jumlah varian') || '1', 10); if (!(nvar >= 1 && nvar <= 4)) errors.push('Jumlah varian harus 1–4.');
+    // tabel kisi: GRID yang barisnya memuat kolom "No" dan "Indikator"
+    const hdrIdx = cells => { const h = cells.map(c => c.text.toLowerCase()); return { no: h.findIndex(x => /^no\.?$|^nomor/.test(x)), sub: h.findIndex(x => /kompetensi|materi/.test(x)), ind: h.findIndex(x => /indikator/.test(x)), lvl: h.findIndex(x => /level|kesulitan|kognitif/.test(x)), bnt: h.findIndex(x => /bentuk/.test(x)), tks: h.findIndex(x => /teks|bacaan|wacana/.test(x)) }; };
+    let grid = null, hi = null;
+    for (const t of tables.filter(t => t.type === 'GRID')) { const h = hdrIdx(t.grid[0] || []); if (h.no >= 0 && h.ind >= 0) { grid = t.grid; hi = h; break; } }
+    if (!grid) errors.push('Tabel kisi-kisi (kolom No, Kompetensi/Materi/Sub-materi, Indikator Soal, Level Kesulitan, Bentuk) tidak ditemukan.');
+    const blueprint = [];
+    if (grid) {
+      if (hi.sub < 0) warnings.push('Kolom Kompetensi/Materi/Sub-materi tidak ditemukan; analisis per sub-materi tidak tersedia.');
+      if (hi.lvl < 0) errors.push('Kolom Level Kesulitan tidak ditemukan.');
+      if (hi.bnt < 0) errors.push('Kolom Bentuk tidak ditemukan.');
+      grid.slice(1).forEach((cells, r) => {
+        const g = i => (i >= 0 && cells[i]) ? cells[i].text : '';
+        if (!cells.some((c, i) => i !== hi.no && c.text)) return; // baris kosong (hanya nomor) diabaikan
+        const no = parseInt(g(hi.no), 10);
+        if (!(no >= 1)) { errors.push(`Kisi-kisi baris ${r + 1}: No harus angka.`); return; }
+        const bentuk = normBentuk(g(hi.bnt)); const level = normLevel(g(hi.lvl));
+        if (!bentuk) errors.push(`Kisi-kisi no. ${no}: Bentuk "${g(hi.bnt)}" tidak dikenal (PG / PG Kompleks / Benar - Salah / Menjodohkan / Isian).`);
+        if (!level) errors.push(`Kisi-kisi no. ${no}: Level "${g(hi.lvl)}" harus Knowing / Applying / Reasoning.`);
+        if (!g(hi.ind)) warnings.push(`Kisi-kisi no. ${no}: Indikator kosong.`);
+        if (blueprint.some(b => b.no === no)) errors.push(`Kisi-kisi: nomor ${no} ganda.`);
+        const teksKode = g(hi.tks).toUpperCase().replace(/\s+/g, '');
+        if (teksKode && !/^[A-Z0-9-]{1,10}$/.test(teksKode)) errors.push(`Kisi-kisi no. ${no}: Kode teks "${g(hi.tks)}" harus huruf/angka singkat (mis. T1).`);
+        blueprint.push({ no, sub: g(hi.sub), indikator: g(hi.ind), level: level || '', bentuk: bentuk || '', bentukLabel: bentuk ? BENTUK_LABEL[bentuk] : g(hi.bnt), teks: teksKode });
+      });
+    }
+    blueprint.sort((a, b) => a.no - b.no);
+    const n = blueprint.length ? blueprint[blueprint.length - 1].no : 0;
+    for (let i = 1; i <= n; i++) if (!blueprint.some(b => b.no === i)) errors.push(`Kisi-kisi: nomor ${i} tidak ada (harus berurutan 1..${n}).`);
+    if (!n) errors.push('Kisi-kisi kosong.');
+    const teksList = [...new Set(blueprint.map(b => b.teks).filter(Boolean))];
+    const kisi = { kode, judul: T(info, 'judul') || kode, mapel: T(info, 'mata pelajaran'), kelas: T(info, 'kelas'), materi: T(info, 'materi'),
+      durasi: durasi || 60, n_soal: n, n_varian: nvar || 1, meta: { data_umum: H(info, 'data/rumus umum'), petunjuk: H(info, 'petunjuk'), blueprint, teks: teksList } };
+    return { ok: errors.length === 0, errors, warnings, kisi };
+  }
+  function komposisi(bp) {
+    const n = bp.length, lv = { Knowing: 0, Applying: 0, Reasoning: 0 }, bt = {}, nomor = {};
+    bp.forEach(b => { if (lv[b.level] !== undefined) lv[b.level]++; const L = BENTUK_LABEL[b.bentuk] || b.bentuk; bt[L] = (bt[L] || 0) + 1; (nomor[L] = nomor[L] || []).push(b.no); });
+    return { n, level: lv, bentuk: bt, nomor };
+  }
+  // Cek silang soal terisi (hasil buildPaket) terhadap kisi-kisi (dari server). Mengubah paket agar mengikuti kisi.
+  function checkKisi(build, kisi) {
+    const errors = [], warnings = [];
+    const p = build.paket;
+    if (p.kode !== kisi.kode) errors.push(`Kode ujian pada file soal (${p.kode}) berbeda dari kisi-kisi (${kisi.kode}).`);
+    const vars = LET.slice(0, kisi.n_varian).split('');
+    const bp = kisi.meta.blueprint;
+    bp.forEach((k, i) => {
+      const s = p.kunci.soal.find(x => x.no === k.no);
+      if (!s) { errors.push(`Nomor ${k.no} (${k.bentukLabel || k.bentuk}) tidak ada di file soal.`); return; }
+      vars.forEach(v => { if (!s.varian[v]) errors.push(`Nomor ${k.no} varian ${v} tidak ada (kisi-kisi menetapkan ${kisi.n_varian} varian).`); });
+      Object.entries(s.varian).forEach(([v, q]) => {
+        if (!vars.includes(v)) errors.push(`Nomor ${k.no} varian ${v} melebihi jumlah varian (${kisi.n_varian}).`);
+        if (q.bentuk !== k.bentuk) errors.push(`Nomor ${k.no} varian ${v}: bentuk ${BENTUK_LABEL[q.bentuk]} tidak sesuai kisi-kisi (${k.bentukLabel || k.bentuk}).`);
+        const kt = (k.teks || '').toUpperCase(), st = (q.teks || '').toUpperCase();
+        if (kt && st !== kt) errors.push(`Nomor ${k.no} varian ${v}: Kode teks harus ${kt} sesuai kisi-kisi (ditulis "${st || 'kosong'}").`);
+        if (!kt && st) errors.push(`Nomor ${k.no} varian ${v}: kisi-kisi tidak menetapkan teks bacaan, tetapi Kode teks diisi ${st}.`);
+        if (kt && !p.kunci.teks[kt]) errors.push(`Teks bacaan ${kt} (dipakai nomor ${k.no}) belum diisi pada tabel TEKS BACAAN.`);
+      });
+      s.teks = k.teks || '';
+      const bpi = p.meta.blueprint.find(x => x.no === k.no);
+      if (bpi) { if (bpi.level && k.level && bpi.level !== k.level) warnings.push(`Nomor ${k.no}: level di file soal (${bpi.level}) berbeda dari kisi-kisi (${k.level}); kisi-kisi yang dipakai.`);
+        if (bpi.sub && k.sub && bpi.sub !== k.sub) warnings.push(`Nomor ${k.no}: sub-materi di file soal berbeda dari kisi-kisi; kisi-kisi yang dipakai.`); }
+    });
+    p.kunci.soal.forEach(s => { if (!bp.some(k => k.no === s.no)) errors.push(`Nomor ${s.no} ada di file soal tetapi tidak ada di kisi-kisi.`); });
+    // kisi-kisi menjadi acuan
+    p.meta.blueprint = bp.map(k => ({ no: k.no, sub: k.sub, indikator: k.indikator, level: k.level, bentuk: k.bentukLabel || BENTUK_LABEL[k.bentuk] || k.bentuk, teks: k.teks || '' }));
+    p.publik.soal.forEach(s => { const k = bp.find(x => x.no === s.no); if (k) s.teks = k.teks || ''; });
+    p.judul = kisi.judul; p.mapel = kisi.mapel; p.kelas = kisi.kelas; p.materi = kisi.materi; p.durasi = kisi.durasi; p.n_soal = kisi.n_soal; p.n_varian = kisi.n_varian;
+    p.meta.data_umum = kisi.meta.data_umum || p.meta.data_umum; p.meta.petunjuk = kisi.meta.petunjuk || p.meta.petunjuk;
+    const uniq = a => [...new Set(a)];
+    return { ok: errors.length === 0, errors: uniq(errors), warnings: uniq(warnings) };
+  }
+  root.TKA = { parseDocx, buildPaket, buildKisi, checkKisi, komposisi, normBentuk, normLevel, BENTUK_LABEL };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+<script>/* tka_docgen.js — membangkitkan "Template Soal" (.docx) yang sudah terisi dari kisi-kisi, langsung di browser (JSZip).
+   API: TKA_DOC.buatTemplateSoal(kisi, JSZip, opsi?) → Promise<Uint8Array>   (opsi.isi[no][varian] = isian contoh, untuk pengujian/contoh) */
+(function (root) {
+  const X = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const W = [2200, 7438], TOTAL = 9638;
+  const FONT = 'Calibri';
+  const BORDER = ['top', 'left', 'bottom', 'right', 'insideH', 'insideV'].map(s => `<w:${s} w:val="single" w:sz="4" w:space="0" w:color="7F8C96"/>`).join('');
+  // --- teks: dukung sub/superscript unicode apa adanya; \n = baris baru dalam paragraf terpisah
+  function run(text, o = {}) {
+    const rpr = `<w:rPr><w:rFonts w:ascii="${FONT}" w:hAnsi="${FONT}" w:cs="${FONT}"/>${o.b ? '<w:b/>' : ''}${o.i ? '<w:i/>' : ''}${o.color ? `<w:color w:val="${o.color}"/>` : ''}<w:sz w:val="${o.sz || 20}"/></w:rPr>`;
+    return `<w:r>${rpr}<w:t xml:space="preserve">${X(text)}</w:t></w:r>`;
+  }
+  function para(text, o = {}) {
+    const ppr = `<w:pPr><w:spacing w:before="${o.before ?? 30}" w:after="${o.after ?? 30}"/>${o.center ? '<w:jc w:val="center"/>' : ''}${o.keep ? '<w:keepNext/>' : ''}</w:pPr>`;
+    const lines = String(text ?? '').split('\n');
+    return `<w:p>${ppr}${lines.map((l, i) => (i ? '<w:r><w:br/></w:r>' : '') + run(l, o)).join('')}</w:p>`;
+  }
+  function paras(text, o = {}) { return String(text ?? '').split(/\n{2,}/).map(t => para(t, o)).join('') || '<w:p/>'; }
+  const heading = (t, sz = 24) => para(t, { b: true, sz, color: '0B6E6E', before: 200, after: 80, keep: true });
+  function cell(inner, w, o = {}) {
+    return `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>${o.span ? `<w:gridSpan w:val="${o.span}"/>` : ''}${o.fill ? `<w:shd w:val="clear" w:color="auto" w:fill="${o.fill}"/>` : ''}<w:tcMar><w:top w:w="40" w:type="dxa"/><w:left w:w="90" w:type="dxa"/><w:bottom w:w="40" w:type="dxa"/><w:right w:w="90" w:type="dxa"/></w:tcMar></w:tcPr>${inner || '<w:p/>'}</w:tc>`;
+  }
+  function table(cols, rows, o = {}) {
+    const total = cols.reduce((a, b) => a + b, 0);
+    return `<w:tbl><w:tblPr><w:tblW w:w="${total}" w:type="dxa"/><w:tblBorders>${BORDER}</w:tblBorders><w:tblLayout w:type="fixed"/><w:tblLook w:val="04A0"/></w:tblPr><w:tblGrid>${cols.map(c => `<w:gridCol w:w="${c}"/>`).join('')}</w:tblGrid>${rows.join('')}</w:tbl>${o.gap === false ? '' : '<w:p><w:pPr><w:spacing w:before="0" w:after="160"/></w:pPr></w:p>'}`;
+  }
+  const tr = (cells, o = {}) => `<w:tr>${o.header ? '<w:trPr><w:tblHeader/></w:trPr>' : ''}${cells.join('')}</w:tr>`;
+  const titleRow = (text, fill) => tr([cell(para(text, { b: true, sz: 22, color: 'FFFFFF' }), TOTAL, { span: 2, fill })]);
+  const kv = (label, value, o = {}) => tr([cell(para(label, { b: true }), W[0], { fill: o.fill || 'F6F8FA' }), cell(typeof value === 'string' && value.startsWith('<w:') ? value : paras(value), W[1])]);
+  // tabel data di dalam sel (nested)
+  function nested(header, rows) {
+    const n = header.length, w = Math.floor(6800 / n);
+    const hr = tr(header.map(h => cell(para(h, { b: true, center: true }), w, { fill: 'E8EEF2' })));
+    const brs = rows.map(r => tr(r.map(c => cell(para(String(c), { center: true }), w))));
+    return table(Array(n).fill(w), [hr, ...brs], { gap: false }) + '<w:p/>';
+  }
+  const stripHtml = h => String(h ?? '').replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>\s*<p>/gi, '\n\n').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&amp;/g, '&').trim();
+  const BL = { PG: 'PG', PGK: 'PG Kompleks', KATEGORI: 'Benar - Salah', JODOH: 'Menjodohkan', ISIAN: 'Isian' };
+  const JUDUL = { PG: 'SOAL — PG (Pilihan ganda)', PGK: 'SOAL — PG KOMPLEKS (jawaban benar lebih dari satu)', KATEGORI: 'SOAL — BENAR – SALAH (Benar/Salah per baris)', JODOH: 'SOAL — MENJODOHKAN', ISIAN: 'SOAL — ISIAN SINGKAT / ANGKA' };
+
+  function soalTable(bp, v, isi = {}) {
+    const rows = [titleRow(JUDUL[bp.bentuk] || 'SOAL', '0B6E6E'),
+      kv('Nomor', String(bp.no)), kv('Varian', v), kv('Bentuk', BL[bp.bentuk] || bp.bentuk),
+      kv('Kompetensi/ Materi/Sub-materi', bp.sub || ''), kv('Indikator', bp.indikator || ''), kv('Level', bp.level || ''), kv('Kode teks', bp.teks || '')];
+    const stim = isi.stimulusTabel ? paras(isi.stimulus || '') + nested(isi.stimulusTabel.header, isi.stimulusTabel.rows) : (isi.stimulus || '');
+    rows.push(kv('Stimulus', stim), kv('Pertanyaan', isi.pertanyaan || ''));
+    const b = bp.bentuk;
+    if (b === 'PG' || b === 'PGK') { 'ABCDE'.split('').forEach((L, i) => rows.push(kv('Pilihan ' + L, (isi.opsi || [])[i] || ''))); rows.push(kv('Kunci', isi.kunci || '')); }
+    else if (b === 'KATEGORI') { rows.push(kv('Label kategori', isi.label || 'Benar | Salah')); for (let i = 1; i <= 5; i++) rows.push(kv('Pernyataan ' + i, (isi.baris || [])[i - 1] || '')); rows.push(kv('Kunci', isi.kunci || '')); }
+    else if (b === 'JODOH') { for (let i = 1; i <= 6; i++) rows.push(kv('Kiri ' + i, (isi.kiri || [])[i - 1] || '')); 'abcdef'.split('').forEach((L, i) => rows.push(kv('Kanan ' + L, (isi.kanan || [])[i] || ''))); rows.push(kv('Kunci', isi.kunci || '')); }
+    else if (b === 'ISIAN') { rows.push(kv('Kunci', isi.kunci || ''), kv('Toleransi', isi.tol || ''), kv('Jawaban alternatif', isi.alt || '')); }
+    rows.push(kv('Pembahasan', isi.pembahasan || ''));
+    return table(W, rows);
+  }
+
+  function bodyXml(kisi, opsi = {}) {
+    const bp = kisi.meta.blueprint, n = bp.length, nv = kisi.n_varian || 1, vars = 'ABCD'.slice(0, nv).split('');
+    const lv = { Knowing: 0, Applying: 0, Reasoning: 0 }, bt = {}, nomor = {};
+    bp.forEach(b => { if (lv[b.level] !== undefined) lv[b.level]++; const L = BL[b.bentuk] || b.bentuk; bt[L] = (bt[L] || 0) + 1; (nomor[L] = nomor[L] || []).push(b.no); });
+    const pc = x => `${x} (${Math.round(x / n * 100)}%)`;
+    let x = '';
+    x += para(`TEMPLATE SOAL — ${kisi.judul}`, { b: true, sz: 28, color: '0B6E6E', after: 40 });
+    x += para(`Kode ujian ${kisi.kode} · ${[kisi.mapel, kisi.kelas ? 'Kelas ' + kisi.kelas : '', kisi.materi].filter(Boolean).join(' · ')} · ${kisi.durasi} menit · ${n} soal · ${nv} varian. Dibangkitkan otomatis dari kisi-kisi; kolom Nomor, Varian, Bentuk, Kompetensi, Indikator, dan Level sudah terisi — jangan diubah.`, { i: true, color: '5B6B75' });
+    x += heading('BAGIAN 1 — KOMPOSISI PAKET');
+    const c4 = [2600, 2346, 2346, 2346];
+    x += table(c4, [tr([cell(para('Level Kesulitan', { b: true }), c4[0], { fill: 'E8EEF2' }), ...['Knowing', 'Applying', 'Reasoning'].map((k, i) => cell(para(k, { b: true, center: true }), c4[i + 1], { fill: 'E8EEF2' }))], { header: true }),
+      tr([cell(para(`Jumlah soal : ${n}`), c4[0]), ...['Knowing', 'Applying', 'Reasoning'].map((k, i) => cell(para(pc(lv[k]), { center: true }), c4[i + 1]))])]);
+    const bl = Object.keys(bt); const cb = [1600, ...bl.map(() => Math.floor((TOTAL - 1600) / Math.max(bl.length, 1)))];
+    x += table(cb, [tr([cell(para('Bentuk soal', { b: true }), cb[0], { fill: 'E8EEF2' }), ...bl.map((k, i) => cell(para(k, { b: true, center: true }), cb[i + 1], { fill: 'E8EEF2' }))], { header: true }),
+      tr([cell(para('Jumlah'), cb[0]), ...bl.map((k, i) => cell(para(String(bt[k]), { center: true }), cb[i + 1]))]),
+      tr([cell(para('Nomor'), cb[0]), ...bl.map((k, i) => cell(para(nomor[k].join(', '), { center: true }), cb[i + 1]))])]);
+    x += heading('BAGIAN 2 — PEDOMAN PENSKORAN');
+    x += para(`Setiap nomor bernilai 1 (benar) atau 0 (salah). PG: benar jika memilih kunci. PG Kompleks: benar jika seluruh pilihan yang dipilih tepat sama dengan kunci (tidak kurang, tidak lebih). Benar - Salah: benar jika semua baris dijawab benar. Menjodohkan: benar jika semua pasangan tepat. Isian: benar jika sama dengan kunci (untuk angka, dalam batas toleransi). Nilai akhir = (jumlah benar ÷ ${n}) × 100. Durasi ${kisi.durasi} menit.`);
+    x += heading('BAGIAN 3 — KETENTUAN UMUM');
+    [
+      'JANGAN mengubah, menghapus, atau menggabungkan sel berlabel di kolom kiri. Baris yang tidak dipakai cukup dikosongkan (mis. Pilihan E, Pernyataan 5, Kiri 6).',
+      'Isi hanya baris Stimulus, Pertanyaan, Pilihan/Pernyataan/Kiri–Kanan, Kunci, Toleransi, Jawaban alternatif, dan Pembahasan (serta Judul & Isi pada tabel TEKS BACAAN bila ada). Baris lain sudah terisi dari kisi-kisi dan akan diperiksa aplikasi.',
+      `Setiap nomor punya ${nv} tabel (varian ${vars.join(', ')}). Varian adalah soal paralel: indikator dan tingkat kesulitan sama, isi berbeda. Semua varian wajib diisi.`,
+      'Rumus kimia/matematika: gunakan subscript/superscript Word (H₂O, 10²³) — ikut terbaca. Tabel data boleh disisipkan di dalam sel Stimulus (Insert → Table). Gambar/grafik boleh disisipkan di dalam sel Stimulus (Insert → Picture); ukuran gambar ≤ 300 KB. Hindari Equation Editor.',
+      'Format Kunci — PG: satu huruf (B). PG Kompleks: huruf dipisah koma (A, C, E). Benar - Salah: per baris dipisah koma, teks labelnya (Benar, Benar, Salah) atau nomor kolom (1, 1, 2). Menjodohkan: pasangan (1-d, 2-c, 3-e, 4-a, 5-b). Isian: jawaban persis (200); untuk angka isi Toleransi (2 berarti 198–202); Jawaban alternatif dipisah tanda | (dua ratus | 2×10²).',
+      'Pembahasan wajib diisi — ditampilkan ke siswa hanya bila guru mengaktifkannya di aplikasi.',
+      'Simpan sebagai .docx dengan nama yang sama, lalu unggah di halaman admin → Langkah 2.',
+    ].forEach((t, i) => x += para(`${i + 1}. ${t}`));
+    x += heading('INFORMASI UJIAN (dari kisi-kisi — jangan diubah)');
+    x += table(W, [titleRow('INFORMASI UJIAN', '1F3864'), kv('Kode ujian', kisi.kode), kv('Judul', kisi.judul), kv('Mata pelajaran', kisi.mapel || ''), kv('Kelas', kisi.kelas || ''),
+      kv('Materi', kisi.materi || ''), kv('Durasi (menit)', String(kisi.durasi)), kv('Jumlah varian', String(nv)), kv('Data/rumus umum', stripHtml(kisi.meta.data_umum)), kv('Petunjuk umum', stripHtml(kisi.meta.petunjuk))]);
+    const teksList = kisi.meta.teks || [...new Set(bp.map(b => b.teks).filter(Boolean))];
+    if (teksList.length) {
+      x += heading('BAGIAN 4 — TEKS BACAAN (isi Judul dan Isi; Kode teks jangan diubah)');
+      x += para(`Teks bacaan dipakai bersama oleh beberapa soal (kolom Kode teks pada tabel soal). Tulis teks lengkap pada baris Isi; boleh beberapa paragraf. Soal-soal dengan kode teks yang sama akan ditampilkan berkelompok kepada siswa.`, { i: true, color: '5B6B75' });
+      teksList.forEach(k => { const t = ((opsi.isi || {}).teks || {})[k] || {}; x += table(W, [titleRow('TEKS BACAAN', '7A4B00'), kv('Kode teks', k), kv('Judul', t.judul || ''), kv('Isi', t.isi || '')]); });
+      x += heading('BAGIAN 5 — SOAL (satu tabel per soal per varian)');
+    } else x += heading('BAGIAN 4 — SOAL (satu tabel per soal per varian)');
+    bp.forEach(b => vars.forEach(v => { x += soalTable(b, v, ((opsi.isi || {})[b.no] || {})[v] || {}); }));
+    return x;
+  }
+
+  async function buatTemplateSoal(kisi, JSZip, opsi = {}) {
+    const body = bodyXml(kisi, opsi);
+    const doc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+    const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="${FONT}" w:hAnsi="${FONT}" w:cs="${FONT}" w:eastAsia="${FONT}"/><w:sz w:val="20"/><w:lang w:val="id-ID"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="259" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style><w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:tblPr><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="108" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="108" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style></w:styles>`;
+    const ct = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/><Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/></Types>`;
+    const rels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/></Relationships>`;
+    const docRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+    const now = new Date().toISOString();
+    const core = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>${X('Template Soal ' + kisi.kode)}</dc:title><dc:creator>Tryout TKA Merdeka</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">${now}</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">${now}</dcterms:modified></cp:coreProperties>`;
+    const app = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>Tryout TKA Merdeka</Application></Properties>`;
+    const zip = new JSZip();
+    zip.file('[Content_Types].xml', ct); zip.file('_rels/.rels', rels); zip.file('word/document.xml', doc); zip.file('word/styles.xml', styles); zip.file('word/_rels/document.xml.rels', docRels); zip.file('docProps/core.xml', core); zip.file('docProps/app.xml', app);
+    return zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' });
+  }
+  root.TKA_DOC = { buatTemplateSoal };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>
@@ -362,7 +625,7 @@ let PAKET=null;
 function tampilkan(r){
   PAKET=r.ok?r.paket:null;$("hasil-card").classList.remove("hidden");$("terbit-card").classList.toggle("hidden",!r.ok);
   const p=r.paket;
-  $("ringkas").innerHTML=`<div class="row"><span class="pill ${r.ok?"good":"bad"}">${r.ok?"Siap diterbitkan":"Ada galat — perbaiki Word lalu unggah ulang"}</span></div>
+  $("ringkas").innerHTML=`<div class="row"><span class="pill ${r.ok?"good":"bad"}">${r.ok?"Sesuai kisi-kisi — siap diterbitkan":"Ada galat — perbaiki Word lalu unggah ulang"}</span></div>
    <table class="t" style="margin-top:8px"><tr><th>Kode</th><td><b>${esc(p.kode)}</b></td><th>Judul</th><td>${esc(p.judul)}</td></tr><tr><th>Mapel / Kelas</th><td>${esc(p.mapel)} / ${esc(p.kelas)}</td><th>Materi</th><td>${esc(p.materi)}</td></tr><tr><th>Durasi</th><td>${p.durasi} menit</td><th>Soal / varian</th><td>${p.n_soal} nomor · ${p.n_varian} varian · teks bacaan: ${Object.keys(p.publik.teks).length}</td></tr></table>`;
   $("errs").innerHTML=(r.errors.length?`<h3 style="color:var(--bad)">Galat (${r.errors.length})</h3><ul class="err">${r.errors.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"")+(r.warnings.length?`<h3 style="color:var(--warn)">Peringatan (${r.warnings.length})</h3><ul class="warn">${r.warnings.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"");
   const lv={},bt={};p.meta.blueprint.forEach(b=>{lv[b.level||"?"]=(lv[b.level||"?"]||0)+1;bt[b.bentuk]=(bt[b.bentuk]||0)+1});
@@ -376,11 +639,41 @@ async function bacaFile(f){
   try{let r;
     if(/\.json$/i.test(f.name)){const p=JSON.parse(await f.text());if(!p.kode||!p.publik||!p.kunci)throw new Error("JSON bukan cadangan paket");r={ok:true,errors:[],warnings:["Dimuat dari JSON cadangan."],paket:p}}
     else{const parsed=await TKA.parseDocx(await f.arrayBuffer(),JSZip,DOMParser);r=TKA.buildPaket(parsed)}
+    if(r.ok||r.paket.kode){ // cocokkan dengan kisi-kisi di server
+      if(!PIN()){r.ok=false;r.errors.unshift("Isi PIN dahulu (diperlukan untuk mengambil kisi-kisi dari server).")}
+      else{try{const kisi=await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:r.paket.kode});const c=TKA.checkKisi(r,kisi);r.errors.push(...c.errors);r.warnings.push(...c.warnings);r.ok=r.errors.length===0;r.kisiOk=true}
+        catch(e){r.ok=false;r.errors.unshift(`Kisi-kisi untuk kode ${r.paket.kode} tidak ditemukan di server (${e.message}). Unggah kisi-kisi dahulu di Langkah 1.`)}}
+    }
     $("parse-status").innerHTML=`<span class="pill ${r.ok?"good":"bad"}">${r.ok?"Terbaca":"Terbaca dengan galat"}</span> ${esc(f.name)}`;tampilkan(r);
   }catch(e){$("parse-status").innerHTML=`<span class="pill bad">Gagal membaca</span> ${esc(e.message)}`;console.error(e)}
 }
 function tautanHtml(kode,elQr){const url=`${studentBase()}?ujian=${encodeURIComponent(kode)}`;return `<div class="row" style="align-items:flex-start"><div id="${elQr}"></div><div class="grow"><b>Tautan siswa</b><br><code>${esc(url)}</code><div class="row" style="margin-top:6px"><button class="soft" onclick="navigator.clipboard.writeText('${url}').then(()=>toast('Tautan disalin'))">Salin tautan</button><a class="ghost" href="${url}" target="_blank" style="padding:8px 12px;border:1px solid var(--acc);border-radius:8px;color:var(--acc);text-decoration:none;font-size:14px">Buka</a></div><p class="muted">Siswa juga bisa membuka <code>${esc(studentBase())}</code> lalu mengetik kode <b>${esc(kode)}</b>.</p></div></div>`}
 function gambarQr(id,kode){const el=$(id);el.innerHTML="";try{new QRCode(el,{text:`${studentBase()}?ujian=${encodeURIComponent(kode)}`,width:140,height:140})}catch(e){el.textContent=""}}
+
+
+/* ---------- kisi-kisi (langkah 1) ---------- */
+let KISI=null;
+function unduhBiner(nama,bytes,mime){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([bytes],{type:mime}));a.download=nama;a.click()}
+async function bacaKisi(f){$("k-status").innerHTML=`<span class="pill">Membaca ${esc(f.name)}…</span>`;
+  try{const parsed=await TKA.parseDocx(await f.arrayBuffer(),JSZip,DOMParser);const r=TKA.buildKisi(parsed);KISI=r.ok?r.kisi:null;
+    $("k-status").innerHTML=`<span class="pill ${r.ok?"good":"bad"}">${r.ok?"Kisi-kisi terbaca":"Terbaca dengan galat"}</span> ${esc(f.name)}`;$("k-hasil").classList.remove("hidden");
+    const k=r.kisi;$("k-ringkas").innerHTML=`<table class="t"><tr><th>Kode</th><td><b>${esc(k.kode)}</b></td><th>Judul</th><td>${esc(k.judul)}</td></tr><tr><th>Mapel / Kelas</th><td>${esc(k.mapel)} / ${esc(k.kelas)}</td><th>Materi</th><td>${esc(k.materi)}</td></tr><tr><th>Durasi</th><td>${k.durasi} menit</td><th>Soal / varian</th><td>${k.n_soal} nomor · ${k.n_varian} varian</td></tr></table>`;
+    $("k-errs").innerHTML=(r.errors.length?`<h3 style="color:var(--bad)">Galat (${r.errors.length})</h3><ul class="err">${r.errors.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"")+(r.warnings.length?`<h3 style="color:var(--warn)">Peringatan (${r.warnings.length})</h3><ul class="warn">${r.warnings.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"");
+    $("k-bp").innerHTML=`<tr><th>No</th><th>Kompetensi/Materi/Sub-materi</th><th>Indikator</th><th>Level</th><th>Bentuk</th><th>Teks</th></tr>`+k.meta.blueprint.map(b=>`<tr><td>${b.no}</td><td>${esc(b.sub)}</td><td>${esc(b.indikator)}</td><td>${esc(b.level)}</td><td>${esc(b.bentukLabel||b.bentuk)}</td><td>${esc(b.teks||"")}</td></tr>`).join("");
+    const km=TKA.komposisi(k.meta.blueprint);$("k-komposisi").innerHTML=`<b>Komposisi:</b> ${Object.entries(km.level).map(([a,b])=>`${a} ${b} (${Math.round(b/km.n*100)}%)`).join(" · ")} — <b>bentuk:</b> ${Object.entries(km.bentuk).map(([a,b])=>`${a} ${b}`).join(" · ")}`;
+    $("btn-k-simpan").disabled=!r.ok;$("btn-k-unduh").disabled=!r.ok;$("k-simpan-status").textContent="";
+  }catch(e){$("k-status").innerHTML=`<span class="pill bad">Gagal membaca</span> ${esc(e.message)}`;console.error(e)}}
+async function unduhTemplate(k){const bytes=await TKA_DOC.buatTemplateSoal(k,JSZip);unduhBiner(`Template_Soal_${k.kode}.docx`,bytes,"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
+async function simpanKisi(){if(!KISI)return;if(!PIN()){toast("Isi PIN dahulu");return}const k=KISI;$("k-simpan-status").innerHTML='<span class="pill">Menyimpan…</span>';
+  try{await rpc("tka_simpan_kisi",{p_pin:PIN(),p_kode:k.kode,p_judul:k.judul,p_mapel:k.mapel,p_kelas:k.kelas,p_materi:k.materi,p_durasi:k.durasi,p_n_soal:k.n_soal,p_n_varian:k.n_varian,p_meta:k.meta});
+    await unduhTemplate(k);$("k-simpan-status").innerHTML=`<span class="pill good">Kisi-kisi ${esc(k.kode)} tersimpan</span> Template Soal diunduh — serahkan ke guru untuk diisi, lalu unggah di Langkah 2.`;
+  }catch(e){$("k-simpan-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
+async function muatDaftarKisi(){const t=$("daftar-kisi");t.innerHTML="<tr><td class='muted'>Memuat…</td></tr>";
+  try{const rows=await rpc("tka_list_kisi",{p_pin:PIN()});if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada kisi-kisi.</td></tr>";return}
+    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Status</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b></td><td>${esc(r.judul)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td><span class="pill ${r.terbit?"good":"warn"}">${r.terbit?"Soal sudah terbit":"Menunggu soal"}</span></td><td class="row"><button class="soft" data-tpl="${esc(r.kode)}">Unduh Template Soal</button><button class="danger" data-hk="${esc(r.kode)}">Hapus</button></td></tr>`).join("");
+    t.querySelectorAll("[data-tpl]").forEach(b=>b.onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:b.dataset.tpl});await unduhTemplate(k)}catch(e){toast("Gagal: "+e.message)}});
+    t.querySelectorAll("[data-hk]").forEach(b=>b.onclick=async()=>{if(!confirm(`Hapus kisi-kisi ${b.dataset.hk}? (Paket soal yang sudah terbit tidak ikut terhapus.)`))return;try{await rpc("tka_hapus_kisi",{p_pin:PIN(),p_kode:b.dataset.hk});toast("Dihapus");muatDaftarKisi()}catch(e){toast("Gagal: "+e.message)}});
+  }catch(e){t.innerHTML=`<tr><td style="color:var(--bad)">${esc(e.message)}</td></tr>`}}
 
 /* ---------- daftar ---------- */
 async function muatDaftar(){const t=$("daftar");t.innerHTML="<tr><td class='muted'>Memuat…</td></tr>";
@@ -402,9 +695,12 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("cfg").innerHTML=SB?`<span class="pill good">Supabase: ${esc(SB.url)}</span>`:`<span class="pill bad">Supabase belum diatur</span> — isi baris ke-2 admin.html (url &amp; kunci anon).`;
   try{const s=localStorage.getItem("tka_admin_pin");if(s){$("pin").value=s;$("pin-ingat").checked=true}}catch(e){}
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
-    try{await rpc("tka_list_paket",{p_pin:PIN()});$("pin-status").innerHTML='<span class="pill good">PIN benar · server terhubung</span>';muatDaftar()}catch(e){$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
-  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["unggah","daftar","impor","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="daftar")muatDaftar()});
+    try{await rpc("tka_list_paket",{p_pin:PIN()});$("pin-status").innerHTML='<span class="pill good">PIN benar · server terhubung</span>';muatDaftarKisi();muatDaftar()}catch(e){$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
+  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","impor","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}});
   $("file").onchange=e=>{if(e.target.files[0])bacaFile(e.target.files[0])};
+  $("file-k").onchange=e=>{if(e.target.files[0])bacaKisi(e.target.files[0])};
+  const dk=$("drop-k");dk.ondragover=e=>{e.preventDefault();dk.style.borderColor="var(--acc)"};dk.ondragleave=()=>dk.style.borderColor="";dk.ondrop=e=>{e.preventDefault();dk.style.borderColor="";if(e.dataTransfer.files[0])bacaKisi(e.dataTransfer.files[0])};
+  $("btn-k-simpan").onclick=simpanKisi;$("btn-k-unduh").onclick=()=>{if(KISI)unduhTemplate(KISI)};
   const dz=$("drop");dz.ondragover=e=>{e.preventDefault();dz.style.borderColor="var(--acc)"};dz.ondragleave=()=>dz.style.borderColor="";dz.ondrop=e=>{e.preventDefault();dz.style.borderColor="";if(e.dataTransfer.files[0])bacaFile(e.dataTransfer.files[0])};
   $("btn-json").onclick=()=>{if(PAKET)unduh(`paket_${PAKET.kode}.json`,JSON.stringify(PAKET,null,1))};
   $("btn-terbit").onclick=async()=>{if(!PAKET)return;if(!PIN()){toast("Isi PIN dahulu");return}
