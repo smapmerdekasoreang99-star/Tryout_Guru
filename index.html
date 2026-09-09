@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<script>window.TKA_SUPABASE = { url: "https://jzxcnfetpjkltjjbglxz.supabase.co", key: "sb_publishable_9pl5IOJl-Vx0KEnHtCs3nA_ioZOkacq" };</script>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <!-- Baris ke-2: url proyek Supabase (Tryout_Guru) dan kunci "anon public" — sama dengan admin.html. Bisa juga lewat tautan ?sb=URL&key=ANON -->
 <html lang="id">
 <head>
@@ -180,9 +180,13 @@ function buildPayload(){const jaw={};S.pk.publik.soal.forEach((s,i)=>{jaw[String
   return {kode:S.kode,id:String(S.seed),nama:S.nama,kelas:S.kelas,mulai:new Date(S.startAt).toISOString(),selesai:new Date().toISOString(),durasi:Math.round((Date.now()-S.startAt)/1000),jawaban:jaw}}
 async function submit(auto){if(S.submitted)return;const kurang=S.order.filter(i=>!complete(i)).length;
   if(!auto&&!confirm(kurang?`Masih ada ${kurang} soal yang belum lengkap. Tetap kumpulkan?`:"Kumpulkan jawaban sekarang?"))return;
-  clearInterval(tick);S.submitted=true;S.payload=buildPayload();save();show("v-result");$("r-kode").value=b64e(S.payload);await kirim()}
-async function kirim(){const box=$("r-save");box.innerHTML='<span class="pill warn">Mengirim jawaban ke server…</span>';$("btn-resend").disabled=true;let res=null,err="";
-  for(let t=0;t<3&&!res;t++){try{res=await rpc("tka_submit2",{p:S.payload})}catch(e){err=e.message;await new Promise(r=>setTimeout(r,1500))}}
+  clearInterval(tick);S.submitted=true;S.payload=buildPayload();save();show("v-result");$("r-kode").value=b64e(S.payload);
+  if(auto){const tunda=Math.floor(Math.random()*30000);$("r-save").innerHTML='<span class="pill warn">Waktu habis — jawaban dikunci, mengirim dalam beberapa detik…</span>';await new Promise(r=>setTimeout(r,tunda))}
+  await kirim()}
+let KIRIM_ON=false;
+async function kirim(){if(KIRIM_ON)return;KIRIM_ON=true;try{await kirim_()}finally{KIRIM_ON=false}}
+async function kirim_(){const box=$("r-save");box.innerHTML='<span class="pill warn">Mengirim jawaban ke server…</span>';$("btn-resend").disabled=true;let res=null,err="";
+  for(let t=0;t<5&&!res;t++){try{res=await rpc("tka_submit2",{p:S.payload})}catch(e){err=e.message;await new Promise(r=>setTimeout(r,1000*Math.pow(2,t)+Math.random()*2000))}} // 1,2,4,8,16 dtk + acak
   $("btn-resend").disabled=false;
   if(res){S.result=res;S.saved=true;save();box.innerHTML='<span class="pill good">Hasil tersimpan ke server sekolah</span>';$("r-fallback").classList.add("hidden");renderResult()}
   else{box.innerHTML=`<span class="pill bad">Gagal mengirim (${esc(err)})</span> — jawaban tersimpan di HP ini. Tekan "Kirim ulang" saat ada sinyal, atau kirim kode hasil ke guru.`;$("r-nilai").textContent="–";$("r-ket").textContent="Nilai muncul setelah jawaban terkirim.";$("r-analisis").classList.add("hidden");$("r-peta").classList.add("hidden");$("r-fallback").classList.remove("hidden")}}
@@ -267,7 +271,8 @@ window.addEventListener("DOMContentLoaded",()=>{
     if(S&&!S.submitted&&S.deadline>Date.now()&&!confirm("Ada pengerjaan yang belum selesai. Mulai baru akan menghapusnya. Lanjutkan?"))return;
     newSession(n,kl);$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer()};
   $("btn-prev").onclick=()=>{if(S.cur>0){S.cur--;save();renderQ()}};$("btn-next").onclick=()=>{if(S.cur<S.order.length-1){S.cur++;save();renderQ()}else $("grid").scrollIntoView({behavior:"smooth"})};
-  $("btn-submit").onclick=()=>submit(false);$("btn-resend").onclick=kirim;$("btn-pemb").onclick=ambilPembahasan;
+  $("btn-submit").onclick=()=>submit(false);$("btn-resend").onclick=kirim;
+  window.addEventListener("online",()=>{if(S&&S.submitted&&!S.saved&&S.payload)kirim()});$("btn-pemb").onclick=ambilPembahasan;
   $("btn-copy").onclick=async()=>{try{await navigator.clipboard.writeText($("r-kode").value);toast("Kode disalin – kirim ke guru")}catch(e){$("r-kode").select();toast("Tekan tahan lalu salin")}};
   $("btn-home").onclick=()=>{location.href=location.pathname};
   $("lnk-guru").onclick=e=>{e.preventDefault();$("pin").value=lsGet(CFG.lsPin,"");show("v-guru")};$("btn-guru-back").onclick=()=>show("v-start");$("btn-pin").onclick=loginGuru;
