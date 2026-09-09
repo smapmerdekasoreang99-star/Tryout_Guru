@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<script>window.TKA_SUPABASE = { url: "https://jzxcnfetpjkltjjbglxz.supabase.co", key: "sb_publishable_9pl5IOJl-Vx0KEnHtCs3nA_ioZOkacq" };</script>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <!-- Baris ke-2: url proyek Supabase (Tryout_Guru) dan kunci "anon public" — sama dengan admin.html. Bisa juga lewat tautan ?sb=URL&key=ANON -->
 <html lang="id">
 <head>
@@ -231,7 +231,7 @@ async function loginGuru(){PIN=$("pin").value.trim();$("g-login-msg").textConten
 async function loadGuru(){const kode=$("g-ujian").value;if(!kode)return;$("g-srv").textContent="Memuat…";
   try{GPK=await rpc("tka_get_paket_admin",{p_pin:PIN,p_kode:kode});const rows=await rpc("tka_list",{p_pin:PIN,p_ujian:kode});const s=await rpc("tka_settings",{p_ujian:kode});
     ROWS=rows.map(r=>({...r,nilai:+r.nilai,benar:+r.benar,durasi:+r.durasi||0}));$("g-aktif").checked=!!GPK.aktif;$("g-pemb").checked=!!(s&&s.pembahasan);
-    $("g-srv").textContent=`${GPK.judul} · ${GPK.n_soal} soal · ${ROWS.length} hasil · diperbarui ${new Date().toLocaleTimeString("id-ID")}`;
+    $("g-srv").innerHTML=`${esc(GPK.judul)} · ${GPK.n_soal} soal · ${ROWS.length} hasil · diperbarui ${new Date().toLocaleTimeString("id-ID")}${(GPK.meta||{}).darurat?' · <span class="pill bad">Diterbitkan lewat jalur darurat (tanpa kisi-kisi resmi)</span>':""}`;
     const kelas=[...new Set(ROWS.map(r=>r.kelas))].sort();const sel=$("g-kelas"),cur=sel.value;sel.innerHTML=`<option value="">Semua</option>`+kelas.map(k=>`<option ${k===cur?"selected":""}>${esc(k)}</option>`).join("");renderRekap();renderButir();renderSub();
   }catch(e){$("g-srv").textContent="Gagal memuat: "+e.message}}
 const filtered=()=>{const k=$("g-kelas").value;return ROWS.filter(r=>!k||r.kelas===k)};
