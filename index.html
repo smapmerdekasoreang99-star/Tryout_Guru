@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<script>window.TKA_SUPABASE = { url: "https://jzxcnfetpjkltjjbglxz.supabase.co", key: "sb_publishable_9pl5IOJl-Vx0KEnHtCs3nA_ioZOkacq" };</script>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <!-- Baris ke-2: url proyek Supabase (Tryout_Guru) dan kunci "anon public" — sama dengan admin.html. Bisa juga lewat tautan ?sb=URL&key=ANON -->
 <html lang="id">
 <head>
@@ -186,11 +186,12 @@ async function kirim(){const box=$("r-save");box.innerHTML='<span class="pill wa
   $("btn-resend").disabled=false;
   if(res){S.result=res;S.saved=true;save();box.innerHTML='<span class="pill good">Hasil tersimpan ke server sekolah</span>';$("r-fallback").classList.add("hidden");renderResult()}
   else{box.innerHTML=`<span class="pill bad">Gagal mengirim (${esc(err)})</span> — jawaban tersimpan di HP ini. Tekan "Kirim ulang" saat ada sinyal, atau kirim kode hasil ke guru.`;$("r-nilai").textContent="–";$("r-ket").textContent="Nilai muncul setelah jawaban terkirim.";$("r-analisis").classList.add("hidden");$("r-peta").classList.add("hidden");$("r-fallback").classList.remove("hidden")}}
+const LORD={Knowing:1,Applying:2,Reasoning:3};const lsort=(a,b)=>(LORD[a]||9)-(LORD[b]||9)||String(a).localeCompare(String(b));
 function bar(p){return `<div class="bar"><i class="${p<50?"low":p<75?"mid":""}" style="width:${p}%"></i></div>`}
-const LV={C1:"C1 · Mengingat",C2:"C2 · Memahami (Knowing)",C3:"C3 · Menerapkan (Applying)",C4:"C4 · Menganalisis (Reasoning)",C5:"C5 · Mengevaluasi (Reasoning)",C6:"C6 · Mencipta/Merancang (Reasoning)"};
+const LV={Knowing:"Knowing · pemahaman konsep",Applying:"Applying · penerapan konsep",Reasoning:"Reasoning · penalaran",C1:"C1 · Mengingat",C2:"C2 · Memahami (Knowing)",C3:"C3 · Menerapkan (Applying)",C4:"C4 · Menganalisis (Reasoning)",C5:"C5 · Mengevaluasi (Reasoning)",C6:"C6 · Mencipta/Merancang (Reasoning)"};
 function renderResult(){const r=S.result;show("v-result");$("r-analisis").classList.remove("hidden");$("r-peta").classList.remove("hidden");
   $("r-nilai").textContent=r.nilai;$("r-ket").textContent=`${r.benar} dari ${r.n} soal benar · ${fmtT(S.payload.durasi)} · ${S.nama} (${S.kelas})`;
-  const det=r.detail;const levels=[...new Set(det.map(x=>x.level).filter(Boolean))].sort();
+  const det=r.detail;const levels=[...new Set(det.map(x=>x.level).filter(Boolean))].sort(lsort);
   $("r-level").innerHTML=levels.length?levels.map(L=>{const s=det.filter(x=>x.level===L),b=s.filter(x=>x.benar).length;return `<div class="kv"><span>${LV[L]||L}</span><b>${b}/${s.length} (${pct(b,s.length)}%)</b></div>${bar(pct(b,s.length))}`}).join(""):"<p class='muted'>Level tidak diisi pada kisi-kisi.</p>";
   const subs=[...new Set(det.map(x=>x.sub).filter(Boolean))];
   $("r-sub").innerHTML=subs.length?subs.map(sb=>{const s=det.filter(x=>x.sub===sb),b=s.filter(x=>x.benar).length;return `<div class="kv"><span>${esc(sb)}</span><b>${b}/${s.length}</b></div>${bar(pct(b,s.length))}`}).join(""):"<p class='muted'>Sub-materi tidak diisi pada kisi-kisi.</p>";
@@ -217,7 +218,7 @@ function renderDetail(i,pos){const q=Q(i),a=S.answers[i],ok=S.result.detail[i].b
 /* ================= GURU ================= */
 let ROWS=[],PIN="",PAKETS=[],GPK=null;
 const rowItems=r=>String(r.items||"").split("").map((c,i)=>({no:i+1,v:(r.varian||"")[i]||"?",benar:+c,level:(GPK.meta.blueprint[i]||{}).level||"",sub:(GPK.meta.blueprint[i]||{}).sub||""}));
-function levelSummary(it){const o={};[...new Set(it.map(x=>x.level).filter(Boolean))].sort().forEach(L=>{const s=it.filter(x=>x.level===L);o[L]=pct(s.reduce((a,x)=>a+x.benar,0),s.length)});return o}
+function levelSummary(it){const o={};[...new Set(it.map(x=>x.level).filter(Boolean))].sort(lsort).forEach(L=>{const s=it.filter(x=>x.level===L);o[L]=pct(s.reduce((a,x)=>a+x.benar,0),s.length)});return o}
 async function loginGuru(){PIN=$("pin").value.trim();$("g-login-msg").textContent="Memeriksa…";
   try{PAKETS=await rpc("tka_list_paket",{p_pin:PIN});lsSet(CFG.lsPin,PIN);$("g-login").classList.add("hidden");$("g-main").classList.remove("hidden");
     const sel=$("g-ujian");sel.innerHTML=PAKETS.map(p=>`<option value="${esc(p.kode)}">${esc(p.kode)} — ${esc(p.judul)} (${p.n_hasil} hasil)</option>`).join("")||"<option value=''>Belum ada paket</option>";
@@ -234,7 +235,7 @@ function renderRekap(){const rows=filtered().sort((a,b)=>(a.kelas||"").localeCom
   if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada data.</td></tr>";$("g-stat").textContent="";return}
   const avg=Math.round(rows.reduce((s,r)=>s+r.nilai,0)/rows.length),tuntas=rows.filter(r=>r.nilai>=75).length;
   $("g-stat").textContent=`${rows.length} siswa · rata-rata ${avg} · ≥75: ${tuntas} (${pct(tuntas,rows.length)}%) · terendah ${Math.min(...rows.map(r=>r.nilai))} · tertinggi ${Math.max(...rows.map(r=>r.nilai))}`;
-  const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort();
+  const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort(lsort);
   t.innerHTML=`<tr><th>#</th><th>Nama</th><th>Kelas</th><th>Nilai</th><th>Benar</th>${levels.map(L=>`<th>${L}</th>`).join("")}<th>Terlemah</th><th>Waktu</th><th></th></tr>`+rows.map((r,k)=>{const it=rowItems(r),ls=levelSummary(it);const subs=[...new Set(it.map(x=>x.sub).filter(Boolean))].map(sb=>{const s=it.filter(x=>x.sub===sb);return [sb,pct(s.reduce((a,x)=>a+x.benar,0),s.length)]}).sort((a,b)=>a[1]-b[1]);
     return `<tr><td>${k+1}</td><td>${esc(r.nama)}</td><td>${esc(r.kelas)}</td><td class="n"><b>${r.nilai}</b></td><td class="n">${r.benar}</td>${levels.map(L=>`<td class="n">${ls[L]??"–"}%</td>`).join("")}<td>${esc(subs[0]?subs[0][0]:"")}</td><td>${fmtT(r.durasi)}</td><td><button class="danger" style="padding:3px 8px;font-size:12px" data-del="${esc(r.id)}">hapus</button></td></tr>`}).join("");
   t.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Hapus hasil ini?"))return;try{await rpc("tka_delete",{p_pin:PIN,p_id:b.dataset.del});toast("Dihapus");loadGuru()}catch(e){toast("Gagal: "+e.message)}})}
@@ -245,9 +246,9 @@ function renderButir(){const rows=filtered(),t=$("g-butir-tabel");if(!rows.lengt
     h+=`<tr><td>${bp.no}</td><td style="white-space:normal">${esc(bp.sub)}</td><td>${esc(bp.level)}</td><td>${esc(bp.bentuk)}</td><td class="n">${n}</td><td class="n"><b>${p}%</b></td><td><span class="pill ${p<30?"bad":p<=70?"warn":"good"}">${p<30?"sukar":p<=70?"sedang":"mudah"}</span></td>${allV.map(v=>`<td>${f(its.filter(x=>x.v===v))}</td>`).join("")}</tr>`});t.innerHTML=h}
 function renderSub(){const rows=filtered(),box=$("g-sub-isi");if(!rows.length){box.innerHTML="<p class='muted'>Belum ada data.</p>";return}const all=rows.flatMap(rowItems);
   const subs=[...new Set(GPK.meta.blueprint.map(b=>b.sub).filter(Boolean))].map(sb=>{const s=all.filter(x=>x.sub===sb);return {sb,p:pct(s.reduce((a,x)=>a+x.benar,0),s.length)}}).sort((a,b)=>a.p-b.p);
-  const lv=[...new Set(all.map(x=>x.level).filter(Boolean))].sort().map(L=>{const s=all.filter(x=>x.level===L);return {L,p:pct(s.reduce((a,x)=>a+x.benar,0),s.length)}});
+  const lv=[...new Set(all.map(x=>x.level).filter(Boolean))].sort(lsort).map(L=>{const s=all.filter(x=>x.level===L);return {L,p:pct(s.reduce((a,x)=>a+x.benar,0),s.length)}});
   box.innerHTML=`<h3 style="margin-top:0">Per level kognitif (kelas)</h3>`+(lv.map(x=>`<div class="kv"><span>${LV[x.L]||x.L}</span><b>${x.p}%</b></div>${bar(x.p)}`).join("")||"<p class='muted'>Level tidak diisi.</p>")+`<h3>Per sub-materi (terendah di atas)</h3>`+(subs.map(x=>`<div class="kv"><span>${esc(x.sb)}</span><b>${x.p}%</b></div>${bar(x.p)}`).join("")||"<p class='muted'>Sub-materi tidak diisi.</p>")+`<h3>Rekomendasi tindak lanjut</h3><ol style="padding-left:20px" class="small">${subs.filter(x=>x.p<60).slice(0,3).map(x=>`<li><b>${esc(x.sb)}</b> (${x.p}%): remedial terarah, ulangi konsep lalu latihan soal berkonteks.</li>`).join("")||"<li>Tidak ada sub-materi di bawah 60%. Lanjutkan pengayaan level tinggi.</li>"}</ol>`}
-function csv(){const rows=filtered();const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort();const head=["nama","kelas","nilai","benar","durasi_detik","selesai","varian",...GPK.meta.blueprint.map(b=>"S"+b.no),...levels];
+function csv(){const rows=filtered();const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort(lsort);const head=["nama","kelas","nilai","benar","durasi_detik","selesai","varian",...GPK.meta.blueprint.map(b=>"S"+b.no),...levels];
   const lines=[head.join(",")].concat(rows.map(r=>{const it=rowItems(r),ls=levelSummary(it);return [r.nama,r.kelas,r.nilai,r.benar,r.durasi,r.selesai,r.varian,...it.map(x=>x.benar),...levels.map(L=>ls[L])].map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")}));
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}));a.download=`hasil_${GPK.kode}.csv`;a.click()}
 
