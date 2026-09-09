@@ -142,11 +142,11 @@ async function rpc(fn,args){if(!SB)throw new Error("Server belum diatur (baris k
   let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw new Error((j&&(j.message||j.hint||j.error))||("HTTP "+r.status));return j}
 
 /* ================= PAKET & SESI ================= */
-let PK=null,S=null,MODE="tamu";
+let PK=null,S=null,MODE="tamu",PENDING=null;
 function aturForm(){const st=(PK&&PK.settings)||{};$("f-siswa").classList.toggle("hidden",MODE!=="siswa");$("f-tamu").classList.toggle("hidden",MODE!=="tamu");
   $("lnk-tamu-box").classList.toggle("hidden",!(st.wajib_siswa&&st.tamu));$("lnk-siswa-box").classList.toggle("hidden",!st.wajib_siswa)}
 async function muatPaket(kode){kode=(kode||"").trim().toUpperCase();if(!kode){toast("Isi kode ujian");return}
-  $("btn-muat").disabled=true;$("pk-info").classList.add("hidden");$("btn-start").disabled=true;
+  $("btn-muat").disabled=true;$("pk-info").classList.add("hidden");$("btn-start").disabled=true;$("login-info").classList.add("hidden");PENDING=null;
   try{PK=await rpc("tka_get_paket",{p_kode:kode});$("pk-judul").textContent=PK.judul;$("hd-t").textContent=PK.judul;$("hd-s").textContent=[PK.mapel,PK.kelas?"Kelas "+PK.kelas:"",PK.materi].filter(Boolean).join(" · ")||"SMA Plus Merdeka Soreang";
     $("pk-det").textContent=`${PK.n_soal} soal · ${PK.durasi} menit · ${PK.n_varian} varian · kode ${PK.kode}`;$("pk-petunjuk").innerHTML=PK.meta.petunjuk?`<div class="notice">${safeHtml(PK.meta.petunjuk)}</div>`:"";
     $("pk-info").classList.remove("hidden");$("btn-start").disabled=false;$("kode").value=PK.kode;
@@ -305,7 +305,13 @@ window.addEventListener("DOMContentLoaded",()=>{
       else{const n=$("nama").value.trim(),kl=$("kelas").value.trim();if(n.length<3||!kl){toast("Isi nama dan kelas dahulu");return}
         ident=await rpc("tka_login_tamu",{p_kode:PK.kode,p_nama:n,p_kelas:kl,p_kode_akses:akses})}
     }catch(e){toast(e.message);return}finally{$("btn-start").disabled=false}
-    newSession(ident.nama,ident.kelas,ident);$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer()};
+    if(MODE==="siswa"){ // konfirmasi identitas dulu
+      PENDING=ident;const box=$("login-info");box.classList.remove("hidden");
+      box.innerHTML=`<b>Apakah ini kamu?</b><div style="margin:6px 0;font-size:16px"><b>${esc(ident.nama)}</b><br>Kelas <b>${esc(ident.kelas)}</b> · NISN ${esc(ident.nisn)}</div><div class="row"><button id="btn-ya" class="grow">Ya, benar — mulai mengerjakan</button><button id="btn-bukan" class="ghost">Bukan saya</button></div>`;
+      $("btn-ya").onclick=()=>mulaiUjian(PENDING);$("btn-bukan").onclick=()=>{PENDING=null;box.classList.add("hidden");$("nisn").value="";$("tgl").value="";$("nisn").focus();toast("Periksa kembali NISN dan tanggal lahir, atau hubungi guru")};
+      box.scrollIntoView({behavior:"smooth"});return}
+    mulaiUjian(ident)};
+  function mulaiUjian(ident){$("login-info").classList.add("hidden");newSession(ident.nama,ident.kelas,ident);$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer()}
   $("lnk-tamu").onclick=e=>{e.preventDefault();MODE="tamu";aturForm()};$("lnk-siswa").onclick=e=>{e.preventDefault();MODE="siswa";aturForm()};
   $("btn-prev").onclick=()=>{if(S.cur>0){S.cur--;save();renderQ()}};$("btn-next").onclick=()=>{if(S.cur<S.order.length-1){S.cur++;save();renderQ()}else $("grid").scrollIntoView({behavior:"smooth"})};
   $("btn-submit").onclick=()=>submit(false);$("btn-resend").onclick=kirim;
