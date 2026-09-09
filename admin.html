@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<script>window.TKA_SUPABASE = { url: "https://jzxcnfetpjkltjjbglxz.supabase.co", key: "sb_publishable_9pl5IOJl-Vx0KEnHtCs3nA_ioZOkacq" };</script>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <!-- Baris ke-2: isi url proyek Supabase (Tryout_Guru) dan kunci "anon public". Sama persis dengan baris ke-2 index.html. -->
 <html lang="id">
 <head>
@@ -117,7 +117,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div class="card"><h2>Alur kerja</h2>
   <ol class="small" style="padding-left:20px">
     <li>Guru mengisi <b>Template_Kisi_Kisi.docx</b> → unggah di <b>Langkah 1</b> → simpan → unduh <b>Template Soal</b> (sudah terisi nomor, bentuk, indikator, level untuk setiap varian).</li>
-    <li>Guru mengisi Template Soal (stimulus, pertanyaan, pilihan, kunci, pembahasan) → unggah di <b>Langkah 2</b> → periksa galat/peringatan & pratinjau → <b>Terbitkan</b>. Soal yang menyimpang dari kisi-kisi ditolak.</li>
+    <li>Guru mengisi Template Soal (perintah soal, pertanyaan, pilihan, kunci, pembahasan) → unggah di <b>Langkah 2</b> → periksa galat/peringatan & pratinjau → <b>Terbitkan</b>. Soal yang menyimpang dari kisi-kisi ditolak.</li>
     <li>Bagikan tautan/QR yang muncul ke siswa. Tautan berbentuk <code>index.html?ujian=KODE</code>.</li>
     <li>Rekap dan analisis: buka <code>index.html</code> → "Masuk sebagai guru" → pilih ujian. Saklar pembahasan ada di <b>Daftar paket</b> dan di dasbor guru.</li>
     <li>Revisi soal: perbaiki Word, unggah ulang dengan <b>kode ujian yang sama</b> → paket lama ditimpa (hasil siswa tetap tersimpan).</li>
@@ -145,6 +145,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   function canonLabel(s) {
     let l = String(s || '').toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[:：]\s*$/, '').replace(/\s+/g, ' ').trim();
     if (/^kompetensi|sub-?\s?materi/.test(l)) return 'sub-materi';
+    if (l.startsWith('perintah soal') || l.startsWith('perintah') || l === 'stimulus' || l.startsWith('stimulus')) return 'stimulus';
     if (l.startsWith('kode ujian')) return 'kode ujian';
     if (l.startsWith('durasi')) return 'durasi';
     if (l.startsWith('petunjuk')) return 'petunjuk';
@@ -522,7 +523,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       kv('Nomor', String(bp.no)), kv('Varian', v), kv('Bentuk', BL[bp.bentuk] || bp.bentuk),
       kv('Kompetensi/ Materi/Sub-materi', bp.sub || ''), kv('Indikator', bp.indikator || ''), kv('Level', bp.level || ''), kv('Kode teks', bp.teks || '')];
     const stim = isi.stimulusTabel ? paras(isi.stimulus || '') + nested(isi.stimulusTabel.header, isi.stimulusTabel.rows) : (isi.stimulus || '');
-    rows.push(kv('Stimulus', stim), kv('Pertanyaan', isi.pertanyaan || ''));
+    rows.push(kv('Perintah soal', stim), kv('Pertanyaan', isi.pertanyaan || ''));
     const b = bp.bentuk;
     if (b === 'PG' || b === 'PGK') { 'ABCDE'.split('').forEach((L, i) => rows.push(kv('Pilihan ' + L, (isi.opsi || [])[i] || ''))); rows.push(kv('Kunci', isi.kunci || '')); }
     else if (b === 'KATEGORI') { rows.push(kv('Label kategori', isi.label || 'Benar | Salah')); for (let i = 1; i <= 5; i++) rows.push(kv('Pernyataan ' + i, (isi.baris || [])[i - 1] || '')); rows.push(kv('Kunci', isi.kunci || '')); }
@@ -553,9 +554,9 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     x += heading('BAGIAN 3 — KETENTUAN UMUM');
     [
       'JANGAN mengubah, menghapus, atau menggabungkan sel berlabel di kolom kiri. Baris yang tidak dipakai cukup dikosongkan (mis. Pilihan E, Pernyataan 5, Kiri 6).',
-      'Isi hanya baris Stimulus, Pertanyaan, Pilihan/Pernyataan/Kiri–Kanan, Kunci, Toleransi, Jawaban alternatif, dan Pembahasan (serta Judul & Isi pada tabel TEKS BACAAN bila ada). Baris lain sudah terisi dari kisi-kisi dan akan diperiksa aplikasi.',
+      'Isi hanya baris Perintah soal, Pertanyaan, Pilihan/Pernyataan/Kiri–Kanan, Kunci, Toleransi, Jawaban alternatif, dan Pembahasan (serta Judul & Isi pada tabel TEKS BACAAN bila ada). Baris lain sudah terisi dari kisi-kisi dan akan diperiksa aplikasi.',
       `Setiap nomor punya ${nv} tabel (varian ${vars.join(', ')}). Varian adalah soal paralel: indikator dan tingkat kesulitan sama, isi berbeda. Semua varian wajib diisi.`,
-      'Rumus kimia/matematika: gunakan subscript/superscript Word (H₂O, 10²³) — ikut terbaca. Tabel data boleh disisipkan di dalam sel Stimulus (Insert → Table). Gambar/grafik boleh disisipkan di dalam sel Stimulus (Insert → Picture); ukuran gambar ≤ 300 KB. Hindari Equation Editor.',
+      'Rumus kimia/matematika: gunakan subscript/superscript Word (H₂O, 10²³) — ikut terbaca. Tabel data boleh disisipkan di dalam sel Perintah soal (Insert → Table). Gambar/grafik boleh disisipkan di dalam sel Perintah soal (Insert → Picture); ukuran gambar ≤ 300 KB. Hindari Equation Editor.',
       'Format Kunci — PG: satu huruf (B). PG Kompleks: huruf dipisah koma (A, C, E). Benar - Salah: per baris dipisah koma, teks labelnya (Benar, Benar, Salah) atau nomor kolom (1, 1, 2). Menjodohkan: pasangan (1-d, 2-c, 3-e, 4-a, 5-b). Isian: jawaban persis (200); untuk angka isi Toleransi (2 berarti 198–202); Jawaban alternatif dipisah tanda | (dua ratus | 2×10²).',
       'Pembahasan wajib diisi — ditampilkan ke siswa hanya bila guru mengaktifkannya di aplikasi.',
       'Simpan sebagai .docx dengan nama yang sama, lalu unggah di halaman admin → Langkah 2.',
