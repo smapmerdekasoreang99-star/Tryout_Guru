@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<script>window.TKA_SUPABASE = { url: "https://jzxcnfetpjkltjjbglxz.supabase.co", key: "sb_publishable_9pl5IOJl-Vx0KEnHtCs3nA_ioZOkacq" };</script>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <!-- Baris ke-2: isi url proyek Supabase (Tryout_Guru) dan kunci "anon public". Sama persis dengan baris ke-2 index.html. -->
 <html lang="id">
 <head>
@@ -142,7 +142,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <li>Revisi soal: perbaiki Word, unggah ulang dengan <b>kode ujian yang sama</b> → paket lama ditimpa (hasil siswa tetap tersimpan).</li>
   </ol>
   <h3>Kode ujian</h3><p class="small">Huruf besar/angka/strip, 3–31 karakter, unik per paket. Saran: MAPEL-MATERI-NOMOR, mis. <code>KIM-STO-01</code>, <code>BIN-TKA-02</code>.</p>
-  <h3>Jalur darurat</h3><p class="small">Tab <b>Jalur darurat</b> menerbitkan paket langsung dari file soal (Template_Soal_Darurat.docx) tanpa Langkah 1, hanya dengan <b>PIN darurat</b> (bawaan <code>darurat2026</code>; ganti di SQL Editor: <code>update public.tka_privat set v='...' where k='pin_darurat';</code>). Kisi-kisi disusun otomatis dari soal dan ditandai Darurat.</p><h3>Keamanan</h3><p class="small">Kunci jawaban tersimpan di server dan tidak pernah dikirim ke HP siswa; penilaian dilakukan di server. PIN diverifikasi di server (tabel <code>tka_privat</code>).</p>
+  <h3>Jalur darurat</h3><p class="small">Tab <b>Jalur darurat</b> menerbitkan paket langsung dari file soal (Template_Soal_Darurat.docx) tanpa Langkah 1, hanya dengan <b>PIN darurat</b> (bawaan <code>darurat2026</code>; ganti di SQL Editor: <code>update public.tka_privat set v='...' where k='pin_darurat';</code>). Kisi-kisi disusun otomatis dari soal dan ditandai Darurat. Untuk mengesahkan: <b>Daftar paket → Unduh kisi-kisi</b> → periksa/lengkapi di Word → unggah di <b>Langkah 1</b> dengan kode yang sama; bila jumlah soal dan bentuk per nomor cocok, tanda Darurat dicabut (jejak "disahkan" tetap tercatat).</p><h3>Keamanan</h3><p class="small">Kunci jawaban tersimpan di server dan tidak pernah dikirim ke HP siswa; penilaian dilakukan di server. PIN diverifikasi di server (tabel <code>tka_privat</code>).</p>
   </div>
 </section>
 </div>
@@ -618,9 +618,9 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   }
 
   async function buatTemplateSoal(kisi, JSZip, opsi = {}) { return bungkus(bodyXml(kisi, opsi), JSZip, 'Template Soal ' + kisi.kode); }
-  async function bungkus(body, JSZip, judul) {
+  async function bungkus(body, JSZip, judul, landscape = false) {
     const doc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><w:body>${body}<w:sectPr>${landscape ? '<w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/>' : '<w:pgSz w:w="11906" w:h="16838"/>'}<w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="708" w:footer="708" w:gutter="0"/></w:sectPr></w:body></w:document>`;
     const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="${FONT}" w:hAnsi="${FONT}" w:cs="${FONT}" w:eastAsia="${FONT}"/><w:sz w:val="20"/><w:lang w:val="id-ID"/></w:rPr></w:rPrDefault><w:pPrDefault><w:pPr><w:spacing w:after="0" w:line="259" w:lineRule="auto"/></w:pPr></w:pPrDefault></w:docDefaults><w:style w:type="paragraph" w:default="1" w:styleId="Normal"><w:name w:val="Normal"/><w:qFormat/></w:style><w:style w:type="table" w:default="1" w:styleId="TableNormal"><w:name w:val="Normal Table"/><w:tblPr><w:tblCellMar><w:top w:w="0" w:type="dxa"/><w:left w:w="108" w:type="dxa"/><w:bottom w:w="0" w:type="dxa"/><w:right w:w="108" w:type="dxa"/></w:tblCellMar></w:tblPr></w:style></w:styles>`;
     const ct = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -658,7 +658,27 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     return x;
   }
   async function buatTemplateDarurat(JSZip) { return bungkus(bodyDarurat(), JSZip, 'Template Soal Darurat'); }
-  root.TKA_DOC = { buatTemplateSoal, buatTemplateDarurat };
+  // Kisi-kisi → .docx berformat Template_Kisi_Kisi (untuk disahkan lewat Langkah 1)
+  function bodyKisi(kisi) {
+    const W2 = [2600, 11970], T2 = 14570, WK = [600, 3000, 6270, 1700, 1700, 1300];
+    const tRow = (t, fill) => tr([cell(para(t, { b: true, sz: 22, color: 'FFFFFF' }), T2, { span: 2, fill })]);
+    const kv2 = (l, v) => tr([cell(para(l, { b: true }), W2[0], { fill: 'F6F8FA' }), cell(paras(v), W2[1])]);
+    const bp = kisi.meta.blueprint || [];
+    const isDarurat = !!(kisi.meta || {}).darurat;
+    let x = para(`KISI-KISI — ${kisi.judul}`, { b: true, sz: 28, color: '0B6E6E', after: 40 });
+    x += para(isDarurat ? 'Kisi-kisi ini disusun otomatis oleh aplikasi dari soal yang diterbitkan lewat JALUR DARURAT. Periksa dan lengkapi (Kompetensi, Indikator, Level), lalu unggah di halaman admin → Langkah 1 dengan kode ujian yang sama untuk mengesahkannya.' : 'Dokumen kisi-kisi dari server. Dapat diubah dan diunggah ulang di Langkah 1.', { i: true, color: '5B6B75' });
+    x += heading('BAGIAN 1 — INFORMASI UJIAN');
+    x += table(W2, [tRow('INFORMASI UJIAN', '1F3864'), kv2('Kode ujian (harus unik)', kisi.kode), kv2('Judul', kisi.judul || ''), kv2('Mata pelajaran', kisi.mapel || ''), kv2('Kelas', kisi.kelas || ''), kv2('Materi', kisi.materi || ''),
+      kv2('Durasi (menit)', String(kisi.durasi || '')), kv2('Jumlah varian', String(kisi.n_varian || 1)), kv2('Data/rumus umum', stripHtml(kisi.meta.data_umum)), kv2('Petunjuk umum', stripHtml(kisi.meta.petunjuk))]);
+    x += heading('BAGIAN 2 — KISI-KISI SOAL');
+    const hdr = ['No', 'Kompetensi / Materi / Sub-Materi', 'Indikator Soal', 'Level Kesulitan', 'Bentuk', 'Kode Teks'];
+    const rows = [tr(hdr.map((h, i) => cell(para(h, { b: true, center: true }), WK[i], { fill: 'E8EEF2' })), { header: true })];
+    bp.forEach(b => rows.push(tr([cell(para(String(b.no), { center: true }), WK[0]), cell(paras(b.sub || ''), WK[1]), cell(paras(b.indikator || ''), WK[2]), cell(para(b.level || '', { center: true }), WK[3]), cell(para(b.bentukLabel || BL[b.bentuk] || b.bentuk || '', { center: true }), WK[4]), cell(para(b.teks || '', { center: true }), WK[5])])));
+    x += table(WK, rows);
+    return x;
+  }
+  async function buatKisiDocx(kisi, JSZip) { return bungkus(bodyKisi(kisi), JSZip, 'Kisi-kisi ' + kisi.kode, true); }
+  root.TKA_DOC = { buatTemplateSoal, buatTemplateDarurat, buatKisiDocx };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>
@@ -726,15 +746,19 @@ async function bacaKisi(f){$("k-status").innerHTML=`<span class="pill">Membaca $
     const km=TKA.komposisi(k.meta.blueprint);$("k-komposisi").innerHTML=`<b>Komposisi:</b> ${Object.entries(km.level).map(([a,b])=>`${a} ${b} (${Math.round(b/km.n*100)}%)`).join(" · ")} — <b>bentuk:</b> ${Object.entries(km.bentuk).map(([a,b])=>`${a} ${b}`).join(" · ")}`;
     $("btn-k-simpan").disabled=!r.ok;$("btn-k-unduh").disabled=!r.ok;$("k-simpan-status").textContent="";
   }catch(e){$("k-status").innerHTML=`<span class="pill bad">Gagal membaca</span> ${esc(e.message)}`;console.error(e)}}
+async function unduhKisi(k){const bytes=await TKA_DOC.buatKisiDocx(k,JSZip);unduhBiner(`Kisi_Kisi_${k.kode}.docx`,bytes,"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
 async function unduhTemplate(k){const bytes=await TKA_DOC.buatTemplateSoal(k,JSZip);unduhBiner(`Template_Soal_${k.kode}.docx`,bytes,"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
 async function simpanKisi(){if(!KISI)return;if(!PIN()){toast("Isi PIN dahulu");return}const k=KISI;$("k-simpan-status").innerHTML='<span class="pill">Menyimpan…</span>';
-  try{await rpc("tka_simpan_kisi",{p_pin:PIN(),p_kode:k.kode,p_judul:k.judul,p_mapel:k.mapel,p_kelas:k.kelas,p_materi:k.materi,p_durasi:k.durasi,p_n_soal:k.n_soal,p_n_varian:k.n_varian,p_meta:k.meta});
+  try{const j=await rpc("tka_simpan_kisi",{p_pin:PIN(),p_kode:k.kode,p_judul:k.judul,p_mapel:k.mapel,p_kelas:k.kelas,p_materi:k.materi,p_durasi:k.durasi,p_n_soal:k.n_soal,p_n_varian:k.n_varian,p_meta:k.meta});
+    if(j.disahkan===true){$("k-simpan-status").innerHTML=`<span class="pill good">Kisi-kisi ${esc(k.kode)} tersimpan dan paket darurat DISAHKAN</span> — tanda darurat dicabut; Template Soal tidak perlu diunduh karena soal sudah terbit.`;return}
+    if(j.disahkan===false){$("k-simpan-status").innerHTML=`<span class="pill warn">Kisi-kisi tersimpan, tetapi paket darurat belum disahkan</span> ${esc(j.catatan||"")}`;return}
     await unduhTemplate(k);$("k-simpan-status").innerHTML=`<span class="pill good">Kisi-kisi ${esc(k.kode)} tersimpan</span> Template Soal diunduh — serahkan ke guru untuk diisi, lalu unggah di Langkah 2.`;
   }catch(e){$("k-simpan-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
 async function muatDaftarKisi(){const t=$("daftar-kisi");t.innerHTML="<tr><td class='muted'>Memuat…</td></tr>";
   try{const rows=await rpc("tka_list_kisi",{p_pin:PIN()});if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada kisi-kisi.</td></tr>";return}
-    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Status</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b></td><td>${esc(r.judul)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td><span class="pill ${r.terbit?"good":"warn"}">${r.terbit?"Soal sudah terbit":"Menunggu soal"}</span>${r.darurat?' <span class="pill bad">Darurat</span>':""}</td><td class="row"><button class="soft" data-tpl="${esc(r.kode)}">Unduh Template Soal</button><button class="danger" data-hk="${esc(r.kode)}">Hapus</button></td></tr>`).join("");
+    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Status</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b></td><td>${esc(r.judul)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td><span class="pill ${r.terbit?"good":"warn"}">${r.terbit?"Soal sudah terbit":"Menunggu soal"}</span>${r.darurat?' <span class="pill bad">Darurat — unduh kisi-kisi, periksa, unggah di Langkah 1 untuk mengesahkan</span>':""}</td><td class="row"><button class="soft" data-tpl="${esc(r.kode)}">Unduh Template Soal</button><button class="ghost" data-kd="${esc(r.kode)}">Unduh kisi-kisi</button><button class="danger" data-hk="${esc(r.kode)}">Hapus</button></td></tr>`).join("");
     t.querySelectorAll("[data-tpl]").forEach(b=>b.onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:b.dataset.tpl});await unduhTemplate(k)}catch(e){toast("Gagal: "+e.message)}});
+    t.querySelectorAll("[data-kd]").forEach(b=>b.onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:b.dataset.kd});await unduhKisi(k)}catch(e){toast("Gagal: "+e.message)}});
     t.querySelectorAll("[data-hk]").forEach(b=>b.onclick=async()=>{if(!confirm(`Hapus kisi-kisi ${b.dataset.hk}? (Paket soal yang sudah terbit tidak ikut terhapus.)`))return;try{await rpc("tka_hapus_kisi",{p_pin:PIN(),p_kode:b.dataset.hk});toast("Dihapus");muatDaftarKisi()}catch(e){toast("Gagal: "+e.message)}});
   }catch(e){t.innerHTML=`<tr><td style="color:var(--bad)">${esc(e.message)}</td></tr>`}}
 
@@ -757,14 +781,14 @@ async function terbitDarurat(){if(!DPAKET)return;const pd=$("pin-d").value.trim(
   if(!confirm(`Terbitkan ${p.kode} lewat jalur darurat (tanpa kisi-kisi resmi)? Paket akan ditandai "darurat".`))return;
   $("d-terbit-status").innerHTML='<span class="pill">Mengirim…</span>';
   try{const j=await rpc("tka_terbitkan_darurat",{p_pin_darurat:pd,p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:$("d-aktif").checked});
-    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit (darurat): ${esc(j.kode)}</span>`;const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
+    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit (darurat): ${esc(j.kode)}</span> <button class="ghost" id="btn-d-kisi" style="padding:6px 10px;font-size:13px">Unduh kisi-kisi otomatis (.docx) untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
   }catch(e){$("d-terbit-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
 
 /* ---------- daftar ---------- */
 async function muatDaftar(){const t=$("daftar");t.innerHTML="<tr><td class='muted'>Memuat…</td></tr>";
   try{const rows=await rpc("tka_list_paket",{p_pin:PIN()});
     if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada paket.</td></tr>";return}
-    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Hasil</th><th>Aktif</th><th>Pembahasan</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b>${r.darurat?' <span class="pill bad">Darurat</span>':""}</td><td>${esc(r.judul)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td>${r.n_hasil}</td>
+    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Hasil</th><th>Aktif</th><th>Pembahasan</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b>${r.darurat?' <span class="pill bad">Darurat</span>':(r.riwayat_darurat?' <span class="pill">disahkan</span>':"")}</td><td>${esc(r.judul)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td>${r.n_hasil}</td>
       <td><input type="checkbox" data-aktif="${esc(r.kode)}" ${r.aktif?"checked":""}></td><td><input type="checkbox" data-pemb="${esc(r.kode)}" ${r.pembahasan?"checked":""}></td>
       <td class="row"><button class="soft" data-link="${esc(r.kode)}">Tautan/QR</button><button class="ghost" data-json="${esc(r.kode)}">JSON</button><button class="danger" data-hapus="${esc(r.kode)}" data-n="${r.n_hasil}">Hapus</button></td></tr>`).join("");
     t.querySelectorAll("[data-aktif]").forEach(c=>c.onchange=async()=>{try{await rpc("tka_set_aktif",{p_pin:PIN(),p_kode:c.dataset.aktif,p_aktif:c.checked});toast(c.checked?"Ujian diaktifkan":"Ujian dinonaktifkan")}catch(e){toast("Gagal: "+e.message);c.checked=!c.checked}});
