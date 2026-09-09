@@ -73,6 +73,12 @@ Isi folder:
 - **Dasbor guru** bertambah: kolom NISN, tombol *reset*, tab **Belum mengerjakan** (siswa terdaftar tanpa hasil, per kelas), tab **Riwayat siswa** (nilai tiap siswa lintas ujian, cari NISN/nama atau per kelas).
 - Privasi: data siswa tersimpan di tabel yang dikunci RLS dan hanya bisa dibaca dengan PIN guru; siswa hanya bisa memverifikasi dirinya sendiri (NISN + tanggal lahir). Tanggal lahir adalah verifikasi ringan — cukup untuk tryout; untuk penilaian berisiko tinggi gunakan kode akses + pengawasan.
 
+## C4. Pengawasan keluar halaman
+
+- Halaman web **tidak bisa mencegah** siswa berpindah aplikasi; aplikasi **mendeteksi dan mencatat** setiap kali halaman ujian ditinggalkan (pindah aplikasi/tab, layar dikunci). **Toleransi**: keluar lebih singkat dari batas toleransi (bawaan **10 detik** — notifikasi diketuk, telepon ditolak, salah sentuh) hanya dicatat, tidak dihitung. Keluar yang lebih lama dihitung dan siswa diperingatkan; setelah **batas** (bawaan **5 kali**; 0 = tanpa batas) ujian **dikunci**. Kedua angka diatur guru per ujian di dasbor. Pengawas memasukkan **kode buka** (diatur guru; bila kosong dipakai kode akses ujian) di HP siswa, atau siswa mengumpulkan jawaban. Jumlah keluar dan waktunya tersimpan dan tampil di rekap guru (kolom *Keluar*) serta CSV.
+- Rekap menampilkan `jumlah dihitung× / total kejadian` dengan rincian waktu & durasi tiap kejadian, sehingga guru bisa membedakan layar mati sekali dua menit dari keluar 40 detik berulang. Gunakan bersama pengawasan (kode akses diumumkan saat mulai, HP di meja, tanpa earphone, 2–4 varian soal). Untuk penguncian sungguhan gunakan fitur perangkat: Android *Sematkan layar / Screen pinning*, Chromebook mode kiosk, atau Safe Exam Browser di laptop.
+- Di HP, aplikasi juga meminta mode layar penuh dan menonaktifkan salin/klik-kanan selama ujian (pengaman ringan).
+
 ## D. Setelah ujian
 
 `index.html` → *Masuk sebagai guru* → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah), analisis butir (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, CSV. Saklar **pembahasan** membuka kunci & pembahasan bagi siswa yang sudah selesai.
