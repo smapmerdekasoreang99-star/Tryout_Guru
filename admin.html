@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<script>window.TKA_SUPABASE = { url: "https://jzxcnfetpjkltjjbglxz.supabase.co", key: "sb_publishable_9pl5IOJl-Vx0KEnHtCs3nA_ioZOkacq" };</script>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <!-- Baris ke-2: isi url proyek Supabase (Tryout_Guru) dan kunci "anon public". Sama persis dengan baris ke-2 index.html. -->
 <html lang="id">
 <head>
@@ -609,7 +609,7 @@ async function rpc(fn,args){if(!SB)throw new Error("Supabase belum diatur di bar
 const PIN=()=>$("pin").value.trim();
 function safeHtml(html){const ALLOW={B:1,I:1,U:1,SUB:1,SUP:1,BR:1,P:1,TABLE:1,TR:1,TD:1,TH:1,IMG:1,SPAN:1,DIV:1};const d=new DOMParser().parseFromString("<div>"+(html||"")+"</div>","text/html");
   (function walk(n){for(const c of Array.from(n.childNodes)){if(c.nodeType!==1)continue;if(!ALLOW[c.tagName]){c.replaceWith(...c.childNodes);continue}for(const a of Array.from(c.attributes)){if(!(c.tagName==="IMG"&&a.name==="src"&&/^data:image\//.test(a.value))&&a.name!=="alt")c.removeAttribute(a.name)}walk(c)}})(d.body.firstChild);return d.body.firstChild.innerHTML}
-const studentBase=()=>location.href.replace(/[#?].*$/,"").replace(/admin\.html$/,"")+"index.html";
+const studentBase=()=>location.href.replace(/[#?].*$/,"").replace(/[^\/]*$/,"")+"index.html"; // folder halaman ini + index.html (berlaku untuk .../admin, .../admin.html, maupun .../)
 
 /* ---------- pratinjau ---------- */
 function prevSoal(no,v,q,bp){const L="ABCDE",l="abcdef";let h=`<div class="prev"><div class="row" style="justify-content:space-between"><b>No. ${no} · Varian ${v}</b><span><span class="pill">${q.bentuk}</span> <span class="pill">${esc(bp.level||"?")}</span> <span class="pill">${esc(bp.sub||"-")}</span></span></div>`;
