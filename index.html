@@ -39,6 +39,8 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0}.tabs button{background:#fff;color:var(--muted);border:1px solid var(--line);padding:8px 12px;font-size:14px}.tabs button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 table.rekap{width:100%;border-collapse:collapse;font-size:13px}table.rekap th,table.rekap td{border-bottom:1px solid var(--line);padding:6px 6px;text-align:left;white-space:nowrap}table.rekap th{background:#eef3f6;position:sticky;top:0}table.rekap td.n{text-align:right;font-variant-numeric:tabular-nums}
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all}
+#kunci{position:fixed;inset:0;background:rgba(21,35,43,.96);color:#fff;z-index:50;display:flex;align-items:center;justify-content:center;padding:20px}
+#kunci .box{max-width:420px;background:#fff;color:var(--ink);border-radius:14px;padding:20px;text-align:center}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -109,7 +111,9 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       <label class="f" for="g-ujian">Ujian</label><select id="g-ujian"></select>
       <div id="g-srv" class="small muted" style="margin-top:6px"></div>
       <div class="row" style="margin-top:8px"><label class="small"><input type="checkbox" id="g-aktif"> Ujian aktif</label><label class="small"><input type="checkbox" id="g-pemb"> Tampilkan pembahasan ke siswa</label><label class="small"><input type="checkbox" id="g-tamu"> Izinkan tamu (siswa tak terdaftar)</label><button class="soft" id="btn-refresh" style="padding:6px 10px;font-size:13px">Muat ulang</button></div>
-      <div class="row" style="margin-top:8px"><label class="small grow">Kode akses ujian (kosong = tidak dipakai)<input type="text" id="g-akses" autocomplete="off" style="text-transform:uppercase" placeholder="mis. 4821"></label><button class="soft" id="btn-akses" style="padding:6px 10px;font-size:13px">Simpan kode akses</button></div></div>
+      <div class="row" style="margin-top:8px"><label class="small grow">Kode akses ujian (kosong = tidak dipakai)<input type="text" id="g-akses" autocomplete="off" style="text-transform:uppercase" placeholder="mis. 4821"></label><button class="soft" id="btn-akses" style="padding:6px 10px;font-size:13px">Simpan kode akses</button></div>
+      <div class="row" style="margin-top:8px"><label class="small">Batas keluar (0 = tanpa batas)<input type="number" id="g-maks" min="0" max="20" style="width:80px"></label><label class="small">Abaikan keluar &lt; (detik)<input type="number" id="g-tol" min="0" max="120" style="width:80px"></label><label class="small grow">Kode buka kunci untuk pengawas (kosong = pakai kode akses)<input type="text" id="g-buka" autocomplete="off" style="text-transform:uppercase" placeholder="mis. BUKA77"></label><button class="soft" id="btn-antikeluar" style="padding:6px 10px;font-size:13px">Simpan</button></div>
+      <p class="muted small">Keluar halaman yang lebih singkat dari toleransi (notifikasi diketuk, telepon ditolak) hanya dicatat, tidak dihitung. Yang lebih lama dihitung; melewati batas → ujian dikunci sampai pengawas memasukkan kode buka (atau siswa mengumpulkan). Semua kejadian beserta durasinya tersimpan (kolom Keluar di rekap; arahkan kursor untuk rincian).</p></div>
     <div class="tabs"><button class="on" data-tab="rekap">Rekap siswa</button><button data-tab="butir">Analisis butir</button><button data-tab="sub">Sub-materi</button><button data-tab="belum">Belum mengerjakan</button><button data-tab="riwayat">Riwayat siswa</button></div>
     <div class="card" id="g-rekap"><div class="row"><label class="small">Kelas <select id="g-kelas" style="width:auto;padding:6px 8px"></select></label><span class="grow"></span><button class="soft" id="btn-csv" style="padding:6px 10px;font-size:13px">Unduh CSV</button></div><div id="g-stat" class="small muted" style="margin:6px 0"></div><div class="tbl-wrap"><table class="rekap" id="g-tabel"></table></div></div>
     <div class="card hidden" id="g-butir"><p class="small muted">Nomor = nomor asli pada kisi-kisi. Kesukaran: sukar &lt; 30% · sedang 30–70% · mudah &gt; 70%. Kolom varian menunjukkan % benar tiap varian (uji kesetaraan).</p><div class="tbl-wrap"><table class="rekap" id="g-butir-tabel"></table></div></div>
@@ -119,6 +123,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   </div>
 </section>
 </div>
+<div id="kunci" class="hidden"><div class="box"><h2 id="k-judul">Kamu meninggalkan halaman ujian</h2><p id="k-isi" class="small"></p><div id="k-aksi"></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -162,7 +167,7 @@ function newSession(nama,kelas,ident){
     if(q.bentuk==="PG"||q.bentuk==="PGK")perm[i]=shuffle([...q.opsi.keys()],rnd);else if(q.bentuk==="KATEGORI")perm[i]=shuffle([...q.baris.keys()],rnd);
     else if(q.bentuk==="JODOH")perm[i]={kiri:shuffle([...q.kiri.keys()],rnd),kanan:shuffle([...q.kanan.keys()],rnd)};else perm[i]=null});
   const now=Date.now();
-  S={kode:PK.kode,pk:PK,nama,kelas,nisn:(ident||{}).nisn||null,token:(ident||{}).token||null,tamu:!!(ident||{}).tamu,seed,varian,order,perm,answers:{},cur:0,startAt:now,deadline:now+PK.durasi*60000,submitted:false,result:null,payload:null,saved:false};save();
+  S={kode:PK.kode,pk:PK,nama,kelas,nisn:(ident||{}).nisn||null,token:(ident||{}).token||null,tamu:!!(ident||{}).tamu,seed,varian,order,perm,answers:{},cur:0,startAt:now,deadline:now+PK.durasi*60000,submitted:false,result:null,payload:null,saved:false,keluar:0,logKeluar:[],terkunci:false};save();
 }
 const save=()=>lsSet(CFG.lsKey,S);
 const Q=i=>S.pk.publik.soal[i].varian[S.varian[i]];
@@ -194,9 +199,37 @@ function complete(i){const q=Q(i),a=S.answers[i];if(a===undefined)return false;i
 function renderGrid(){const g=$("grid");g.innerHTML=S.order.map((i,pos)=>`<button class="${complete(i)?"ans":""} ${pos===S.cur?"cur":""}" data-pos="${pos}">${pos+1}</button>`).join("");g.querySelectorAll("button").forEach(b=>b.onclick=()=>{S.cur=+b.dataset.pos;save();renderQ()});$("prog").textContent=`${S.order.filter(complete).length} dari ${S.order.length} terjawab lengkap`}
 let tick=null;function startTimer(){clearInterval(tick);const f=()=>{const s=(S.deadline-Date.now())/1000;$("timer").textContent=fmtT(s);$("timer").classList.toggle("warn",s<=300);if(s<=0){clearInterval(tick);submit(true)}};f();tick=setInterval(f,1000)}
 
+/* ================= PANTAU KELUAR HALAMAN ================= */
+let KELUAR_T=null;
+function batasKeluar(){const st=(S&&S.pk&&S.pk.settings)||{};return st.maks_keluar===undefined?5:+st.maks_keluar}
+function toleransiKeluar(){const st=(S&&S.pk&&S.pk.settings)||{};return st.toleransi_keluar===undefined?10:+st.toleransi_keluar}
+function pantauKeluar(){
+  const aktif=()=>S&&!S.submitted&&!S.ujicoba&&!$("v-exam").classList.contains("hidden");
+  const pergi=()=>{if(!aktif()||KELUAR_T)return;KELUAR_T=Date.now()};
+  const kembali=()=>{if(!aktif()||!KELUAR_T)return;const d=Math.round((Date.now()-KELUAR_T)/1000);KELUAR_T=null;
+    const tol=toleransiKeluar();(S.logKeluar=S.logKeluar||[]).push({t:new Date().toISOString(),d,hitung:d>=tol});
+    if(d<tol){save();toast(`Keluar sekejap (${d} dtk) — tidak dihitung. Tetap di halaman ujian.`);return}
+    S.keluar=(S.keluar||0)+1;save();tampilPeringatan(d)};
+  document.addEventListener("visibilitychange",()=>{document.hidden?pergi():kembali()});
+  window.addEventListener("blur",pergi);window.addEventListener("focus",kembali);
+  window.addEventListener("pagehide",pergi);
+  document.addEventListener("contextmenu",e=>{if(aktif())e.preventDefault()});
+  document.addEventListener("copy",e=>{if(aktif())e.preventDefault()});
+}
+function tampilPeringatan(d){const b=batasKeluar(),n=S.keluar,sejak=n-(S.bukaPada||0);const k=$("kunci");k.classList.remove("hidden");
+  if(b>0&&sejak>=b){S.terkunci=true;save();$("k-judul").textContent="Ujian dikunci";
+    $("k-isi").innerHTML=`Kamu meninggalkan halaman ujian <b>${n} kali</b> (batas ${b}). Panggil pengawas untuk membuka kunci, atau kumpulkan jawaban sekarang.`;
+    $("k-aksi").innerHTML=`<input type="text" id="k-kode" placeholder="Kode buka dari pengawas" autocomplete="off" style="text-transform:uppercase;margin:8px 0"><div class="row"><button id="k-buka" class="grow">Buka kunci</button><button id="k-kumpul" class="danger">Kumpulkan jawaban</button></div>`;
+    $("k-buka").onclick=async()=>{try{await rpc("tka_buka_kunci",{p_kode:S.kode,p_token:S.token,p_kode_buka:$("k-kode").value.trim()});S.terkunci=false;S.bukaPada=S.keluar;save();k.classList.add("hidden");toast("Kunci dibuka oleh pengawas — lanjutkan")}catch(e){toast(e.message)}};
+    $("k-kumpul").onclick=()=>{k.classList.add("hidden");submit(true)};
+  }else{$("k-judul").textContent="Kamu meninggalkan halaman ujian";
+    $("k-isi").innerHTML=`Tercatat <b>${n} kali</b>${d?` (terakhir ${d} detik)`:""}${b>0?` — batas <b>${b}</b>${S.bukaPada?" sejak dibuka pengawas":""}. Pada batas itu ujian akan dikunci dan pengawas diberi tahu.`:"."} Tetap di halaman ini sampai selesai.`;
+    $("k-aksi").innerHTML=`<button id="k-lanjut" class="grow">Saya mengerti, lanjutkan</button>`;$("k-lanjut").onclick=()=>k.classList.add("hidden")}}
+function mintaLayarPenuh(){try{const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen().catch(()=>{})}catch(e){}}
+
 /* ================= KUMPUL & HASIL ================= */
 function buildPayload(){const jaw={};S.pk.publik.soal.forEach((s,i)=>{jaw[String(s.no)]={v:S.varian[i],a:S.answers[i]===undefined?null:S.answers[i]}});
-  return {kode:S.kode,id:String(S.seed),nama:S.nama,kelas:S.kelas,nisn:S.nisn||null,token:S.token||null,mulai:new Date(S.startAt).toISOString(),selesai:new Date().toISOString(),durasi:Math.round((Date.now()-S.startAt)/1000),jawaban:jaw}}
+  return {kode:S.kode,id:String(S.seed),nama:S.nama,kelas:S.kelas,nisn:S.nisn||null,token:S.token||null,keluar:S.keluar||0,log_keluar:(S.logKeluar||[]).slice(0,50),mulai:new Date(S.startAt).toISOString(),selesai:new Date().toISOString(),durasi:Math.round((Date.now()-S.startAt)/1000),jawaban:jaw}}
 async function submit(auto){if(S.submitted)return;const kurang=S.order.filter(i=>!complete(i)).length;
   if(!auto&&!confirm(kurang?`Masih ada ${kurang} soal yang belum lengkap. Tetap kumpulkan?`:"Kumpulkan jawaban sekarang?"))return;
   clearInterval(tick);S.submitted=true;S.payload=buildPayload();save();show("v-result");$("r-kode").value=b64e(S.payload);
@@ -249,7 +282,7 @@ async function loginGuru(){PIN=$("pin").value.trim();$("g-login-msg").textConten
   catch(e){$("g-login-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 async function loadGuru(){const kode=$("g-ujian").value;if(!kode)return;$("g-srv").textContent="Memuat…";
   try{GPK=await rpc("tka_get_paket_admin",{p_pin:PIN,p_kode:kode});const rows=await rpc("tka_list",{p_pin:PIN,p_ujian:kode});const s=await rpc("tka_settings_guru",{p_pin:PIN,p_ujian:kode});
-    ROWS=rows.map(r=>({...r,nilai:+r.nilai,benar:+r.benar,durasi:+r.durasi||0}));$("g-aktif").checked=!!GPK.aktif;$("g-pemb").checked=!!(s&&s.pembahasan);$("g-tamu").checked=!!(s&&s.tamu);$("g-akses").value=(s&&s.kode_akses)||"";
+    ROWS=rows.map(r=>({...r,nilai:+r.nilai,benar:+r.benar,durasi:+r.durasi||0}));$("g-aktif").checked=!!GPK.aktif;$("g-pemb").checked=!!(s&&s.pembahasan);$("g-tamu").checked=!!(s&&s.tamu);$("g-akses").value=(s&&s.kode_akses)||"";$("g-maks").value=(s&&s.maks_keluar!==undefined&&s.maks_keluar!==null)?s.maks_keluar:5;$("g-tol").value=(s&&s.toleransi_keluar!==undefined&&s.toleransi_keluar!==null)?s.toleransi_keluar:10;$("g-buka").value=(s&&s.kode_buka)||"";
     $("g-srv").innerHTML=`${esc(GPK.judul)} · ${GPK.n_soal} soal · ${ROWS.length} hasil · diperbarui ${new Date().toLocaleTimeString("id-ID")}${(GPK.meta||{}).darurat?' · <span class="pill bad">Diterbitkan lewat jalur darurat (tanpa kisi-kisi resmi)</span>':""}`;
     const kelas=[...new Set(ROWS.map(r=>r.kelas))].sort();const sel=$("g-kelas"),cur=sel.value;sel.innerHTML=`<option value="">Semua</option>`+kelas.map(k=>`<option ${k===cur?"selected":""}>${esc(k)}</option>`).join("");renderRekap();renderButir();renderSub();
   }catch(e){$("g-srv").textContent="Gagal memuat: "+e.message}}
@@ -259,8 +292,8 @@ function renderRekap(){const rows=filtered().sort((a,b)=>(a.kelas||"").localeCom
   const avg=Math.round(rows.reduce((s,r)=>s+r.nilai,0)/rows.length),tuntas=rows.filter(r=>r.nilai>=75).length;
   $("g-stat").textContent=`${rows.length} siswa · rata-rata ${avg} · ≥75: ${tuntas} (${pct(tuntas,rows.length)}%) · terendah ${Math.min(...rows.map(r=>r.nilai))} · tertinggi ${Math.max(...rows.map(r=>r.nilai))}`;
   const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort(lsort);
-  t.innerHTML=`<tr><th>#</th><th>Nama</th><th>NISN</th><th>Kelas</th><th>Nilai</th><th>Benar</th>${levels.map(L=>`<th>${L}</th>`).join("")}<th>Terlemah</th><th>Waktu</th><th></th></tr>`+rows.map((r,k)=>{const it=rowItems(r),ls=levelSummary(it);const subs=[...new Set(it.map(x=>x.sub).filter(Boolean))].map(sb=>{const s=it.filter(x=>x.sub===sb);return [sb,pct(s.reduce((a,x)=>a+x.benar,0),s.length)]}).sort((a,b)=>a[1]-b[1]);
-    return `<tr><td>${k+1}</td><td>${esc(r.nama)}${r.tamu?' <span class="pill warn">tamu</span>':""}</td><td>${esc(r.nisn||"–")}</td><td>${esc(r.kelas)}</td><td class="n"><b>${r.nilai}</b></td><td class="n">${r.benar}</td>${levels.map(L=>`<td class="n">${ls[L]??"–"}%</td>`).join("")}<td>${esc(subs[0]?subs[0][0]:"")}</td><td>${fmtT(r.durasi)}</td><td>${r.nisn?`<button class="soft" style="padding:3px 8px;font-size:12px" data-reset="${esc(r.nisn)}" title="Hapus hasil agar siswa bisa mengulang">reset</button> `:""}<button class="danger" style="padding:3px 8px;font-size:12px" data-del="${esc(r.id)}">hapus</button></td></tr>`}).join("");
+  t.innerHTML=`<tr><th>#</th><th>Nama</th><th>NISN</th><th>Kelas</th><th>Nilai</th><th>Benar</th>${levels.map(L=>`<th>${L}</th>`).join("")}<th>Terlemah</th><th>Waktu</th><th>Keluar</th><th></th></tr>`+rows.map((r,k)=>{const it=rowItems(r),ls=levelSummary(it);const subs=[...new Set(it.map(x=>x.sub).filter(Boolean))].map(sb=>{const s=it.filter(x=>x.sub===sb);return [sb,pct(s.reduce((a,x)=>a+x.benar,0),s.length)]}).sort((a,b)=>a[1]-b[1]);
+    return `<tr><td>${k+1}</td><td>${esc(r.nama)}${r.tamu?' <span class="pill warn">tamu</span>':""}</td><td>${esc(r.nisn||"–")}</td><td>${esc(r.kelas)}</td><td class="n"><b>${r.nilai}</b></td><td class="n">${r.benar}</td>${levels.map(L=>`<td class="n">${ls[L]??"–"}%</td>`).join("")}<td>${esc(subs[0]?subs[0][0]:"")}</td><td>${fmtT(r.durasi)}</td><td class="n">${(r.keluar||(r.log_keluar||[]).length)?`<span class="pill ${r.keluar>=5?"bad":r.keluar?"warn":""}" title="${esc((r.log_keluar||[]).map(x=>`${new Date(x.t).toLocaleTimeString("id-ID")} ${x.d} dtk${x.hitung===false?" (sekejap)":""}`).join("\n"))}">${r.keluar||0}× <span class="muted">/${(r.log_keluar||[]).length}</span></span>`:"–"}</td><td>${r.nisn?`<button class="soft" style="padding:3px 8px;font-size:12px" data-reset="${esc(r.nisn)}" title="Hapus hasil agar siswa bisa mengulang">reset</button> `:""}<button class="danger" style="padding:3px 8px;font-size:12px" data-del="${esc(r.id)}">hapus</button></td></tr>`}).join("");
   t.querySelectorAll("[data-reset]").forEach(b=>b.onclick=async()=>{if(!confirm("Reset: hasil siswa ini dihapus dan ia boleh mengerjakan ulang. Lanjutkan?"))return;try{await rpc("tka_reset_siswa",{p_pin:PIN,p_ujian:$("g-ujian").value,p_nisn:b.dataset.reset});toast("Direset");loadGuru()}catch(e){toast("Gagal: "+e.message)}});
   t.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Hapus hasil ini?"))return;try{await rpc("tka_delete",{p_pin:PIN,p_id:b.dataset.del});toast("Dihapus");loadGuru()}catch(e){toast("Gagal: "+e.message)}})}
 function renderButir(){const rows=filtered(),t=$("g-butir-tabel");if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada data.</td></tr>";return}
@@ -281,12 +314,13 @@ async function renderRiwayat(){const box=$("g-riwayat-isi");box.innerHTML="Memua
   const uj=[...new Set(rows.map(r=>r.ujian))];const sis={};rows.forEach(r=>{const key=r.nisn||("~"+r.nama);(sis[key]=sis[key]||{nama:r.nama,nisn:r.nisn,kelas:r.kelas,n:{}}).n[r.ujian]=r.nilai});
   const list=Object.values(sis).sort((a,b)=>a.kelas.localeCompare(b.kelas)||a.nama.localeCompare(b.nama));
   box.innerHTML=`<table class="rekap"><tr><th>Nama</th><th>NISN</th><th>Kelas</th>${uj.map(u=>`<th>${esc(u)}</th>`).join("")}<th>Rata-rata</th></tr>${list.map(x=>{const v=uj.map(u=>x.n[u]);const ada=v.filter(y=>y!==undefined);return `<tr><td>${esc(x.nama)}</td><td>${esc(x.nisn||"–")}</td><td>${esc(x.kelas)}</td>${v.map(y=>`<td class="n">${y===undefined?"–":y}</td>`).join("")}<td class="n"><b>${ada.length?Math.round(ada.reduce((a,b)=>a+b,0)/ada.length):"–"}</b></td></tr>`}).join("")}</table>`}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
-function csv(){const rows=filtered();const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort(lsort);const head=["nama","nisn","kelas","nilai","benar","durasi_detik","selesai","varian",...GPK.meta.blueprint.map(b=>"S"+b.no),...levels];
-  const lines=[head.join(",")].concat(rows.map(r=>{const it=rowItems(r),ls=levelSummary(it);return [r.nama,r.nisn||"",r.kelas,r.nilai,r.benar,r.durasi,r.selesai,r.varian,...it.map(x=>x.benar),...levels.map(L=>ls[L])].map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")}));
+function csv(){const rows=filtered();const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort(lsort);const head=["nama","nisn","kelas","nilai","benar","durasi_detik","keluar_halaman","selesai","varian",...GPK.meta.blueprint.map(b=>"S"+b.no),...levels];
+  const lines=[head.join(",")].concat(rows.map(r=>{const it=rowItems(r),ls=levelSummary(it);return [r.nama,r.nisn||"",r.kelas,r.nilai,r.benar,r.durasi,r.keluar||0,r.selesai,r.varian,...it.map(x=>x.benar),...levels.map(L=>ls[L])].map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")}));
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}));a.download=`hasil_${GPK.kode}.csv`;a.click()}
 
 /* ================= EVENT ================= */
 window.addEventListener("DOMContentLoaded",()=>{
+  pantauKeluar();
   $("srv-status").innerHTML=SB?"":'<span class="pill bad">Server belum diatur</span> — hubungi admin.';
   const prev=lsGet(CFG.lsKey,null);
   if(prev&&prev.pk){S=prev;if(!prev.submitted&&prev.deadline>Date.now()){$("resume-box").classList.remove("hidden");$("resume-nama").textContent=prev.nama}
@@ -294,7 +328,7 @@ window.addEventListener("DOMContentLoaded",()=>{
     else S=null}
   const k=qs.get("ujian");if(k){$("kode").value=k.toUpperCase();if(SB)muatPaket(k)}
   $("btn-muat").onclick=()=>muatPaket($("kode").value);$("kode").addEventListener("keydown",e=>{if(e.key==="Enter")muatPaket($("kode").value)});
-  $("btn-resume").onclick=()=>{PK=S.pk;$("hd-t").textContent=PK.judul;if(S.submitted){show("v-result");$("r-kode").value=b64e(S.payload);if(S.saved&&S.result)renderResult();else kirim()}else{show("v-exam");renderQ();startTimer()}};
+  $("btn-resume").onclick=()=>{PK=S.pk;$("hd-t").textContent=PK.judul;if(S.submitted){show("v-result");$("r-kode").value=b64e(S.payload);if(S.saved&&S.result)renderResult();else kirim()}else{show("v-exam");renderQ();startTimer();if(S.terkunci)tampilPeringatan(0)}};
   $("btn-discard").onclick=()=>{if(confirm("Hapus pengerjaan sebelumnya di perangkat ini?")){localStorage.removeItem(CFG.lsKey);S=null;$("resume-box").classList.add("hidden")}};
   $("btn-start").onclick=async()=>{if(!PK){toast("Muat kode ujian dahulu");return}const akses=$("akses").value.trim();
     if(S&&!S.submitted&&S.deadline>Date.now()&&!confirm("Ada pengerjaan yang belum selesai. Mulai baru akan menghapusnya. Lanjutkan?"))return;
@@ -311,7 +345,7 @@ window.addEventListener("DOMContentLoaded",()=>{
       $("btn-ya").onclick=()=>mulaiUjian(PENDING);$("btn-bukan").onclick=()=>{PENDING=null;box.classList.add("hidden");$("nisn").value="";$("tgl").value="";$("nisn").focus();toast("Periksa kembali NISN dan tanggal lahir, atau hubungi guru")};
       box.scrollIntoView({behavior:"smooth"});return}
     mulaiUjian(ident)};
-  function mulaiUjian(ident){$("login-info").classList.add("hidden");newSession(ident.nama,ident.kelas,ident);$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer()}
+  function mulaiUjian(ident){$("login-info").classList.add("hidden");newSession(ident.nama,ident.kelas,ident);mintaLayarPenuh();$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer()}
   $("lnk-tamu").onclick=e=>{e.preventDefault();MODE="tamu";aturForm()};$("lnk-siswa").onclick=e=>{e.preventDefault();MODE="siswa";aturForm()};
   $("btn-prev").onclick=()=>{if(S.cur>0){S.cur--;save();renderQ()}};$("btn-next").onclick=()=>{if(S.cur<S.order.length-1){S.cur++;save();renderQ()}else $("grid").scrollIntoView({behavior:"smooth"})};
   $("btn-submit").onclick=()=>submit(false);$("btn-resend").onclick=kirim;
@@ -332,6 +366,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});
   $("btn-cari").onclick=renderRiwayat;$("g-cari").addEventListener("keydown",e=>{if(e.key==="Enter")renderRiwayat()});
   $("g-tamu").onchange=async e=>{try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"tamu",p_value:e.target.checked,p_ujian:$("g-ujian").value});toast(e.target.checked?"Jalur tamu dibuka":"Jalur tamu ditutup")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
+  $("btn-antikeluar").onclick=async()=>{const m=Math.max(0,parseInt($("g-maks").value||"0",10)),tol=Math.max(0,parseInt($("g-tol").value||"0",10)),kb=$("g-buka").value.trim().toUpperCase();try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"maks_keluar",p_value:m,p_ujian:$("g-ujian").value});await rpc("tka_set_setting",{p_pin:PIN,p_key:"toleransi_keluar",p_value:tol,p_ujian:$("g-ujian").value});await rpc("tka_set_setting",{p_pin:PIN,p_key:"kode_buka",p_value:kb,p_ujian:$("g-ujian").value});toast(m?`Batas keluar ${m} kali`:"Tanpa batas keluar")}catch(err){toast("Gagal: "+err.message)}};
   $("btn-akses").onclick=async()=>{const v=$("g-akses").value.trim().toUpperCase();try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"kode_akses",p_value:v,p_ujian:$("g-ujian").value});toast(v?"Kode akses "+v+" aktif":"Kode akses dinonaktifkan")}catch(err){toast("Gagal: "+err.message)}};
 });
 </script>
