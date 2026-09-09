@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<script>window.TKA_SUPABASE = { url: "https://jzxcnfetpjkltjjbglxz.supabase.co", key: "sb_publishable_9pl5IOJl-Vx0KEnHtCs3nA_ioZOkacq" };</script>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <!-- Baris ke-2: isi url proyek Supabase (Tryout_Guru) dan kunci "anon public". Sama persis dengan baris ke-2 index.html. -->
 <html lang="id">
 <head>
@@ -8,6 +8,7 @@
 <title>Admin Tryout TKA</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 :root{--bg:#f3f6f8;--card:#fff;--ink:#15232b;--muted:#5b6b75;--line:#d7e0e6;--acc:#1f3864;--acc-soft:#e3e9f4;--warn:#b45309;--warn-soft:#fff3e0;--bad:#b91c1c;--bad-soft:#fde8e8;--good:#15803d;--good-soft:#e3f5e8;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
@@ -51,7 +52,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   </div>
   <div id="pin-status" class="small" style="margin-top:6px"></div>
 </div>
-<div class="tabs"><button class="on" data-tab="kisi">Langkah 1 · Kisi-kisi</button><button data-tab="unggah">Langkah 2 · Soal</button><button data-tab="daftar">Daftar paket</button><button data-tab="darurat" style="color:var(--bad)">Jalur darurat</button><button data-tab="impor">Impor kode hasil</button><button data-tab="bantuan">Bantuan</button></div>
+<div class="tabs"><button class="on" data-tab="kisi">Langkah 1 · Kisi-kisi</button><button data-tab="unggah">Langkah 2 · Soal</button><button data-tab="daftar">Daftar paket</button><button data-tab="darurat" style="color:var(--bad)">Jalur darurat</button><button data-tab="siswa">Data siswa</button><button data-tab="impor">Impor kode hasil</button><button data-tab="bantuan">Bantuan</button></div>
 
 <section id="tab-kisi">
   <div class="card">
@@ -124,6 +125,30 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   </div>
 </section>
 
+<section id="tab-siswa" class="hidden">
+  <div class="card">
+    <h2>Data siswa</h2>
+    <p class="muted">Unggah <b>ekspor Excel Dapodik</b> (atau CSV/Excel apa pun) yang memuat kolom NISN, Nama, Rombel/Kelas, dan Tanggal Lahir. Kolom lain diabaikan. Setelah data siswa ada, siswa masuk ujian dengan <b>NISN + tanggal lahir</b>; nama & kelas terisi otomatis dan tiap siswa hanya punya satu hasil per ujian.</p>
+    <div class="drop" id="drop-s"><p><b>Seret file Excel/CSV ke sini</b> atau <label style="color:var(--acc);text-decoration:underline;cursor:pointer">pilih file<input type="file" id="file-s" accept=".xlsx,.xls,.csv" class="hidden"></label></p></div>
+    <div id="s-status" class="small" style="margin-top:8px"></div>
+  </div>
+  <div class="card hidden" id="s-map">
+    <h3 style="margin-top:0">Pemetaan kolom <span class="muted">(terdeteksi otomatis; ubah bila keliru)</span></h3>
+    <div class="row"><label class="small">NISN <select id="m-nisn"></select></label><label class="small">Nama <select id="m-nama"></select></label><label class="small">Kelas/Rombel <select id="m-kelas"></select></label><label class="small">Tanggal lahir <select id="m-tgl"></select></label><label class="small">NIS (opsional) <select id="m-nis"></select></label></div>
+    <div id="s-ringkas" class="small" style="margin-top:8px"></div>
+    <div class="tbl-wrap"><table class="t" id="s-prev"></table></div>
+    <div class="row" style="margin-top:10px"><button id="btn-s-simpan" class="good">Simpan ke server</button></div>
+    <div id="s-simpan-status" class="small" style="margin-top:8px"></div>
+  </div>
+  <div class="card"><h3 style="margin-top:0">Tambah / ubah satu siswa <span class="muted">(mutasi masuk, pindah kelas, koreksi)</span></h3>
+    <div class="row"><label class="small">NISN<input type="text" id="e-nisn" inputmode="numeric"></label><label class="small">NIS<input type="text" id="e-nis"></label><label class="small grow">Nama<input type="text" id="e-nama"></label><label class="small">Kelas<input type="text" id="e-kelas" placeholder="11-2"></label><label class="small">Tgl lahir<input type="date" id="e-tgl"></label><button id="btn-e-simpan" style="align-self:flex-end">Simpan</button></div>
+    <p class="muted">NISN yang sudah ada akan diperbarui (mis. pindah kelas). Mutasi keluar: gunakan <b>nonaktifkan</b> pada daftar — riwayat nilainya tetap tersimpan dan ia tidak bisa masuk ujian; <b>hapus</b> hanya untuk data salah.</p></div>
+  <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Siswa di server</h3><button class="soft" id="btn-s-muat" style="padding:6px 10px;font-size:13px">Muat</button></div>
+    <div id="s-server" class="small" style="margin-top:8px"></div>
+    <div class="row" style="margin-top:8px"><input type="text" id="s-cari" class="grow" placeholder="Cari nama/NISN…"><button class="danger" id="btn-s-hapus-semua">Hapus semua data siswa</button></div>
+    <div class="tbl-wrap"><table class="t" id="s-list"></table></div></div>
+</section>
+
 <section id="tab-impor" class="hidden">
   <div class="card"><h2>Impor kode hasil siswa</h2>
   <p class="muted">Untuk siswa yang hasilnya gagal terkirim (tidak ada sinyal). Tempel kode yang mereka kirim (boleh banyak, satu per baris). Jawaban akan dinilai oleh server dan masuk ke rekap.</p>
@@ -142,7 +167,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <li>Revisi soal: perbaiki Word, unggah ulang dengan <b>kode ujian yang sama</b> → paket lama ditimpa (hasil siswa tetap tersimpan).</li>
   </ol>
   <h3>Kode ujian</h3><p class="small">Huruf besar/angka/strip, 3–31 karakter, unik per paket. Saran: MAPEL-MATERI-NOMOR, mis. <code>KIM-STO-01</code>, <code>BIN-TKA-02</code>.</p>
-  <h3>Jalur darurat</h3><p class="small">Tab <b>Jalur darurat</b> menerbitkan paket langsung dari file soal (Template_Soal_Darurat.docx) tanpa Langkah 1, hanya dengan <b>PIN darurat</b> (bawaan <code>darurat2026</code>; ganti di SQL Editor: <code>update public.tka_privat set v='...' where k='pin_darurat';</code>). Kisi-kisi disusun otomatis dari soal dan ditandai Darurat. Untuk mengesahkan: <b>Daftar paket → Unduh kisi-kisi</b> → periksa/lengkapi di Word → unggah di <b>Langkah 1</b> dengan kode yang sama; bila jumlah soal dan bentuk per nomor cocok, tanda Darurat dicabut (jejak "disahkan" tetap tercatat).</p><h3>Keamanan</h3><p class="small">Kunci jawaban tersimpan di server dan tidak pernah dikirim ke HP siswa; penilaian dilakukan di server. PIN diverifikasi di server (tabel <code>tka_privat</code>).</p>
+  <h3>Jalur darurat</h3><p class="small">Tab <b>Jalur darurat</b> menerbitkan paket langsung dari file soal (Template_Soal_Darurat.docx) tanpa Langkah 1, hanya dengan <b>PIN darurat</b> (bawaan <code>darurat2026</code>; ganti di SQL Editor: <code>update public.tka_privat set v='...' where k='pin_darurat';</code>). Kisi-kisi disusun otomatis dari soal dan ditandai Darurat. Untuk mengesahkan: <b>Daftar paket → Unduh kisi-kisi</b> → periksa/lengkapi di Word → unggah di <b>Langkah 1</b> dengan kode yang sama; bila jumlah soal dan bentuk per nomor cocok, tanda Darurat dicabut (jejak "disahkan" tetap tercatat).</p><h3>Data siswa &amp; identitas</h3><p class="small">Tab <b>Data siswa</b>: unggah ekspor Dapodik/CSV. Setelah ada data siswa, siswa masuk dengan NISN + tanggal lahir (nama/kelas otomatis, satu hasil per ujian; guru bisa <i>reset</i> di dasbor). Per ujian, guru dapat membuka <b>jalur tamu</b> untuk siswa yang belum terdaftar dan menetapkan <b>kode akses</b> yang diumumkan di kelas.</p><h3>Keamanan</h3><p class="small">Kunci jawaban tersimpan di server dan tidak pernah dikirim ke HP siswa; penilaian dilakukan di server. PIN diverifikasi di server (tabel <code>tka_privat</code>).</p>
   </div>
 </section>
 </div>
@@ -784,6 +809,60 @@ async function terbitDarurat(){if(!DPAKET)return;const pd=$("pin-d").value.trim(
     $("d-terbit-status").innerHTML=`<span class="pill good">Terbit (darurat): ${esc(j.kode)}</span> <button class="ghost" id="btn-d-kisi" style="padding:6px 10px;font-size:13px">Unduh kisi-kisi otomatis (.docx) untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
   }catch(e){$("d-terbit-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
 
+
+/* ---------- data siswa ---------- */
+let SROWS=[],SHDR=[];
+const BULAN={jan:1,januari:1,feb:2,februari:2,mar:3,maret:3,apr:4,april:4,mei:5,may:5,jun:6,juni:6,jul:7,juli:7,agu:8,agustus:8,aug:8,sep:9,september:9,okt:10,oktober:10,oct:10,nov:11,november:11,des:12,desember:12,dec:12};
+function parseTgl(v){if(v===null||v===undefined||v==="")return null;
+  if(typeof v==="number"){const d=new Date(Math.round((v-25569)*86400000));return isNaN(d)?null:d.toISOString().slice(0,10)}
+  if(v instanceof Date)return isNaN(v)?null:new Date(v.getTime()-v.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  const s=String(v).trim();let m;
+  if((m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/)))return `${m[1]}-${m[2].padStart(2,"0")}-${m[3].padStart(2,"0")}`;
+  if((m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/)))return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
+  if((m=s.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/))){const b=BULAN[m[2].toLowerCase()];if(b)return `${m[3]}-${String(b).padStart(2,"0")}-${m[1].padStart(2,"0")}`}
+  return null}
+function tebakKolom(h){const l=h.map(x=>String(x||"").toLowerCase().trim());const f=re=>l.findIndex(x=>re.test(x));
+  return {nisn:f(/^nisn$|\bnisn\b/),nis:f(/^nis$|^nipd$|nomor induk(?! siswa nasional)/),nama:l.findIndex(x=>/^nama( (siswa|peserta didik|lengkap))?$/.test(x)),kelas:f(/rombel|^kelas|kelas saat ini/),tgl:f(/tanggal lahir|tgl[ _.]?lahir|tanggal_lahir|birth/)}}
+async function bacaSiswa(f){$("s-status").innerHTML=`<span class="pill">Membaca ${esc(f.name)}…</span>`;
+  try{let aoa;
+    if(/\.csv$/i.test(f.name)){const txt=await f.text();const sep=(txt.split("\n")[0].match(/;/g)||[]).length>(txt.split("\n")[0].match(/,/g)||[]).length?";":",";aoa=txt.split(/\r?\n/).filter(x=>x.trim()).map(line=>{const out=[];let cur="",q=false;for(const c of line){if(c==='"'){q=!q}else if(c===sep&&!q){out.push(cur);cur=""}else cur+=c}out.push(cur);return out.map(x=>x.trim())})}
+    else{if(typeof XLSX==="undefined")throw new Error("Pustaka Excel belum termuat (periksa koneksi). Simpan sebagai CSV lalu unggah.");const wb=XLSX.read(await f.arrayBuffer(),{type:"array",cellDates:false,raw:true});
+      // SEMUA sheet digabung (ekspor Dapodik sering satu sheet per rombel); tiap sheet dicari baris headernya sendiri
+      aoa=null;let nSheet=0;for(const n of wb.SheetNames){const r=XLSX.utils.sheet_to_json(wb.Sheets[n],{header:1,defval:"",raw:true});const hi=r.findIndex(row=>row.some(c=>/^nisn$/i.test(String(c).trim())));if(hi<0)continue;nSheet++;
+        if(!aoa)aoa=[r[hi]];const hdrTxt=r[hi].map(x=>String(x).trim().toLowerCase());const base=aoa[0].map(x=>String(x).trim().toLowerCase());
+        r.slice(hi+1).forEach(row=>{if(!row.some(c=>String(c).trim()!==""))return;const m=base.map(h=>{const j=hdrTxt.indexOf(h);return j>=0?row[j]:""});aoa.push(m)})}
+      if(!aoa)throw new Error("Tidak ada sheet dengan kolom NISN.");$("s-status").dataset.sheet=nSheet}
+    // cari baris header: baris pertama yang memuat 'nisn' atau 'nama'
+    let hi=aoa.findIndex(r=>r.some(c=>/nisn|nama/i.test(String(c))));if(hi<0)hi=0;SHDR=aoa[hi].map(x=>String(x));SROWS=aoa.slice(hi+1).filter(r=>r.some(c=>String(c).trim()!==""));
+    const g=tebakKolom(SHDR);["nisn","nis","nama","kelas","tgl"].forEach(k=>{const sel=$("m-"+k);sel.innerHTML=`<option value="-1">—</option>`+SHDR.map((h,i)=>`<option value="${i}" ${g[k]===i?"selected":""}>${esc(h||("kolom "+(i+1)))}</option>`).join("");sel.onchange=pratinjauSiswa});
+    $("s-status").innerHTML=`<span class="pill good">Terbaca</span> ${esc(f.name)} — ${SROWS.length} baris data, ${SHDR.length} kolom${$("s-status").dataset.sheet?` dari ${$("s-status").dataset.sheet} sheet`:""}`;$("s-map").classList.remove("hidden");pratinjauSiswa();
+  }catch(e){$("s-status").innerHTML=`<span class="pill bad">Gagal membaca</span> ${esc(e.message)}`;console.error(e)}}
+function petakan(){const c=k=>+$("m-"+k).value;const ix={nisn:c("nisn"),nis:c("nis"),nama:c("nama"),kelas:c("kelas"),tgl:c("tgl")};const out=[],galat=[];
+  SROWS.forEach((r,i)=>{let nisn=ix.nisn>=0?String(r[ix.nisn]??"").replace(/\D/g,""):"";if(nisn&&nisn.length>=7&&nisn.length<10)nisn=nisn.padStart(10,"0");const nama=ix.nama>=0?String(r[ix.nama]??"").trim():"";const kelas=ix.kelas>=0?String(r[ix.kelas]??"").trim():"";const tgl=ix.tgl>=0?parseTgl(r[ix.tgl]):null;const nis=ix.nis>=0?String(r[ix.nis]??"").trim():"";
+    const why=!nisn?"NISN kosong":!nama?"nama kosong":!kelas?"kelas kosong":!tgl?"tanggal lahir tidak terbaca ("+esc(String(r[ix.tgl]??""))+")":null;
+    if(why)galat.push(`Baris ${i+2}: ${why}`);else out.push({nisn,nis,nama,kelas,tgl_lahir:tgl})});
+  const dup=out.map(x=>x.nisn).filter((x,i,a)=>a.indexOf(x)!==i);if(dup.length)galat.push(`NISN ganda: ${[...new Set(dup)].slice(0,5).join(", ")}${dup.length>5?"…":""}`);
+  return {out,galat}}
+function pratinjauSiswa(){const {out,galat}=petakan();const kl={};out.forEach(x=>kl[x.kelas]=(kl[x.kelas]||0)+1);
+  $("s-ringkas").innerHTML=`<b>${out.length} siswa valid</b>${galat.length?`, <span style="color:var(--warn)">${galat.length} baris dilewati</span>`:""} · kelas: ${Object.entries(kl).sort().map(([k,v])=>`${esc(k)} (${v})`).join(", ")||"–"}${galat.length?`<ul class="warn">${galat.slice(0,8).map(x=>`<li>${x}</li>`).join("")}${galat.length>8?"<li>…</li>":""}</ul>`:""}`;
+  $("s-prev").innerHTML=`<tr><th>NISN</th><th>NIS</th><th>Nama</th><th>Kelas</th><th>Tgl lahir</th></tr>`+out.slice(0,8).map(x=>`<tr><td>${esc(x.nisn)}</td><td>${esc(x.nis)}</td><td>${esc(x.nama)}</td><td>${esc(x.kelas)}</td><td>${x.tgl_lahir}</td></tr>`).join("")+(out.length>8?`<tr><td colspan="5" class="muted">… ${out.length-8} lainnya</td></tr>`:"");
+  $("btn-s-simpan").disabled=!out.length}
+async function simpanSiswa(){if(!PIN()){toast("Isi PIN dahulu");return}const {out}=petakan();if(!out.length)return;const st=$("s-simpan-status");let n=0;$("btn-s-simpan").disabled=true;
+  try{for(let i=0;i<out.length;i+=200){const j=await rpc("tka_simpan_siswa",{p_pin:PIN(),p_rows:out.slice(i,i+200)});n+=j.n;st.innerHTML=`<span class="pill">Tersimpan ${n}/${out.length}…</span>`}
+    st.innerHTML=`<span class="pill good">${n} siswa tersimpan/diperbarui</span>`;muatSiswa()}catch(e){st.innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}finally{$("btn-s-simpan").disabled=false}}
+let SSERVER=[];
+async function muatSiswa(){const box=$("s-server");box.textContent="Memuat…";try{SSERVER=await rpc("tka_list_siswa",{p_pin:PIN()});const kl={};SSERVER.forEach(x=>kl[x.kelas]=(kl[x.kelas]||0)+1);
+  box.innerHTML=`<b>${SSERVER.length} siswa</b> · `+Object.entries(kl).sort().map(([k,v])=>`${esc(k)} (${v}) <button class="ghost" style="padding:2px 6px;font-size:11px" data-hk="${esc(k)}">hapus kelas</button>`).join(" · ");
+  box.querySelectorAll("[data-hk]").forEach(b=>b.onclick=async()=>{if(!confirm(`Hapus semua siswa kelas ${b.dataset.hk}?`))return;await rpc("tka_hapus_siswa",{p_pin:PIN(),p_kelas:b.dataset.hk});muatSiswa()});renderSiswa()}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+function renderSiswa(){const q=$("s-cari").value.trim().toLowerCase();const rows=SSERVER.filter(x=>!q||x.nama.toLowerCase().includes(q)||x.nisn.includes(q)).slice(0,60);
+  $("s-list").innerHTML=`<tr><th>NISN</th><th>Nama</th><th>Kelas</th><th>Tgl lahir</th><th>Status</th><th></th></tr>`+rows.map(x=>`<tr style="${x.aktif?"":"opacity:.55"}"><td>${esc(x.nisn)}</td><td>${esc(x.nama)}</td><td>${esc(x.kelas)}</td><td>${x.tgl_lahir}</td><td>${x.aktif?'<span class="pill good">aktif</span>':'<span class="pill bad">nonaktif</span>'}</td><td class="row"><button class="ghost" style="padding:2px 8px;font-size:12px" data-ed="${esc(x.nisn)}">ubah</button><button class="soft" style="padding:2px 8px;font-size:12px" data-ak="${esc(x.nisn)}" data-v="${x.aktif?0:1}">${x.aktif?"nonaktifkan":"aktifkan"}</button><button class="danger" style="padding:2px 8px;font-size:12px" data-hs="${esc(x.nisn)}">hapus</button></td></tr>`).join("")+(SSERVER.length>60&&!q?`<tr><td colspan="5" class="muted">Menampilkan 60 pertama — gunakan pencarian.</td></tr>`:"");
+  $("s-list").querySelectorAll("[data-hs]").forEach(b=>b.onclick=async()=>{if(!confirm("Hapus siswa "+b.dataset.hs+"? (Untuk mutasi keluar, lebih baik nonaktifkan.)"))return;await rpc("tka_hapus_siswa",{p_pin:PIN(),p_nisn:b.dataset.hs});muatSiswa()});
+  $("s-list").querySelectorAll("[data-ak]").forEach(b=>b.onclick=async()=>{try{await rpc("tka_set_siswa_aktif",{p_pin:PIN(),p_nisn:b.dataset.ak,p_aktif:b.dataset.v==="1"});muatSiswa()}catch(e){toast("Gagal: "+e.message)}});
+  $("s-list").querySelectorAll("[data-ed]").forEach(b=>b.onclick=()=>{const x=SSERVER.find(y=>y.nisn===b.dataset.ed);if(!x)return;$("e-nisn").value=x.nisn;$("e-nis").value=x.nis||"";$("e-nama").value=x.nama;$("e-kelas").value=x.kelas;$("e-tgl").value=x.tgl_lahir;$("e-nisn").scrollIntoView({behavior:"smooth"})})}
+async function simpanSatu(){const nisn=$("e-nisn").value.replace(/\D/g,""),nama=$("e-nama").value.trim(),kelas=$("e-kelas").value.trim(),tgl=$("e-tgl").value,nis=$("e-nis").value.trim();
+  if(!nisn||!nama||!kelas||!tgl){toast("Isi NISN, nama, kelas, tanggal lahir");return}
+  try{await rpc("tka_simpan_siswa",{p_pin:PIN(),p_rows:[{nisn,nis,nama,kelas,tgl_lahir:tgl}]});toast("Tersimpan: "+nama);["e-nisn","e-nis","e-nama","e-kelas","e-tgl"].forEach(i=>$(i).value="");muatSiswa()}catch(e){toast("Gagal: "+e.message)}}
+
 /* ---------- daftar ---------- */
 async function muatDaftar(){const t=$("daftar");t.innerHTML="<tr><td class='muted'>Memuat…</td></tr>";
   try{const rows=await rpc("tka_list_paket",{p_pin:PIN()});
@@ -805,13 +884,17 @@ window.addEventListener("DOMContentLoaded",()=>{
   try{const s=localStorage.getItem("tka_admin_pin");if(s){$("pin").value=s;$("pin-ingat").checked=true}}catch(e){}
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
     try{await rpc("tka_list_paket",{p_pin:PIN()});$("pin-status").innerHTML='<span class="pill good">PIN benar · server terhubung</span>';muatDaftarKisi();muatDaftar()}catch(e){$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
-  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","impor","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}});
+  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","siswa","impor","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="siswa"&&PIN())muatSiswa();if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}});
   $("file").onchange=e=>{if(e.target.files[0])bacaFile(e.target.files[0])};
   $("file-k").onchange=e=>{if(e.target.files[0])bacaKisi(e.target.files[0])};
   const dk=$("drop-k");dk.ondragover=e=>{e.preventDefault();dk.style.borderColor="var(--acc)"};dk.ondragleave=()=>dk.style.borderColor="";dk.ondrop=e=>{e.preventDefault();dk.style.borderColor="";if(e.dataTransfer.files[0])bacaKisi(e.dataTransfer.files[0])};
   $("file-d").onchange=e=>{if(e.target.files[0])bacaDarurat(e.target.files[0])};
   const dd=$("drop-d");dd.ondragover=e=>{e.preventDefault();dd.style.borderColor="var(--bad)"};dd.ondragleave=()=>dd.style.borderColor="";dd.ondrop=e=>{e.preventDefault();dd.style.borderColor="";if(e.dataTransfer.files[0])bacaDarurat(e.dataTransfer.files[0])};
   $("btn-d-terbit").onclick=terbitDarurat;
+  $("file-s").onchange=e=>{if(e.target.files[0])bacaSiswa(e.target.files[0])};
+  const ds=$("drop-s");ds.ondragover=e=>{e.preventDefault();ds.style.borderColor="var(--acc)"};ds.ondragleave=()=>ds.style.borderColor="";ds.ondrop=e=>{e.preventDefault();ds.style.borderColor="";if(e.dataTransfer.files[0])bacaSiswa(e.dataTransfer.files[0])};
+  $("btn-s-simpan").onclick=simpanSiswa;$("btn-s-muat").onclick=muatSiswa;$("btn-e-simpan").onclick=simpanSatu;$("s-cari").addEventListener("input",renderSiswa);
+  $("btn-s-hapus-semua").onclick=async()=>{if(!confirm("Hapus SEMUA data siswa? Siswa tidak bisa masuk dengan NISN sampai data diunggah lagi."))return;if(!confirm("Yakin?"))return;try{await rpc("tka_hapus_siswa",{p_pin:PIN(),p_semua:true});toast("Semua data siswa dihapus");muatSiswa()}catch(e){toast("Gagal: "+e.message)}};
   $("btn-k-simpan").onclick=simpanKisi;$("btn-k-unduh").onclick=()=>{if(KISI)unduhTemplate(KISI)};
   const dz=$("drop");dz.ondragover=e=>{e.preventDefault();dz.style.borderColor="var(--acc)"};dz.ondragleave=()=>dz.style.borderColor="";dz.ondrop=e=>{e.preventDefault();dz.style.borderColor="";if(e.dataTransfer.files[0])bacaFile(e.dataTransfer.files[0])};
   $("btn-json").onclick=()=>{if(PAKET)unduh(`paket_${PAKET.kode}.json`,JSON.stringify(PAKET,null,1))};
