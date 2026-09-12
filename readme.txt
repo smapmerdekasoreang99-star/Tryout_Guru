@@ -1,4 +1,4 @@
-# Tryout TKA Merdeka v4 — Panduan (kisi-kisi → template soal → terbit; data siswa & identitas)
+# Asesmen Merdeka (Tryout) v5 — Panduan (kisi-kisi → template soal → terbit; data siswa; menu guru & PIN pengawas)
 
 ## Alur kerja
 
@@ -27,11 +27,11 @@ Isi folder:
 | `index.html` | Halaman siswa + dasbor guru |
 | `Template_Soal_Darurat.docx` | Untuk **jalur darurat** (terbit tanpa kisi-kisi; hanya dengan PIN darurat) |
 | `Template_Data_Siswa.xlsx` | Contoh format data siswa (NISN, NIS, Nama, Kelas, Tanggal Lahir); ekspor Dapodik juga diterima |
-| `supabase_setup_v4.sql` | Skema database (aman dijalankan di atas v1/v2/v3) |
+| `supabase_setup_v5.sql` | Skema database (aman dijalankan di atas v1–v4) |
 
 ## A. Pemasangan / pembaruan (±10 menit)
 
-1. Supabase (proyek **Tryout_Guru**) → SQL Editor → tempel seluruh `supabase_setup_v4.sql` → Run.
+1. Supabase (proyek **Tryout_Guru**) → SQL Editor → tempel seluruh `supabase_setup_v5.sql` → Run.
 2. Baris ke-2 `index.html` dan `admin.html`: isi `url` dan `key` (anon public) Supabase — sama seperti sebelumnya.
 3. Unggah kedua HTML ke GitHub (timpa yang lama). Tunggu 1–2 menit.
 
@@ -65,13 +65,20 @@ Isi folder:
 
 - **Unggah data siswa**: `admin.html` → tab *Data siswa* → unggah ekspor Excel Dapodik (.xls/.xlsx, **semua sheet dibaca dan digabung** — ekspor per rombel langsung bisa) atau CSV. Kolom NISN, Nama, Rombel/Kelas, Tanggal lahir dideteksi otomatis (bisa diubah pada pemetaan kolom); tanggal diterima dalam format `2008-05-17`, `17/05/2008`, `17 Mei 2008`, atau tanggal Excel. Baris tanpa NISN/tanggal dilewati dan dilaporkan. Unggah ulang = memperbarui (NISN sebagai kunci). Perbarui tiap awal tahun ajaran.
 - **Mutasi siswa**: *masuk* → isi formulir *Tambah/ubah satu siswa* (NISN, nama, kelas, tanggal lahir) → Simpan; *pindah kelas/koreksi* → tombol **ubah** pada daftar → perbaiki → Simpan; *keluar* → tombol **nonaktifkan** (riwayat nilai tetap tersimpan, siswa tidak bisa masuk ujian dan tidak dihitung "belum mengerjakan"); **hapus** hanya untuk data yang salah. Awal tahun ajaran: unggah ekspor Dapodik terbaru — kelas semua siswa ikut diperbarui otomatis (NISN sebagai kunci).
-- **Guru mencoba soal**: halaman siswa → tautan *Guru: coba soal* → kode ujian + PIN guru. Paket **nonaktif pun bisa dicoba** (jadi paket bisa diperiksa sebelum diaktifkan), hasil **tidak disimpan**, dan kunci/pembahasan langsung tersedia di halaman hasil. Untuk membaca semua soal beserta kunci tanpa mengerjakan, gunakan pratinjau di `admin.html` (Langkah 2 sebelum terbit, atau *Daftar paket → JSON*).
+- **Guru mencoba soal**: halaman siswa → *Guru / pengawas* → PIN → **Uji coba soal** → kode ujian. Paket **nonaktif pun bisa dicoba** (jadi paket bisa diperiksa sebelum diaktifkan), hasil **tidak disimpan**, dan kunci/pembahasan langsung tersedia di halaman hasil. Untuk membaca semua soal beserta kunci tanpa mengerjakan, gunakan pratinjau di `admin.html` (Langkah 2 sebelum terbit, atau *Daftar paket → JSON*).
 - **Masuk ujian**: begitu data siswa ada, halaman siswa meminta **NISN + tanggal lahir** (nama & kelas terisi otomatis dari data sekolah, tidak bisa diketik). Tanpa data siswa, halaman tetap meminta nama/kelas seperti sebelumnya.
 - **Satu hasil per siswa per ujian**: siswa yang sudah mengerjakan tidak bisa masuk lagi; guru dapat **reset** dari dasbor (hasil lama dihapus, siswa boleh mengulang). Kirim-ulang jawaban yang gagal terkirim tetap diperbolehkan (bukan pengerjaan baru).
 - **Jalur tamu** (per ujian, saklar di dasbor guru): siswa tak terdaftar mengetik nama/kelas; hasilnya berlabel *tamu*. Default mati.
 - **Kode akses ujian** (per ujian, diisi di dasbor guru, mis. `4821`): diumumkan di kelas saat ujian dimulai; siapa pun tanpa kode tidak bisa mulai walau tahu tautannya. Kosongkan untuk menonaktifkan.
 - **Dasbor guru** bertambah: kolom NISN, tombol *reset*, tab **Belum mengerjakan** (siswa terdaftar tanpa hasil, per kelas), tab **Riwayat siswa** (nilai tiap siswa lintas ujian, cari NISN/nama atau per kelas).
 - Privasi: data siswa tersimpan di tabel yang dikunci RLS dan hanya bisa dibaca dengan PIN guru; siswa hanya bisa memverifikasi dirinya sendiri (NISN + tanggal lahir). Tanggal lahir adalah verifikasi ringan — cukup untuk tryout; untuk penilaian berisiko tinggi gunakan kode akses + pengawasan.
+
+## C3b. Menu guru, PIN pengawas, dan Daftar siswa (v5)
+
+- Layar awal siswa kini hanya punya satu tautan kecil **Guru / pengawas** (atau buka langsung `index.html?guru`). Setelah PIN dimasukkan **sekali** (berlaku selama tab/peramban terbuka), tampil **Menu guru**: *Daftar siswa*, *Dasbor hasil*, *Uji coba soal*, dan *Halaman admin* (yang terakhir hanya untuk PIN guru).
+- **Dua PIN**: **PIN guru** (bawaan `merdeka2026`) = kelola: admin, pengaturan ujian, reset/hapus hasil, data siswa. **PIN pengawas** (bawaan `pengawas2026`) = lihat: dasbor tanpa tombol pengaturan/reset/hapus, daftar siswa, uji coba soal. Server menolak semua fungsi tulis bila PIN-nya PIN pengawas — bukan sekadar disembunyikan di layar. Ganti: `update public.tka_privat set v='PIN_BARU' where k='pin_pengawas';` (dan `k='pin'` untuk PIN guru). Bagikan PIN pengawas ke pengawas ruang; PIN guru cukup di kurikulum/admin.
+- **Daftar siswa** (bantu login): untuk siswa yang lupa NISN. Kotak cari nama/NISN menyaring seketika; chip kelas untuk mengelompokkan (jumlah siswa aktif per kelas ikut tampil); NISN tampil besar dengan tombol **Salin NISN**; **tanggal lahir disembunyikan** sampai tombol *Tgl lahir* diketuk (agar tidak terbaca siswa lain dari layar HP pengawas). Pilih ujian pada *Tandai sudah/belum mengerjakan* untuk melihat siapa yang belum masuk tanpa pindah ke dasbor. Siswa nonaktif tampil pudar. Tidak ada tombol ubah/hapus di halaman ini — itu tetap di `admin.html`.
+- Data daftar siswa dimuat sekali per sesi (tombol *Muat ulang* bila ada perubahan) sehingga pencarian tidak membebani server saat ujian serentak.
 
 ## C4. Pengawasan keluar halaman
 
@@ -81,12 +88,12 @@ Isi folder:
 
 ## D. Setelah ujian
 
-`index.html` → *Masuk sebagai guru* → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah), analisis butir (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, CSV. Saklar **pembahasan** membuka kunci & pembahasan bagi siswa yang sudah selesai.
+`index.html` → *Guru / pengawas* → PIN → **Dasbor hasil** → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah), analisis butir (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, CSV. Saklar **pembahasan** membuka kunci & pembahasan bagi siswa yang sudah selesai.
 
 Revisi soal: perbaiki Word → unggah ulang di Langkah 2 (kode sama) → paket ditimpa, hasil siswa tetap. Revisi kisi-kisi: unggah ulang di Langkah 1 → unduh Template Soal baru → isi ulang bagian yang berubah → Langkah 2.
 
 ## E. Catatan
 
-- Kunci tidak pernah dikirim ke HP siswa; penilaian di server. PIN tunggal untuk admin & guru (+ PIN darurat terpisah).
+- Kunci tidak pernah dikirim ke HP siswa; penilaian di server. Tiga PIN: guru/kelola, pengawas/lihat, darurat.
 - Proyek gratis Supabase dijeda bila 7 hari tanpa aktivitas → *Restore* sehari sebelum ujian.
-- Diuji ujung-ke-ujung dengan PostgreSQL lokal dan tiruan browser (kisi → template → soal → terbit → data siswa CSV Dapodik → login NISN/tgl lahir → satu hasil → reset → tamu → kode akses → dasbor belum/riwayat). Pembacaan **Excel (.xlsx)** memakai pustaka SheetJS dari CDN dan belum diuji di sini; bila gagal, simpan sebagai CSV. Belum diuji di Supabase/GitHub sungguhan — uji dengan berkas contoh dulu.
+- Diuji ujung-ke-ujung dengan PostgreSQL lokal dan tiruan browser (kisi → template → soal → terbit → data siswa CSV Dapodik → login NISN/tgl lahir → satu hasil → reset → tamu → kode akses → dasbor belum/riwayat → menu guru & PIN pengawas → daftar siswa). Pembacaan **Excel (.xlsx)** memakai pustaka SheetJS dari CDN dan belum diuji di sini; bila gagal, simpan sebagai CSV. Belum diuji di Supabase/GitHub sungguhan — uji dengan berkas contoh dulu.
