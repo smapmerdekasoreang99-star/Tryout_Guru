@@ -966,7 +966,7 @@ function unduh(nama,isi){const a=document.createElement("a");a.href=URL.createOb
 
 /* ---------- event ---------- */
 window.addEventListener("DOMContentLoaded",()=>{
-  $("cfg").innerHTML=SB?`<span class="pill good">Supabase: ${esc(SB.url)}</span>`:`<span class="pill bad">Supabase belum diatur</span> — buat berkas <code>config.js</code> (lihat Bantuan) atau isi baris ke-2 admin.html.`;
+  $("cfg").innerHTML=SB?`<span class="pill good">Server terhubung ✓</span>`:`<span class="pill bad">Supabase belum diatur</span> — buat berkas <code>config.js</code> (lihat Bantuan) atau isi baris ke-2 admin.html.`;
   try{const s=localStorage.getItem("tka_admin_pin");if(s){$("pin").value=s;$("pin-ingat").checked=true}}catch(e){}
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
     try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});setPeran(j.peran);$("pin-status").innerHTML=`<span class="pill good">PIN benar · server terhubung</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — terbit & atur paket (data siswa hanya lihat)":"pengawas — hanya lihat"}</span>`;muatDaftarKisi();muatDaftar()}catch(e){setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
