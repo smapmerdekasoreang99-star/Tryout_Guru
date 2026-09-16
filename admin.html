@@ -394,7 +394,10 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       const bentuk = normBentuk(bentukRaw);
       if (!bentuk) { errors.push(`${id}: Bentuk "${T(t, 'bentuk')}" tidak dikenal (PG/PGK/KATEGORI/JODOH/ISIAN).`); return; }
       const q = { bentuk, stimulus: H(t, 'stimulus'), pertanyaan: H(t, 'pertanyaan'), pembahasan: H(t, 'pembahasan') };
-      if (!T(t, 'pertanyaan')) errors.push(`${id}: Pertanyaan kosong.`);
+      if (!T(t, 'pertanyaan')) {
+        if (T(t, 'stimulus')) { q.pertanyaan = q.stimulus; q.stimulus = ''; warnings.push(`${id}: Pertanyaan kosong — isi Perintah soal dipakai sebagai pertanyaan.`); }
+        else errors.push(`${id}: Pertanyaan kosong (isi Pertanyaan atau Perintah soal).`);
+      }
       if (!T(t, 'pembahasan')) warnings.push(`${id}: Pembahasan kosong.`);
       const kunciT = T(t, 'kunci');
       if (bentuk === 'PG' || bentuk === 'PGK') {
@@ -721,7 +724,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
      'PILIH TABEL SESUAI BENTUK: PG → tabel "SOAL — PG"; jawaban benar lebih dari satu → "SOAL — PG KOMPLEKS"; pernyataan Benar/Salah → "SOAL — BENAR – SALAH"; menjodohkan → "SOAL — MENJODOHKAN"; jawaban singkat/angka → "SOAL — ISIAN SINGKAT / ANGKA". Isi baris Bentuk dengan: PG / PG Kompleks / Benar - Salah / Menjodohkan / Isian.',
      'SEMUA PILIHAN HARUS DIISI: untuk PG dan PG Kompleks isi Pilihan A sampai E (minimal A–D) — satu pilihan per baris, tanpa huruf "A." di depannya. Untuk Benar - Salah isi Pernyataan 1–5 (tanpa kotak centang). Untuk Menjodohkan isi Kiri 1–6 dan Kanan a–f. Jangan meletakkan pilihan di dalam sel Pertanyaan.',
      'TEKS BACAAN BERSAMA: bila beberapa soal mengacu pada satu teks/tabel/grafik yang sama, buat satu tabel TEKS BACAAN dengan Kode teks (T1, T2, …), Judul, dan Isi; lalu tulis kode yang sama pada baris "Kode teks" setiap soal yang mengacu ke teks itu. Jangan menyalin ulang teks ke setiap soal.',
-     'TABEL DATA DI DALAM TEKS/PERINTAH SOAL: pertahankan sebagai TABEL WORD SUNGGUHAN di dalam sel Isi (teks bacaan) atau sel Perintah soal — jangan diubah menjadi teks dengan tanda "|" atau tab. Gambar/grafik: sisipkan sebagai gambar PNG/JPG (≤ 300 KB) di dalam sel yang sama.',
+     'TABEL DATA DI DALAM TEKS/PERINTAH SOAL: pertahankan sebagai TABEL WORD SUNGGUHAN di dalam sel Isi (teks bacaan) atau sel Perintah soal — jangan diubah menjadi teks dengan tanda "|" atau tab; beri gaya Table Grid (border penuh) agar rapi saat dicetak. Gambar/grafik: sisipkan sebagai gambar PNG/JPG (≤ 300 KB) di dalam sel yang sama.',
      'LEVEL memakai tepat salah satu dari: Knowing (mengingat/memahami), Applying (menerapkan), Reasoning (menganalisis/mengevaluasi/mencipta). Bila naskah memakai C1–C6 atau Mudah/Sedang/Sukar, petakan: C1–C2 → Knowing, C3 → Applying, C4–C6 → Reasoning; Mudah → Knowing, Sedang → Applying, Sukar → Reasoning (kecuali jelas bukan penalaran).',
      'KUNCI mengikuti format: PG "B"; PG Kompleks "A, C, E"; Benar - Salah "Benar, Salah, Benar, Benar, Salah" sesuai urutan pernyataan; Menjodohkan "1-d, 2-c, 3-e, 4-a"; Isian nilai kunci + Toleransi (angka) + Jawaban alternatif dipisah "|". Kunci harus merujuk pada pilihan yang benar-benar ada.',
      'KOMPETENSI dan INDIKATOR: ambil dari naskah bila ada; bila tidak ada, tuliskan sub-materi dan indikator yang wajar dari isi soal (bukan dikosongkan). Nomor harus berurutan 1..N tanpa lompatan; Varian diisi A bila hanya satu varian.',
