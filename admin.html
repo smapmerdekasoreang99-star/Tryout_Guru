@@ -333,6 +333,19 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       flush();
       if (nGabung) warnings.push(`Satu tabel Word memuat ${nGabung + 1} tabel yang tergabung (baris kosong di antara tabel terhapus); sudah dipisahkan otomatis.`);
     }
+    // Tabel data yang diletakkan DI LUAR sel (tepat setelah tabel TEKS BACAAN / SOAL) — kebiasaan hasil konversi AI —
+    // dipindahkan ke dalam sel Isi (teks) atau Perintah soal (soal) agar ikut tampil di layar siswa.
+    for (let i = tables.length - 1; i >= 1; i--) {
+      const g = tables[i], prev = tables[i - 1];
+      if (g.type !== 'GRID' || !g.grid || !g.grid.length || (prev.type !== 'TEKS' && prev.type !== 'SOAL')) continue;
+      const html = '<table>' + g.grid.map(r => '<tr>' + r.map(c => `<td>${c.html || ''}</td>`).join('') + '</tr>').join('') + '</table>';
+      const key = prev.type === 'TEKS' ? 'isi' : 'stimulus';
+      const f = prev.fields[key] || { html: '', text: '' };
+      prev.fields[key] = { html: (f.html || '') + html, text: ((f.text || '') + '\n[tabel]').trim() };
+      if (!prev.order.includes(key)) prev.order.push(key);
+      tables.splice(i, 1);
+      warnings.push(`Tabel data yang berada di luar sel dipindahkan ke ${prev.type === 'TEKS' ? 'Isi teks bacaan ' + ((prev.fields['kode teks'] || {}).text || '') : 'Perintah soal nomor ' + ((prev.fields.nomor || {}).text || '')}.`);
+    }
     return { tables, warnings };
   }
 
