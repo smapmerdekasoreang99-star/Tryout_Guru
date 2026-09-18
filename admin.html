@@ -33,6 +33,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 .drop{border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;background:#fafcfd}
 .prev{border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0}
 .prev .stim img{max-width:100%;height:auto}.prev table{border-collapse:collapse;margin:6px 0;font-size:13px}.prev td,.prev th{border:1px solid var(--line);padding:4px 8px}
+.teks-prev{background:#eef1f3;border:1px solid #c9d5dd;border-radius:8px;padding:8px 10px;margin:6px 0}.teks-prev summary{cursor:pointer;font-weight:600;font-size:13px}.teks-prev .stim{font-size:13px;margin-top:6px}
 .opt{padding:6px 10px;border:1px solid var(--line);border-radius:8px;margin:4px 0}.opt.key{border-color:var(--good);background:var(--good-soft)}
 .pemb{background:#f3f6fb;border-left:3px solid #3b5670;padding:6px 10px;margin:6px 0;font-size:13px}
 details summary{cursor:pointer;font-weight:600;padding:6px 0}
@@ -111,6 +112,8 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div id="daftar-tautan" class="hidden" style="margin-top:10px"></div></div>
   <div class="card hidden" id="daftar-peserta-card"><h3 style="margin-top:0">Peruntukan ujian <span id="dp-kode" class="pill"></span></h3><div id="dp-box"></div>
     <div class="row" style="margin-top:10px"><button id="btn-dp-simpan" class="good">Simpan peruntukan</button><button class="ghost" id="btn-dp-batal">Tutup</button></div><div id="dp-status" class="small" style="margin-top:6px"></div></div>
+  <div class="card hidden" id="daftar-lihat-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Pratinjau paket <span id="dl-kode" class="pill"></span></h3><button class="ghost" id="btn-dl-tutup" style="padding:6px 10px;font-size:13px">Tutup</button></div>
+    <div id="dl-info" class="small muted" style="margin:6px 0"></div><div id="dl-prev"></div></div>
 </section>
 
 <section id="tab-darurat" class="hidden">
@@ -856,8 +859,9 @@ function safeHtml(html){const ALLOW={B:1,I:1,U:1,SUB:1,SUP:1,BR:1,P:1,TABLE:1,TR
 const studentBase=()=>location.href.replace(/[#?].*$/,"").replace(/[^\/]*$/,"")+"index.html"; // folder halaman ini + index.html (berlaku untuk .../admin, .../admin.html, maupun .../)
 
 /* ---------- pratinjau ---------- */
+let PREV_TEKS={};
 function prevSoal(no,v,q,bp){const L="ABCDE",l="abcdef";let h=`<div class="prev"><div class="row" style="justify-content:space-between"><b>No. ${no} · Varian ${v}</b><span><span class="pill">${q.bentuk}</span> <span class="pill">${esc(bp.level||"?")}</span> <span class="pill">${esc(bp.sub||"-")}</span></span></div>`;
-  if(q.teks)h+=`<div class="muted">Teks bacaan: ${esc(q.teks)}</div>`;
+  if(q.teks){const tk=(PREV_TEKS||{})[q.teks];h+=tk?`<details class="teks-prev" open><summary>Teks bacaan ${esc(q.teks)}: ${esc(tk.judul||"")}</summary><div class="stim">${safeHtml(tk.isi)}</div></details>`:`<div class="muted" style="color:var(--bad)">Teks bacaan ${esc(q.teks)} tidak ditemukan</div>`}
   h+=`<div class="stim">${safeHtml(q.stimulus)}</div><p><b>${safeHtml(q.pertanyaan)}</b></p>`;
   if(q.opsi)h+=q.opsi.map((o,i)=>`<div class="opt ${o[1]?"key":""}">${L[i]}. ${safeHtml(o[0])}</div>`).join("");
   if(q.baris)h+=`<table><tr><th></th><th>Pernyataan</th><th>${esc(q.label[0])}</th><th>${esc(q.label[1])}</th></tr>`+q.baris.map((b,i)=>`<tr><td>${L[i]}</td><td>${safeHtml(b[0])}</td><td style="text-align:center">${b[1]===0?"✔":""}</td><td style="text-align:center">${b[1]===1?"✔":""}</td></tr>`).join("")+`</table>`;
@@ -874,7 +878,7 @@ function tampilkan(r){
   $("errs").innerHTML=(r.errors.length?`<h3 style="color:var(--bad)">Galat (${r.errors.length})</h3><ul class="err">${r.errors.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"")+(r.warnings.length?`<h3 style="color:var(--warn)">Peringatan (${r.warnings.length})</h3><ul class="warn">${r.warnings.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"");
   const lv={},bt={};p.meta.blueprint.forEach(b=>{lv[b.level||"?"]=(lv[b.level||"?"]||0)+1;bt[b.bentuk]=(bt[b.bentuk]||0)+1});
   $("bp").innerHTML=`<tr><th>No</th><th>Sub-materi</th><th>Indikator</th><th>Level</th><th>Level TKA</th><th>Bentuk</th><th>Varian</th></tr>`+p.meta.blueprint.map((b,i)=>`<tr><td>${b.no}</td><td>${esc(b.sub)}</td><td>${esc(b.indikator)}</td><td>${esc(b.level)}</td><td>${esc(b.tka)}</td><td>${esc(b.bentuk)}</td><td>${Object.keys(p.kunci.soal[i].varian).join(", ")}</td></tr>`).join("")+`<tr><th colspan="7">Komposisi level: ${Object.entries(lv).sort().map(([k,v])=>`${k}=${v} (${Math.round(v/p.n_soal*100)}%)`).join(" · ")} — bentuk: ${Object.entries(bt).map(([k,v])=>`${k}=${v}`).join(" · ")}</th></tr>`;
-  $("prev").innerHTML=(Object.keys(p.kunci.teks).length?`<details><summary>Teks bacaan (${Object.keys(p.kunci.teks).length})</summary>${Object.entries(p.kunci.teks).map(([k,t])=>`<div class="prev"><b>${esc(k)} — ${esc(t.judul)}</b><div class="stim">${safeHtml(t.isi)}</div></div>`).join("")}</details>`:"")+
+  PREV_TEKS=p.kunci.teks||{};$("prev").innerHTML=(Object.keys(p.kunci.teks).length?`<details><summary>Teks bacaan (${Object.keys(p.kunci.teks).length})</summary>${Object.entries(p.kunci.teks).map(([k,t])=>`<div class="prev"><b>${esc(k)} — ${esc(t.judul)}</b><div class="stim">${safeHtml(t.isi)}</div></div>`).join("")}</details>`:"")+
     p.kunci.soal.map((s,i)=>`<details><summary>No. ${s.no} — ${esc(p.meta.blueprint[i].sub||"")} (${Object.keys(s.varian).join("/")})</summary>${Object.entries(s.varian).map(([v,q])=>prevSoal(s.no,v,q,p.meta.blueprint[i])).join("")}</details>`).join("");
   $("tautan").classList.add("hidden");$("terbit-status").textContent="";
 }
@@ -935,7 +939,7 @@ async function bacaDarurat(f){$("d-status").innerHTML=`<span class="pill">Membac
     $("d-errs").innerHTML=(r.errors.length?`<h3 style="color:var(--bad)">Galat (${r.errors.length})</h3><ul class="err">${r.errors.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"")+(r.warnings.length?`<h3 style="color:var(--warn)">Peringatan (${r.warnings.length})</h3><ul class="warn">${r.warnings.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"");
     const bp=p.meta.blueprint||[];$("d-bp").innerHTML=`<tr><th>No</th><th>Kompetensi/Sub-materi</th><th>Indikator</th><th>Level</th><th>Bentuk</th><th>Teks</th></tr>`+bp.map(b=>`<tr><td>${b.no}</td><td>${esc(b.sub)}</td><td>${esc(b.indikator)}</td><td>${esc(b.level)}</td><td>${esc(b.bentuk)}</td><td>${esc(b.teks||"")}</td></tr>`).join("");
     if(k){const km=TKA.komposisi(k.kisi.meta.blueprint);$("d-komposisi").innerHTML=`<b>Komposisi:</b> ${Object.entries(km.level).map(([x,y])=>`${x} ${y} (${Math.round(y/km.n*100)}%)`).join(" · ")} — <b>bentuk:</b> ${Object.entries(km.bentuk).map(([x,y])=>`${x} ${y}`).join(" · ")}`}
-    $("d-prev").innerHTML=p.kunci.soal.map((s,i)=>`<details><summary>No. ${s.no} — ${esc((bp[i]||{}).sub||"")} (${Object.keys(s.varian).join("/")})</summary>${Object.entries(s.varian).map(([v,q])=>prevSoal(s.no,v,q,bp[i]||{})).join("")}</details>`).join("");
+    PREV_TEKS=p.kunci.teks||{};$("d-prev").innerHTML=(Object.keys(PREV_TEKS).length?`<details><summary>Teks bacaan (${Object.keys(PREV_TEKS).length})</summary>${Object.entries(PREV_TEKS).map(([k,t])=>`<div class="prev"><b>${esc(k)} — ${esc(t.judul)}</b><div class="stim">${safeHtml(t.isi)}</div></div>`).join("")}</details>`:"")+p.kunci.soal.map((s,i)=>`<details><summary>No. ${s.no} — ${esc((bp[i]||{}).sub||"")} (${Object.keys(s.varian).join("/")})</summary>${Object.entries(s.varian).map(([v,q])=>prevSoal(s.no,v,q,bp[i]||{})).join("")}</details>`).join("");
     $("d-tautan").classList.add("hidden");$("d-terbit-status").textContent="";
   }catch(e){$("d-status").innerHTML=`<span class="pill bad">Gagal membaca</span> ${esc(e.message)}`;console.error(e)}}
 async function terbitDarurat(){if(!DPAKET)return;const pd=$("pin-d").value.trim();if(!pd){toast("Isi PIN darurat");return}const p=DPAKET;
@@ -1048,11 +1052,16 @@ async function muatDaftar(){const t=$("daftar");t.innerHTML="<tr><td class='mute
     if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada paket.</td></tr>";return}
     t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Hasil</th><th>Peruntukan</th><th>Aktif</th><th>Pembahasan</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b>${r.darurat?' <span class="pill bad">Darurat</span>':(r.riwayat_darurat?' <span class="pill">disahkan</span>':"")}</td><td>${esc(r.judul)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td>${r.n_hasil}</td><td class="small">${esc(TKA_PESERTA.ringkas(r.peserta))} · ${r.n_peserta} siswa <button class="ghost mini tulis-only" data-peserta="${esc(r.kode)}">ubah</button></td>
       <td><input type="checkbox" data-aktif="${esc(r.kode)}" ${r.aktif?"checked":""}></td><td><input type="checkbox" data-pemb="${esc(r.kode)}" ${r.pembahasan?"checked":""}></td>
-      <td class="row"><button class="soft" data-link="${esc(r.kode)}">Tautan/QR</button><button class="ghost" data-json="${esc(r.kode)}">JSON</button><button class="danger" data-hapus="${esc(r.kode)}" data-n="${r.n_hasil}">Hapus</button></td></tr>`).join("");
+      <td class="row"><button class="soft" data-link="${esc(r.kode)}">Tautan/QR</button><button class="soft tulis-only" data-lihat="${esc(r.kode)}">Lihat soal</button><button class="ghost" data-json="${esc(r.kode)}">JSON</button><button class="danger" data-hapus="${esc(r.kode)}" data-n="${r.n_hasil}">Hapus</button></td></tr>`).join("");
     t.querySelectorAll("[data-aktif]").forEach(c=>c.onchange=async()=>{try{await rpc("tka_set_aktif",{p_pin:PIN(),p_kode:c.dataset.aktif,p_aktif:c.checked});toast(c.checked?"Ujian diaktifkan":"Ujian dinonaktifkan")}catch(e){toast("Gagal: "+e.message);c.checked=!c.checked}});
     t.querySelectorAll("[data-pemb]").forEach(c=>c.onchange=async()=>{try{await rpc("tka_set_setting",{p_pin:PIN(),p_key:"pembahasan",p_value:c.checked,p_ujian:c.dataset.pemb});toast(c.checked?"Pembahasan dibuka untuk siswa":"Pembahasan ditutup")}catch(e){toast("Gagal: "+e.message);c.checked=!c.checked}});
     t.querySelectorAll("[data-peserta]").forEach(b=>b.onclick=async()=>{const k=b.dataset.peserta,r=rows.find(x=>x.kode===k);$("daftar-peserta-card").classList.remove("hidden");$("dp-kode").textContent=k;$("dp-status").textContent="";await siapkanPeserta("daftar","dp-box",r.peserta);$("daftar-peserta-card").scrollIntoView({behavior:"smooth"});
       $("btn-dp-simpan").onclick=async()=>{try{const res=await rpc("tka_set_peserta",{p_pin:PIN(),p_ujian:k,p_peserta:PESERTA_ED.daftar.get()});$("dp-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(TKA_PESERTA.ringkas(res,SSERVER))}</span>`;muatDaftar()}catch(e){$("dp-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}});
+    t.querySelectorAll("[data-lihat]").forEach(b=>b.onclick=async()=>{const k=b.dataset.lihat;const card=$("daftar-lihat-card");card.classList.remove("hidden");$("dl-kode").textContent=k;$("dl-prev").innerHTML="Memuat…";$("dl-info").textContent="";card.scrollIntoView({behavior:"smooth"});
+      try{const p=await rpc("tka_get_paket_admin",{p_pin:PIN(),p_kode:k});if(!p.kunci){$("dl-prev").innerHTML='<span class="pill warn">PIN pengawas hanya bisa melihat lewat Menu guru → Uji coba soal.</span>';return}
+        const bp=(p.meta||{}).blueprint||[];PREV_TEKS=p.kunci.teks||{};$("dl-info").innerHTML=`${esc(p.judul)} · ${esc(p.mapel||"")} ${esc(p.kelas||"")} · ${p.n_soal} soal · ${p.n_varian} varian · ${p.durasi} menit · ${p.aktif?'<span class="pill good">aktif</span>':'<span class="pill">nonaktif</span>'}${(p.meta||{}).darurat?' <span class="pill bad">Darurat</span>':""}`;
+        $("dl-prev").innerHTML=(Object.keys(PREV_TEKS).length?`<details><summary>Teks bacaan (${Object.keys(PREV_TEKS).length})</summary>${Object.entries(PREV_TEKS).map(([kk,tt])=>`<div class="prev"><b>${esc(kk)} — ${esc(tt.judul)}</b><div class="stim">${safeHtml(tt.isi)}</div></div>`).join("")}</details>`:"")+p.kunci.soal.map((sq,i)=>`<details><summary>No. ${sq.no} — ${esc((bp[i]||{}).sub||"")} (${Object.keys(sq.varian).join("/")})</summary>${Object.entries(sq.varian).map(([v,q])=>prevSoal(sq.no,v,q,bp[i]||{})).join("")}</details>`).join("")}
+      catch(e){$("dl-prev").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}});
     t.querySelectorAll("[data-link]").forEach(b=>b.onclick=()=>{const d=$("daftar-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(b.dataset.link,"qr2");gambarQr("qr2",b.dataset.link)});
     t.querySelectorAll("[data-json]").forEach(b=>b.onclick=async()=>{try{const p=await rpc("tka_get_paket_admin",{p_pin:PIN(),p_kode:b.dataset.json});unduh(`paket_${p.kode}.json`,JSON.stringify(p,null,1))}catch(e){toast("Gagal: "+e.message)}});
     t.querySelectorAll("[data-hapus]").forEach(b=>b.onclick=async()=>{const k=b.dataset.hapus,n=+b.dataset.n;if(!confirm(`Hapus paket ${k}?`))return;let hh=false;if(n>0)hh=confirm(`Paket ini punya ${n} hasil siswa. Hapus juga hasilnya? (Batal = hasil tetap disimpan)`);try{await rpc("tka_hapus_paket",{p_pin:PIN(),p_kode:k,p_hapus_hasil:hh});toast("Dihapus");muatDaftar()}catch(e){toast("Gagal: "+e.message)}});
@@ -1077,7 +1086,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-d-terbit").onclick=terbitDarurat;
   $("file-s").onchange=e=>{if(e.target.files[0])bacaSiswa(e.target.files[0])};
   const ds=$("drop-s");ds.ondragover=e=>{e.preventDefault();ds.style.borderColor="var(--acc)"};ds.ondragleave=()=>ds.style.borderColor="";ds.ondrop=e=>{e.preventDefault();ds.style.borderColor="";if(e.dataTransfer.files[0])bacaSiswa(e.dataTransfer.files[0])};
-  $("btn-dp-batal").onclick=()=>$("daftar-peserta-card").classList.add("hidden");
+  $("btn-dp-batal").onclick=()=>$("daftar-peserta-card").classList.add("hidden");$("btn-dl-tutup").onclick=()=>$("daftar-lihat-card").classList.add("hidden");
   $("btn-s-simpan").onclick=simpanSiswa;$("btn-s-muat").onclick=muatSiswa;$("btn-e-simpan").onclick=simpanSatu;$("s-cari").addEventListener("input",renderSiswa);
   $("btn-s-hapus-semua").onclick=async()=>{if(!confirm("Hapus SEMUA data siswa? Siswa tidak bisa masuk dengan NISN sampai data diunggah lagi."))return;if(!confirm("Yakin?"))return;try{await rpc("tka_hapus_siswa",{p_pin:PIN(),p_semua:true});toast("Semua data siswa dihapus");muatSiswa()}catch(e){toast("Gagal: "+e.message)}};
   $("btn-k-simpan").onclick=simpanKisi;$("btn-k-unduh").onclick=()=>{if(KISI)unduhTemplate(KISI)};
