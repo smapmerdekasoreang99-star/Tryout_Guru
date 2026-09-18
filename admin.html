@@ -5,6 +5,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <title>Admin Asesmen Merdeka</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -281,13 +284,65 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       }
       return out ? pre + out + post : '';
     }
+
+    // ---- Word Equation (OMML) → LaTeX (subset umum: pecahan, pangkat, indeks, akar, kurung, sigma/integral, fungsi, aksen, matriks)
+    const TEXMAP = { '×': '\\times ', '÷': '\\div ', '−': '-', '–': '-', '·': '\\cdot ', '⋅': '\\cdot ', '≤': '\\le ', '≥': '\\ge ', '≠': '\\ne ', '±': '\\pm ', '∞': '\\infty ', '°': '^{\\circ}', '→': '\\to ', '⇒': '\\Rightarrow ', '⇔': '\\Leftrightarrow ', '∈': '\\in ', '∉': '\\notin ', '⊂': '\\subset ', '∪': '\\cup ', '∩': '\\cap ', '≈': '\\approx ', '≡': '\\equiv ', '∠': '\\angle ', '∆': '\\Delta ', '…': '\\ldots ', '′': "'", '√': '\\sqrt', '∑': '\\sum ', '∫': '\\int ', 'α': '\\alpha ', 'β': '\\beta ', 'γ': '\\gamma ', 'δ': '\\delta ', 'ε': '\\varepsilon ', 'θ': '\\theta ', 'λ': '\\lambda ', 'μ': '\\mu ', 'π': '\\pi ', 'ρ': '\\rho ', 'σ': '\\sigma ', 'τ': '\\tau ', 'φ': '\\varphi ', 'ω': '\\omega ', 'Δ': '\\Delta ', 'Σ': '\\Sigma ', 'Ω': '\\Omega ', 'Φ': '\\Phi ', 'Ψ': '\\Psi ', '≅': '\\cong ', '∥': '\\parallel ', '⊥': '\\perp ', '∴': '\\therefore ', '∀': '\\forall ', '∃': '\\exists ' };
+    function texText(t) {
+      let o = '';
+      for (const ch of String(t)) {
+        if (TEXMAP[ch] !== undefined) o += TEXMAP[ch];
+        else if ('\\{}%&#_^~$'.includes(ch)) o += ch === '\\' ? '\\backslash ' : '\\' + ch;
+        else if (ch === ' ') o += '\\ ';
+        else o += ch;
+      }
+      return o;
+    }
+    const mKids = (n, name) => Array.from(n.childNodes).filter(x => x.nodeType === 1 && x.namespaceURI === NS_M && x.localName === name);
+    const mFirst = (n, name) => mKids(n, name)[0];
+    const mAttr = (pr, name) => { if (!pr) return null; const e = mFirst(pr, name); return e ? (e.getAttributeNS(NS_M, 'val') || e.getAttribute('m:val')) : null; };
+    const mE = (n, name) => { const e = mFirst(n, name); return e ? ommlToLatex(e) : ''; };
+    function ommlToLatex(n) {
+      if (!n || n.nodeType !== 1) return '';
+      const L = n.localName;
+      const all = () => Array.from(n.childNodes).map(ommlToLatex).join('');
+      if (n.namespaceURI === NS_W) { return L === 'r' || L === 't' ? texText(n.textContent) : ''; }
+      if (n.namespaceURI !== NS_M) return '';
+      switch (L) {
+        case 'oMathPara': return mKids(n, 'oMath').map(ommlToLatex).join(' \\quad ');
+        case 'oMath': case 'e': case 'num': case 'den': case 'sub': case 'sup': case 'deg': case 'lim': case 'fName': case 'box': case 'borderBox': case 'phant': case 'sSubSupPr': return all();
+        case 'r': return texText(Array.from(n.getElementsByTagNameNS(NS_M, 't')).map(x => x.textContent).join(''));
+        case 't': return texText(n.textContent);
+        case 'f': { const ty = mAttr(mFirst(n, 'fPr'), 'type'); const a = mE(n, 'num'), b = mE(n, 'den'); if (ty === 'lin' || ty === 'skw') return `{${a}}/{${b}}`; if (ty === 'noBar') return `\\genfrac{}{}{0pt}{}{${a}}{${b}}`; return `\\frac{${a}}{${b}}`; }
+        case 'sSup': return `{${mE(n, 'e')}}^{${mE(n, 'sup')}}`;
+        case 'sSub': return `{${mE(n, 'e')}}_{${mE(n, 'sub')}}`;
+        case 'sSubSup': return `{${mE(n, 'e')}}_{${mE(n, 'sub')}}^{${mE(n, 'sup')}}`;
+        case 'sPre': return `{}_{${mE(n, 'sub')}}^{${mE(n, 'sup')}}{${mE(n, 'e')}}`;
+        case 'rad': { const hide = mAttr(mFirst(n, 'radPr'), 'degHide'); const d = mE(n, 'deg'); return (!hide || hide === '0' || hide === 'off') && d.trim() ? `\\sqrt[${d}]{${mE(n, 'e')}}` : `\\sqrt{${mE(n, 'e')}}`; }
+        case 'd': { const pr = mFirst(n, 'dPr'); let b = mAttr(pr, 'begChr'), e = mAttr(pr, 'endChr'), sp = mAttr(pr, 'sepChr'); if (b === null) b = '('; if (e === null) e = ')'; if (sp === null) sp = '|';
+          const D = c => c === '' ? '.' : c === '{' ? '\\{' : c === '}' ? '\\}' : c === '|' ? '|' : c === '‖' ? '\\|' : c === '⟨' ? '\\langle ' : c === '⟩' ? '\\rangle ' : c === '⌊' ? '\\lfloor ' : c === '⌋' ? '\\rfloor ' : c === '⌈' ? '\\lceil ' : c === '⌉' ? '\\rceil ' : c;
+          return `\\left${D(b)}${mKids(n, 'e').map(ommlToLatex).join(sp === '|' ? '\\middle|' : texText(sp))}\\right${D(e)}`; }
+        case 'nary': { const pr = mFirst(n, 'naryPr'); let ch = mAttr(pr, 'chr'); if (ch === null) ch = '∫'; const NM = { '∑': '\\sum', '∏': '\\prod', '∐': '\\coprod', '∫': '\\int', '∬': '\\iint', '∭': '\\iiint', '∮': '\\oint', '⋃': '\\bigcup', '⋂': '\\bigcap', '⋁': '\\bigvee', '⋀': '\\bigwedge' };
+          const sh = mAttr(pr, 'subHide'), uh = mAttr(pr, 'supHide'); const sub = mE(n, 'sub'), sup = mE(n, 'sup');
+          return `${NM[ch] || '\\operatorname{' + texText(ch) + '}'}${sh === '1' || sh === 'on' || !sub.trim() ? '' : `_{${sub}}`}${uh === '1' || uh === 'on' || !sup.trim() ? '' : `^{${sup}}`} ${mE(n, 'e')}`; }
+        case 'func': { const f = mE(n, 'fName').trim(); const known = ['sin', 'cos', 'tan', 'cot', 'sec', 'csc', 'log', 'ln', 'exp', 'lim', 'max', 'min', 'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh', 'det', 'gcd']; const plain = f.replace(/\\ /g, ' ').trim();
+          return `${known.includes(plain) ? '\\' + plain : /^\\/.test(f) ? f : '\\operatorname{' + plain + '}'}{${mE(n, 'e')}}`; }
+        case 'bar': { const pos = mAttr(mFirst(n, 'barPr'), 'pos'); return pos === 'bot' ? `\\underline{${mE(n, 'e')}}` : `\\overline{${mE(n, 'e')}}`; }
+        case 'acc': { let ch = mAttr(mFirst(n, 'accPr'), 'chr'); if (ch === null) ch = '̂'; const AC = { '̂': 'hat', '̃': 'tilde', '̇': 'dot', '̈': 'ddot', '̄': 'bar', '̅': 'overline', '⃗': 'vec', '̆': 'breve', '́': 'acute', '̀': 'grave', '̌': 'check', '⃖': 'overleftarrow' }; return `\\${AC[ch] || 'hat'}{${mE(n, 'e')}}`; }
+        case 'limLow': return `\\underset{${mE(n, 'lim')}}{${mE(n, 'e')}}`;
+        case 'limUpp': return `\\overset{${mE(n, 'lim')}}{${mE(n, 'e')}}`;
+        case 'groupChr': { const pos = mAttr(mFirst(n, 'groupChrPr'), 'pos'); return pos === 'top' ? `\\overbrace{${mE(n, 'e')}}` : `\\underbrace{${mE(n, 'e')}}`; }
+        case 'eqArr': return `\\begin{aligned}${mKids(n, 'e').map(ommlToLatex).join(' \\\\ ')}\\end{aligned}`;
+        case 'm': return `\\begin{matrix}${mKids(n, 'mr').map(r => mKids(r, 'e').map(ommlToLatex).join(' & ')).join(' \\\\ ')}\\end{matrix}`;
+        default: return /Pr$/.test(L) || L === 'ctrlPr' ? '' : all();
+      }
+    }
     async function paraHtml(p) {
       let out = '';
       for (const n of Array.from(p.childNodes)) {
         if (n.nodeType !== 1) continue;
         if (n.localName === 'r' && n.namespaceURI === NS_W) out += await runHtml(n);
         else if (n.localName === 'hyperlink' || n.localName === 'smartTag' || n.localName === 'ins' || n.localName === 'sdt' || n.localName === 'sdtContent') { for (const r of Array.from(n.getElementsByTagNameNS(NS_W, 'r'))) out += await runHtml(r); }
-        else if (n.namespaceURI === NS_M) { const t = Array.from(n.getElementsByTagNameNS(NS_M, 't')).map(x => x.textContent).join(''); out += esc(t); warnings.push('Ada rumus Equation Editor; dibaca sebagai teks biasa: "' + t.slice(0, 40) + '". Sebaiknya tulis dengan sub/superscript biasa.'); }
+        else if (n.namespaceURI === NS_M) { const tex = ommlToLatex(n).trim(); if (tex) out += '\\(' + esc(tex) + '\\)'; }
       }
       return out;
     }
@@ -858,6 +913,14 @@ function safeHtml(html){const ALLOW={B:1,I:1,U:1,SUB:1,SUP:1,BR:1,P:1,TABLE:1,TR
   (function walk(n){for(const c of Array.from(n.childNodes)){if(c.nodeType!==1)continue;if(!ALLOW[c.tagName]){c.replaceWith(...c.childNodes);continue}for(const a of Array.from(c.attributes)){if(!(c.tagName==="IMG"&&a.name==="src"&&/^data:image\//.test(a.value))&&a.name!=="alt")c.removeAttribute(a.name)}walk(c)}})(d.body.firstChild);return d.body.firstChild.innerHTML}
 const studentBase=()=>location.href.replace(/[#?].*$/,"").replace(/[^\/]*$/,"")+"index.html"; // folder halaman ini + index.html (berlaku untuk .../admin, .../admin.html, maupun .../)
 
+
+/* ---------- rumus: KaTeX (Word Equation → \( … \)) + pangkat otomatis pada teks biasa (x^2, 3^(-2)) ---------- */
+function autoSup(el){const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const nodes=[];let n;while((n=w.nextNode()))if(/\^/.test(n.nodeValue)&&!(n.parentElement&&n.parentElement.closest(".katex,script,style")))nodes.push(n);
+  const sup=t=>esc(t).replace(/\^\(([^()]{1,24})\)/g,"<sup>$1</sup>").replace(/\^(-?[0-9A-Za-z°]{1,6})/g,"<sup>$1</sup>");
+  for(const t of nodes){const html=t.nodeValue.split(/(\\\(.*?\\\)|\$\$.*?\$\$|\\\[.*?\\\])/s).map((seg,i)=>i%2?esc(seg):sup(seg)).join("");if(html!==esc(t.nodeValue)){const s=document.createElement("span");s.innerHTML=html;t.replaceWith(s)}}}
+function mathRender(el){if(!el)return;try{autoSup(el)}catch(e){}if(window.renderMathInElement){try{renderMathInElement(el,{delimiters:[{left:"$$",right:"$$",display:true},{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}],throwOnError:false})}catch(e){}}
+  else if((mathRender.n=(mathRender.n||0)+1)<=8){setTimeout(()=>mathRender(el),800)}}
+
 /* ---------- pratinjau ---------- */
 let PREV_TEKS={};
 function prevSoal(no,v,q,bp){const L="ABCDE",l="abcdef";let h=`<div class="prev"><div class="row" style="justify-content:space-between"><b>No. ${no} · Varian ${v}</b><span><span class="pill">${q.bentuk}</span> <span class="pill">${esc(bp.level||"?")}</span> <span class="pill">${esc(bp.sub||"-")}</span></span></div>`;
@@ -878,7 +941,7 @@ function tampilkan(r){
   $("errs").innerHTML=(r.errors.length?`<h3 style="color:var(--bad)">Galat (${r.errors.length})</h3><ul class="err">${r.errors.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"")+(r.warnings.length?`<h3 style="color:var(--warn)">Peringatan (${r.warnings.length})</h3><ul class="warn">${r.warnings.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"");
   const lv={},bt={};p.meta.blueprint.forEach(b=>{lv[b.level||"?"]=(lv[b.level||"?"]||0)+1;bt[b.bentuk]=(bt[b.bentuk]||0)+1});
   $("bp").innerHTML=`<tr><th>No</th><th>Sub-materi</th><th>Indikator</th><th>Level</th><th>Level TKA</th><th>Bentuk</th><th>Varian</th></tr>`+p.meta.blueprint.map((b,i)=>`<tr><td>${b.no}</td><td>${esc(b.sub)}</td><td>${esc(b.indikator)}</td><td>${esc(b.level)}</td><td>${esc(b.tka)}</td><td>${esc(b.bentuk)}</td><td>${Object.keys(p.kunci.soal[i].varian).join(", ")}</td></tr>`).join("")+`<tr><th colspan="7">Komposisi level: ${Object.entries(lv).sort().map(([k,v])=>`${k}=${v} (${Math.round(v/p.n_soal*100)}%)`).join(" · ")} — bentuk: ${Object.entries(bt).map(([k,v])=>`${k}=${v}`).join(" · ")}</th></tr>`;
-  PREV_TEKS=p.kunci.teks||{};$("prev").innerHTML=(Object.keys(p.kunci.teks).length?`<details><summary>Teks bacaan (${Object.keys(p.kunci.teks).length})</summary>${Object.entries(p.kunci.teks).map(([k,t])=>`<div class="prev"><b>${esc(k)} — ${esc(t.judul)}</b><div class="stim">${safeHtml(t.isi)}</div></div>`).join("")}</details>`:"")+
+  PREV_TEKS=p.kunci.teks||{};$("prev").innerHTML=(Object.keys(p.kunci.teks).length?`<details><summary>Teks bacaan (${Object.keys(p.kunci.teks).length})</summary>${Object.entries(p.kunci.teks).map(([k,t])=>`<div class="prev"><b>${esc(k)} — ${esc(t.judul)}</b><div class="stim">${safeHtml(t.isi)}</div></div>`).join("")}</details>`:"")+mathRender($("prev"));
     p.kunci.soal.map((s,i)=>`<details><summary>No. ${s.no} — ${esc(p.meta.blueprint[i].sub||"")} (${Object.keys(s.varian).join("/")})</summary>${Object.entries(s.varian).map(([v,q])=>prevSoal(s.no,v,q,p.meta.blueprint[i])).join("")}</details>`).join("");
   $("tautan").classList.add("hidden");$("terbit-status").textContent="";
 }
@@ -939,7 +1002,7 @@ async function bacaDarurat(f){$("d-status").innerHTML=`<span class="pill">Membac
     $("d-errs").innerHTML=(r.errors.length?`<h3 style="color:var(--bad)">Galat (${r.errors.length})</h3><ul class="err">${r.errors.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"")+(r.warnings.length?`<h3 style="color:var(--warn)">Peringatan (${r.warnings.length})</h3><ul class="warn">${r.warnings.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"");
     const bp=p.meta.blueprint||[];$("d-bp").innerHTML=`<tr><th>No</th><th>Kompetensi/Sub-materi</th><th>Indikator</th><th>Level</th><th>Bentuk</th><th>Teks</th></tr>`+bp.map(b=>`<tr><td>${b.no}</td><td>${esc(b.sub)}</td><td>${esc(b.indikator)}</td><td>${esc(b.level)}</td><td>${esc(b.bentuk)}</td><td>${esc(b.teks||"")}</td></tr>`).join("");
     if(k){const km=TKA.komposisi(k.kisi.meta.blueprint);$("d-komposisi").innerHTML=`<b>Komposisi:</b> ${Object.entries(km.level).map(([x,y])=>`${x} ${y} (${Math.round(y/km.n*100)}%)`).join(" · ")} — <b>bentuk:</b> ${Object.entries(km.bentuk).map(([x,y])=>`${x} ${y}`).join(" · ")}`}
-    PREV_TEKS=p.kunci.teks||{};$("d-prev").innerHTML=(Object.keys(PREV_TEKS).length?`<details><summary>Teks bacaan (${Object.keys(PREV_TEKS).length})</summary>${Object.entries(PREV_TEKS).map(([k,t])=>`<div class="prev"><b>${esc(k)} — ${esc(t.judul)}</b><div class="stim">${safeHtml(t.isi)}</div></div>`).join("")}</details>`:"")+p.kunci.soal.map((s,i)=>`<details><summary>No. ${s.no} — ${esc((bp[i]||{}).sub||"")} (${Object.keys(s.varian).join("/")})</summary>${Object.entries(s.varian).map(([v,q])=>prevSoal(s.no,v,q,bp[i]||{})).join("")}</details>`).join("");
+    PREV_TEKS=p.kunci.teks||{};$("d-prev").innerHTML=(Object.keys(PREV_TEKS).length?`<details><summary>Teks bacaan (${Object.keys(PREV_TEKS).length})</summary>${Object.entries(PREV_TEKS).map(([k,t])=>`<div class="prev"><b>${esc(k)} — ${esc(t.judul)}</b><div class="stim">${safeHtml(t.isi)}</div></div>`).join("")}</details>`:"")+p.kunci.soal.map((s,i)=>`<details><summary>No. ${s.no} — ${esc((bp[i]||{}).sub||"")} (${Object.keys(s.varian).join("/")})</summary>${Object.entries(s.varian).map(([v,q])=>prevSoal(s.no,v,q,bp[i]||{})).join("")}</details>`).join("");mathRender($("d-prev"));
     $("d-tautan").classList.add("hidden");$("d-terbit-status").textContent="";
   }catch(e){$("d-status").innerHTML=`<span class="pill bad">Gagal membaca</span> ${esc(e.message)}`;console.error(e)}}
 async function terbitDarurat(){if(!DPAKET)return;const pd=$("pin-d").value.trim();if(!pd){toast("Isi PIN darurat");return}const p=DPAKET;
@@ -1060,7 +1123,7 @@ async function muatDaftar(){const t=$("daftar");t.innerHTML="<tr><td class='mute
     t.querySelectorAll("[data-lihat]").forEach(b=>b.onclick=async()=>{const k=b.dataset.lihat;const card=$("daftar-lihat-card");card.classList.remove("hidden");$("dl-kode").textContent=k;$("dl-prev").innerHTML="Memuat…";$("dl-info").textContent="";card.scrollIntoView({behavior:"smooth"});
       try{const p=await rpc("tka_get_paket_admin",{p_pin:PIN(),p_kode:k});if(!p.kunci){$("dl-prev").innerHTML='<span class="pill warn">PIN pengawas hanya bisa melihat lewat Menu guru → Uji coba soal.</span>';return}
         const bp=(p.meta||{}).blueprint||[];PREV_TEKS=p.kunci.teks||{};$("dl-info").innerHTML=`${esc(p.judul)} · ${esc(p.mapel||"")} ${esc(p.kelas||"")} · ${p.n_soal} soal · ${p.n_varian} varian · ${p.durasi} menit · ${p.aktif?'<span class="pill good">aktif</span>':'<span class="pill">nonaktif</span>'}${(p.meta||{}).darurat?' <span class="pill bad">Darurat</span>':""}`;
-        $("dl-prev").innerHTML=(Object.keys(PREV_TEKS).length?`<details><summary>Teks bacaan (${Object.keys(PREV_TEKS).length})</summary>${Object.entries(PREV_TEKS).map(([kk,tt])=>`<div class="prev"><b>${esc(kk)} — ${esc(tt.judul)}</b><div class="stim">${safeHtml(tt.isi)}</div></div>`).join("")}</details>`:"")+p.kunci.soal.map((sq,i)=>`<details><summary>No. ${sq.no} — ${esc((bp[i]||{}).sub||"")} (${Object.keys(sq.varian).join("/")})</summary>${Object.entries(sq.varian).map(([v,q])=>prevSoal(sq.no,v,q,bp[i]||{})).join("")}</details>`).join("")}
+        $("dl-prev").innerHTML=(Object.keys(PREV_TEKS).length?`<details><summary>Teks bacaan (${Object.keys(PREV_TEKS).length})</summary>${Object.entries(PREV_TEKS).map(([kk,tt])=>`<div class="prev"><b>${esc(kk)} — ${esc(tt.judul)}</b><div class="stim">${safeHtml(tt.isi)}</div></div>`).join("")}</details>`:"")+p.kunci.soal.map((sq,i)=>`<details><summary>No. ${sq.no} — ${esc((bp[i]||{}).sub||"")} (${Object.keys(sq.varian).join("/")})</summary>${Object.entries(sq.varian).map(([v,q])=>prevSoal(sq.no,v,q,bp[i]||{})).join("")}</details>`).join("");mathRender($("dl-prev"))}
       catch(e){$("dl-prev").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}});
     t.querySelectorAll("[data-link]").forEach(b=>b.onclick=()=>{const d=$("daftar-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(b.dataset.link,"qr2");gambarQr("qr2",b.dataset.link)});
     t.querySelectorAll("[data-json]").forEach(b=>b.onclick=async()=>{try{const p=await rpc("tka_get_paket_admin",{p_pin:PIN(),p_kode:b.dataset.json});unduh(`paket_${p.kode}.json`,JSON.stringify(p,null,1))}catch(e){toast("Gagal: "+e.message)}});
