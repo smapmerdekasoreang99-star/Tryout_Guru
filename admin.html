@@ -395,7 +395,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       if (!bentuk) { errors.push(`${id}: Bentuk "${T(t, 'bentuk')}" tidak dikenal (PG/PGK/KATEGORI/JODOH/ISIAN).`); return; }
       const q = { bentuk, stimulus: H(t, 'stimulus'), pertanyaan: H(t, 'pertanyaan'), pembahasan: H(t, 'pembahasan') };
       if (!T(t, 'pertanyaan')) {
-        if (T(t, 'stimulus')) { q.pertanyaan = q.stimulus; q.stimulus = ''; warnings.push(`${id}: Pertanyaan kosong — isi Perintah soal dipakai sebagai pertanyaan.`); }
+        if (T(t, 'stimulus')) { q.pertanyaan = q.stimulus; q.stimulus = ''; if (bentuk !== 'KATEGORI' && bentuk !== 'JODOH') warnings.push(`${id}: Pertanyaan kosong — isi Perintah soal dipakai sebagai pertanyaan.`); }
         else errors.push(`${id}: Pertanyaan kosong (isi Pertanyaan atau Perintah soal).`);
       }
       if (!T(t, 'pembahasan')) warnings.push(`${id}: Pembahasan kosong.`);
