@@ -5,7 +5,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Asesmen - SMA Plus Merdeka Soreang</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<title>Asesmen Merdeka</title>
 <style>
 :root{--bg:#f1f3f4;--card:#fff;--ink:#1c2430;--muted:#5a6473;--line:#d9dfe9;--acc:#3b5670;--acc-ink:#dcc06e;--acc-soft:#f2eee2;--kuning:#dcc06e;--kuning-tua:#c0a65a;--merah:#b5403a;--warn:#a8632a;--warn-soft:#fbefe2;--bad:#b4433a;--bad-soft:#f9e7e5;--good:#2f7d4e;--good-soft:#e6f2ea;--radius:12px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-size:16px;line-height:1.5}body{-webkit-text-size-adjust:100%}
@@ -253,6 +256,14 @@ function shuffle(arr,rnd){const a=arr.slice();for(let i=a.length-1;i>0;i--){cons
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function safeHtml(html){const ALLOW={B:1,I:1,U:1,SUB:1,SUP:1,BR:1,P:1,TABLE:1,TR:1,TD:1,TH:1,IMG:1,SPAN:1,DIV:1};const d=new DOMParser().parseFromString("<div>"+(html||"")+"</div>","text/html");
   (function walk(n){for(const c of Array.from(n.childNodes)){if(c.nodeType!==1)continue;if(!ALLOW[c.tagName]){c.replaceWith(...c.childNodes);continue}for(const a of Array.from(c.attributes)){if(!(c.tagName==="IMG"&&a.name==="src"&&/^data:image\//.test(a.value))&&a.name!=="alt")c.removeAttribute(a.name)}walk(c)}})(d.body.firstChild);return d.body.firstChild.innerHTML}
+
+/* ---------- rumus: KaTeX (Word Equation → \( … \)) + pangkat otomatis pada teks biasa (x^2, 3^(-2)) ---------- */
+function autoSup(el){const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const nodes=[];let n;while((n=w.nextNode()))if(/\^/.test(n.nodeValue)&&!(n.parentElement&&n.parentElement.closest(".katex,script,style")))nodes.push(n);
+  const sup=t=>esc(t).replace(/\^\(([^()]{1,24})\)/g,"<sup>$1</sup>").replace(/\^(-?[0-9A-Za-z°]{1,6})/g,"<sup>$1</sup>");
+  for(const t of nodes){const html=t.nodeValue.split(/(\\\(.*?\\\)|\$\$.*?\$\$|\\\[.*?\\\])/s).map((seg,i)=>i%2?esc(seg):sup(seg)).join("");if(html!==esc(t.nodeValue)){const s=document.createElement("span");s.innerHTML=html;t.replaceWith(s)}}}
+function mathRender(el){if(!el)return;try{autoSup(el)}catch(e){}if(window.renderMathInElement){try{renderMathInElement(el,{delimiters:[{left:"$$",right:"$$",display:true},{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}],throwOnError:false})}catch(e){}}
+  else if((mathRender.n=(mathRender.n||0)+1)<=8){setTimeout(()=>mathRender(el),800)}}
+
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
 function show(id){["v-start","v-exam","v-result","v-guru","v-menu","v-siswa"].forEach(v=>$(v).classList.toggle("hidden",v!==id));$("nav").classList.toggle("hidden",id!=="v-exam");$("timer").classList.toggle("hidden",id!=="v-exam");window.scrollTo(0,0)}
 const b64e=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o))));
@@ -302,7 +313,7 @@ function renderQ(){
   else if(q.bentuk==="KATEGORI"){h+=`<div class="tbl-wrap"><table class="tbl kat"><tr><th></th><th>Pernyataan</th><th class="c">${esc(q.label[0])}</th><th class="c">${esc(q.label[1])}</th></tr>`;S.perm[i].forEach((ri,k)=>{const v=a?a[ri]:undefined;h+=`<tr><td>${LETTERS[k]}.</td><td>${safeHtml(q.baris[ri])}</td><td class="c"><input type="radio" name="r${ri}" value="0" ${v===0?"checked":""} aria-label="${esc(q.label[0])}"></td><td class="c"><input type="radio" name="r${ri}" value="1" ${v===1?"checked":""} aria-label="${esc(q.label[1])}"></td></tr>`});h+=`</table></div>`}
   else if(q.bentuk==="JODOH"){const {kiri,kanan}=S.perm[i];h+=`<div class="jd"><p class="small muted">Pilihan:</p><ol class="kanan small" style="list-style:none;padding-left:0">${kanan.map((ki,k)=>`<li><b>${LOW[k]}.</b> ${safeHtml(q.kanan[ki])}</li>`).join("")}</ol>`;kiri.forEach((li,k)=>{const v=a?a[li]:undefined;h+=`<div class="k">${k+1}. ${safeHtml(q.kiri[li])}</div><select data-li="${li}"><option value="">— pilih huruf —</option>${kanan.map((ki,kk)=>`<option value="${ki}" ${v===ki?"selected":""}>${LOW[kk]}</option>`).join("")}</select>`});h+=`</div>`}
   else if(q.bentuk==="ISIAN"){h+=`<input type="text" id="isian" value="${esc(a||"")}" placeholder="Tulis jawaban" autocomplete="off">`}
-  $("q-card").innerHTML=h;
+  $("q-card").innerHTML=h;mathRender($("q-card"));
   $("q-card").querySelectorAll("input,select").forEach(el=>{el.addEventListener("change",()=>collect(i));if(el.type==="text")el.addEventListener("input",()=>collect(i))});
   $("nav-pos").textContent=`${pos+1} / ${S.order.length}`;$("btn-prev").disabled=pos===0;$("btn-next").textContent=pos===S.order.length-1?"Ke daftar ›":"Berikutnya ›";renderGrid();
 }
@@ -388,7 +399,7 @@ function fmtKey(qk,i){const p=S.perm[i];
 function renderDetail(i,pos){const q=Q(i),a=S.answers[i],ok=S.result.detail[i].benar;
   let h=`<div class="card" style="margin:8px 0"><div class="row" style="justify-content:space-between"><b>Soal ${pos+1}</b><span class="pill ${ok?"good":"bad"}">${ok?"Benar":"Salah"}</span></div><div class="stim small">${safeHtml(q.stimulus)}</div><p class="small"><b>${safeHtml(q.pertanyaan)}</b></p><p class="small muted">Jawaban Anda: ${esc(fmtAns(q,a,i))}</p>`;
   if(KUNCI){const qk=KUNCI.soal[i].varian[S.varian[i]];h+=`<div class="pemb"><b>Kunci: ${esc(fmtKey(qk,i))}</b><br>${safeHtml(qk.pembahasan)}</div>`}
-  $("r-detail").innerHTML=h+"</div>";$("r-detail").scrollIntoView({behavior:"smooth"})}
+  $("r-detail").innerHTML=h+"</div>";mathRender($("r-detail"));$("r-detail").scrollIntoView({behavior:"smooth"})}
 
 /* ================= GURU ================= */
 let ROWS=[],PIN="",PERAN="",PAKETS=[],GPK=null,GPES=null,GPES_ED=null;
