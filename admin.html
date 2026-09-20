@@ -12,41 +12,43 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="assets/dasar.css?v=1">
 <style>
-:root{--bg:#f1f3f4;--card:#fff;--ink:#1c2430;--muted:#5a6473;--line:#d9dfe9;--acc:#3b5670;--acc-soft:#f2eee2;--kuning:#dcc06e;--warn:#a8632a;--warn-soft:#fbefe2;--bad:#b4433a;--bad-soft:#f9e7e5;--good:#2f7d4e;--good-soft:#e6f2ea;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+:root{--bg:var(--kertas);--card:#fff;--ink:var(--tinta);--muted:var(--tinta-2);--line:var(--garis);--acc:var(--gelap);--acc-soft:var(--emas-muda);--kuning:var(--emas);--warn:var(--emas-teks);--warn-soft:var(--emas-muda);--bad:var(--absen);--bad-soft:var(--absen-muda);--good:var(--hadir);--good-soft:var(--hadir-muda);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
 .wrap{max-width:980px;margin:0 auto;padding:12px 12px 60px}
-header.top{background:#3b5670;color:#fff;padding:12px 16px;border-bottom:4px solid var(--kuning);display:flex;align-items:center;gap:12px}header.top img{height:44px}header.top .t{font-weight:700;font-size:17px}header.top .sub{font-size:12px;color:var(--kuning)}
-header.top .nav-link{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}header.top .nav-link a{color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:8px;padding:6px 10px;font-size:13px;text-decoration:none;white-space:nowrap}header.top .nav-link a:hover{background:rgba(255,255,255,.12)}
+header.top{background:var(--gelap);color:#fff;padding:12px 16px;border-bottom:4px solid var(--kuning);display:flex;align-items:center;gap:12px}header.top img{height:44px}header.top .t{font-weight:700;font-size:17px}header.top .sub{font-size:12px;color:var(--kuning)}
+header.top .nav-link{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}header.top .nav-link a{color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:8px;padding:8px 12px;font-size:13px;text-decoration:none;white-space:nowrap}header.top .nav-link a:hover{background:rgba(255,255,255,.12)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
-h2{font-size:17px;margin:0 0 8px}h3{font-size:15px;margin:12px 0 6px}p{margin:6px 0}.muted{color:var(--muted);font-size:13px}.small{font-size:13px}
-input[type=text],input[type=password],select,textarea{width:100%;padding:9px 11px;font-size:15px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
+h2{font-size:17px;margin:0 0 8px}h3{font-size:15px;margin:12px 0 8px}p{margin:8px 0}.muted{color:var(--muted);font-size:13px}.small{font-size:13px}
+input[type=text],input[type=password],select,textarea{width:100%;padding:8px 12px;font-size:15px;border:1px solid var(--line);border-radius:8px;font-family:inherit}
 textarea{min-height:100px}
-button{font-family:inherit;font-size:14px;border:0;border-radius:8px;padding:9px 14px;cursor:pointer;background:#3b5670;color:var(--kuning);font-weight:700}
+button{font-family:inherit;font-size:14px;border:0;border-radius:8px;padding:8px 16px;cursor:pointer;background:var(--gelap);color:var(--kuning);font-weight:700}
 button.ghost{background:#fff;color:var(--acc);border:1px solid var(--acc)}button.soft{background:var(--acc-soft);color:var(--acc)}button.danger{background:var(--bad-soft);color:var(--bad)}button.good{background:var(--good)}
 button:disabled{opacity:.45;cursor:not-allowed}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.grow{flex:1}
-.pill{display:inline-block;font-size:12px;padding:2px 9px;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-weight:600}
+.pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-weight:600}
 .pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.good{background:var(--good-soft);color:var(--good)}
-.tabs{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0}.tabs button{background:#fff;color:var(--muted);border:1px solid var(--line)}.tabs button.on{background:#3b5670;color:var(--kuning);border-color:#3b5670}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0}.tabs button{background:#fff;color:var(--muted);border:1px solid var(--line)}.tabs button.on{background:var(--gelap);color:var(--kuning);border-color:var(--gelap)}
 .hidden{display:none!important}
-ul.err{margin:6px 0;padding-left:20px;color:var(--bad);font-size:14px}ul.warn{margin:6px 0;padding-left:20px;color:var(--warn);font-size:14px}
-table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td{border-bottom:1px solid var(--line);padding:6px;text-align:left;vertical-align:top}table.t th{background:#3b5670;color:#fff}table.t tr:nth-child(even) td{background:#f5f7f8}
+ul.err{margin:8px 0;padding-left:20px;color:var(--bad);font-size:14px}ul.warn{margin:8px 0;padding-left:20px;color:var(--warn);font-size:14px}
+table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}table.t th{background:var(--gelap);color:#fff}table.t tr:nth-child(even) td{background:var(--kertas-3)}
 .tbl-wrap{overflow-x:auto}
-.drop{border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;background:#fafcfd}
+.drop{border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;background:var(--emas-kabut)}
 .prev{border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0}
-.prev .stim img{max-width:100%;height:auto}.prev table{border-collapse:collapse;margin:6px 0;font-size:13px}.prev td,.prev th{border:1px solid var(--line);padding:4px 8px}
-.teks-prev{background:#eef1f3;border:1px solid #c9d5dd;border-radius:8px;padding:8px 10px;margin:6px 0}.teks-prev summary{cursor:pointer;font-weight:600;font-size:13px}.teks-prev .stim{font-size:13px;margin-top:6px}
-.opt{padding:6px 10px;border:1px solid var(--line);border-radius:8px;margin:4px 0}.opt.key{border-color:var(--good);background:var(--good-soft)}
-.pemb{background:#f3f6fb;border-left:3px solid #3b5670;padding:6px 10px;margin:6px 0;font-size:13px}
-details summary{cursor:pointer;font-weight:600;padding:6px 0}
+.prev .stim img{max-width:100%;height:auto}.prev table{border-collapse:collapse;margin:8px 0;font-size:13px}.prev td,.prev th{border:1px solid var(--line);padding:4px 8px}
+.teks-prev{background:var(--kertas-3);border:1px solid var(--garis-2);border-radius:8px;padding:8px 12px;margin:8px 0}.teks-prev summary{cursor:pointer;font-weight:600;font-size:13px}.teks-prev .stim{font-size:13px;margin-top:6px}
+.opt{padding:8px 12px;border:1px solid var(--line);border-radius:8px;margin:4px 0}.opt.key{border-color:var(--good);background:var(--good-soft)}
+.pemb{background:var(--emas-kabut);border-left:3px solid var(--gelap);padding:8px 12px;margin:8px 0;font-size:13px}
+details summary{cursor:pointer;font-weight:600;padding:8px 0}
 /* Disamakan dengan index.html: pesan sekilas selalu di lapisan teratas. */
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#26323c;color:#fff;padding:10px 16px;border-radius:9px;font-size:14px;z-index:60;opacity:0;transition:opacity .2s}.toast.show{opacity:1}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--gelap);color:#fff;padding:12px 16px;border-radius:9px;font-size:14px;z-index:var(--lapis-pesan);opacity:0;transition:opacity .2s}.toast.show{opacity:1}
 #qr{display:inline-block;padding:8px;background:#fff;border:1px solid var(--line);border-radius:8px}
-code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all;background:#eef3f6;padding:1px 4px;border-radius:4px}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.chip{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px}.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
-.mini{padding:4px 9px;font-size:12px}.pe-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff}.pe-row{display:block;padding:5px 8px;border-bottom:1px solid var(--line);font-size:14px}.pe-row:last-child{border-bottom:0}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all;background:var(--emas-kabut);padding:1px 4px;border-radius:4px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.chip{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px}.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.mini{padding:4px 8px;font-size:12px}.pe-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff}.pe-row{display:block;padding:4px 8px;border-bottom:1px solid var(--line);font-size:14px}.pe-row:last-child{border-bottom:0}
 .peran-guru .op-only,.peran-pengawas .op-only{display:none!important}.peran-pengawas .tulis-only{display:none!important}
+.notice.op-note{background:var(--emas-muda);color:var(--emas-teks);border-color:var(--emas)}
 </style>
 </head>
 <body>
@@ -113,10 +115,10 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div class="tbl-wrap"><table class="t" id="daftar-kisi"></table></div></div>
   <div class="card"><h2 style="margin:0 0 8px">Paket yang diterbitkan (Langkah 2)</h2>
   <div class="tbl-wrap"><table class="t" id="daftar"></table></div>
-  <div id="daftar-tautan" class="hidden" style="margin-top:10px"></div></div>
+  <div id="daftar-tautan" class="hidden" style="margin-top:12px"></div></div>
   <div class="card hidden" id="daftar-peserta-card"><h3 style="margin-top:0">Peruntukan ujian <span id="dp-kode" class="pill"></span></h3><div id="dp-box"></div>
-    <div class="row" style="margin-top:10px"><button id="btn-dp-simpan" class="good">Simpan peruntukan</button><button class="ghost" id="btn-dp-batal">Tutup</button></div><div id="dp-status" class="small" style="margin-top:6px"></div></div>
-  <div class="card hidden" id="daftar-lihat-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Pratinjau paket <span id="dl-kode" class="pill"></span></h3><button class="ghost" id="btn-dl-tutup" style="padding:6px 10px;font-size:13px">Tutup</button></div>
+    <div class="row" style="margin-top:12px"><button id="btn-dp-simpan" class="good">Simpan peruntukan</button><button class="ghost" id="btn-dp-batal">Tutup</button></div><div id="dp-status" class="small" style="margin-top:8px"></div></div>
+  <div class="card hidden" id="daftar-lihat-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Pratinjau paket <span id="dl-kode" class="pill"></span></h3><button class="ghost" id="btn-dl-tutup" style="padding:8px 12px;font-size:13px">Tutup</button></div>
     <div id="dl-info" class="small muted" style="margin:6px 0"></div><div id="dl-prev"></div></div>
 </section>
 
@@ -143,7 +145,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 <section id="tab-siswa" class="hidden">
   <div class="card">
     <h2>Data siswa</h2>
-    <p class="notice op-note hidden" id="s-op-note" style="background:var(--warn-soft);color:var(--warn)">Menambah, mengubah, menonaktifkan, dan menghapus siswa hanya bisa dengan <b>PIN operator/kurikulum</b>. Dengan PIN ini Anda hanya dapat melihat daftar.</p>
+    <p class="notice op-note hidden" id="s-op-note">Menambah, mengubah, menonaktifkan, dan menghapus siswa hanya bisa dengan <b>PIN operator/kurikulum</b>. Dengan PIN ini Anda hanya dapat melihat daftar.</p>
     <p class="muted op-only">Unggah <b>ekspor Excel Dapodik</b> (atau CSV/Excel apa pun) yang memuat kolom NISN, Nama, Rombel/Kelas, dan Tanggal Lahir. Kolom lain diabaikan. Setelah data siswa ada, siswa masuk ujian dengan <b>NISN + tanggal lahir</b>; nama & kelas terisi otomatis dan tiap siswa hanya punya satu hasil per ujian.</p>
     <div class="drop op-only" id="drop-s"><p><b>Seret file Excel/CSV ke sini</b> atau <label style="color:var(--acc);text-decoration:underline;cursor:pointer">pilih file<input type="file" id="file-s" accept=".xlsx,.xls,.csv" class="hidden"></label></p></div>
     <div id="s-status" class="small" style="margin-top:8px"></div>
@@ -165,7 +167,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div class="card op-only"><h3 style="margin-top:0">Tambah / ubah satu siswa <span class="muted">(mutasi masuk, pindah kelas, koreksi)</span></h3>
     <div class="row"><label class="small">NISN<input type="text" id="e-nisn" inputmode="numeric"></label><label class="small">NIS<input type="text" id="e-nis"></label><label class="small grow">Nama<input type="text" id="e-nama"></label><label class="small">Kelas<input type="text" id="e-kelas" placeholder="11-2"></label><label class="small">Tgl lahir<input type="date" id="e-tgl"></label><button id="btn-e-simpan" style="align-self:flex-end">Simpan</button></div>
     <p class="muted">NISN yang sudah ada akan diperbarui (mis. pindah kelas). Mutasi keluar: gunakan <b>nonaktifkan</b> pada daftar — riwayat nilainya tetap tersimpan dan ia tidak bisa masuk ujian; <b>hapus</b> hanya untuk data salah.</p></div>
-  <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Siswa di server</h3><button class="soft" id="btn-s-muat" style="padding:6px 10px;font-size:13px">Muat</button></div>
+  <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Siswa di server</h3><button class="soft" id="btn-s-muat" style="padding:8px 12px;font-size:13px">Muat</button></div>
     <div id="s-server" class="small" style="margin-top:8px"></div>
     <div class="row" style="margin-top:8px"><input type="text" id="s-cari" class="grow" placeholder="Cari nama/NISN…"><button class="danger op-only" id="btn-s-hapus-semua">Hapus semua data siswa</button></div>
     <div class="tbl-wrap"><table class="t" id="s-list"></table></div></div>
@@ -181,7 +183,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 
 <section id="tab-cadangan" class="hidden">
   <div class="card"><h2>Cadangan data</h2>
-    <p class="notice op-note hidden" id="c-op-note" style="background:var(--warn-soft);color:var(--warn)">Cadangan dan pemulihan hanya bisa dengan <b>PIN operator/kurikulum</b>.</p>
+    <p class="notice op-note hidden" id="c-op-note">Cadangan dan pemulihan hanya bisa dengan <b>PIN operator/kurikulum</b>.</p>
     <p class="muted">Mengunduh satu berkas JSON berisi seluruh <b>isi data</b>: paket soal (termasuk kunci), kisi-kisi, data siswa, pengaturan/peruntukan, dan hasil siswa. <b>Struktur</b> database (tabel &amp; fungsi) tidak perlu dicadangkan — cukup jalankan ulang <code>supabase_setup_v7.sql</code>. Simpan berkas cadangan di tempat aman (berisi kunci jawaban dan data pribadi siswa). Lakukan <b>sebelum</b> setiap ujian besar dan <b>sesudah</b> hasilnya masuk.</p>
     <div class="row op-only"><label class="small"><input type="checkbox" id="c-hasil" checked> sertakan hasil siswa</label><label class="small"><input type="checkbox" id="c-pin"> sertakan PIN (tka_privat)</label><button id="btn-c-unduh" class="good">Unduh cadangan (.json)</button></div>
     <div id="c-status" class="small" style="margin-top:8px"></div>
@@ -877,8 +879,8 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       if (v.mode === 'siswa') {
         const set = new Set(v.nisn);
         const cocok = siswa.filter(s => (!qk || String(s.kelas) === qk) && (!q || String(s.nama).toLowerCase().includes(q) || String(s.nisn).includes(q)));
-        h += `<div class="row" style="margin-top:6px"><input type="text" class="grow" data-q placeholder="Cari nama/NISN…" value="${esc(q)}"><select data-qk style="width:auto;padding:6px 8px"><option value="">Semua kelas</option>${kelasList.map(k => `<option value="${esc(k)}" ${qk === k ? 'selected' : ''}>${esc(k)}</option>`).join('')}</select><button type="button" class="soft mini" data-pilih-semua>Pilih semua yang tampil</button><button type="button" class="ghost mini" data-kosong>Kosongkan</button></div>`;
-        h += `<div class="pe-list">${cocok.slice(0, 200).map(s => `<label class="pe-row"><input type="checkbox" data-n="${esc(s.nisn)}" ${set.has(String(s.nisn)) ? 'checked' : ''}> <b>${esc(s.nama)}</b> <span class="muted small">${esc(s.kelas)} · ${esc(s.nisn)}</span></label>`).join('') || '<div class="muted small" style="padding:6px">Tidak ada yang cocok.</div>'}${cocok.length > 200 ? '<div class="muted small" style="padding:6px">Ditampilkan 200 pertama — persempit pencarian.</div>' : ''}</div>`;
+        h += `<div class="row" style="margin-top:6px"><input type="text" class="grow" data-q placeholder="Cari nama/NISN…" value="${esc(q)}"><select data-qk style="width:auto;padding:8px 8px"><option value="">Semua kelas</option>${kelasList.map(k => `<option value="${esc(k)}" ${qk === k ? 'selected' : ''}>${esc(k)}</option>`).join('')}</select><button type="button" class="soft mini" data-pilih-semua>Pilih semua yang tampil</button><button type="button" class="ghost mini" data-kosong>Kosongkan</button></div>`;
+        h += `<div class="pe-list">${cocok.slice(0, 200).map(s => `<label class="pe-row"><input type="checkbox" data-n="${esc(s.nisn)}" ${set.has(String(s.nisn)) ? 'checked' : ''}> <b>${esc(s.nama)}</b> <span class="muted small">${esc(s.kelas)} · ${esc(s.nisn)}</span></label>`).join('') || '<div class="muted small" style="padding:8px">Tidak ada yang cocok.</div>'}${cocok.length > 200 ? '<div class="muted small" style="padding:8px">Ditampilkan 200 pertama — persempit pencarian.</div>' : ''}</div>`;
         const tdk = v.nisn.filter(n => !siswa.some(s => String(s.nisn) === n));
         h += `<details style="margin-top:6px"><summary class="small muted">Tempel daftar NISN (satu per baris / dipisah koma)</summary><textarea data-tempel rows="3" style="width:100%;margin-top:4px" placeholder="0012345678\n0012345679"></textarea><button type="button" class="soft mini" data-tambah-tempel style="margin-top:4px">Tambahkan ke pilihan</button></details>`;
         if (tdk.length) h += `<div class="small" style="margin-top:4px;color:var(--warn)">${tdk.length} NISN terpilih tidak ada di data siswa aktif: ${esc(tdk.slice(0, 5).join(', '))}${tdk.length > 5 ? '…' : ''}</div>`;
@@ -1011,7 +1013,7 @@ async function terbitDarurat(){if(!DPAKET)return;const pd=$("pin-d").value.trim(
   $("d-terbit-status").innerHTML='<span class="pill">Mengirim…</span>';
   try{const j=await rpc("tka_terbitkan_darurat",{p_pin_darurat:pd,p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:$("d-aktif").checked});
     let pes="";try{if(PESERTA_ED.darurat&&PIN()){const r=await rpc("tka_set_peserta",{p_pin:PIN(),p_ujian:j.kode,p_peserta:PESERTA_ED.darurat.get()});pes=` · Peruntukan: ${esc(TKA_PESERTA.ringkas(r,SSERVER))}`}else if(PESERTA_ED.darurat&&PESERTA_ED.darurat.get().mode!=="semua")pes=' · <span class="pill warn">Peruntukan belum tersimpan (perlu PIN guru di bagian atas) — atur di Daftar paket</span>'}catch(e){pes=` · <span class="pill warn">Peruntukan gagal: ${esc(e.message)}</span>`}
-    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit (darurat): ${esc(j.kode)}</span>${pes} <button class="ghost" id="btn-d-kisi" style="padding:6px 10px;font-size:13px">Unduh kisi-kisi otomatis (.docx) untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
+    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit (darurat): ${esc(j.kode)}</span>${pes} <button class="ghost" id="btn-d-kisi" style="padding:8px 12px;font-size:13px">Unduh kisi-kisi otomatis (.docx) untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
   }catch(e){$("d-terbit-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
 
 
@@ -1080,7 +1082,7 @@ const PESERTA_ED={};
 async function siapkanPeserta(key,elId,nilai){const el=$(elId);if(!SSERVER.length){try{SSERVER=await rpc("tka_list_siswa",{p_pin:PIN()})}catch(e){el.innerHTML=`<span class="pill warn">Data siswa belum termuat (${esc(e.message)}) — isi PIN lalu Cek PIN; peruntukan bisa diatur nanti di Daftar paket.</span>`;PESERTA_ED[key]=null;return}}
   el.classList.remove("muted");PESERTA_ED[key]=TKA_PESERTA.buat(el,{siswa:SSERVER,nilai:nilai||{mode:"semua"}})}
 async function muatSiswa(){const box=$("s-server");box.textContent="Memuat…";try{SSERVER=await rpc("tka_list_siswa",{p_pin:PIN()});const kl={};SSERVER.forEach(x=>kl[x.kelas]=(kl[x.kelas]||0)+1);
-  box.innerHTML=`<b>${SSERVER.length} siswa</b> · `+Object.entries(kl).sort().map(([k,v])=>`${esc(k)} (${v}) <button class="ghost op-only" style="padding:2px 6px;font-size:11px" data-hk="${esc(k)}">hapus kelas</button>`).join(" · ");
+  box.innerHTML=`<b>${SSERVER.length} siswa</b> · `+Object.entries(kl).sort().map(([k,v])=>`${esc(k)} (${v}) <button class="ghost op-only" style="padding:2px 8px;font-size:11px" data-hk="${esc(k)}">hapus kelas</button>`).join(" · ");
   box.querySelectorAll("[data-hk]").forEach(b=>b.onclick=async()=>{if(!confirm(`Hapus semua siswa kelas ${b.dataset.hk}?`))return;await rpc("tka_hapus_siswa",{p_pin:PIN(),p_kelas:b.dataset.hk});muatSiswa()});renderSiswa()}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 function renderSiswa(){const q=$("s-cari").value.trim().toLowerCase();const rows=SSERVER.filter(x=>!q||x.nama.toLowerCase().includes(q)||x.nisn.includes(q)).slice(0,60);
   $("s-list").innerHTML=`<tr><th>NISN</th><th>Nama</th><th>Kelas</th><th>Tgl lahir</th><th>Status</th><th></th></tr>`+rows.map(x=>`<tr style="${x.aktif?"":"opacity:.55"}"><td>${esc(x.nisn)}</td><td>${esc(x.nama)}</td><td>${esc(x.kelas)}</td><td>${x.tgl_lahir}</td><td>${x.aktif?'<span class="pill good">aktif</span>':'<span class="pill bad">nonaktif</span>'}</td><td class="row"><button class="ghost op-only" style="padding:2px 8px;font-size:12px" data-ed="${esc(x.nisn)}">ubah</button><button class="soft op-only" style="padding:2px 8px;font-size:12px" data-ak="${esc(x.nisn)}" data-v="${x.aktif?0:1}">${x.aktif?"nonaktifkan":"aktifkan"}</button><button class="danger op-only" style="padding:2px 8px;font-size:12px" data-hs="${esc(x.nisn)}">hapus</button></td></tr>`).join("")+(SSERVER.length>60&&!q?`<tr><td colspan="5" class="muted">Menampilkan 60 pertama — gunakan pencarian.</td></tr>`:"");
