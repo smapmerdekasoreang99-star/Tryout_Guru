@@ -38,7 +38,11 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .grid button.ans{background:#eaeef1;border-color:#3b5670;color:#3b5670;font-weight:700}.grid button.cur{outline:2.5px solid #3b5670}.grid button.wrong{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}.grid button.right{background:var(--good-soft);border-color:var(--good);color:var(--good)}
 .big{font-size:56px;font-weight:800;line-height:1;color:#3b5670}.bar{height:10px;background:#e6edf1;border-radius:6px;overflow:hidden;margin:4px 0 10px}.bar>i{display:block;height:100%;background:var(--good)}.bar>i.low{background:var(--bad)}.bar>i.mid{background:var(--warn)}
 .kv{display:flex;justify-content:space-between;font-size:14px}.pemb{background:#f3f6fb;border-left:3px solid #3b5670;padding:8px 12px;margin:8px 0;font-size:14px}
-.hidden{display:none!important}.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#26323c;color:#fff;padding:10px 16px;border-radius:9px;font-size:14px;z-index:20;opacity:0;transition:opacity .2s}.toast.show{opacity:1}
+.hidden{display:none!important}/* Pesan sekilas harus di atas layar kunci (#kunci, z-index 50): saat
+   pengawas salah mengetik kode buka, keterangan salahnya dikirim lewat
+   toast ini. Dengan z-index 20 pesan itu tertutup dan pengawas tidak
+   tahu apa yang keliru. */
+.toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#26323c;color:#fff;padding:10px 16px;border-radius:9px;font-size:14px;z-index:60;opacity:0;transition:opacity .2s}.toast.show{opacity:1}
 .notice{background:var(--warn-soft);color:var(--warn);padding:8px 12px;border-radius:8px;font-size:14px;margin:8px 0}
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin:8px 0}.tabs button{background:#fff;color:var(--muted);border:1px solid var(--line);padding:8px 12px;font-size:14px}.tabs button.on{background:#3b5670;color:var(--kuning);border-color:#3b5670}
 table.rekap{width:100%;border-collapse:collapse;font-size:13px}table.rekap th,table.rekap td{border-bottom:1px solid var(--line);padding:6px 6px;text-align:left;white-space:nowrap}table.rekap th{background:#3b5670;color:#fff;position:sticky;top:0;font-weight:600}table.rekap tr:nth-child(even) td{background:#f5f7f8}table.rekap tr:hover td{background:#f2eee2}table.rekap td{font-size:14px}table.rekap td.n{text-align:right;font-variant-numeric:tabular-nums}

@@ -40,7 +40,8 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 .opt{padding:6px 10px;border:1px solid var(--line);border-radius:8px;margin:4px 0}.opt.key{border-color:var(--good);background:var(--good-soft)}
 .pemb{background:#f3f6fb;border-left:3px solid #3b5670;padding:6px 10px;margin:6px 0;font-size:13px}
 details summary{cursor:pointer;font-weight:600;padding:6px 0}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#26323c;color:#fff;padding:10px 16px;border-radius:9px;font-size:14px;z-index:20;opacity:0;transition:opacity .2s}.toast.show{opacity:1}
+/* Disamakan dengan index.html: pesan sekilas selalu di lapisan teratas. */
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#26323c;color:#fff;padding:10px 16px;border-radius:9px;font-size:14px;z-index:60;opacity:0;transition:opacity .2s}.toast.show{opacity:1}
 #qr{display:inline-block;padding:8px;background:#fff;border:1px solid var(--line);border-radius:8px}
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all;background:#eef3f6;padding:1px 4px;border-radius:4px}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.chip{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:13px}.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
