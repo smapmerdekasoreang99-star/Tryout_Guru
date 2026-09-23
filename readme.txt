@@ -104,7 +104,7 @@ Isi folder:
 
 ## D. Setelah ujian
 
-`index.html` → *Guru / pengawas* → PIN → **Dasbor hasil** → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah; kolom nomor & nama tetap terlihat saat tabel digulir ke kanan), analisis butir (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, CSV. Saklar **pembahasan** membuka kunci & pembahasan bagi siswa yang sudah selesai.
+`index.html` → *Guru / pengawas* → PIN → **Dasbor hasil** → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah; judul kolom tetap di atas dan kolom nomor & nama tetap di kiri saat tabel digulir), analisis butir (judul kolom juga tetap) (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, CSV. Saklar **pembahasan** membuka kunci & pembahasan bagi siswa yang sudah selesai.
 
 Revisi soal: perbaiki Word → unggah ulang di Langkah 2 (kode sama) → paket ditimpa, hasil siswa tetap. Revisi kisi-kisi: unggah ulang di Langkah 1 → unduh Template Soal baru → isi ulang bagian yang berubah → Langkah 2.
 
