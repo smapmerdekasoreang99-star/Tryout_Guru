@@ -23,7 +23,7 @@ Isi folder:
 | `Contoh_Kisi_Kisi_Stoikiometri.docx` | Contoh kisi-kisi terisi (KIM-STO-01, 20 soal, 2 varian) untuk uji coba Langkah 1 |
 | `Contoh_Soal_Terisi_KIM-STO-01.docx` | Contoh Template Soal yang sudah diisi, pasangan kisi-kisi di atas, untuk uji coba Langkah 2 |
 | `Contoh_Kisi_Kisi_BIndo_TeksBacaan.docx` + `Contoh_Soal_Terisi_BIN-CTH-01.docx` | Contoh **dengan teks bacaan bersama** (B. Indonesia: 2 teks, 6 soal) untuk Langkah 1 & 2 |
-| `admin.html` | Halaman guru/admin (PIN): Langkah 1, Langkah 2, daftar kisi-kisi & paket, tautan/QR, saklar aktif/pembahasan, impor kode hasil |
+| `admin.html` | Halaman guru/admin (PIN): Langkah 1, Langkah 2, daftar kisi-kisi & paket, unduh naskah soal (.docx), tautan/QR, saklar aktif/pembahasan, impor kode hasil |
 | `index.html` | Halaman siswa + dasbor guru |
 | `Template_Soal_Darurat.docx` | Untuk **jalur darurat** (terbit tanpa kisi-kisi; hanya dengan PIN darurat) |
 | `Template_Data_Siswa.xlsx` | Contoh format data siswa (NISN, NIS, Nama, Kelas, Tanggal Lahir); ekspor Dapodik juga diterima |
@@ -52,6 +52,7 @@ Isi folder:
 - `admin.html` → **Langkah 2** → unggah → aplikasi mencocokkan dengan kisi-kisi di server. **Ditolak** bila: kode ujian berbeda, nomor hilang/lebih, varian kurang/lebih, bentuk berbeda dari kisi-kisi, kode teks berbeda dari kisi-kisi, atau teks bacaan yang dirujuk belum diisi.
 - Di layar siswa, teks bacaan tampil di atas setiap soal yang merujuknya (bisa dilipat), dan soal-soal dengan teks yang sama tetap berkelompok meski urutan diacak. Sub-materi/indikator/level selalu mengikuti kisi-kisi (perbedaan hanya diperingatkan).
 - Pratinjau (kunci hijau) → **Terbitkan** → tautan & QR.
+- **Unduh naskah (.docx)**: di pratinjau Langkah 2, tab *Daftar paket → Lihat soal*, dan jalur darurat tersedia dua unduhan Word — **Soal & pembahasan** (kunci ditandai hijau ✔, pembahasan tiap soal, rekap kunci per varian; rahasia, untuk guru/arsip) dan **Naskah siswa** (tanpa kunci/pembahasan, untuk dicetak sebagai cadangan bila jaringan bermasalah). Tiap varian di halaman terpisah; teks bacaan tampil sekali sebelum soal pertama yang merujuknya; gambar, tabel, sub/superscript ikut; rumus Word Equation tampil sebagai kode `( … )` (belum dikonversi balik ke rumus Word). Hanya untuk PIN guru/operator.
 
 ## C2. Jalur darurat (hanya keadaan mendesak)
 
