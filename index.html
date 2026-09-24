@@ -174,7 +174,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       <div class="gbox"><h3>Peruntukan ujian</h3><div class="row"><span class="small grow">Boleh dikerjakan oleh: <b id="g-peserta-ringkas">–</b></span><button class="soft kelola-only" id="btn-peserta" style="padding:8px 12px;font-size:13px">Ubah peruntukan</button></div>
       <div id="g-peserta-panel" class="hidden" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px"><div id="g-peserta-box"></div><div class="row" style="margin-top:8px"><button id="btn-peserta-simpan">Simpan peruntukan</button><button class="ghost" id="btn-peserta-batal">Tutup</button></div><div id="g-peserta-status" class="small" style="margin-top:4px"></div></div></div></div>
     <div class="tabs"><button class="on" data-tab="rekap">Rekap siswa</button><button data-tab="butir">Analisis butir</button><button data-tab="sub">Sub-materi</button><button data-tab="belum">Belum mengerjakan</button><button data-tab="riwayat">Riwayat siswa</button></div>
-    <div class="card" id="g-rekap"><div class="row"><label class="small">Kelas <select id="g-kelas" style="width:auto;padding:8px 8px"></select></label><span class="grow"></span><button class="soft" id="btn-csv" style="padding:8px 12px;font-size:13px">Unduh CSV</button></div><div id="g-stat" class="stats"></div><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-tabel"></table></div></div>
+    <div class="card" id="g-rekap"><div class="row"><label class="small">Kelas <select id="g-kelas" style="width:auto;padding:8px 8px"></select></label><span class="grow"></span><button class="soft" id="btn-xlsx" style="padding:8px 12px;font-size:13px" title="Rekap, jawaban per soal, analisis butir, dan sub-materi dalam satu buku kerja Excel berformat">Unduh (.xlsx)</button></div><div id="g-stat" class="stats"></div><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-tabel"></table></div></div>
     <div class="card hidden" id="g-butir"><p class="small muted">Nomor = nomor asli pada kisi-kisi. Kesukaran: sukar &lt; 30% · sedang 30–70% · mudah &gt; 70%. Kolom varian menunjukkan % benar tiap varian (uji kesetaraan).</p><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-butir-tabel"></table></div></div>
     <div class="card hidden" id="g-sub"><div id="g-sub-isi"></div></div>
     <div class="card hidden" id="g-belum"><p class="small muted">Peserta ujian ini (sesuai peruntukan) yang belum punya hasil. Kelas mengikuti filter di atas. <span id="g-belum-peserta"></span></p><div id="g-belum-isi"></div></div>
@@ -484,9 +484,164 @@ async function renderRiwayat(){const box=$("g-riwayat-isi");box.innerHTML="Memua
   const uj=[...new Set(rows.map(r=>r.ujian))];const sis={};rows.forEach(r=>{const key=r.nisn||("~"+r.nama);(sis[key]=sis[key]||{nama:r.nama,nisn:r.nisn,kelas:r.kelas,n:{}}).n[r.ujian]=r.nilai});
   const list=Object.values(sis).sort((a,b)=>a.kelas.localeCompare(b.kelas)||a.nama.localeCompare(b.nama));
   box.innerHTML=`<table class="rekap"><tr><th class="beku">Nama</th><th>NISN</th><th>Kelas</th>${uj.map(u=>`<th>${esc(u)}</th>`).join("")}<th>Rata-rata</th></tr>${list.map(x=>{const v=uj.map(u=>x.n[u]);const ada=v.filter(y=>y!==undefined);return `<tr><td class="beku">${esc(x.nama)}</td><td>${esc(x.nisn||"–")}</td><td>${esc(x.kelas)}</td>${v.map(y=>`<td class="n">${y===undefined?"–":y}</td>`).join("")}<td class="n"><b>${ada.length?Math.round(ada.reduce((a,b)=>a+b,0)/ada.length):"–"}</b></td></tr>`}).join("")}</table>`;bekukan(box.querySelector("table"))}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
-function csv(){const rows=filtered();const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort(lsort);const head=["nama","nisn","kelas","nilai","benar","durasi_detik","keluar_halaman","selesai","varian",...GPK.meta.blueprint.map(b=>"S"+b.no),...levels];
-  const lines=[head.join(",")].concat(rows.map(r=>{const it=rowItems(r),ls=levelSummary(it);return [r.nama,r.nisn||"",r.kelas,r.nilai,r.benar,r.durasi,r.keluar||0,r.selesai,r.varian,...it.map(x=>x.benar),...levels.map(L=>ls[L])].map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(",")}));
-  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+lines.join("\r\n")],{type:"text/csv;charset=utf-8"}));a.download=`hasil_${GPK.kode}.csv`;a.click()}
+/* ================= UNDUH EXCEL (.xlsx) =================
+   Rekap dasbor guru sebagai buku kerja Excel berformat (ExcelJS, dimuat hanya saat diperlukan — sama seperti Data Induk).
+   Empat lembar: Rekap · Jawaban per Soal · Analisis Butir · Sub-materi & Level.
+   bukuHasil() sengaja murni (tanpa DOM/global GPK) supaya bisa diuji di Node. */
+const CDN_EXCELJS=["https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js","https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"];
+async function muatExcelJS(){if(window.ExcelJS)return window.ExcelJS;
+  for(const u of CDN_EXCELJS){try{await new Promise((ok,gagal)=>{const s=document.createElement("script");s.src=u;s.onload=ok;s.onerror=()=>gagal(new Error(u));document.head.appendChild(s)});if(window.ExcelJS)return window.ExcelJS}catch(e){}}
+  throw new Error("Pustaka pembuat Excel tidak bisa dimuat. Periksa sambungan internet lalu coba lagi.")}
+// Palet mengikuti assets/dasar.css: biru tua (chrome), emas (aksen), kertas (zebra), hijau/merah (tuntas/belum).
+const XL={font:"Calibri",gelap:"FF1D2A3A",gelap2:"FF33445A",emas:"FFC29433",emasMuda:"FFFFF6D2",emasTeks:"FF8F6B1A",kertas:"FFF6F2E8",garis:"FFE7E0D1",garis2:"FFD6CCB6",tinta:"FF221E17",tinta2:"FF5E5548",putih:"FFFFFFFF",terang:"FFF7F3E9",hijau:"FF2B4B37",hijauMuda:"FFE4EFE7",merah:"FF7C2F1F",merahMuda:"FFF7E4DF"};
+function bukuHasil({ExcelJS,paket,rows,kelas,logoBase64,sekolah,waktu}){
+  const F=XL.font,bp=paket.meta.blueprint||[],nSoal=bp.length||paket.n_soal||0,waktuUnduh=waktu||new Date();
+  const levels=[...new Set(bp.map(b=>b.level).filter(Boolean))].sort(lsort);
+  const subs=[...new Set(bp.map(b=>b.sub).filter(Boolean))];
+  const varianRingkas=r=>{const u=[...new Set(String(r.varian||"").split("").filter(c=>c&&c!=="?"))].sort();return u.length?u.join("/"):"–"};
+  const items=r=>String(r.items||"").split("").map((c,i)=>({no:i+1,v:(r.varian||"")[i]||"?",benar:+c,level:(bp[i]||{}).level||"",sub:(bp[i]||{}).sub||""}));
+  const ringkasLevel=it=>{const o={};levels.forEach(L=>{const s=it.filter(x=>x.level===L);o[L]=s.length?pct(s.reduce((a,x)=>a+x.benar,0),s.length):null});return o};
+  const data=rows.map(r=>({...r,it:items(r)})).sort((a,b)=>(a.kelas||"").localeCompare(b.kelas||"")||(a.nama||"").localeCompare(b.nama||""));
+  const isi=c=>({type:"pattern",pattern:"solid",fgColor:{argb:c}});
+  const isiCF=c=>({type:"pattern",pattern:"solid",fgColor:{argb:c},bgColor:{argb:c}}); // fill pada conditional formatting (dxf) dibaca Excel dari bgColor
+  const garis=(c=XL.garis)=>({style:"thin",color:{argb:c}});
+  const tepi=(c)=>({top:garis(c),left:garis(c),bottom:garis(c),right:garis(c)});
+  const tglIndo=d=>d.toLocaleString("id-ID",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"}).replace(/\./g,":");
+  const lokal=iso=>{const d=new Date(iso);return isNaN(d)?null:new Date(d.getTime()-d.getTimezoneOffset()*60000)}; // ExcelJS menulis tanggal sebagai UTC; digeser agar tampil waktu setempat
+  const sel=(ws,r,c,v,o={})=>{const x=ws.getCell(r,c);x.value=v;x.font={name:F,size:o.size||10,bold:!!o.bold,italic:!!o.italic,color:{argb:o.warna||XL.tinta}};
+    x.alignment={horizontal:o.rata||(typeof v==="number"?"center":"left"),vertical:"middle",wrapText:!!o.bungkus,indent:o.indent||0};
+    if(o.fill)x.fill=isi(o.fill);if(o.tepi)x.border=o.tepi;if(o.fmt)x.numFmt=o.fmt;return x};
+  const wb=new ExcelJS.Workbook();wb.creator=sekolah;wb.created=waktuUnduh;wb.modified=waktuUnduh;
+  const subJudul=[paket.mapel,paket.kelas?"Kelas "+paket.kelas:"",paket.materi].filter(Boolean).join("  ·  ");
+  let logoId=null;if(logoBase64){try{logoId=wb.addImage({base64:logoBase64,extension:"png"})}catch(e){logoId=null}}
+  // ---- Kop: logo, nama sekolah, judul lembar, garis emas. Mengembalikan baris kosong pertama sesudahnya.
+  function kop(ws,judul,kolomAkhir){
+    ws.getRow(1).height=8;ws.getRow(2).height=20;ws.getRow(3).height=15;ws.getRow(4).height=18;ws.getRow(5).height=6;
+    for(let r=1;r<=5;r++)for(let c=1;c<=kolomAkhir;c++)ws.getCell(r,c).fill=isi(XL.putih);
+    if(logoId!==null){try{ws.addImage(logoId,{tl:{col:0.1,row:0.3},ext:{width:34,height:48}})}catch(e){}}
+    const mulai=2;if(kolomAkhir>mulai){ws.mergeCells(2,mulai,2,kolomAkhir);ws.mergeCells(3,mulai,3,kolomAkhir);ws.mergeCells(4,mulai,4,kolomAkhir)}
+    sel(ws,2,mulai,sekolah,{size:14,bold:true,warna:XL.gelap,indent:1});
+    sel(ws,3,mulai,`Asesmen Merdeka · ${paket.kode} — ${paket.judul}${subJudul?"  ·  "+subJudul:""}`,{size:9,warna:XL.tinta2,indent:1});
+    sel(ws,4,mulai,judul.toUpperCase(),{size:12,bold:true,warna:XL.emasTeks,indent:1});
+    for(let c=1;c<=kolomAkhir;c++)ws.getCell(5,c).border={bottom:{style:"medium",color:{argb:XL.emas}}};
+    ws.getRow(6).height=8;return 7}
+  function catatanKaki(ws,r,kolomAkhir,teks){ws.getRow(r).height=6;ws.mergeCells(r+1,1,r+1,kolomAkhir);
+    sel(ws,r+1,1,teks||`Diunduh ${tglIndo(waktuUnduh)} dari dasbor guru Asesmen Merdeka · ${sekolah}`,{size:8,italic:true,warna:XL.tinta2});return r+2}
+  function kepala(ws,r,labels,o={}){labels.forEach((t,i)=>sel(ws,r,i+1,t,{bold:true,size:o.size||10,warna:XL.putih,fill:XL.gelap,rata:"center",bungkus:true,tepi:{top:garis(XL.gelap),left:garis(XL.gelap2),right:garis(XL.gelap2),bottom:{style:"medium",color:{argb:XL.emas}}}}));ws.getRow(r).height=o.tinggi||30}
+  function badan(ws,r,nilai,zebra,o={}){nilai.forEach((v,i)=>{const s=(o.gaya&&o.gaya[i])||{};sel(ws,r,i+1,v,{...s,fill:s.fill||(zebra?XL.kertas:XL.putih),tepi:tepi()})});ws.getRow(r).height=o.tinggi||18}
+  function cetak(ws,barisJudul){ws.views=[{state:"frozen",xSplit:2,ySplit:barisJudul,showGridLines:false}];
+    ws.pageSetup={paperSize:9,orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0,printTitlesRow:`${barisJudul}:${barisJudul}`,margins:{left:0.4,right:0.4,top:0.5,bottom:0.5,header:0.2,footer:0.2},horizontalCentered:true};
+    ws.headerFooter={oddFooter:`&L&8${sekolah} · ${paket.kode}&R&8Halaman &P dari &N`}}
+  const kolomHuruf=n=>{let s="";while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26)}return s};
+  const aturanNilai=[{type:"cellIs",operator:"greaterThanOrEqual",formulae:[75],style:{fill:isiCF(XL.hijauMuda),font:{color:{argb:XL.hijau},bold:true}}},
+    {type:"cellIs",operator:"between",formulae:[60,74.999],style:{fill:isiCF(XL.emasMuda),font:{color:{argb:XL.emasTeks},bold:true}}},
+    {type:"cellIs",operator:"lessThan",formulae:[60],style:{fill:isiCF(XL.merahMuda),font:{color:{argb:XL.merah},bold:true}}}];
+  const skalaPersen={type:"colorScale",cfvo:[{type:"num",value:0},{type:"num",value:60},{type:"num",value:100}],color:[{argb:"FFF2C9C0"},{argb:"FFFFF0B8"},{argb:"FFBFDCC7"}]};
+  const kesukaran=p=>p<30?["sukar",XL.merahMuda,XL.merah]:p<=70?["sedang",XL.emasMuda,XL.emasTeks]:["mudah",XL.hijauMuda,XL.hijau];
+
+  /* ---------- Lembar 1: Rekap ---------- */
+  {const ws=wb.addWorksheet("Rekap",{properties:{tabColor:{argb:XL.emas}}});
+    const lebar=[5,30,13,9,8,9,...levels.map(()=>11),28,9,8,8,17,11];lebar.forEach((w,i)=>ws.getColumn(i+1).width=w);const K=lebar.length;
+    let r=kop(ws,"Rekap Hasil Siswa",K);
+    const info=[["Kode ujian",paket.kode],["Judul",paket.judul],["Mata pelajaran / kelas",subJudul||"–"],["Kelas (filter)",kelas||"Semua kelas"],["Jumlah soal",`${nSoal} soal${levels.length?"  ·  level: "+levels.join(", "):""}`],["Jumlah hasil",`${data.length} siswa`],["Diunduh",tglIndo(waktuUnduh)]];
+    info.forEach(([k,v])=>{sel(ws,r,2,k,{size:9,warna:XL.tinta2});ws.mergeCells(r,3,r,Math.min(K,8));sel(ws,r,3,v,{size:9,bold:true});ws.getRow(r).height=15;r++});
+    r++;
+    if(data.length){const nilai=data.map(x=>x.nilai),avg=Math.round(nilai.reduce((s,v)=>s+v,0)/nilai.length),tuntas=nilai.filter(v=>v>=75).length;
+      const ubin=[["Peserta",data.length],["Rata-rata",avg],["Tuntas ≥ 75",`${pct(tuntas,data.length)}%  (${tuntas})`],["Terendah",Math.min(...nilai)],["Tertinggi",Math.max(...nilai)],["Keluar ≥ 5×",data.filter(x=>x.keluar>=5).length]];
+      ws.getRow(r).height=14;ws.getRow(r+1).height=26;
+      ubin.forEach(([l,v],i)=>{const c=2+i*2;if(c+1<=K){ws.mergeCells(r,c,r,c+1);ws.mergeCells(r+1,c,r+1,c+1)}
+        sel(ws,r,c,l.toUpperCase(),{size:8,bold:true,warna:XL.tinta2,rata:"center",fill:XL.kertas,tepi:{top:garis(XL.garis2),left:garis(XL.garis2),right:garis(XL.garis2)}});
+        sel(ws,r+1,c,v,{size:14,bold:true,warna:XL.gelap,rata:"center",fill:XL.kertas,tepi:{bottom:garis(XL.garis2),left:garis(XL.garis2),right:garis(XL.garis2)}})});
+      r+=3}
+    const judulKolom=["No","Nama","NISN","Kelas","Nilai",`Benar /${nSoal}`,...levels.map(L=>`${L} (%)`),"Sub-materi terlemah","Durasi","Keluar","Varian","Selesai","Keterangan"];
+    kepala(ws,r,judulKolom);const barisJudul=r;r++;const awalData=r;
+    if(!data.length){ws.mergeCells(r,1,r,K);sel(ws,r,1,"Belum ada data.",{italic:true,warna:XL.tinta2,rata:"center"});r++}
+    data.forEach((x,k)=>{const ls=ringkasLevel(x.it);const lemah=subs.map(sb=>{const s=x.it.filter(y=>y.sub===sb);return [sb,s.length?pct(s.reduce((a,y)=>a+y.benar,0),s.length):101]}).sort((a,b)=>a[1]-b[1])[0];
+      const v=[k+1,x.nama,x.nisn||"–",x.kelas,x.nilai,x.benar,...levels.map(L=>ls[L]??"–"),lemah&&lemah[1]<=100?lemah[0]:"–",Math.round(x.durasi||0)/86400,x.keluar||0,varianRingkas(x),lokal(x.selesai)||"–",[x.tamu?"Tamu":"",x.nilai>=75?"Tuntas":"Belum tuntas"].filter(Boolean).join(", ")];
+      const g={0:{rata:"center",warna:XL.tinta2},1:{bold:true},2:{rata:"center"},3:{rata:"center"},4:{rata:"center",bold:true},5:{rata:"center"}};
+      levels.forEach((_,i)=>g[6+i]={rata:"center",fmt:'0"%"'});const b=6+levels.length;g[b]={bungkus:true,size:9};g[b+1]={rata:"center",fmt:"[mm]:ss"};g[b+2]={rata:"center",warna:(x.keluar||0)>=5?XL.merah:XL.tinta,bold:(x.keluar||0)>=5};g[b+3]={rata:"center"};g[b+4]={rata:"center",fmt:"dd/mm/yyyy hh:mm",size:9};g[b+5]={size:9,warna:x.nilai>=75?XL.hijau:XL.merah};
+      badan(ws,r,v,k%2===1,{gaya:g});r++});
+    if(data.length){const akhir=r-1;ws.addConditionalFormatting({ref:`E${awalData}:E${akhir}`,rules:aturanNilai});
+      levels.forEach((_,i)=>{const h=kolomHuruf(7+i);ws.addConditionalFormatting({ref:`${h}${awalData}:${h}${akhir}`,rules:[skalaPersen]})});
+      ws.autoFilter={from:{row:barisJudul,column:1},to:{row:akhir,column:K}};
+      r++;sel(ws,r,2,"Keterangan: hijau = tuntas (≥ 75), emas = 60–74, merah = < 60. Kolom level menunjukkan persentase benar tiap level kognitif.",{size:8,italic:true,warna:XL.tinta2});ws.mergeCells(r,2,r,K);r++}
+    catatanKaki(ws,r,K);cetak(ws,barisJudul)}
+
+  /* ---------- Lembar 2: Jawaban per Soal (1 = benar, 0 = salah) ---------- */
+  {const ws=wb.addWorksheet("Jawaban per Soal",{properties:{tabColor:{argb:XL.gelap}}});
+    const lebar=[5,30,13,9,8,...bp.map(()=>5),8,8];lebar.forEach((w,i)=>ws.getColumn(i+1).width=w);const K=lebar.length;
+    let r=kop(ws,"Jawaban per Butir Soal",K);
+    ws.mergeCells(r,2,r,K);sel(ws,r,2,"1 = benar, 0 = salah. Nomor mengikuti kisi-kisi; baris LEVEL menunjukkan level kognitif tiap butir. Baris paling bawah = persentase siswa yang menjawab benar (rumus Excel).",{size:9,warna:XL.tinta2,bungkus:true});ws.getRow(r).height=28;r+=2;
+    const singkatLevel=L=>({Knowing:"K",Applying:"A",Reasoning:"R"}[L]||L||"");
+    kepala(ws,r,["No","Nama","NISN","Kelas","Varian",...bp.map(b=>"S"+b.no),"Benar","Nilai"],{tinggi:24});const barisJudul=r;r++;
+    ["LEVEL",null,null,null,null,...bp.map(b=>singkatLevel(b.level)),null,null].forEach((v,i)=>sel(ws,r,i+1,v??"",{size:8,bold:true,warna:XL.tinta2,rata:"center",fill:XL.terang,tepi:tepi(XL.garis2)}));ws.getRow(r).height=14;r++;
+    const awalData=r;
+    if(!data.length){ws.mergeCells(r,1,r,K);sel(ws,r,1,"Belum ada data.",{italic:true,warna:XL.tinta2,rata:"center"});r++}
+    data.forEach((x,k)=>{const v=[k+1,x.nama,x.nisn||"–",x.kelas,varianRingkas(x),...bp.map((_,i)=>x.it[i]?x.it[i].benar:"–"),x.benar,x.nilai];
+      const g={0:{rata:"center",warna:XL.tinta2},1:{bold:true},2:{rata:"center"},3:{rata:"center"},4:{rata:"center"}};bp.forEach((_,i)=>g[5+i]={rata:"center",size:9});g[5+bp.length]={rata:"center"};g[6+bp.length]={rata:"center",bold:true};
+      badan(ws,r,v,k%2===1,{gaya:g,tinggi:16});r++});
+    if(data.length){const akhir=r-1;
+      sel(ws,r,1,"",{fill:XL.terang,tepi:tepi(XL.garis2)});ws.mergeCells(r,2,r,5);sel(ws,r,2,"% siswa menjawab benar",{bold:true,size:9,fill:XL.terang,tepi:tepi(XL.garis2)});
+      bp.forEach((_,i)=>{const h=kolomHuruf(6+i);const s=data.map(x=>x.it[i]).filter(Boolean);const c=sel(ws,r,6+i,{formula:`ROUND(AVERAGE(${h}${awalData}:${h}${akhir})*100,0)`,result:s.length?pct(s.reduce((a,y)=>a+y.benar,0),s.length):0},{bold:true,size:9,rata:"center",fill:XL.terang,fmt:'0"%"',tepi:tepi(XL.garis2)})});
+      const hB=kolomHuruf(6+bp.length),hN=kolomHuruf(7+bp.length);
+      sel(ws,r,6+bp.length,{formula:`ROUND(AVERAGE(${hB}${awalData}:${hB}${akhir}),1)`,result:Math.round(data.reduce((s,x)=>s+x.benar,0)/data.length*10)/10},{bold:true,size:9,rata:"center",fill:XL.terang,fmt:"0.0",tepi:tepi(XL.garis2)});
+      sel(ws,r,7+bp.length,{formula:`ROUND(AVERAGE(${hN}${awalData}:${hN}${akhir}),0)`,result:Math.round(data.reduce((s,x)=>s+x.nilai,0)/data.length)},{bold:true,size:9,rata:"center",fill:XL.terang,fmt:"0",tepi:tepi(XL.garis2)});
+      ws.getRow(r).height=18;r++;
+      if(bp.length){const h1=kolomHuruf(6),h2=kolomHuruf(5+bp.length);ws.addConditionalFormatting({ref:`${h1}${awalData}:${h2}${akhir}`,rules:[
+        {type:"cellIs",operator:"equal",formulae:[1],style:{fill:isiCF(XL.hijauMuda),font:{color:{argb:XL.hijau}}}},
+        {type:"cellIs",operator:"equal",formulae:[0],style:{fill:isiCF(XL.merahMuda),font:{color:{argb:XL.merah}}}}]});
+        ws.addConditionalFormatting({ref:`${h1}${akhir+1}:${h2}${akhir+1}`,rules:[skalaPersen]})}
+      ws.addConditionalFormatting({ref:`${hN}${awalData}:${hN}${akhir}`,rules:aturanNilai});
+      ws.autoFilter={from:{row:barisJudul,column:1},to:{row:akhir,column:5}};r++}
+    catatanKaki(ws,r,K);cetak(ws,barisJudul);ws.views[0].xSplit=5;ws.views[0].ySplit=barisJudul+1}
+
+  /* ---------- Lembar 3: Analisis Butir ---------- */
+  {const ws=wb.addWorksheet("Analisis Butir",{properties:{tabColor:{argb:XL.gelap}}});
+    const semua=data.flatMap(x=>x.it);const varian=[...new Set(semua.map(y=>y.v))].filter(v=>v!=="?").sort();
+    const lebar=[6,40,12,14,7,10,11,...varian.map(()=>13)];lebar.forEach((w,i)=>ws.getColumn(i+1).width=w);const K=lebar.length;
+    let r=kop(ws,"Analisis Butir Soal",K);
+    ws.mergeCells(r,2,r,K);sel(ws,r,2,"Nomor = nomor asli pada kisi-kisi. Kesukaran: sukar < 30% · sedang 30–70% · mudah > 70%. Kolom varian = % benar tiap varian (uji kesetaraan) beserta jumlah siswanya.",{size:9,warna:XL.tinta2,bungkus:true});ws.getRow(r).height=28;r+=2;
+    kepala(ws,r,["No","Sub-materi","Level","Bentuk","n","% benar","Kesukaran",...varian.map(v=>`Var. ${v}`)]);const barisJudul=r;r++;const awalData=r;
+    if(!bp.length){ws.mergeCells(r,1,r,K);sel(ws,r,1,"Kisi-kisi tidak tersedia.",{italic:true,warna:XL.tinta2,rata:"center"});r++}
+    bp.forEach((b,i)=>{const its=data.map(x=>x.it[i]).filter(Boolean),n=its.length,p=n?pct(its.reduce((s,y)=>s+y.benar,0),n):null;const [ket,fill,warna]=p===null?["–",null,XL.tinta2]:kesukaran(p);
+      const f=s=>s.length?`${pct(s.reduce((a,y)=>a+y.benar,0),s.length)}%  (n=${s.length})`:"–";
+      badan(ws,r,[b.no,b.sub||"–",b.level||"–",b.bentuk||"–",n,p??"–",ket,...varian.map(v=>f(its.filter(y=>y.v===v)))],i%2===1,{gaya:{0:{rata:"center",warna:XL.tinta2},1:{bungkus:true,size:9},2:{rata:"center"},3:{rata:"center",size:9},4:{rata:"center"},5:{rata:"center",bold:true,fmt:'0"%"'},6:{rata:"center",bold:true,fill,warna},...Object.fromEntries(varian.map((_,j)=>[7+j,{rata:"center",size:9}]))},tinggi:20});r++});
+    if(bp.length&&data.length){ws.addConditionalFormatting({ref:`F${awalData}:F${r-1}`,rules:[skalaPersen]});ws.autoFilter={from:{row:barisJudul,column:1},to:{row:r-1,column:K}}}
+    r++;catatanKaki(ws,r,K);cetak(ws,barisJudul);ws.pageSetup.orientation="portrait"}
+
+  /* ---------- Lembar 4: Sub-materi & Level ---------- */
+  {const ws=wb.addWorksheet("Sub-materi & Level",{properties:{tabColor:{argb:XL.gelap}}});
+    const lebar=[6,44,34,11,26];lebar.forEach((w,i)=>ws.getColumn(i+1).width=w);const K=lebar.length;
+    let r=kop(ws,"Capaian per Level Kognitif dan Sub-materi",K);
+    const semua=data.flatMap(x=>x.it);
+    const bagian=t=>{ws.mergeCells(r,1,r,K);sel(ws,r,1,t,{bold:true,size:11,warna:XL.gelap});ws.getRow(r).height=22;for(let c=1;c<=K;c++)ws.getCell(r,c).border={bottom:{style:"thin",color:{argb:XL.emas}}};r++};
+    const kosong=t=>{ws.mergeCells(r,1,r,K);sel(ws,r,1,t,{italic:true,warna:XL.tinta2});r++};
+    bagian("Per level kognitif (seluruh siswa terpilih)");
+    const lv=levels.map(L=>{const s=semua.filter(y=>y.level===L);return {L,p:s.length?pct(s.reduce((a,y)=>a+y.benar,0),s.length):null}});
+    if(!lv.length||!data.length)kosong("Level tidak diisi atau belum ada data.");
+    else{kepala(ws,r,["No","Level","Keterangan","% benar","Catatan"],{tinggi:22});r++;const a=r;
+      lv.forEach((x,i)=>{badan(ws,r,[i+1,x.L,LV[x.L]||"",x.p??"–",x.p===null?"–":x.p<60?"Perlu penguatan":x.p<75?"Cukup":"Baik"],i%2===1,{gaya:{0:{rata:"center",warna:XL.tinta2},1:{bold:true},2:{size:9},3:{rata:"center",bold:true,fmt:'0"%"'},4:{size:9,warna:x.p!==null&&x.p<60?XL.merah:XL.tinta}}});r++});
+      ws.addConditionalFormatting({ref:`D${a}:D${r-1}`,rules:[skalaPersen]})}
+    r++;bagian("Per sub-materi (terendah di atas)");
+    const sm=subs.map(sb=>{const s=semua.filter(y=>y.sub===sb);return {sb,p:s.length?pct(s.reduce((a,y)=>a+y.benar,0),s.length):null,n:new Set(bp.filter(b=>b.sub===sb).map(b=>b.no)).size}}).sort((x,y)=>(x.p??101)-(y.p??101));
+    if(!sm.length||!data.length)kosong("Sub-materi tidak diisi atau belum ada data.");
+    else{kepala(ws,r,["No","Sub-materi","Nomor soal","% benar","Tindak lanjut"],{tinggi:22});r++;const a=r;
+      sm.forEach((x,i)=>{const nomor=bp.filter(b=>b.sub===x.sb).map(b=>b.no).join(", ");badan(ws,r,[i+1,x.sb,nomor,x.p??"–",x.p===null?"–":x.p<60?"Remedial terarah":x.p<75?"Latihan tambahan":"Pengayaan"],i%2===1,{gaya:{0:{rata:"center",warna:XL.tinta2},1:{bungkus:true},2:{size:9,bungkus:true},3:{rata:"center",bold:true,fmt:'0"%"'},4:{size:9,warna:x.p!==null&&x.p<60?XL.merah:XL.tinta}},tinggi:20});r++});
+      ws.addConditionalFormatting({ref:`D${a}:D${r-1}`,rules:[skalaPersen]})}
+    r++;bagian("Rekomendasi tindak lanjut");
+    const rek=sm.filter(x=>x.p!==null&&x.p<60).slice(0,3);
+    if(!data.length)kosong("Belum ada data.");
+    else if(!rek.length)kosong("Tidak ada sub-materi di bawah 60%. Lanjutkan pengayaan level tinggi.");
+    else rek.forEach((x,i)=>{sel(ws,r,1,i+1,{rata:"center",warna:XL.tinta2});ws.mergeCells(r,2,r,K);sel(ws,r,2,`${x.sb} (${x.p}%): remedial terarah — ulangi konsep, lalu latihan soal berkonteks.`,{bungkus:true});ws.getRow(r).height=18;r++});
+    r++;catatanKaki(ws,r,K);ws.views=[{showGridLines:false}];ws.pageSetup={paperSize:9,orientation:"portrait",fitToPage:true,fitToWidth:1,fitToHeight:0,margins:{left:0.5,right:0.5,top:0.5,bottom:0.5,header:0.2,footer:0.2},horizontalCentered:true}}
+  return wb}
+async function unduhExcel(){if(!GPK){toast("Muat ujian dahulu");return}const b=$("btn-xlsx"),lama=b.textContent;b.disabled=true;b.textContent="Menyusun…";
+  try{const ExcelJS=await muatExcelJS();const img=document.querySelector("header.top img");const logo=img&&/^data:image\/png;base64,/.test(img.src)?img.src.split(",")[1]:null;
+    const kelas=$("g-kelas").value;const wb=bukuHasil({ExcelJS,paket:GPK,rows:filtered(),kelas,logoBase64:logo,sekolah:"SMA Plus Merdeka Soreang"});
+    const buf=await wb.xlsx.writeBuffer();const t=new Date(),tgl=`${t.getFullYear()}${String(t.getMonth()+1).padStart(2,"0")}${String(t.getDate()).padStart(2,"0")}`;
+    const nama=`Hasil_${GPK.kode}${kelas?"_"+kelas.replace(/[^\w-]+/g,"-"):""}_${tgl}.xlsx`;
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));a.download=nama;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000);toast("Excel diunduh: "+nama)}
+  catch(e){toast("Gagal menyusun Excel: "+e.message)}finally{b.disabled=false;b.textContent=lama}}
 
 /* ================= EVENT ================= */
 window.addEventListener("DOMContentLoaded",()=>{
@@ -539,7 +694,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-peserta").onclick=async()=>{const el=$("g-peserta-box");$("g-peserta-panel").classList.remove("hidden");$("g-peserta-status").textContent="";if(!SISWA){el.textContent="Memuat data siswa…";try{SISWA=await rpc("tka_list_siswa",{p_pin:PIN})}catch(e){el.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}}GPES_ED=TKA_PESERTA.buat(el,{siswa:SISWA,nilai:GPES||{mode:"semua"}})};
   $("btn-peserta-batal").onclick=()=>$("g-peserta-panel").classList.add("hidden");
   $("btn-peserta-simpan").onclick=async()=>{if(!GPES_ED)return;try{GPES=await rpc("tka_set_peserta",{p_pin:PIN,p_ujian:$("g-ujian").value,p_peserta:GPES_ED.get()});$("g-peserta-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(TKA_PESERTA.ringkas(GPES))} · ${GPES.n_peserta} siswa</span>`;$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES)+` · ${GPES.n_peserta} siswa`;$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`;if(!$("g-belum").classList.contains("hidden"))renderBelum()}catch(e){$("g-peserta-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
-  $("btn-refresh").onclick=loadGuru;$("g-ujian").onchange=loadGuru;$("g-kelas").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-csv").onclick=csv;
+  $("btn-refresh").onclick=loadGuru;$("g-ujian").onchange=loadGuru;$("g-kelas").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
   $("g-pemb").onchange=async e=>{try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"pembahasan",p_value:e.target.checked,p_ujian:$("g-ujian").value});toast(e.target.checked?"Pembahasan ditampilkan ke siswa":"Pembahasan disembunyikan")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
   $("g-aktif").onchange=async e=>{try{await rpc("tka_set_aktif",{p_pin:PIN,p_kode:$("g-ujian").value,p_aktif:e.target.checked});toast(e.target.checked?"Ujian diaktifkan":"Ujian dinonaktifkan")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
   document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});
