@@ -12,7 +12,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<link rel="stylesheet" href="assets/dasar.css?v=2">
+<link rel="stylesheet" href="assets/dasar.css?v=3">
 <style>
 :root{--bg:var(--kertas);--card:#fff;--ink:var(--tinta);--muted:var(--tinta-2);--line:var(--garis);--acc:var(--gelap);--acc-soft:var(--emas-muda);--kuning:var(--emas);--warn:var(--emas-teks);--warn-soft:var(--emas-muda);--bad:var(--absen);--bad-soft:var(--absen-muda);--good:var(--hadir);--good-soft:var(--hadir-muda);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
@@ -77,7 +77,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <div id="k-ringkas"></div><div id="k-errs"></div>
     <div class="tbl-wrap"><table class="t" id="k-bp"></table></div>
     <div id="k-komposisi" class="small" style="margin-top:8px"></div>
-    <div class="row" style="margin-top:12px"><button id="btn-k-simpan" class="good">Simpan ke server &amp; unduh Template Soal</button><button class="ghost" id="btn-k-unduh">Unduh Template Soal saja</button></div>
+    <div class="row" style="margin-top:12px"><button id="btn-k-simpan" class="good">Simpan ke server &amp; unduh Template Soal</button><button class="btn-unduh" data-fmt="docx" id="btn-k-unduh">Unduh template soal saja</button></div>
     <div id="k-simpan-status" class="small" style="margin-top:8px"></div>
   </div>
 </section>
@@ -104,7 +104,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <h2>Terbitkan</h2>
     <div class="row"><label class="small"><input type="checkbox" id="aktif" checked> langsung aktif (siswa bisa mengerjakan)</label></div>
     <h3>Peruntukan (siapa yang boleh mengerjakan)</h3><div id="peserta-box" class="small muted">Memuat data siswa…</div>
-    <div class="row" style="margin-top:8px"><button id="btn-terbit" class="good">Terbitkan ke Supabase</button><button class="ghost" id="btn-docx-kunci">Unduh soal &amp; pembahasan (.docx)</button><button class="ghost" id="btn-docx-siswa">Unduh naskah siswa (.docx)</button><button class="ghost" id="btn-json">Unduh JSON cadangan</button></div>
+    <div class="row" style="margin-top:8px"><button id="btn-terbit" class="good">Terbitkan ke Supabase</button><button class="btn-unduh" data-fmt="docx" id="btn-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-docx-siswa">Unduh naskah siswa</button><button class="btn-unduh" data-fmt="json" id="btn-json">Unduh cadangan</button></div>
     <div id="terbit-status" class="small" style="margin-top:8px"></div>
     <div id="tautan" class="hidden" style="margin-top:10px"></div>
   </div>
@@ -118,7 +118,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div id="daftar-tautan" class="hidden" style="margin-top:12px"></div></div>
   <div class="card hidden" id="daftar-peserta-card"><h3 style="margin-top:0">Peruntukan ujian <span id="dp-kode" class="pill"></span></h3><div id="dp-box"></div>
     <div class="row" style="margin-top:12px"><button id="btn-dp-simpan" class="good">Simpan peruntukan</button><button class="ghost" id="btn-dp-batal">Tutup</button></div><div id="dp-status" class="small" style="margin-top:8px"></div></div>
-  <div class="card hidden" id="daftar-lihat-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Pratinjau paket <span id="dl-kode" class="pill"></span></h3><span class="row"><button class="ghost" id="btn-dl-docx-kunci" style="padding:8px 12px;font-size:13px">Unduh soal &amp; pembahasan (.docx)</button><button class="ghost" id="btn-dl-docx-siswa" style="padding:8px 12px;font-size:13px">Unduh naskah siswa (.docx)</button><button class="ghost" id="btn-dl-tutup" style="padding:8px 12px;font-size:13px">Tutup</button></span></div>
+  <div class="card hidden" id="daftar-lihat-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Pratinjau paket <span id="dl-kode" class="pill"></span></h3><span class="row"><button class="btn-unduh" data-fmt="docx" id="btn-dl-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-dl-docx-siswa">Unduh naskah siswa</button><button class="ghost" id="btn-dl-tutup" style="padding:8px 12px;font-size:13px">Tutup</button></span></div>
     <div id="dl-info" class="small muted" style="margin:6px 0"></div><div id="dl-prev"></div></div>
 </section>
 
@@ -137,7 +137,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <div id="d-komposisi" class="small" style="margin-top:8px"></div>
     <h3>Pratinjau soal <span class="muted">(kunci ditandai hijau)</span></h3><div id="d-prev"></div>
     <h3>Peruntukan</h3><div id="d-peserta-box" class="small muted">Memuat data siswa…</div>
-    <div class="row" style="margin-top:12px"><label class="small"><input type="checkbox" id="d-aktif" checked> langsung aktif</label><button id="btn-d-terbit" class="danger">Terbitkan (jalur darurat)</button><button class="ghost" id="btn-d-docx-kunci">Unduh soal &amp; pembahasan (.docx)</button><button class="ghost" id="btn-d-docx-siswa">Unduh naskah siswa (.docx)</button></div>
+    <div class="row" style="margin-top:12px"><label class="small"><input type="checkbox" id="d-aktif" checked> langsung aktif</label><button id="btn-d-terbit" class="danger">Terbitkan (jalur darurat)</button><button class="btn-unduh" data-fmt="docx" id="btn-d-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-d-docx-siswa">Unduh naskah siswa</button></div>
     <div id="d-terbit-status" class="small" style="margin-top:8px"></div><div id="d-tautan" class="hidden" style="margin-top:10px"></div>
   </div>
 </section>
@@ -185,7 +185,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div class="card"><h2>Cadangan data</h2>
     <p class="notice op-note hidden" id="c-op-note">Cadangan dan pemulihan hanya bisa dengan <b>PIN operator/kurikulum</b>.</p>
     <p class="muted">Mengunduh satu berkas JSON berisi seluruh <b>isi data</b>: paket soal (termasuk kunci), kisi-kisi, data siswa, pengaturan/peruntukan, dan hasil siswa. <b>Struktur</b> database (tabel &amp; fungsi) tidak perlu dicadangkan — cukup jalankan ulang <code>supabase_setup_v7.sql</code>. Simpan berkas cadangan di tempat aman (berisi kunci jawaban dan data pribadi siswa). Lakukan <b>sebelum</b> setiap ujian besar dan <b>sesudah</b> hasilnya masuk.</p>
-    <div class="row op-only"><label class="small"><input type="checkbox" id="c-hasil" checked> sertakan hasil siswa</label><label class="small"><input type="checkbox" id="c-pin"> sertakan PIN (tka_privat)</label><button id="btn-c-unduh" class="good">Unduh cadangan (.json)</button></div>
+    <div class="row op-only"><label class="small"><input type="checkbox" id="c-hasil" checked> sertakan hasil siswa</label><label class="small"><input type="checkbox" id="c-pin"> sertakan PIN (tka_privat)</label><button id="btn-c-unduh" class="btn-unduh utama" data-fmt="json">Unduh cadangan</button></div>
     <div id="c-status" class="small" style="margin-top:8px"></div>
   </div>
   <div class="card op-only"><h2>Pulihkan dari cadangan</h2>
@@ -1118,7 +1118,7 @@ async function simpanKisi(){if(!KISI)return;if(!PIN()){toast("Isi PIN dahulu");r
   }catch(e){$("k-simpan-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
 async function muatDaftarKisi(){const t=$("daftar-kisi");t.innerHTML="<tr><td class='muted'>Memuat…</td></tr>";
   try{const rows=await rpc("tka_list_kisi",{p_pin:PIN()});if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada kisi-kisi.</td></tr>";return}
-    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Status</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b></td><td>${esc(r.judul)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td><span class="pill ${r.terbit?"good":"warn"}">${r.terbit?"Soal sudah terbit":"Menunggu soal"}</span>${r.darurat?' <span class="pill bad">Darurat — unduh kisi-kisi, periksa, unggah di Langkah 1 untuk mengesahkan</span>':""}</td><td class="row"><button class="soft" data-tpl="${esc(r.kode)}">Unduh Template Soal</button><button class="ghost" data-kd="${esc(r.kode)}">Unduh kisi-kisi</button><button class="danger" data-hk="${esc(r.kode)}">Hapus</button></td></tr>`).join("");
+    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Status</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b></td><td>${esc(r.judul)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td><span class="pill ${r.terbit?"good":"warn"}">${r.terbit?"Soal sudah terbit":"Menunggu soal"}</span>${r.darurat?' <span class="pill bad">Darurat — unduh kisi-kisi, periksa, unggah di Langkah 1 untuk mengesahkan</span>':""}</td><td class="row"><button class="btn-unduh" data-fmt="docx" data-tpl="${esc(r.kode)}">Template soal</button><button class="btn-unduh" data-fmt="docx" data-kd="${esc(r.kode)}">Kisi-kisi</button><button class="danger" data-hk="${esc(r.kode)}">Hapus</button></td></tr>`).join("");
     t.querySelectorAll("[data-tpl]").forEach(b=>b.onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:b.dataset.tpl});await unduhTemplate(k)}catch(e){toast("Gagal: "+e.message)}});
     t.querySelectorAll("[data-kd]").forEach(b=>b.onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:b.dataset.kd});await unduhKisi(k)}catch(e){toast("Gagal: "+e.message)}});
     t.querySelectorAll("[data-hk]").forEach(b=>b.onclick=async()=>{if(!confirm(`Hapus kisi-kisi ${b.dataset.hk}? (Paket soal yang sudah terbit tidak ikut terhapus.)`))return;try{await rpc("tka_hapus_kisi",{p_pin:PIN(),p_kode:b.dataset.hk});toast("Dihapus");muatDaftarKisi()}catch(e){toast("Gagal: "+e.message)}});
@@ -1144,7 +1144,7 @@ async function terbitDarurat(){if(!DPAKET)return;const pd=$("pin-d").value.trim(
   $("d-terbit-status").innerHTML='<span class="pill">Mengirim…</span>';
   try{const j=await rpc("tka_terbitkan_darurat",{p_pin_darurat:pd,p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:$("d-aktif").checked});
     let pes="";try{if(PESERTA_ED.darurat&&PIN()){const r=await rpc("tka_set_peserta",{p_pin:PIN(),p_ujian:j.kode,p_peserta:PESERTA_ED.darurat.get()});pes=` · Peruntukan: ${esc(TKA_PESERTA.ringkas(r,SSERVER))}`}else if(PESERTA_ED.darurat&&PESERTA_ED.darurat.get().mode!=="semua")pes=' · <span class="pill warn">Peruntukan belum tersimpan (perlu PIN guru di bagian atas) — atur di Daftar paket</span>'}catch(e){pes=` · <span class="pill warn">Peruntukan gagal: ${esc(e.message)}</span>`}
-    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit (darurat): ${esc(j.kode)}</span>${pes} <button class="ghost" id="btn-d-kisi" style="padding:8px 12px;font-size:13px">Unduh kisi-kisi otomatis (.docx) untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
+    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit (darurat): ${esc(j.kode)}</span>${pes} <button class="btn-unduh" data-fmt="docx" id="btn-d-kisi">Unduh kisi-kisi otomatis untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
   }catch(e){$("d-terbit-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
 
 
