@@ -336,28 +336,45 @@ let tick=null;function startTimer(){clearInterval(tick);const f=()=>{const s=(S.
 
 /* ================= PANTAU KELUAR HALAMAN ================= */
 let KELUAR_T=null;
+/* Alarm: sirene gelombang kotak 2 detik (terdengar jelas di pengeras HP). Peramban baru mengizinkan
+   suara setelah ada ketukan, jadi AudioContext disiapkan pada ketukan pertama. Berbunyi saat halaman
+   ditinggalkan (bila peramban mengizinkan audio di latar) dan sekali lagi saat kembali bila keluarnya
+   dihitung — agar pengawas tetap mendengar walau audio latar dibisukan (iPhone). */
+const ALARM_DETIK=2,PESAN_KELUAR="Dilarang keras, keluar halaman ini selama ujian !!!";
+let ALARM_CTX=null,ALARM_NODE=null;
+function siapAlarm(){try{if(!ALARM_CTX){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;ALARM_CTX=new AC()}if(ALARM_CTX.state==="suspended")ALARM_CTX.resume().catch(()=>{})}catch(e){}}
+function bunyiAlarm(){if(!ALARM_CTX)return;hentiAlarm();try{const c=ALARM_CTX,o=c.createOscillator(),g=c.createGain(),t=c.currentTime;
+  o.type="square";g.gain.value=0.35;o.connect(g);g.connect(c.destination);
+  const n=Math.ceil(ALARM_DETIK/0.5);for(let i=0;i<n;i++)o.frequency.setValueAtTime(i%2?660:990,t+i*0.5);
+  o.start(t);o.stop(t+n*0.5);ALARM_NODE=o;o.onended=()=>{if(ALARM_NODE===o)ALARM_NODE=null}}catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate([500,250,500,250,500])}catch(e){}}
+function hentiAlarm(){if(ALARM_NODE){try{ALARM_NODE.stop()}catch(e){}ALARM_NODE=null}}
 function batasKeluar(){const st=(S&&S.pk&&S.pk.settings)||{};return st.maks_keluar===undefined?5:+st.maks_keluar}
 function toleransiKeluar(){const st=(S&&S.pk&&S.pk.settings)||{};return st.toleransi_keluar===undefined?10:+st.toleransi_keluar}
 function pantauKeluar(){
   const aktif=()=>S&&!S.submitted&&!S.ujicoba&&!$("v-exam").classList.contains("hidden");
-  const pergi=()=>{if(!aktif()||KELUAR_T)return;KELUAR_T=Date.now()};
+  const pergi=()=>{if(!aktif()||KELUAR_T)return;KELUAR_T=Date.now();bunyiAlarm()};
   const kembali=()=>{if(!aktif()||!KELUAR_T)return;const d=Math.round((Date.now()-KELUAR_T)/1000);KELUAR_T=null;
     const tol=toleransiKeluar();(S.logKeluar=S.logKeluar||[]).push({t:new Date().toISOString(),d,hitung:d>=tol});
-    if(d<tol){save();toast(`Keluar sekejap (${d} dtk) — tidak dihitung. Tetap di halaman ujian.`);return}
-    S.keluar=(S.keluar||0)+1;save();tampilPeringatan(d)};
+    if(d<tol){save();tampilPeringatan(d,true);return}
+    S.keluar=(S.keluar||0)+1;save();bunyiAlarm();tampilPeringatan(d)};
+  ["pointerdown","keydown","touchstart"].forEach(ev=>document.addEventListener(ev,siapAlarm,{passive:true}));
   document.addEventListener("visibilitychange",()=>{document.hidden?pergi():kembali()});
   window.addEventListener("blur",pergi);window.addEventListener("focus",kembali);
   window.addEventListener("pagehide",pergi);
   document.addEventListener("contextmenu",e=>{if(aktif())e.preventDefault()});
   document.addEventListener("copy",e=>{if(aktif())e.preventDefault()});
 }
-function tampilPeringatan(d){const b=batasKeluar(),n=S.keluar,sejak=n-(S.bukaPada||0);const k=$("kunci");k.classList.remove("hidden");
+function tampilPeringatan(d,sekejap){const b=batasKeluar(),n=S.keluar,sejak=n-(S.bukaPada||0);const k=$("kunci");k.classList.remove("hidden");
+  if(sekejap&&!S.terkunci){$("k-judul").textContent=PESAN_KELUAR;
+    $("k-isi").innerHTML=`Kamu keluar ${d} detik — kali ini <b>tidak dihitung</b>. Keluar lebih lama akan dicatat dan dihitung.`;
+    $("k-aksi").innerHTML=`<button id="k-lanjut" class="grow">Saya mengerti, lanjutkan</button>`;$("k-lanjut").onclick=()=>k.classList.add("hidden");return}
   if(b>0&&sejak>=b){S.terkunci=true;save();$("k-judul").textContent="Ujian dikunci";
-    $("k-isi").innerHTML=`Kamu meninggalkan halaman ujian <b>${n} kali</b> (batas ${b}). Panggil pengawas untuk membuka kunci, atau kumpulkan jawaban sekarang.`;
+    $("k-isi").innerHTML=`<b>${PESAN_KELUAR}</b><br>Kamu meninggalkan halaman ujian <b>${n} kali</b> (batas ${b}). Panggil pengawas untuk membuka kunci, atau kumpulkan jawaban sekarang.`;
     $("k-aksi").innerHTML=`<input type="text" id="k-kode" placeholder="Kode buka dari pengawas" autocomplete="off" style="text-transform:uppercase;margin:8px 0"><div class="row"><button id="k-buka" class="grow">Buka kunci</button><button id="k-kumpul" class="danger">Kumpulkan jawaban</button></div>`;
     $("k-buka").onclick=async()=>{try{await rpc("tka_buka_kunci",{p_kode:S.kode,p_token:S.token,p_kode_buka:$("k-kode").value.trim()});S.terkunci=false;S.bukaPada=S.keluar;save();k.classList.add("hidden");toast("Kunci dibuka oleh pengawas — lanjutkan")}catch(e){toast(e.message)}};
     $("k-kumpul").onclick=()=>{k.classList.add("hidden");submit(true)};
-  }else{$("k-judul").textContent="Kamu meninggalkan halaman ujian";
+  }else{$("k-judul").textContent=PESAN_KELUAR;
     $("k-isi").innerHTML=`Tercatat <b>${n} kali</b>${d?` (terakhir ${d} detik)`:""}${b>0?` — batas <b>${b}</b>${S.bukaPada?" sejak dibuka pengawas":""}. Pada batas itu ujian akan dikunci dan pengawas diberi tahu.`:"."} Tetap di halaman ini sampai selesai.`;
     $("k-aksi").innerHTML=`<button id="k-lanjut" class="grow">Saya mengerti, lanjutkan</button>`;$("k-lanjut").onclick=()=>k.classList.add("hidden")}}
 function mintaLayarPenuh(){try{const el=document.documentElement;if(el.requestFullscreen)el.requestFullscreen().catch(()=>{})}catch(e){}}
