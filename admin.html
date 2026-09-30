@@ -46,7 +46,7 @@ details summary{cursor:pointer;font-weight:600;padding:8px 0}
 #qr{display:inline-block;padding:8px;background:#fff;border:1px solid var(--line);border-radius:8px}
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all;background:var(--emas-kabut);padding:1px 4px;border-radius:4px}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.chip{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px}.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
-.mini{padding:4px 8px;font-size:12px}.pe-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff}.pe-row{display:block;padding:4px 8px;border-bottom:1px solid var(--line);font-size:14px}.pe-row:last-child{border-bottom:0}
+.mini{padding:4px 8px;font-size:12px}.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.info-grid input{margin-top:4px}.pe-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff}.pe-row{display:block;padding:4px 8px;border-bottom:1px solid var(--line);font-size:14px}.pe-row:last-child{border-bottom:0}
 .peran-guru .op-only,.peran-pengawas .op-only{display:none!important}.peran-pengawas .tulis-only{display:none!important}
 .notice.op-note{background:var(--emas-muda);color:var(--emas-teks);border-color:var(--emas)}
 </style>
@@ -68,7 +68,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 <section id="tab-kisi">
   <div class="card">
     <h2>Langkah 1 — Unggah kisi-kisi</h2>
-    <p class="muted">Guru mengisi <b>Template_Kisi_Kisi.docx</b> (INFORMASI UJIAN + tabel kisi-kisi: No, Kompetensi/Materi/Sub-materi, Indikator, Level Kesulitan, Bentuk, Kode Teks [opsional, untuk teks bacaan bersama]). Setelah diunggah dan disimpan, aplikasi membuatkan <b>Template Soal</b> yang sudah terisi kisi-kisinya untuk diisi guru.</p>
+    <p class="muted">Guru mengisi template kisi-kisi <button class="btn-unduh ghost mini" data-fmt="docx" id="btn-k-kosong">Unduh template kisi-kisi kosong</button> (INFORMASI UJIAN termasuk jenis, tingkat peserta, cakupan materi, semester, dan guru penyusun + tabel kisi-kisi: No, Kompetensi/Materi/Sub-materi, Indikator, Level Kesulitan, Bentuk, Kode Teks [opsional, untuk teks bacaan bersama]). Setelah diunggah dan disimpan, aplikasi membuatkan <b>Template Soal</b> yang sudah terisi kisi-kisinya untuk diisi guru.</p>
     <div class="drop" id="drop-k"><p><b>Seret file kisi-kisi ke sini</b> atau <label style="color:var(--acc);text-decoration:underline;cursor:pointer">pilih file<input type="file" id="file-k" accept=".docx" class="hidden"></label></p></div>
     <div id="k-status" class="small" style="margin-top:8px"></div>
   </div>
@@ -118,6 +118,18 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div id="daftar-tautan" class="hidden" style="margin-top:12px"></div></div>
   <div class="card hidden" id="daftar-peserta-card"><h3 style="margin-top:0">Peruntukan ujian <span id="dp-kode" class="pill"></span></h3><div id="dp-box"></div>
     <div class="row" style="margin-top:12px"><button id="btn-dp-simpan" class="good">Simpan peruntukan</button><button class="ghost" id="btn-dp-batal">Tutup</button></div><div id="dp-status" class="small" style="margin-top:8px"></div></div>
+  <div class="card hidden" id="daftar-info-card"><h3 style="margin-top:0">Keterangan paket <span id="di-kode" class="pill"></span></h3>
+    <p class="muted" style="margin-top:0">Kode tidak berubah, jadi tautan, QR, dan hasil siswa tetap. Keterangan dipakai untuk mencari dan mengelompokkan paket.</p>
+    <div class="info-grid">
+      <label class="small">Judul<input type="text" id="di-judul" maxlength="150"></label>
+      <label class="small">Jenis<input type="text" id="di-jenis" list="di-jenis-list" placeholder="pilih atau ketik"></label>
+      <label class="small">Semester<input type="text" id="di-semester" list="di-semester-list"></label>
+      <label class="small">Guru penyusun<input type="text" id="di-penyusun" placeholder="mis. Rina Marlina, Dedi Kurniawan"></label>
+      <div class="small">Tingkat peserta <span class="muted">(kelas yang mengerjakan)</span><div class="chips" id="di-tingkat"></div></div>
+      <div class="small">Cakupan materi <span class="muted">(pilih hanya bila berbeda dari tingkat peserta, mis. tryout TKA kelas 12 dengan materi kelas 10–12)</span><div class="chips" id="di-cakupan"></div></div>
+    </div>
+    <datalist id="di-jenis-list"></datalist><datalist id="di-semester-list"></datalist>
+    <div class="row" style="margin-top:12px"><button id="btn-di-simpan" class="good">Simpan keterangan</button><button class="ghost" id="btn-di-batal">Tutup</button></div><div id="di-status" class="small" style="margin-top:8px"></div></div>
   <div class="card hidden" id="daftar-lihat-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Pratinjau paket <span id="dl-kode" class="pill"></span></h3><span class="row"><button class="btn-unduh" data-fmt="docx" id="btn-dl-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-dl-docx-siswa">Unduh naskah siswa</button><button class="ghost" id="btn-dl-tutup" style="padding:8px 12px;font-size:13px">Tutup</button></span></div>
     <div id="dl-info" class="small muted" style="margin:6px 0"></div><div id="dl-prev"></div></div>
 </section>
@@ -203,7 +215,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <li>Bagikan tautan/QR yang muncul ke siswa. Tautan berbentuk <code>index.html?ujian=KODE</code>.</li>
     <li>Rekap dan analisis: buka <code>index.html</code> → "Guru / pengawas" (atau tautan <code>index.html?guru</code>) → PIN → <b>Menu guru</b>: Daftar siswa (bantu login), Dasbor hasil, Uji coba soal, Halaman admin. Saklar pembahasan ada di <b>Daftar paket</b> dan di dasbor guru.</li>
     <li>Revisi soal: perbaiki Word, unggah ulang dengan <b>kode ujian yang sama</b> → paket lama ditimpa (hasil siswa tetap tersimpan).</li>
-    <li>Ganti judul: tekan <b>ubah</b> di sebelah judul pada Daftar paket. Kode tidak berubah, jadi tautan, QR, dan hasil siswa tetap. Unggah ulang Word tidak menimpa judul yang sudah tersimpan.</li>
+    <li>Ganti judul dan keterangan (jenis, tingkat peserta, cakupan materi, semester, guru penyusun): tekan <b>ubah</b> di sebelah judul pada Daftar paket. Kode tidak berubah, jadi tautan, QR, dan hasil siswa tetap. Unggah ulang Word hanya mengisi yang masih kosong, tidak menimpa yang sudah tersimpan.</li>
   </ol>
   <h3>Pengaturan server (config.js)</h3><p class="small">Agar tidak perlu mengedit baris ke-2 setiap kali ada pembaruan, buat sekali berkas <code>config.js</code> di folder yang sama dengan <code>index.html</code> (di GitHub: <i>Add file → Create new file</i>) berisi satu baris:<br><code>window.TKA_SUPABASE = { url: "https://xxxx.supabase.co", key: "eyJ..." };</code><br>Nilai <b>url</b> = Project URL dan <b>key</b> = kunci <b>anon public</b> (Supabase → Project Settings → API). Setelah itu <code>index.html</code>/<code>admin.html</code> versi baru cukup ditimpa apa adanya. Urutan prioritas: tautan <code>?sb=…&amp;key=…</code> &gt; <code>config.js</code> &gt; baris ke-2.</p>
 <h3>Kode ujian</h3><p class="small">Huruf besar/angka/strip, 3–31 karakter, unik per paket. Saran: MAPEL-MATERI-NOMOR, mis. <code>KIM-STO-01</code>, <code>BIN-TKA-02</code>.</p>
@@ -227,6 +239,36 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', bmp: 'image/bmp', webp: 'image/webp', emf: null, wmf: null, svg: 'image/svg+xml' };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const kids = (el, ns, name) => Array.from(el.childNodes).filter(n => n.nodeType === 1 && n.localName === name && n.namespaceURI === ns);
+  // ---- Keterangan paket (meta.info): jenis, semester, guru penyusun, tingkat peserta, cakupan materi ----
+  const JENIS = ['Latihan', 'Ulangan Harian', 'Tengah Semester', 'Akhir Semester', 'Tryout TKA', 'Tryout UTBK'];
+  const JENIS_ALIAS = { uh: 'Ulangan Harian', ulangan: 'Ulangan Harian', pts: 'Tengah Semester', sts: 'Tengah Semester', pas: 'Akhir Semester', sas: 'Akhir Semester', pat: 'Akhir Semester', sat: 'Akhir Semester', tka: 'Tryout TKA', utbk: 'Tryout UTBK', snbt: 'Tryout UTBK' };
+  function normJenis(s) {
+    s = String(s || '').trim().replace(/\s+/g, ' '); if (!s) return '';
+    const l = s.toLowerCase();
+    return JENIS.find(j => j.toLowerCase() === l) || JENIS_ALIAS[l] || (/\btka\b/.test(l) ? 'Tryout TKA' : /\b(utbk|snbt)\b/.test(l) ? 'Tryout UTBK' : s);
+  }
+  // "12", "XII", "10–12", "X s.d. XII", "10, 12" → ["12"], ["10","11","12"], ["10","12"]
+  function parseTingkat(s) {
+    s = String(s || '').toUpperCase();
+    const ang = { X: '10', XI: '11', XII: '12', 10: '10', 11: '11', 12: '12' };
+    const t = (s.match(/\b(XII|XI|X|10|11|12)\b/g) || []).map(x => ang[x]);
+    if (t.length === 2 && /[-–—]|S\.?\s?D|SAMPAI|HINGGA/.test(s)) { const a = Math.min(+t[0], +t[1]), b = Math.max(+t[0], +t[1]); return Array.from({ length: b - a + 1 }, (_, i) => String(a + i)); }
+    return [...new Set(t)].sort((a, b) => a - b);
+  }
+  function fmtTingkat(a) {
+    a = [...new Set(a || [])].map(Number).sort((x, y) => x - y); if (!a.length) return '';
+    return a.length > 1 && a[a.length - 1] - a[0] === a.length - 1 ? `${a[0]}–${a[a.length - 1]}` : a.join(', ');
+  }
+  // Tahun ajaran mulai Juli: Juli–Desember = Ganjil, Januari–Juni = Genap
+  function semesterDari(d) { let t = d ? new Date(d) : new Date(); if (isNaN(t)) t = new Date(); const y = t.getFullYear(); return t.getMonth() >= 6 ? `Ganjil ${y}/${y + 1}` : `Genap ${y - 1}/${y}`; }
+  function infoBersih(o) { const r = {}; Object.entries(o || {}).forEach(([k, v]) => { if (Array.isArray(v) ? v.length : String(v ?? '').trim()) r[k] = Array.isArray(v) ? v : String(v).replace(/\s+/g, ' ').trim(); }); return r; }
+  // Dari tabel INFORMASI UJIAN. Tingkat peserta kosong → ditebak dari isian Kelas; semester kosong → dari hari ini;
+  // cakupan materi yang sama dengan tingkat peserta tidak disimpan (artinya "sama").
+  function infoDariTabel(T, kelas) {
+    let tingkat = parseTingkat(T('tingkat peserta')); if (!tingkat.length) tingkat = parseTingkat(kelas);
+    let cakupan = parseTingkat(T('cakupan materi')); if (cakupan.join() === tingkat.join()) cakupan = [];
+    return infoBersih({ jenis: normJenis(T('jenis')), semester: T('semester') || semesterDari(), penyusun: T('guru penyusun'), tingkat, cakupan });
+  }
   // label kolom kiri → bentuk baku (huruf kecil, tanpa keterangan dalam kurung, sinonim disatukan)
   function canonLabel(s) {
     let l = String(s || '').toLowerCase().replace(/\([^)]*\)/g, ' ').replace(/[:：]\s*$/, '').replace(/\s+/g, ' ').trim();
@@ -549,7 +591,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       if (q.kiri) { p.kiri = q.kiri; p.kanan = q.kanan; } return [v, p]; })) })) };
     const kunci = { teks, soal };
     const paket = { kode, judul: T(info, 'judul') || kode, mapel: T(info, 'mata pelajaran') || T(info, 'mapel'), kelas: T(info, 'kelas'), materi: T(info, 'materi'),
-      durasi: durasi || 60, n_soal: n, n_varian: nvar || 1, meta: { data_umum: H(info, 'data/rumus umum'), petunjuk: H(info, 'petunjuk'), blueprint }, publik, kunci };
+      durasi: durasi || 60, n_soal: n, n_varian: nvar || 1, meta: { data_umum: H(info, 'data/rumus umum'), petunjuk: H(info, 'petunjuk'), blueprint, info: infoDariTabel(k => T(info, k), T(info, 'kelas')) }, publik, kunci };
     const size = JSON.stringify(paket).length; if (size > 4_000_000) warnings.push(`Ukuran paket ${Math.round(size / 1e6 * 10) / 10} MB — terlalu besar untuk HP; perkecil gambar.`);
     return { ok: errors.length === 0, errors, warnings, paket };
   }
@@ -596,7 +638,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     if (!n) errors.push('Kisi-kisi kosong.');
     const teksList = [...new Set(blueprint.map(b => b.teks).filter(Boolean))];
     const kisi = { kode, judul: T(info, 'judul') || kode, mapel: T(info, 'mata pelajaran'), kelas: T(info, 'kelas'), materi: T(info, 'materi'),
-      durasi: durasi || 60, n_soal: n, n_varian: nvar || 1, meta: { data_umum: H(info, 'data/rumus umum'), petunjuk: H(info, 'petunjuk'), blueprint, teks: teksList } };
+      durasi: durasi || 60, n_soal: n, n_varian: nvar || 1, meta: { data_umum: H(info, 'data/rumus umum'), petunjuk: H(info, 'petunjuk'), blueprint, teks: teksList, info: infoDariTabel(k => T(info, k), T(info, 'kelas')) } };
     return { ok: errors.length === 0, errors, warnings, kisi };
   }
   function komposisi(bp) {
@@ -633,7 +675,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     p.meta.blueprint = bp.map(k => ({ no: k.no, sub: k.sub, indikator: k.indikator, level: k.level, bentuk: k.bentukLabel || BENTUK_LABEL[k.bentuk] || k.bentuk, teks: k.teks || '' }));
     p.publik.soal.forEach(s => { const k = bp.find(x => x.no === s.no); if (k) s.teks = k.teks || ''; });
     p.judul = kisi.judul; p.mapel = kisi.mapel; p.kelas = kisi.kelas; p.materi = kisi.materi; p.durasi = kisi.durasi; p.n_soal = kisi.n_soal; p.n_varian = kisi.n_varian;
-    p.meta.data_umum = kisi.meta.data_umum || p.meta.data_umum; p.meta.petunjuk = kisi.meta.petunjuk || p.meta.petunjuk;
+    p.meta.data_umum = kisi.meta.data_umum || p.meta.data_umum; p.meta.petunjuk = kisi.meta.petunjuk || p.meta.petunjuk; p.meta.info = kisi.meta.info || p.meta.info || {};
     const uniq = a => [...new Set(a)];
     return { ok: errors.length === 0, errors: uniq(errors), warnings: uniq(warnings) };
   }
@@ -655,12 +697,13 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     if (pctK('Reasoning') < 20) warnings.push(`Komposisi: Reasoning hanya ${pctK('Reasoning')}% (acuan TKA ±25–45%).`);
     if (pctK('Knowing') > 30) warnings.push(`Komposisi: Knowing ${pctK('Knowing')}% (acuan TKA ±15–25%).`);
     const kisi = { kode: p.kode, judul: p.judul, mapel: p.mapel, kelas: p.kelas, materi: p.materi, durasi: p.durasi, n_soal: p.n_soal, n_varian: p.n_varian,
-      meta: { data_umum: p.meta.data_umum, petunjuk: p.meta.petunjuk, blueprint: bp, teks: [...new Set(bp.map(b => b.teks).filter(Boolean))], darurat: true } };
+      meta: { data_umum: p.meta.data_umum, petunjuk: p.meta.petunjuk, blueprint: bp, teks: [...new Set(bp.map(b => b.teks).filter(Boolean))], darurat: true, info: p.meta.info || {} } };
     p.meta.blueprint = bp.map(k => ({ no: k.no, sub: k.sub, indikator: k.indikator, level: k.level, bentuk: k.bentukLabel, teks: k.teks }));
     p.meta.darurat = true;
     return { ok: errors.length === 0, errors, warnings, kisi };
   }
-  root.TKA = { parseDocx, buildPaket, buildKisi, checkKisi, kisiDariPaket, komposisi, normBentuk, normLevel, BENTUK_LABEL };
+  root.TKA = { parseDocx, buildPaket, buildKisi, checkKisi, kisiDariPaket, komposisi, normBentuk, normLevel, BENTUK_LABEL,
+    info: { JENIS, normJenis, parseTingkat, fmtTingkat, semesterDari, infoBersih } };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>/* tka_docgen.js — membangkitkan "Template Soal" (.docx) yang sudah terisi dari kisi-kisi, langsung di browser (JSZip).
@@ -748,7 +791,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     ].forEach((t, i) => x += para(`${i + 1}. ${t}`));
     x += heading('INFORMASI UJIAN (dari kisi-kisi — jangan diubah)');
     x += table(W, [titleRow('INFORMASI UJIAN', '3B5670'), kv('Kode ujian', kisi.kode), kv('Judul', kisi.judul), kv('Mata pelajaran', kisi.mapel || ''), kv('Kelas', kisi.kelas || ''),
-      kv('Materi', kisi.materi || ''), kv('Durasi (menit)', String(kisi.durasi)), kv('Jumlah varian', String(nv)), kv('Data/rumus umum', stripHtml(kisi.meta.data_umum)), kv('Petunjuk umum', stripHtml(kisi.meta.petunjuk))]);
+      kv('Materi', kisi.materi || ''), ...barisInfo(kv, (kisi.meta || {}).info), kv('Durasi (menit)', String(kisi.durasi)), kv('Jumlah varian', String(nv)), kv('Data/rumus umum', stripHtml(kisi.meta.data_umum)), kv('Petunjuk umum', stripHtml(kisi.meta.petunjuk))]);
     const teksList = kisi.meta.teks || [...new Set(bp.map(b => b.teks).filter(Boolean))];
     if (teksList.length) {
       x += heading('BAGIAN 4 — TEKS BACAAN (isi Judul dan Isi; Kode teks jangan diubah)');
@@ -805,12 +848,20 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
      'KOMPETENSI dan INDIKATOR: ambil dari naskah bila ada; bila tidak ada, tuliskan sub-materi dan indikator yang wajar dari isi soal (bukan dikosongkan). Nomor harus berurutan 1..N tanpa lompatan; Varian diisi A bila hanya satu varian.',
      'Jangan menambahkan kolom, catatan, nomor halaman, atau teks lain di dalam tabel selain isian yang diminta. Jangan mengubah struktur menjadi daftar/paragraf biasa.'].forEach((t, i) => x += para(`${i + 1}. ${t}`));
     x += heading('INFORMASI UJIAN');
-    x += table(W, [titleRow('INFORMASI UJIAN', '3B5670'), kv('Kode ujian', ''), kv('Judul', ''), kv('Mata pelajaran', ''), kv('Kelas', ''), kv('Materi', ''), kv('Durasi (menit)', ''), kv('Jumlah varian', '1'), kv('Data/rumus umum', ''), kv('Petunjuk umum', '')]);
+    x += table(W, [titleRow('INFORMASI UJIAN', '3B5670'), kv('Kode ujian', ''), kv('Judul', ''), kv('Mata pelajaran', ''), kv('Kelas', ''), kv('Materi', ''), ...barisInfo(kv, {}), kv('Durasi (menit)', ''), kv('Jumlah varian', '1'), kv('Data/rumus umum', ''), kv('Petunjuk umum', '')]);
     x += heading('TEKS BACAAN (opsional — salin bila perlu lebih dari satu)');
     x += table(W, [titleRow('TEKS BACAAN', '7A4B00'), kv('Kode teks', ''), kv('Judul', ''), kv('Isi', '')]);
     x += heading('TABEL SOAL KOSONG — salin sesuai kebutuhan');
     ['PG', 'PGK', 'KATEGORI', 'JODOH', 'ISIAN'].forEach(b => { x += soalTable({ no: '', sub: '', indikator: '', level: '', teks: '', bentuk: b }, '', {}); });
     return x;
+  }
+  function barisInfo(kvf, i) {
+    i = i || {}; const f = (root.TKA && root.TKA.info) ? root.TKA.info.fmtTingkat : a => (a || []).join(', ');
+    return [kvf('Jenis (Latihan / Ulangan Harian / Tengah Semester / Akhir Semester / Tryout TKA / Tryout UTBK)', i.jenis || ''),
+      kvf('Tingkat peserta (kelas yang mengerjakan, mis. 12 atau 10–12)', f(i.tingkat)),
+      kvf('Cakupan materi (kelas asal materi bila berbeda, mis. 10–12; kosongkan bila sama)', f(i.cakupan)),
+      kvf('Semester (mis. Ganjil 2026/2027; kosongkan = otomatis)', i.semester || ''),
+      kvf('Guru penyusun', i.penyusun || '')];
   }
   async function buatTemplateDarurat(JSZip) { return bungkus(bodyDarurat(), JSZip, 'Template Soal Darurat'); }
   // Kisi-kisi → .docx berformat Template_Kisi_Kisi (untuk disahkan lewat Langkah 1)
@@ -820,10 +871,10 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     const kv2 = (l, v) => tr([cell(para(l, { b: true }), W2[0], { fill: 'F6F8FA' }), cell(paras(v), W2[1])]);
     const bp = kisi.meta.blueprint || [];
     const isDarurat = !!(kisi.meta || {}).darurat;
-    let x = para(`KISI-KISI — ${kisi.judul}`, { b: true, sz: 28, color: '3B5670', after: 40 });
-    x += para(isDarurat ? 'Kisi-kisi ini disusun otomatis oleh aplikasi dari soal yang diterbitkan lewat JALUR DARURAT. Periksa dan lengkapi (Kompetensi, Indikator, Level), lalu unggah di halaman admin → Langkah 1 dengan kode ujian yang sama untuk mengesahkannya.' : 'Dokumen kisi-kisi dari server. Dapat diubah dan diunggah ulang di Langkah 1.', { i: true, color: '5A6473' });
+    let x = para(kisi.judul ? `KISI-KISI — ${kisi.judul}` : 'KISI-KISI', { b: true, sz: 28, color: '3B5670', after: 40 });
+    x += para(kisi.kosong ? 'Isi tabel INFORMASI UJIAN dan tabel kisi-kisi, lalu unggah di halaman admin Asesmen Merdeka → Langkah 1. Baris kisi-kisi yang hanya berisi nomor diabaikan; tambah baris bila soalnya lebih dari 40. Level: Knowing / Applying / Reasoning. Bentuk: PG / PG Kompleks / Benar - Salah / Menjodohkan / Isian.' : isDarurat ? 'Kisi-kisi ini disusun otomatis oleh aplikasi dari soal yang diterbitkan lewat JALUR DARURAT. Periksa dan lengkapi (Kompetensi, Indikator, Level), lalu unggah di halaman admin → Langkah 1 dengan kode ujian yang sama untuk mengesahkannya.' : 'Dokumen kisi-kisi dari server. Dapat diubah dan diunggah ulang di Langkah 1.', { i: true, color: '5A6473' });
     x += heading('BAGIAN 1 — INFORMASI UJIAN');
-    x += table(W2, [tRow('INFORMASI UJIAN', '3B5670'), kv2('Kode ujian (harus unik)', kisi.kode), kv2('Judul', kisi.judul || ''), kv2('Mata pelajaran', kisi.mapel || ''), kv2('Kelas', kisi.kelas || ''), kv2('Materi', kisi.materi || ''),
+    x += table(W2, [tRow('INFORMASI UJIAN', '3B5670'), kv2('Kode ujian (harus unik)', kisi.kode), kv2('Judul', kisi.judul || ''), kv2('Mata pelajaran', kisi.mapel || ''), kv2('Kelas', kisi.kelas || ''), kv2('Materi', kisi.materi || ''), ...barisInfo(kv2, (kisi.meta || {}).info),
       kv2('Durasi (menit)', String(kisi.durasi || '')), kv2('Jumlah varian', String(kisi.n_varian || 1)), kv2('Data/rumus umum', stripHtml(kisi.meta.data_umum)), kv2('Petunjuk umum', stripHtml(kisi.meta.petunjuk))]);
     x += heading('BAGIAN 2 — KISI-KISI SOAL');
     const hdr = ['No', 'Kompetensi / Materi / Sub-Materi', 'Indikator Soal', 'Level Kesulitan', 'Bentuk', 'Kode Teks'];
@@ -833,6 +884,11 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     return x;
   }
   async function buatKisiDocx(kisi, JSZip) { return bungkus(bodyKisi(kisi), JSZip, 'Kisi-kisi ' + kisi.kode, true); }
+  async function buatKisiKosong(JSZip) {
+    const kisi = { kosong: true, kode: '', judul: '', mapel: '', kelas: '', materi: '', durasi: '', n_varian: 1,
+      meta: { data_umum: '', petunjuk: '', info: {}, blueprint: Array.from({ length: 40 }, (_, i) => ({ no: i + 1 })) } };
+    return bungkus(bodyKisi(kisi), JSZip, 'Template Kisi-kisi', true);
+  }
   // ---- Naskah soal terisi (.docx) dari paket hasil pratinjau/terbit. opsi.kunci=true → kunci ditandai hijau + pembahasan + rekap kunci (untuk guru); false → naskah siswa (tanpa kunci)
   const EMU = 9525, LEBAR_GAMBAR_MAKS = 5200000; // 1 px = 9525 EMU (96 dpi); lebar gambar maks ±14,5 cm
   function ukuranGambar(b, ext) {
@@ -963,7 +1019,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     return { body: x, media: ctx.media };
   }
   async function buatNaskahSoal(paket, JSZip, opsi = {}) { const { body, media } = bodyNaskah(paket, !!opsi.kunci); return bungkus(body, JSZip, `${opsi.kunci ? 'Soal & Pembahasan' : 'Naskah Soal'} ${paket.kode}`, false, media); }
-  root.TKA_DOC = { buatTemplateSoal, buatTemplateDarurat, buatKisiDocx, buatNaskahSoal };
+  root.TKA_DOC = { buatTemplateSoal, buatTemplateDarurat, buatKisiDocx, buatKisiKosong, buatNaskahSoal };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>/* tka_peserta.js — editor peruntukan ujian (semua siswa / kelas tertentu / siswa tertentu). Dipakai admin.html & index.html.
@@ -1102,7 +1158,7 @@ function unduhBiner(nama,bytes,mime){const a=document.createElement("a");a.href=
 async function bacaKisi(f){$("k-status").innerHTML=`<span class="pill">Membaca ${esc(f.name)}…</span>`;
   try{const parsed=await TKA.parseDocx(await f.arrayBuffer(),JSZip,DOMParser);const r=TKA.buildKisi(parsed);KISI=r.ok?r.kisi:null;
     $("k-status").innerHTML=`<span class="pill ${r.ok?"good":"bad"}">${r.ok?"Kisi-kisi terbaca":"Terbaca dengan galat"}</span> ${esc(f.name)}`;$("k-hasil").classList.remove("hidden");
-    const k=r.kisi;$("k-ringkas").innerHTML=`<table class="t"><tr><th>Kode</th><td><b>${esc(k.kode)}</b></td><th>Judul</th><td>${esc(k.judul)}</td></tr><tr><th>Mapel / Kelas</th><td>${esc(k.mapel)} / ${esc(k.kelas)}</td><th>Materi</th><td>${esc(k.materi)}</td></tr><tr><th>Durasi</th><td>${k.durasi} menit</td><th>Soal / varian</th><td>${k.n_soal} nomor · ${k.n_varian} varian</td></tr></table>`;
+    const k=r.kisi;$("k-ringkas").innerHTML=`<table class="t"><tr><th>Kode</th><td><b>${esc(k.kode)}</b></td><th>Judul</th><td>${esc(k.judul)}</td></tr><tr><th>Mapel / Kelas</th><td>${esc(k.mapel)} / ${esc(k.kelas)}</td><th>Materi</th><td>${esc(k.materi)}</td></tr><tr><th>Durasi</th><td>${k.durasi} menit</td><th>Soal / varian</th><td>${k.n_soal} nomor · ${k.n_varian} varian</td></tr><tr><th>Keterangan</th><td colspan="3">${infoRingkas({info:k.meta.info,kelas:k.kelas})}</td></tr></table>`;
     $("k-errs").innerHTML=(r.errors.length?`<h3 style="color:var(--bad)">Galat (${r.errors.length})</h3><ul class="err">${r.errors.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"")+(r.warnings.length?`<h3 style="color:var(--warn)">Peringatan (${r.warnings.length})</h3><ul class="warn">${r.warnings.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"");
     $("k-bp").innerHTML=`<tr><th>No</th><th>Kompetensi/Materi/Sub-materi</th><th>Indikator</th><th>Level</th><th>Bentuk</th><th>Teks</th></tr>`+k.meta.blueprint.map(b=>`<tr><td>${b.no}</td><td>${esc(b.sub)}</td><td>${esc(b.indikator)}</td><td>${esc(b.level)}</td><td>${esc(b.bentukLabel||b.bentuk)}</td><td>${esc(b.teks||"")}</td></tr>`).join("");
     const km=TKA.komposisi(k.meta.blueprint);$("k-komposisi").innerHTML=`<b>Komposisi:</b> ${Object.entries(km.level).map(([a,b])=>`${a} ${b} (${Math.round(b/km.n*100)}%)`).join(" · ")} — <b>bentuk:</b> ${Object.entries(km.bentuk).map(([a,b])=>`${a} ${b}`).join(" · ")}`;
@@ -1114,22 +1170,43 @@ async function unduhTemplate(k){const bytes=await TKA_DOC.buatTemplateSoal(k,JSZ
 async function simpanKisi(){if(!KISI)return;if(!PIN()){toast("Isi PIN dahulu");return}const k=KISI;$("k-simpan-status").innerHTML='<span class="pill">Menyimpan…</span>';
   try{const j=await rpc("tka_simpan_kisi",{p_pin:PIN(),p_kode:k.kode,p_judul:k.judul,p_mapel:k.mapel,p_kelas:k.kelas,p_materi:k.materi,p_durasi:k.durasi,p_n_soal:k.n_soal,p_n_varian:k.n_varian,p_meta:k.meta});
     let cat="";if(j.judul&&j.judul!==k.judul){cat=` <span class="pill warn">Judul tetap "${esc(j.judul)}"</span> Judul di file Word diabaikan; ganti judul lewat tombol ubah di Daftar paket.`;k.judul=j.judul}
+    // Keterangan yang sudah tersimpan menang atas isian Word (semester tidak dibandingkan: kosong di Word diisi otomatis)
+    const kw=k.meta.info||{},sv=j.info||{};if(Object.keys(kw).some(x=>x!=="semester"&&JSON.stringify(kw[x])!==JSON.stringify(sv[x])))cat+=` <span class="pill warn">Keterangan tersimpan dipertahankan</span> Isian keterangan di file Word yang berbeda diabaikan; ubah lewat tombol ubah di Daftar paket.`;
+    if(j.info)k.meta.info=sv;
     if(j.disahkan===true){$("k-simpan-status").innerHTML=`<span class="pill good">Kisi-kisi ${esc(k.kode)} tersimpan dan paket darurat DISAHKAN</span> — tanda darurat dicabut; Template Soal tidak perlu diunduh karena soal sudah terbit.${cat}`;return}
     if(j.disahkan===false){$("k-simpan-status").innerHTML=`<span class="pill warn">Kisi-kisi tersimpan, tetapi paket darurat belum disahkan</span> ${esc(j.catatan||"")}${cat}`;return}
     await unduhTemplate(k);$("k-simpan-status").innerHTML=`<span class="pill good">Kisi-kisi ${esc(k.kode)} tersimpan</span> Template Soal diunduh — serahkan ke guru untuk diisi, lalu unggah di Langkah 2.${cat}`;
   }catch(e){$("k-simpan-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
-// Judul hanya nama tampilan; kode (pegangan tautan, QR, hasil) tidak ikut berubah.
-async function ubahJudul(kode,lama){if(!PIN()){toast("Isi PIN dahulu");return}
-  const baru=prompt(`Judul baru untuk ${kode}\n(kode ${kode} tidak berubah; tautan, QR, dan hasil siswa tetap)`,lama||"");
-  if(baru===null||baru.trim()===""||baru.trim()===(lama||""))return;
-  try{const j=await rpc("tka_ubah_judul",{p_pin:PIN(),p_kode:kode,p_judul:baru.trim()});toast(`Judul ${j.kode} diganti`);muatDaftarKisi();muatDaftar()}
-  catch(e){toast("Gagal: "+e.message)}}
+/* ---------- keterangan paket (judul, jenis, semester, penyusun, tingkat) ---------- */
+// Judul & keterangan hanya untuk tampilan; kode (pegangan tautan, QR, hasil) tidak ikut berubah.
+// Paket lama tanpa keterangan: tingkat ditebak dari isian Kelas, semester dari tanggal dibuat.
+function infoRingkas(r){const I=TKA.info,i=r.info||{},p=[];if(i.jenis)p.push(esc(i.jenis));
+  const tk=(i.tingkat||[]).length?i.tingkat:I.parseTingkat(r.kelas);if(tk.length)p.push("peserta kelas "+I.fmtTingkat(tk));
+  if((i.cakupan||[]).length)p.push("materi kelas "+I.fmtTingkat(i.cakupan));p.push(esc(i.semester||I.semesterDari(r.dibuat)));if(i.penyusun)p.push(esc(i.penyusun));
+  const kurang=!i.jenis||!i.penyusun||!(i.tingkat||[]).length;
+  return `<div class="muted small">${p.join(" · ")}${kurang?' · <span style="color:var(--warn)">keterangan belum lengkap</span>':""}</div>`}
+let INFO_KODE=null;
+function chipTingkat(el,pilih){el.innerHTML=["10","11","12"].map(t=>`<button type="button" class="chip${pilih.includes(t)?" on":""}" data-t="${t}">Kelas ${t}</button>`).join("");el.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>b.classList.toggle("on"))}
+const chipDipilih=el=>[...el.querySelectorAll(".chip.on")].map(b=>b.dataset.t);
+function bukaKeterangan(r){if(!r)return;if(!PIN()){toast("Isi PIN dahulu");return}const I=TKA.info,i=r.info||{};INFO_KODE=r.kode;
+  $("di-kode").textContent=r.kode;$("di-judul").value=r.judul||"";$("di-jenis").value=i.jenis||"";$("di-semester").value=i.semester||I.semesterDari(r.dibuat);$("di-penyusun").value=i.penyusun||"";
+  $("di-jenis-list").innerHTML=I.JENIS.map(j=>`<option value="${esc(j)}">`).join("");
+  const y=new Date().getFullYear();$("di-semester-list").innerHTML=[y-1,y,y+1].flatMap(t=>[`Ganjil ${t}/${t+1}`,`Genap ${t}/${t+1}`]).map(v=>`<option value="${v}">`).join("");
+  chipTingkat($("di-tingkat"),(i.tingkat||[]).length?i.tingkat:I.parseTingkat(r.kelas));chipTingkat($("di-cakupan"),i.cakupan||[]);
+  $("di-status").textContent="";const c=$("daftar-info-card");c.classList.remove("hidden");c.scrollIntoView({behavior:"smooth"});$("di-judul").focus()}
+async function simpanKeterangan(){if(!INFO_KODE)return;const I=TKA.info,judul=$("di-judul").value.trim();
+  if(!judul){$("di-status").innerHTML='<span class="pill bad">Judul tidak boleh kosong</span>';return}
+  const tingkat=chipDipilih($("di-tingkat"));let cakupan=chipDipilih($("di-cakupan"));if(cakupan.join()===tingkat.join())cakupan=[];
+  const info=I.infoBersih({jenis:I.normJenis($("di-jenis").value),semester:$("di-semester").value,penyusun:$("di-penyusun").value,tingkat,cakupan});
+  $("btn-di-simpan").disabled=true;
+  try{const j=await rpc("tka_ubah_keterangan",{p_pin:PIN(),p_kode:INFO_KODE,p_judul:judul,p_info:info});$("di-status").innerHTML=`<span class="pill good">Tersimpan</span> ${esc(j.kode)}`;muatDaftarKisi();muatDaftar()}
+  catch(e){$("di-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}finally{$("btn-di-simpan").disabled=false}}
 async function muatDaftarKisi(){const t=$("daftar-kisi");t.innerHTML="<tr><td class='muted'>Memuat…</td></tr>";
   try{const rows=await rpc("tka_list_kisi",{p_pin:PIN()});if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada kisi-kisi.</td></tr>";return}
-    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Status</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b></td><td>${esc(r.judul)} <button class="ghost mini tulis-only" data-judul="${esc(r.kode)}">ubah</button></td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td><span class="pill ${r.terbit?"good":"warn"}">${r.terbit?"Soal sudah terbit":"Menunggu soal"}</span>${r.darurat?' <span class="pill bad">Darurat — unduh kisi-kisi, periksa, unggah di Langkah 1 untuk mengesahkan</span>':""}</td><td class="row"><button class="btn-unduh" data-fmt="docx" data-tpl="${esc(r.kode)}">Template soal</button><button class="btn-unduh" data-fmt="docx" data-kd="${esc(r.kode)}">Kisi-kisi</button><button class="danger" data-hk="${esc(r.kode)}">Hapus</button></td></tr>`).join("");
+    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Status</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b></td><td><b>${esc(r.judul)}</b> <button class="ghost mini tulis-only" data-judul="${esc(r.kode)}">ubah</button>${infoRingkas(r)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td><span class="pill ${r.terbit?"good":"warn"}">${r.terbit?"Soal sudah terbit":"Menunggu soal"}</span>${r.darurat?' <span class="pill bad">Darurat — unduh kisi-kisi, periksa, unggah di Langkah 1 untuk mengesahkan</span>':""}</td><td class="row"><button class="btn-unduh" data-fmt="docx" data-tpl="${esc(r.kode)}">Template soal</button><button class="btn-unduh" data-fmt="docx" data-kd="${esc(r.kode)}">Kisi-kisi</button><button class="danger" data-hk="${esc(r.kode)}">Hapus</button></td></tr>`).join("");
     t.querySelectorAll("[data-tpl]").forEach(b=>b.onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:b.dataset.tpl});await unduhTemplate(k)}catch(e){toast("Gagal: "+e.message)}});
     t.querySelectorAll("[data-kd]").forEach(b=>b.onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:b.dataset.kd});await unduhKisi(k)}catch(e){toast("Gagal: "+e.message)}});
-    t.querySelectorAll("[data-judul]").forEach(b=>b.onclick=()=>ubahJudul(b.dataset.judul,(rows.find(x=>x.kode===b.dataset.judul)||{}).judul));
+    t.querySelectorAll("[data-judul]").forEach(b=>b.onclick=()=>bukaKeterangan(rows.find(x=>x.kode===b.dataset.judul)));
     t.querySelectorAll("[data-hk]").forEach(b=>b.onclick=async()=>{if(!confirm(`Hapus kisi-kisi ${b.dataset.hk}? (Paket soal yang sudah terbit tidak ikut terhapus.)`))return;try{await rpc("tka_hapus_kisi",{p_pin:PIN(),p_kode:b.dataset.hk});toast("Dihapus");muatDaftarKisi()}catch(e){toast("Gagal: "+e.message)}});
   }catch(e){t.innerHTML=`<tr><td style="color:var(--bad)">${esc(e.message)}</td></tr>`}}
 
@@ -1256,10 +1333,10 @@ async function pulihkanCadangan(){if(!CDATA)return;if(!PIN()){toast("Isi PIN dah
 async function muatDaftar(){const t=$("daftar");t.innerHTML="<tr><td class='muted'>Memuat…</td></tr>";
   try{const rows=await rpc("tka_list_paket",{p_pin:PIN()});
     if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada paket.</td></tr>";return}
-    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Hasil</th><th>Peruntukan</th><th>Aktif</th><th>Pembahasan</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b>${r.darurat?' <span class="pill bad">Darurat</span>':(r.riwayat_darurat?' <span class="pill">disahkan</span>':"")}</td><td>${esc(r.judul)} <button class="ghost mini tulis-only" data-judul="${esc(r.kode)}">ubah</button></td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td>${r.n_hasil}</td><td class="small">${esc(TKA_PESERTA.ringkas(r.peserta))} · ${r.n_peserta} siswa <button class="ghost mini tulis-only" data-peserta="${esc(r.kode)}">ubah</button></td>
+    t.innerHTML=`<tr><th>Kode</th><th>Judul</th><th>Mapel/Kelas</th><th>Soal</th><th>Var.</th><th>Hasil</th><th>Peruntukan</th><th>Aktif</th><th>Pembahasan</th><th></th></tr>`+rows.map(r=>`<tr><td><b>${esc(r.kode)}</b>${r.darurat?' <span class="pill bad">Darurat</span>':(r.riwayat_darurat?' <span class="pill">disahkan</span>':"")}</td><td><b>${esc(r.judul)}</b> <button class="ghost mini tulis-only" data-judul="${esc(r.kode)}">ubah</button>${infoRingkas(r)}</td><td>${esc(r.mapel||"")} ${esc(r.kelas||"")}</td><td>${r.n_soal}</td><td>${r.n_varian}</td><td>${r.n_hasil}</td><td class="small">${esc(TKA_PESERTA.ringkas(r.peserta))} · ${r.n_peserta} siswa <button class="ghost mini tulis-only" data-peserta="${esc(r.kode)}">ubah</button></td>
       <td><input type="checkbox" data-aktif="${esc(r.kode)}" ${r.aktif?"checked":""}></td><td><input type="checkbox" data-pemb="${esc(r.kode)}" ${r.pembahasan?"checked":""}></td>
       <td class="row"><button class="soft" data-link="${esc(r.kode)}">Tautan/QR</button><button class="soft tulis-only" data-lihat="${esc(r.kode)}">Lihat soal</button><button class="ghost" data-json="${esc(r.kode)}">JSON</button><button class="danger" data-hapus="${esc(r.kode)}" data-n="${r.n_hasil}">Hapus</button></td></tr>`).join("");
-    t.querySelectorAll("[data-judul]").forEach(b=>b.onclick=()=>ubahJudul(b.dataset.judul,(rows.find(x=>x.kode===b.dataset.judul)||{}).judul));
+    t.querySelectorAll("[data-judul]").forEach(b=>b.onclick=()=>bukaKeterangan(rows.find(x=>x.kode===b.dataset.judul)));
     t.querySelectorAll("[data-aktif]").forEach(c=>c.onchange=async()=>{try{await rpc("tka_set_aktif",{p_pin:PIN(),p_kode:c.dataset.aktif,p_aktif:c.checked});toast(c.checked?"Ujian diaktifkan":"Ujian dinonaktifkan")}catch(e){toast("Gagal: "+e.message);c.checked=!c.checked}});
     t.querySelectorAll("[data-pemb]").forEach(c=>c.onchange=async()=>{try{await rpc("tka_set_setting",{p_pin:PIN(),p_key:"pembahasan",p_value:c.checked,p_ujian:c.dataset.pemb});toast(c.checked?"Pembahasan dibuka untuk siswa":"Pembahasan ditutup")}catch(e){toast("Gagal: "+e.message);c.checked=!c.checked}});
     t.querySelectorAll("[data-peserta]").forEach(b=>b.onclick=async()=>{const k=b.dataset.peserta,r=rows.find(x=>x.kode===k);$("daftar-peserta-card").classList.remove("hidden");$("dp-kode").textContent=k;$("dp-status").textContent="";await siapkanPeserta("daftar","dp-box",r.peserta);$("daftar-peserta-card").scrollIntoView({behavior:"smooth"});
@@ -1293,7 +1370,8 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-d-terbit").onclick=terbitDarurat;
   $("file-s").onchange=e=>{if(e.target.files[0])bacaSiswa(e.target.files[0])};
   const ds=$("drop-s");ds.ondragover=e=>{e.preventDefault();ds.style.borderColor="var(--acc)"};ds.ondragleave=()=>ds.style.borderColor="";ds.ondrop=e=>{e.preventDefault();ds.style.borderColor="";if(e.dataTransfer.files[0])bacaSiswa(e.dataTransfer.files[0])};
-  $("btn-dp-batal").onclick=()=>$("daftar-peserta-card").classList.add("hidden");$("btn-dl-tutup").onclick=()=>$("daftar-lihat-card").classList.add("hidden");
+  $("btn-dp-batal").onclick=()=>$("daftar-peserta-card").classList.add("hidden");$("btn-di-batal").onclick=()=>$("daftar-info-card").classList.add("hidden");$("btn-di-simpan").onclick=simpanKeterangan;
+  $("btn-k-kosong").onclick=async()=>{try{unduhBiner("Template_Kisi_Kisi.docx",await TKA_DOC.buatKisiKosong(JSZip),"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}catch(e){toast("Gagal membuat dokumen: "+e.message)}};$("btn-dl-tutup").onclick=()=>$("daftar-lihat-card").classList.add("hidden");
   $("btn-s-simpan").onclick=simpanSiswa;$("btn-s-muat").onclick=muatSiswa;$("btn-e-simpan").onclick=simpanSatu;$("s-cari").addEventListener("input",renderSiswa);
   $("btn-s-hapus-semua").onclick=async()=>{if(!confirm("Hapus SEMUA data siswa? Siswa tidak bisa masuk dengan NISN sampai data diunggah lagi."))return;if(!confirm("Yakin?"))return;try{await rpc("tka_hapus_siswa",{p_pin:PIN(),p_semua:true});toast("Semua data siswa dihapus");muatSiswa()}catch(e){toast("Gagal: "+e.message)}};
   $("btn-k-simpan").onclick=simpanKisi;$("btn-k-unduh").onclick=()=>{if(KISI)unduhTemplate(KISI)};

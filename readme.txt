@@ -107,7 +107,9 @@ Isi folder:
 
 `index.html` → *Guru / pengawas* → PIN → **Dasbor hasil** → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah; judul kolom tetap di atas dan kolom nomor & nama tetap di kiri saat tabel digulir), analisis butir (judul kolom juga tetap) (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, tombol **Unduh (.xlsx)** (buku kerja Excel berformat: lembar Rekap, Jawaban per Soal, Analisis Butir, Sub-materi & Level; kop sekolah, nilai berwarna, panel beku, filter; ExcelJS dimuat dari CDN saat tombol ditekan). Saklar **pembahasan** membuka kunci & pembahasan bagi siswa yang sudah selesai.
 
-Revisi soal: perbaiki Word → unggah ulang di Langkah 2 (kode sama) → paket ditimpa, hasil siswa tetap. Judul paket yang sudah tersimpan tidak ikut tertimpa oleh judul di Word; untuk mengganti judul (bukan kode), tekan **ubah** di sebelah judul pada Daftar paket — tautan, QR, dan hasil siswa tetap. Revisi kisi-kisi: unggah ulang di Langkah 1 → unduh Template Soal baru → isi ulang bagian yang berubah → Langkah 2.
+Revisi soal: perbaiki Word → unggah ulang di Langkah 2 (kode sama) → paket ditimpa, hasil siswa tetap. Judul dan keterangan paket yang sudah tersimpan tidak ikut tertimpa oleh isian Word (Word hanya mengisi yang masih kosong); untuk menggantinya (bukan kode), tekan **ubah** di sebelah judul pada Daftar paket — tautan, QR, dan hasil siswa tetap.
+
+Keterangan paket (baris di tabel INFORMASI UJIAN; template kosong: tombol *Unduh template kisi-kisi kosong* di Langkah 1): **Jenis** (Latihan / Ulangan Harian / Tengah Semester / Akhir Semester / Tryout TKA / Tryout UTBK), **Tingkat peserta** (kelas yang mengerjakan, mis. 12 atau 10–12; kosong = ditebak dari isian Kelas), **Cakupan materi** (hanya bila berbeda dari tingkat peserta, mis. tryout TKA kelas 12 dengan materi 10–12), **Semester** (kosong = otomatis dari tanggal), **Guru penyusun**. Keterangan hanya untuk mencari & mengelompokkan paket; siapa yang boleh mengerjakan tetap diatur di Peruntukan. Revisi kisi-kisi: unggah ulang di Langkah 1 → unduh Template Soal baru → isi ulang bagian yang berubah → Langkah 2.
 
 ## E. Catatan
 
