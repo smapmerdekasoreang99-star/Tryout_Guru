@@ -110,7 +110,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .uj-kini .ganti{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--gelap);background:#fff;border:1px solid var(--garis-2);border-radius:999px;padding:6px 10px 6px 14px}
 .uj-kini .ganti svg{width:14px;height:14px;transition:transform .15s}.uj-kini[aria-expanded=true] .ganti svg{transform:rotate(180deg)}
 .uj-panel{margin-top:8px;padding:12px;background:var(--kertas);border:1px solid var(--garis-2);border-radius:12px;box-shadow:var(--bayang-2)}
-.uj-panel input[type=text]{padding:10px 12px;font-size:15px}
+.uj-alat{display:flex;gap:8px;flex-wrap:wrap}.uj-alat input[type=text]{flex:1 1 220px;width:auto;padding:10px 12px;font-size:15px}.uj-alat select{width:auto;flex:0 1 auto;padding:10px 12px;font-size:15px}
 #uj-status .chip{display:inline-flex;align-items:center;gap:6px;font-weight:600;letter-spacing:0}#uj-status .chip .n{font-variant-numeric:tabular-nums;opacity:.7}
 .uj-daftar{display:grid;gap:12px;max-height:min(62vh,560px);overflow:auto;padding:2px;overscroll-behavior:contain}
 .uj-grup{border:1px solid var(--garis-2);border-radius:12px;background:#fff;overflow:hidden;box-shadow:var(--bayang-1)}
@@ -219,7 +219,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       <input type="hidden" id="g-ujian">
       <button type="button" class="uj-kini" id="uj-kini" aria-expanded="false" aria-controls="uj-panel"></button>
       <div class="uj-panel hidden" id="uj-panel" role="dialog" aria-label="Pilih ujian">
-        <input type="text" id="uj-cari" placeholder="Cari judul, kode, mapel, kelas, atau guru…" aria-label="Cari ujian" autocomplete="off">
+        <div class="uj-alat"><input type="text" id="uj-cari" placeholder="Cari judul, kode, mapel, kelas, atau guru…" aria-label="Cari ujian" autocomplete="off"><select id="uj-urut" aria-label="Urutkan"><option value="diubah">Urut: terakhir diubah</option><option value="dibuat">Urut: terbaru dibuat</option><option value="judul">Urut: judul A–Z</option><option value="kode">Urut: kode</option></select></div>
         <div class="chips" id="uj-status"></div>
         <div class="uj-daftar" id="uj-daftar"></div>
       </div>
@@ -525,7 +525,11 @@ async function loginGuru(){if(!PIN)PIN=$("pin").value.trim();$("g-login-msg").te
 
 /* ---------- Pemilih ujian dasbor: kartu ujian terpilih + panel daftar (cari, status, per mapel) — gaya Pustaka paket di admin ---------- */
 const UJ_TAHAP={aktif:"Sedang dibuka",selesai:"Selesai",siap:"Siap dibuka",arsip:"Arsip"};
-const UJF={cari:"",status:"jalan"};
+// urutan selalu mulai dari "terakhir diubah" setiap halaman dibuka (sama dengan Pustaka paket di admin)
+const UJF={cari:"",status:"jalan",urut:"diubah"};
+const ujAbjad=(a,b)=>String(a||"").localeCompare(String(b||""),"id",{numeric:true,sensitivity:"base"});
+function ujUrut(a,b){const u=UJF.urut,baru=(x,y)=>String(y||"").localeCompare(String(x||""));
+  return (u==="dibuat"?baru(a.dibuat,b.dibuat):u==="judul"?ujAbjad(a.judul,b.judul):u==="kode"?0:baru(a.diubah,b.diubah))||ujAbjad(a.kode,b.kode)}
 const ujTahap=p=>p.arsip?"arsip":p.aktif?"aktif":p.n_hasil>0?"selesai":"siap";
 // "12", "XII", "10–12", "X s.d. XII" → ["12"], ["10","11","12"] (sama dengan TKA.info.parseTingkat di admin)
 function ujTingkat(p){const t=(p.info||{}).tingkat;if(t&&t.length)return t.map(String);
@@ -555,12 +559,12 @@ function ujRenderPanel(){const dasar=PAKETS.filter(ujCocok),n=s=>dasar.filter(p=
     .map(([s,l,c])=>`<button type="button" class="chip${UJF.status===s?" on":""}" data-s="${s}" aria-pressed="${UJF.status===s}">${c?`<span class="titik ${c}"></span>`:""}${l} <span class="n">${n(s)}</span></button>`).join("");
   const hasil=dasar.filter(p=>ujStatusCocok(p,UJF.status)),el=$("uj-daftar");
   if(!hasil.length){el.innerHTML=`<p class="muted" style="margin:8px 4px">${PAKETS.length?"Tidak ada ujian yang cocok. Hapus kata pencarian atau pilih <b>Semua</b>.":"Belum ada paket."}</p>`;return}
-  // dikelompokkan per mapel (penulisan "Kimia"/"kimia" disatukan); di dalam kelompok: yang sedang dibuka di atas, lalu terbaru diubah
-  const g=new Map(),rank={aktif:0,siap:1,selesai:2,arsip:3};
+  // dikelompokkan per mapel (penulisan "Kimia"/"kimia" disatukan); di dalam kelompok mengikuti pilihan "Urut:"
+  const g=new Map();
   hasil.forEach(p=>{const k=String(p.mapel||"").trim().replace(/\s+/g," ").toLowerCase();if(!g.has(k))g.set(k,{l:String(p.mapel||"").trim()||"Tanpa mapel",isi:[]});g.get(k).isi.push(p)});
   el.innerHTML=[...g.entries()].sort((a,b)=>(a[0]?0:1)-(b[0]?0:1)||a[1].l.localeCompare(b[1].l,"id")).map(([,v])=>
     `<section class="uj-grup"><header class="uj-grup-k"><div><span class="lbl">Mata pelajaran</span><h3>${esc(v.l)}</h3></div><span class="jml">${v.isi.length} ujian</span></header>`+
-    v.isi.sort((a,b)=>rank[ujTahap(a)]-rank[ujTahap(b)]||String(b.diubah||"").localeCompare(String(a.diubah||""))).map(p=>{const i=p.info||{};
+    v.isi.sort(ujUrut).map(p=>{const i=p.info||{};
       return `<button type="button" class="uj-baris${p.kode===kini?" on":""}" data-kode="${esc(p.kode)}"${p.kode===kini?' aria-current="true"':""}><span class="uj-id"><span class="j">${esc(p.judul)}${i.jenis?`<span class="tag">${esc(i.jenis)}</span>`:""}${p.darurat?'<span class="tag bad">Darurat</span>':""}</span><span class="m">${ujMeta(p,false)}</span></span><span class="uj-st">${ujStatus(p)}</span></button>`}).join("")+`</section>`).join("")}
 function ujBuka(){$("uj-panel").classList.remove("hidden");$("uj-kini").setAttribute("aria-expanded","true");ujRenderPanel();$("uj-cari").focus();
   const on=$("uj-daftar").querySelector(".uj-baris.on");if(on)on.scrollIntoView({block:"nearest"})}
@@ -569,6 +573,7 @@ function ujPilih(kode){ujTutup();if(kode!==$("g-ujian").value){$("g-ujian").valu
 function pasangPemilihUjian(){
   $("uj-kini").onclick=()=>$("uj-panel").classList.contains("hidden")?ujBuka():ujTutup();
   $("uj-cari").oninput=e=>{UJF.cari=e.target.value;ujRenderPanel()};
+  $("uj-urut").onchange=e=>{UJF.urut=e.target.value;ujRenderPanel()};
   $("uj-status").onclick=e=>{const b=e.target.closest("[data-s]");if(b){UJF.status=b.dataset.s;ujRenderPanel()}};
   $("uj-daftar").onclick=e=>{const b=e.target.closest("[data-kode]");if(b)ujPilih(b.dataset.kode)};
   // Esc menutup; panah atas/bawah berpindah antarbaris; Enter di kotak cari memilih hasil pertama

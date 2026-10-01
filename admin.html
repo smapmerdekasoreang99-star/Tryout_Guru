@@ -1412,7 +1412,8 @@ let PK=[],PK_BUKA=null,PK_JADWAL=null;
 const PK_KARTU=["daftar-tautan","daftar-peserta-card","daftar-info-card","daftar-lihat-card"];
 const PK_TAHAP={kisi:"Menunggu soal",siap:"Siap dibuka",aktif:"Sedang dibuka",selesai:"Selesai"};
 const PKF={mapel:"",status:"jalan",cari:"",kelas:"",jenis:"",semester:"",grup:"kelas",urut:"diubah"};
-try{const s=JSON.parse(localStorage.getItem("tka_pustaka")||"{}");["mapel","kelas","jenis","semester","grup","urut"].forEach(k=>{if(typeof s[k]==="string")PKF[k]=s[k]})}catch(e){}
+try{const s=JSON.parse(localStorage.getItem("tka_pustaka")||"{}");["mapel","kelas","jenis","semester","grup"].forEach(k=>{if(typeof s[k]==="string")PKF[k]=s[k]})}catch(e){}
+// "Urut:" tidak diingat: setiap halaman dibuka selalu mulai dari "terakhir diubah"
 // Dipanggil dari banyak tempat (simpan keterangan, pulihkan cadangan, dst.); beberapa panggilan beruntun digabung jadi satu muat.
 function muatDaftar(){clearTimeout(PK_JADWAL);PK_JADWAL=setTimeout(muatPustaka,0)}
 function muatDaftarKisi(){muatDaftar()}
@@ -1463,7 +1464,7 @@ const pkAbjad=(a,b)=>String(a||"").localeCompare(String(b||""),"id",{numeric:tru
 function pkUrut(a,b){const u=PKF.urut,baru=(x,y)=>String(y||"").localeCompare(String(x||""));
   return (u==="dibuat"?baru(a.dibuat,b.dibuat):u==="judul"?pkAbjad(a.judul,b.judul):u==="kode"?0:u==="mapel"?pkAbjad(a.mapel,b.mapel)||pkAbjad(a.judul,b.judul):baru(a.diubah,b.diubah))||pkAbjad(a.kode,b.kode)}
 function renderPustaka(){const I=TKA.info;
-  try{localStorage.setItem("tka_pustaka",JSON.stringify({mapel:PKF.mapel,kelas:PKF.kelas,jenis:PKF.jenis,semester:PKF.semester,grup:PKF.grup,urut:PKF.urut}))}catch(e){}
+  try{localStorage.setItem("tka_pustaka",JSON.stringify({mapel:PKF.mapel,kelas:PKF.kelas,jenis:PKF.jenis,semester:PKF.semester,grup:PKF.grup}))}catch(e){}
   // rel mapel: penulisan berbeda ("Kimia"/"kimia") disatukan, label = penulisan yang paling sering
   const mp=new Map();PK.forEach(o=>{const k=pkKunciMapel(o.mapel),v=mp.get(k)||{n:0,lb:{}},l=o.mapel.trim()||"Tanpa mapel";if(!o.arsip)v.n++;v.lb[l]=(v.lb[l]||0)+1;mp.set(k,v)});
   if(PKF.mapel&&!mp.has(PKF.mapel))PKF.mapel="";
