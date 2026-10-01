@@ -124,6 +124,101 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .uj-id{display:grid;gap:3px;min-width:0;flex:1}.uj-id .j{font-weight:600;font-size:15px;line-height:1.35}.uj-id .m{font-size:12.5px;color:var(--muted);line-height:1.5}
 @media (max-width:560px){.uj-kini{flex-wrap:wrap;gap:10px}.uj-kini .uj-isi{flex-basis:100%}.uj-kini .uj-st{justify-items:start}.uj-kini .ganti{margin-left:auto}.uj-baris{flex-wrap:wrap;gap:6px}.uj-baris .uj-id{flex-basis:100%}.uj-baris .uj-st{display:flex;flex-wrap:wrap;align-items:center;gap:10px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ================= Dasbor guru: area di bawah kartu ujian (bilah status, pengaturan, peruntukan, hasil) =================
+   Saat dasbor terbuka halaman melebar (body.mode-dasbor) supaya tabel rekap tidak sesak. */
+body.mode-dasbor .wrap{max-width:1180px}
+body.mode-dasbor #g-login{max-width:480px;margin-left:auto;margin-right:auto}
+.ds-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:12px;border-top:1px dashed var(--garis-2)}
+.ds-info{display:flex;flex-wrap:wrap;gap:8px;flex:1;min-width:0;font-size:13px;color:var(--muted)}
+.ds-info .it{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 12px;white-space:nowrap}
+.ds-info .it b{color:var(--ink);font-variant-numeric:tabular-nums}
+.ds-info .it i{display:block;width:64px;height:6px;border-radius:3px;background:var(--garis);overflow:hidden}.ds-info .it i>s{display:block;height:100%;background:var(--hadir);text-decoration:none}
+.ds-info .it.bad{background:var(--bad-soft);border-color:transparent;color:var(--bad);font-weight:600}
+.ds-muat{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--gelap);border:1px solid var(--garis-2);padding:7px 14px;font-size:13px;border-radius:999px}
+.ds-muat:hover{border-color:var(--gelap)}.ds-muat svg{width:15px;height:15px}
+.ds-muat.putar svg{animation:ds-putar .8s linear infinite}@keyframes ds-putar{to{transform:rotate(360deg)}}
+
+.ds-atur{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(260px,1fr);gap:12px;align-items:start;margin:12px 0}
+.lihat .ds-atur{grid-template-columns:1fr}
+@media (max-width:860px){.ds-atur{grid-template-columns:1fr}}
+.ds-kartu{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--bayang-1);overflow:hidden}
+.ds-kartu>summary,.ds-kepala{display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(180deg,var(--kertas-3),#fff);border-bottom:1px solid var(--line)}
+.ds-kepala b,.ds-judul b{font-size:15px;color:var(--gelap)}
+.ds-kartu>summary{cursor:pointer;list-style:none}.ds-kartu>summary::-webkit-details-marker{display:none}
+.ds-kartu:not([open])>summary{border-bottom:0}
+.ds-judul{display:grid;gap:4px;flex:1;min-width:0}
+.ds-ringkas{display:flex;flex-wrap:wrap;gap:6px}
+.ds-ringkas span{font-size:11.5px;font-weight:600;padding:1px 9px;border-radius:999px;background:var(--netral-muda);color:var(--tinta-2);white-space:nowrap}
+.ds-ringkas span.on{background:var(--good-soft);color:var(--good)}.ds-ringkas span.off{background:var(--bad-soft);color:var(--bad)}
+.ds-buka{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--garis-2);background:#fff;position:relative}
+.ds-buka::after{content:"";position:absolute;left:9px;top:8px;width:7px;height:7px;border-right:2px solid var(--gelap);border-bottom:2px solid var(--gelap);transform:rotate(45deg);transition:transform .15s}
+.ds-kartu[open] .ds-buka::after{transform:translate(0,3px) rotate(-135deg)}
+.ds-ikon{flex:none;width:34px;height:34px;border-radius:10px;background:var(--gelap);color:var(--kuning);display:flex;align-items:center;justify-content:center}
+.ds-ikon svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ds-isi{padding:4px 16px 16px}
+.ds-sub{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn);margin:14px 0 2px}
+.ds-baris{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+div.ds-baris{cursor:default;flex-wrap:wrap}
+.ds-l{display:grid;gap:1px;min-width:0;flex:1 1 220px;cursor:inherit}.ds-l b{font-size:14.5px;color:var(--ink)}.ds-l span{font-size:12.5px;color:var(--muted);line-height:1.4}
+.saklar{position:relative;flex:none;width:46px;height:26px}
+.saklar input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer;z-index:1}
+.saklar i{position:absolute;inset:0;border-radius:999px;background:var(--garis-2);transition:background .15s}
+.saklar i::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .15s}
+.saklar input:checked+i{background:var(--hadir)}.saklar input:checked+i::after{transform:translateX(20px)}
+.saklar input:focus-visible+i{outline:3px solid var(--kuning);outline-offset:2px}
+.ds-kode{display:flex;flex:0 1 300px;min-width:200px}
+.ds-kode input{border-radius:8px 0 0 8px;padding:9px 12px;font-size:15px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.ds-kode input::placeholder,.ds-isian input::placeholder{text-transform:none;letter-spacing:0;font-weight:400;color:var(--tinta-3)}
+.ds-kode button{border-radius:0 8px 8px 0;padding:9px 16px;font-size:14px}
+.ds-tiga{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:8px}
+@media (max-width:640px){.ds-tiga{grid-template-columns:1fr}}
+.ds-isian{display:grid;gap:4px;font-size:13px;font-weight:600;color:var(--ink)}
+.ds-isian small{font-weight:400;font-size:12px;color:var(--muted)}
+.ds-isian input{padding:9px 12px;font-size:15px}
+.ds-isian>input[type=text]{text-transform:uppercase;letter-spacing:.08em;font-weight:700}
+.ds-satuan{display:flex}.ds-satuan input{width:100%;border:1px solid var(--line);border-radius:8px 0 0 8px;text-align:right;font-family:inherit;background:#fff;color:var(--ink)}
+.ds-satuan em{font-style:normal;display:flex;align-items:center;padding:0 12px;border:1px solid var(--line);border-left:0;border-radius:0 8px 8px 0;background:var(--kertas-3);font-size:13px;font-weight:600;color:var(--muted)}
+.ds-aksi{display:flex;gap:16px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-top:12px}
+.ds-aksi .ds-catatan{flex:1 1 320px;margin:0}
+.ds-aksi button{padding:10px 18px;font-size:14px}
+.ds-catatan{font-size:12.5px;color:var(--muted);line-height:1.55;margin:10px 0 0}
+
+.ds-peserta .ds-isi{display:grid;gap:6px;padding-top:14px}
+.ds-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn)}
+.ds-besar{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-size:19px;font-weight:700;color:var(--gelap);line-height:1.3}
+.ds-maju{display:grid;gap:6px;margin:6px 0 10px;font-size:13px;color:var(--muted)}
+.ds-maju .batang{height:10px;border-radius:999px;background:var(--kertas-3);border:1px solid var(--line);overflow:hidden}.ds-maju .batang i{display:block;height:100%;background:var(--hadir);border-radius:999px}
+.ds-maju .angka{display:flex;justify-content:space-between;gap:8px}.ds-maju .angka b{color:var(--ink);font-variant-numeric:tabular-nums}
+.ds-garis{background:#fff;color:var(--gelap);border:1.5px solid var(--gelap);padding:9px 14px;font-size:14px;justify-self:start}
+.ds-garis:hover{background:var(--kertas-3)}
+.ds-panel-pe{margin:0 0 12px}
+
+.ds-hasil{background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--bayang-1);padding:16px;margin:12px 0}
+.ds-hasil-kepala{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ds-hasil-kepala h2{margin:0;font-family:"Fraunces",Georgia,"Times New Roman",serif;font-size:20px}
+.ds-hasil-kepala p{margin:2px 0 0}
+.ds-alat{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ds-pilih{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--muted)}
+.ds-pilih select{width:auto;min-width:150px;padding:8px 10px;font-size:14px}
+.ds-hasil .stats{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0 6px}
+.ds-hasil .stat{border:1px solid var(--line);border-left-width:1px;border-radius:12px;padding:12px 14px;background:var(--kertas);position:relative;overflow:hidden}
+.ds-hasil .stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--gelap)}
+.ds-hasil .stat.good::before{background:var(--hadir)}.ds-hasil .stat.warn::before{background:var(--emas)}.ds-hasil .stat.bad::before{background:var(--absen)}
+.ds-hasil .stat .v{font-family:"Fraunces",Georgia,serif;font-size:26px;font-variant-numeric:tabular-nums}
+.ds-hasil .stat.good .v{color:var(--good)}.ds-hasil .stat.bad .v{color:var(--bad)}.ds-hasil .stat.warn .v{color:var(--warn)}
+.ds-hasil .stat .l{text-transform:none;letter-spacing:0;font-size:12.5px}
+.ds-hasil .stat .mb{height:5px;border-radius:3px;background:var(--garis);margin-top:8px;overflow:hidden}.ds-hasil .stat .mb i{display:block;height:100%;background:var(--hadir)}
+.ds-hasil .tabs{gap:0;margin:14px 0 0;border-bottom:2px solid var(--line);flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin}
+.ds-hasil .tabs button{background:transparent;border:0;border-bottom:3px solid transparent;margin-bottom:-2px;border-radius:0;color:var(--muted);padding:10px 16px;font-size:14px;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.ds-hasil .tabs button:hover{color:var(--gelap);background:var(--kertas-3)}
+.ds-hasil .tabs button.on{background:transparent;color:var(--gelap);border-bottom-color:var(--kuning)}
+.tb-n{font-size:11.5px;font-weight:700;padding:0 7px;border-radius:999px;background:var(--netral-muda);color:var(--tinta-2);font-variant-numeric:tabular-nums}
+.tb-n:empty{display:none}.tb-n.warn{background:var(--warn-soft);color:var(--warn)}
+.ds-panel{padding-top:14px}
+.ds-panel table.rekap th{font-size:12.5px;letter-spacing:.02em}
+.ds-panel table.rekap td button{border-radius:6px}
+#g-sub-isi h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);margin:18px 0 8px}#g-sub-isi h3:first-child{margin-top:0}
+@media (max-width:560px){.ds-hasil{padding:12px}.ds-alat{width:100%}.ds-pilih{flex:1}.ds-pilih select{flex:1}}
 </style>
 </head>
 <body>
@@ -223,19 +318,60 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
         <div class="chips" id="uj-status"></div>
         <div class="uj-daftar" id="uj-daftar"></div>
       </div>
-      <div id="g-srv" class="small muted" style="margin-top:6px"></div>
-      <div class="gbox kelola-only"><h3>Pengaturan ujian</h3><div class="row"><label class="small"><input type="checkbox" id="g-aktif"> Ujian aktif</label><label class="small"><input type="checkbox" id="g-pemb"> Tampilkan pembahasan ke siswa</label><label class="small"><input type="checkbox" id="g-tamu"> Izinkan tamu (siswa tak terdaftar)</label><button class="soft" id="btn-refresh" style="padding:8px 12px;font-size:13px">Muat ulang</button></div>
-      <div class="row" style="margin-top:8px"><label class="small grow">Kode akses ujian (kosong = tidak dipakai)<input type="text" id="g-akses" autocomplete="off" style="text-transform:uppercase" placeholder="mis. 4821"></label><button class="soft" id="btn-akses" style="padding:8px 12px;font-size:13px">Simpan kode akses</button></div>
-      <div class="row" style="margin-top:8px"><label class="small">Batas keluar (0 = tanpa batas)<input type="number" id="g-maks" min="0" max="20" style="width:80px"></label><label class="small">Abaikan keluar &lt; (detik)<input type="number" id="g-tol" min="0" max="120" style="width:80px"></label><label class="small grow">Kode buka kunci untuk pengawas (kosong = pakai kode akses)<input type="text" id="g-buka" autocomplete="off" style="text-transform:uppercase" placeholder="mis. BUKA77"></label><button class="soft" id="btn-antikeluar" style="padding:8px 12px;font-size:13px">Simpan</button></div>
-      <p class="muted small">Keluar halaman yang lebih singkat dari toleransi (notifikasi diketuk, telepon ditolak) hanya dicatat, tidak dihitung. Yang lebih lama dihitung; melewati batas → ujian dikunci sampai pengawas memasukkan kode buka (atau siswa mengumpulkan). Semua kejadian beserta durasinya tersimpan (kolom Keluar di rekap; arahkan kursor untuk rincian).</p></div>
-      <div class="gbox"><h3>Peruntukan ujian</h3><div class="row"><span class="small grow">Boleh dikerjakan oleh: <b id="g-peserta-ringkas">–</b></span><button class="soft kelola-only" id="btn-peserta" style="padding:8px 12px;font-size:13px">Ubah peruntukan</button></div>
-      <div id="g-peserta-panel" class="hidden" style="margin-top:8px;border-top:1px solid var(--line);padding-top:8px"><div id="g-peserta-box"></div><div class="row" style="margin-top:8px"><button id="btn-peserta-simpan">Simpan peruntukan</button><button class="ghost" id="btn-peserta-batal">Tutup</button></div><div id="g-peserta-status" class="small" style="margin-top:4px"></div></div></div></div>
-    <div class="tabs"><button class="on" data-tab="rekap">Rekap siswa</button><button data-tab="butir">Analisis butir</button><button data-tab="sub">Sub-materi</button><button data-tab="belum">Belum mengerjakan</button><button data-tab="riwayat">Riwayat siswa</button></div>
-    <div class="card" id="g-rekap"><div class="row"><label class="small">Kelas <select id="g-kelas" style="width:auto;padding:8px 8px"></select></label><span class="grow"></span><button class="btn-unduh utama" data-fmt="xlsx" id="btn-xlsx" title="Rekap, jawaban per soal, analisis butir, dan sub-materi dalam satu buku kerja Excel berformat">Unduh rekap</button></div><div id="g-stat" class="stats"></div><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-tabel"></table></div></div>
-    <div class="card hidden" id="g-butir"><p class="small muted">Nomor = nomor asli pada kisi-kisi. Kesukaran: sukar &lt; 30% · sedang 30–70% · mudah &gt; 70%. Kolom varian menunjukkan % benar tiap varian (uji kesetaraan).</p><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-butir-tabel"></table></div></div>
-    <div class="card hidden" id="g-sub"><div id="g-sub-isi"></div></div>
-    <div class="card hidden" id="g-belum"><p class="small muted">Peserta ujian ini (sesuai peruntukan) yang belum punya hasil. Kelas mengikuti filter di atas. <span id="g-belum-peserta"></span></p><div id="g-belum-isi"></div></div>
-    <div class="card hidden" id="g-riwayat"><div class="row"><input type="text" id="g-cari" class="grow" placeholder="Cari NISN atau nama…"><button class="soft" id="btn-cari" style="padding:8px 12px;font-size:13px">Cari</button></div><p class="small muted">Riwayat nilai lintas ujian. Kosongkan pencarian dan pilih kelas di atas untuk melihat satu kelas.</p><div class="tbl-wrap tbl-beku"><div id="g-riwayat-isi"></div></div></div>
+      <!-- Bilah status ujian terpilih: diisi renderInfo() -->
+      <div class="ds-status"><div id="g-srv" class="ds-info" aria-live="polite"></div><button type="button" class="ds-muat" id="btn-refresh" title="Ambil hasil terbaru dari server"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Muat ulang</button></div>
+    </div>
+
+    <div class="ds-atur">
+      <!-- Pengaturan ujian (guru/operator). Diciutkan/dibuka diingat per perangkat. -->
+      <details class="ds-kartu kelola-only" id="ds-pengaturan" open>
+        <summary><span class="ds-ikon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span>
+          <span class="ds-judul"><b>Pengaturan ujian</b><span id="ds-atur-ringkas" class="ds-ringkas"></span></span><span class="ds-buka" aria-hidden="true"></span></summary>
+        <div class="ds-isi">
+          <div class="ds-sub">Akses siswa</div>
+          <label class="ds-baris"><span class="ds-l"><b>Ujian aktif</b><span>Siswa bisa membuka dan mengerjakan ujian ini.</span></span><span class="saklar"><input type="checkbox" role="switch" id="g-aktif"><i></i></span></label>
+          <label class="ds-baris"><span class="ds-l"><b>Tampilkan pembahasan</b><span>Siswa melihat kunci dan pembahasan setelah mengumpulkan.</span></span><span class="saklar"><input type="checkbox" role="switch" id="g-pemb"><i></i></span></label>
+          <label class="ds-baris"><span class="ds-l"><b>Izinkan tamu</b><span>Siswa yang tidak terdaftar boleh masuk dengan nama dan kelas.</span></span><span class="saklar"><input type="checkbox" role="switch" id="g-tamu"><i></i></span></label>
+          <div class="ds-baris"><label class="ds-l" for="g-akses"><b>Kode akses</b><span>Diminta saat siswa masuk. Kosongkan lalu Simpan untuk menonaktifkan.</span></label>
+            <span class="ds-kode"><input type="text" id="g-akses" autocomplete="off" spellcheck="false" placeholder="Tidak dipakai"><button type="button" id="btn-akses">Simpan</button></span></div>
+          <div class="ds-sub">Pengawasan keluar halaman</div>
+          <div class="ds-tiga">
+            <label class="ds-isian"><span>Batas keluar</span><span class="ds-satuan"><input type="number" id="g-maks" min="0" max="20" inputmode="numeric"><em>kali</em></span><small>0 = tanpa batas</small></label>
+            <label class="ds-isian"><span>Abaikan keluar di bawah</span><span class="ds-satuan"><input type="number" id="g-tol" min="0" max="120" inputmode="numeric"><em>detik</em></span><small>hanya dicatat, tidak dihitung</small></label>
+            <label class="ds-isian"><span>Kode buka kunci pengawas</span><input type="text" id="g-buka" autocomplete="off" spellcheck="false" placeholder="Pakai kode akses"><small>kosong = memakai kode akses</small></label>
+          </div>
+          <div class="ds-aksi"><p class="ds-catatan">Keluar yang lebih singkat dari toleransi (notifikasi diketuk, telepon ditolak) hanya dicatat. Melewati batas, ujian dikunci sampai pengawas memasukkan kode buka atau siswa mengumpulkan. Rinciannya ada di kolom <b>Keluar</b> pada rekap.</p><button type="button" id="btn-antikeluar">Simpan pengawasan</button></div>
+        </div>
+      </details>
+
+      <!-- Peruntukan: siapa yang boleh mengerjakan + kemajuan pengerjaan -->
+      <section class="ds-kartu ds-peserta">
+        <div class="ds-kepala"><span class="ds-ikon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><b>Peruntukan ujian</b></div>
+        <div class="ds-isi">
+          <span class="ds-label">Boleh dikerjakan oleh</span>
+          <div class="ds-besar" id="g-peserta-ringkas">–</div>
+          <div class="ds-maju" id="g-peserta-maju"></div>
+          <button type="button" class="ds-garis kelola-only" id="btn-peserta">Ubah peruntukan</button>
+        </div>
+      </section>
+    </div>
+    <div id="g-peserta-panel" class="ds-kartu ds-panel-pe hidden"><div class="ds-kepala"><b>Ubah peruntukan ujian</b></div><div class="ds-isi"><div id="g-peserta-box"></div><div class="row" style="margin-top:12px"><button id="btn-peserta-simpan">Simpan peruntukan</button><button class="ghost" id="btn-peserta-batal">Tutup</button></div><div id="g-peserta-status" class="small" style="margin-top:6px"></div></div></div>
+
+    <!-- Hasil ujian: filter kelas & unduhan berlaku untuk semua tab -->
+    <section class="ds-hasil">
+      <div class="ds-hasil-kepala">
+        <div><h2>Hasil ujian</h2><p class="muted small" id="ds-hasil-sub">Ringkasan nilai siswa untuk ujian di atas.</p></div>
+        <div class="ds-alat"><label class="ds-pilih"><span>Kelas</span><select id="g-kelas" aria-label="Saring kelas"></select></label>
+          <button class="btn-unduh utama" data-fmt="xlsx" id="btn-xlsx" title="Rekap, jawaban per soal, analisis butir, dan sub-materi dalam satu buku kerja Excel berformat">Unduh rekap</button></div>
+      </div>
+      <div id="g-stat" class="stats"></div>
+      <div class="tabs" role="tablist"><button class="on" data-tab="rekap">Rekap siswa <span class="tb-n" id="tb-rekap"></span></button><button data-tab="butir">Analisis butir</button><button data-tab="sub">Sub-materi</button><button data-tab="belum">Belum mengerjakan <span class="tb-n warn" id="tb-belum"></span></button><button data-tab="riwayat">Riwayat siswa</button></div>
+      <div class="ds-panel" id="g-rekap"><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-tabel"></table></div><p class="ds-catatan">Nilai: <span class="nilai t">≥ 75</span> tuntas · <span class="nilai s">60–74</span> · <span class="nilai r">&lt; 60</span>. Kolom <b>Keluar</b>: dihitung / semua kejadian (arahkan kursor untuk rincian).<span class="kelola-only"> <b>reset</b> = hapus hasil agar siswa bisa mengulang.</span></p></div>
+      <div class="ds-panel hidden" id="g-butir"><p class="ds-catatan" style="margin-top:0">Nomor = nomor asli pada kisi-kisi. Kesukaran: <span class="pill bad">sukar</span> &lt; 30% · <span class="pill warn">sedang</span> 30–70% · <span class="pill good">mudah</span> &gt; 70%. Kolom varian menunjukkan % benar tiap varian (uji kesetaraan).</p><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-butir-tabel"></table></div></div>
+      <div class="ds-panel hidden" id="g-sub"><div id="g-sub-isi"></div></div>
+      <div class="ds-panel hidden" id="g-belum"><p class="ds-catatan" style="margin-top:0">Peserta ujian ini (sesuai peruntukan) yang belum punya hasil. Kelas mengikuti saringan di atas. <span id="g-belum-peserta"></span></p><div id="g-belum-isi"></div></div>
+      <div class="ds-panel hidden" id="g-riwayat"><div class="row"><input type="text" id="g-cari" class="grow" placeholder="Cari NISN atau nama…"><button class="soft" id="btn-cari" style="padding:10px 16px;font-size:14px">Cari</button></div><p class="ds-catatan">Riwayat nilai lintas ujian. Kosongkan pencarian dan pilih kelas di atas untuk melihat satu kelas.</p><div class="tbl-wrap tbl-beku"><div id="g-riwayat-isi"></div></div></div>
+    </section>
   </div>
 </section>
 </div>
@@ -328,7 +464,7 @@ function mathRender(el){if(!el)return;try{autoSup(el)}catch(e){}if(window.render
   else if((mathRender.n=(mathRender.n||0)+1)<=8){setTimeout(()=>mathRender(el),800)}}
 
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
-function show(id){["v-start","v-exam","v-result","v-guru","v-menu","v-siswa"].forEach(v=>$(v).classList.toggle("hidden",v!==id));$("nav").classList.toggle("hidden",id!=="v-exam");$("timer").classList.toggle("hidden",id!=="v-exam");window.scrollTo(0,0)}
+function show(id){["v-start","v-exam","v-result","v-guru","v-menu","v-siswa"].forEach(v=>$(v).classList.toggle("hidden",v!==id));document.body.classList.toggle("mode-dasbor",id==="v-guru");$("nav").classList.toggle("hidden",id!=="v-exam");$("timer").classList.toggle("hidden",id!=="v-exam");window.scrollTo(0,0)}
 const b64e=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o))));
 function fmtT(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
 const pct=(a,b)=>b?Math.round(a/b*100):0;
@@ -581,22 +717,36 @@ function pasangPemilihUjian(){
     if(e.key==="Escape"){e.preventDefault();ujTutup();$("uj-kini").focus()}
     else if(e.key==="ArrowDown"||e.key==="ArrowUp"){if(!bs.length)return;e.preventDefault();const j=e.key==="ArrowDown"?Math.min(bs.length-1,i+1):i<=0?-1:i-1;(j<0?$("uj-cari"):bs[j]).focus()}
     else if(e.key==="Enter"&&e.target.id==="uj-cari"&&bs.length){e.preventDefault();ujPilih(bs[0].dataset.kode)}}}
-async function loadGuru(){const kode=$("g-ujian").value;if(!kode)return;$("g-srv").textContent="Memuat…";
+async function loadGuru(){const kode=$("g-ujian").value;if(!kode)return;$("g-srv").innerHTML='<span class="it">Memuat…</span>';$("btn-refresh").classList.add("putar");
   try{GPK=await rpc("tka_get_paket_admin",{p_pin:PIN,p_kode:kode});const rows=await rpc("tka_list",{p_pin:PIN,p_ujian:kode});const s=await rpc("tka_settings_guru",{p_pin:PIN,p_ujian:kode});
     ROWS=rows.map(r=>({...r,nilai:+r.nilai,benar:+r.benar,durasi:+r.durasi||0}));$("g-aktif").checked=!!GPK.aktif;$("g-pemb").checked=!!(s&&s.pembahasan);$("g-tamu").checked=!!(s&&s.tamu);$("g-akses").value=(s&&s.kode_akses)||"";$("g-maks").value=(s&&s.maks_keluar!==undefined&&s.maks_keluar!==null)?s.maks_keluar:5;$("g-tol").value=(s&&s.toleransi_keluar!==undefined&&s.toleransi_keluar!==null)?s.toleransi_keluar:10;$("g-buka").value=(s&&s.kode_buka)||"";
-    try{GPES=await rpc("tka_get_peserta",{p_pin:PIN,p_ujian:kode});$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES)+` · ${GPES.n_peserta} siswa`;$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`}catch(e){GPES=null;$("g-peserta-ringkas").textContent="–"}$("g-peserta-panel").classList.add("hidden");
+    try{GPES=await rpc("tka_get_peserta",{p_pin:PIN,p_ujian:kode});$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES);$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`}catch(e){GPES=null;$("g-peserta-ringkas").textContent="–"}$("g-peserta-panel").classList.add("hidden");
     ujSetel({n_hasil:ROWS.length,aktif:!!GPK.aktif,judul:GPK.judul,...(GPES?{n_peserta:GPES.n_peserta}:{})});
-    $("g-srv").innerHTML=`${GPK.n_soal} soal · ${ROWS.length} hasil · diperbarui ${new Date().toLocaleTimeString("id-ID")}${(GPK.meta||{}).darurat?' · <span class="pill bad">Diterbitkan lewat jalur darurat (tanpa kisi-kisi resmi)</span>':""}`;
+    renderInfo();ringkasAtur();
     const kelas=[...new Set(ROWS.map(r=>r.kelas))].sort();const sel=$("g-kelas"),cur=sel.value;sel.innerHTML=`<option value="">Semua</option>`+kelas.map(k=>`<option ${k===cur?"selected":""}>${esc(k)}</option>`).join("");renderRekap();renderButir();renderSub();
-  }catch(e){$("g-srv").textContent="Gagal memuat: "+e.message}}
+  }catch(e){$("g-srv").innerHTML=`<span class="it bad">Gagal memuat: ${esc(e.message)}</span>`}finally{$("btn-refresh").classList.remove("putar")}}
+/* Bilah status di bawah kartu ujian + kemajuan pengerjaan di kartu Peruntukan + jumlah di tab "Belum mengerjakan". */
+function renderInfo(){if(!GPK)return;const nP=GPES?+GPES.n_peserta||0:0,nT=ROWS.filter(r=>!r.tamu).length,w=nP?Math.min(100,Math.round(nT/nP*100)):0,belum=Math.max(0,nP-nT);
+  $("g-srv").innerHTML=`<span class="it"><b>${GPK.n_soal}</b> soal</span>`+
+    `<span class="it" title="${nT} siswa terdaftar sudah mengerjakan${nP?` dari ${nP} peserta`:""}">${nP?`<i><s style="width:${w}%"></s></i>`:""}<b>${ROWS.length}</b>${nP?` / ${nP}`:""} hasil</span>`+
+    (ROWS.some(r=>r.tamu)?`<span class="it"><b>${ROWS.filter(r=>r.tamu).length}</b> tamu</span>`:"")+
+    `<span class="it">Diperbarui <b>${new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}</b></span>`+
+    ((GPK.meta||{}).darurat?'<span class="it bad">Jalur darurat (tanpa kisi-kisi resmi)</span>':"");
+  $("g-peserta-maju").innerHTML=nP?`<div class="batang"><i style="width:${w}%"></i></div><div class="angka"><span><b>${nT}</b> sudah mengerjakan</span><span><b>${belum}</b> belum · ${w}%</span></div><span>dari <b>${nP}</b> peserta</span>`:'<span>Jumlah peserta belum diketahui.</span>';
+  $("tb-belum").textContent=nP&&belum?belum:""}
+/* Ringkasan pengaturan di judul kartu (terlihat walau kartu diciutkan). */
+function ringkasAtur(){const a=$("g-aktif").checked,ka=$("g-akses").value.trim(),m=+$("g-maks").value||0;
+  $("ds-atur-ringkas").innerHTML=[[a?"on":"off",a?"Aktif":"Nonaktif"],[$("g-pemb").checked?"on":"","Pembahasan "+($("g-pemb").checked?"tampil":"disembunyikan")],
+    [$("g-tamu").checked?"on":"",$("g-tamu").checked?"Tamu diizinkan":"Tanpa tamu"],[ka?"on":"",ka?"Kode akses "+ka.toUpperCase():"Tanpa kode akses"],[m?"on":"",m?`Batas keluar ${m}×`:"Keluar tanpa batas"]]
+    .map(([c,t])=>`<span class="${c}">${esc(t)}</span>`).join("")}
 const filtered=()=>{const k=$("g-kelas").value;return ROWS.filter(r=>!k||r.kelas===k)};
 // Kolom berkelas .beku dibuat sticky berurutan: left = jumlah lebar kolom beku di kirinya
 function bekukan(t){if(!t)return;t.querySelectorAll("tr").forEach(tr=>{const cs=[...tr.children].filter(c=>c.classList.contains("beku"));let left=0;cs.forEach((c,i)=>{c.style.left=left+"px";left+=c.offsetWidth;c.classList.toggle("beku-akhir",i===cs.length-1)})})}
 function renderRekap(){const rows=filtered().sort((a,b)=>(a.kelas||"").localeCompare(b.kelas||"")||(a.nama||"").localeCompare(b.nama||""));const t=$("g-tabel");
-  if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada data.</td></tr>";$("g-stat").innerHTML="";return}
+  if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada data.</td></tr>";$("g-stat").innerHTML="";$("tb-rekap").textContent="";return}$("tb-rekap").textContent=rows.length;
   const avg=Math.round(rows.reduce((s,r)=>s+r.nilai,0)/rows.length),tuntas=rows.filter(r=>r.nilai>=75).length;
-  const stat=(v,l)=>`<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`;
-  $("g-stat").innerHTML=stat(rows.length,"siswa")+stat(avg,"rata-rata")+stat(`${pct(tuntas,rows.length)}%`,`tuntas ≥75 (${tuntas})`)+stat(Math.min(...rows.map(r=>r.nilai)),"terendah")+stat(Math.max(...rows.map(r=>r.nilai)),"tertinggi")+stat(rows.filter(r=>r.keluar>=5).length,"keluar ≥5×");
+  const stat=(v,l,c,mb)=>`<div class="stat ${c||""}"><div class="v">${v}</div><div class="l">${l}</div>${mb!=null?`<div class="mb"><i style="width:${mb}%"></i></div>`:""}</div>`;const kl=n=>n>=75?"good":n>=60?"warn":"bad",kel5=rows.filter(r=>r.keluar>=5).length,pt=pct(tuntas,rows.length);
+  const mn=Math.min(...rows.map(r=>r.nilai)),mx=Math.max(...rows.map(r=>r.nilai));$("g-stat").innerHTML=stat(rows.length,"siswa mengerjakan")+stat(avg,"rata-rata nilai",kl(avg))+stat(`${pt}%`,`tuntas ≥ 75 (${tuntas} siswa)`,pt>=75?"good":pt>=50?"warn":"bad",pt)+stat(mn,"nilai terendah",kl(mn))+stat(mx,"nilai tertinggi",kl(mx))+stat(kel5,"keluar halaman ≥ 5×",kel5?"bad":"good");
   const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort(lsort);
   t.innerHTML=`<tr><th class="beku">#</th><th class="beku">Nama</th><th>NISN</th><th>Kelas</th><th>Nilai</th><th>Benar</th>${levels.map(L=>`<th>${L}</th>`).join("")}<th>Terlemah</th><th>Waktu</th><th>Keluar</th><th></th></tr>`+rows.map((r,k)=>{const it=rowItems(r),ls=levelSummary(it);const subs=[...new Set(it.map(x=>x.sub).filter(Boolean))].map(sb=>{const s=it.filter(x=>x.sub===sb);return [sb,pct(s.reduce((a,x)=>a+x.benar,0),s.length)]}).sort((a,b)=>a[1]-b[1]);
     return `<tr><td class="beku">${k+1}</td><td class="beku">${esc(r.nama)}${r.tamu?' <span class="pill warn">tamu</span>':""}</td><td>${esc(r.nisn||"–")}</td><td>${esc(r.kelas)}</td><td class="n"><span class="nilai ${r.nilai>=75?"t":r.nilai>=60?"s":"r"}">${r.nilai}</span></td><td class="n">${r.benar}</td>${levels.map(L=>`<td class="n" style="white-space:nowrap"><span class="lv"><i style="width:${ls[L]??0}%"></i></span>${ls[L]??"–"}%</td>`).join("")}<td>${esc(subs[0]?subs[0][0]:"")}</td><td>${fmtT(r.durasi)}</td><td class="n">${(r.keluar||(r.log_keluar||[]).length)?`<span class="pill ${r.keluar>=5?"bad":r.keluar?"warn":""}" title="${esc((r.log_keluar||[]).map(x=>`${new Date(x.t).toLocaleTimeString("id-ID")} ${x.d} dtk${x.hitung===false?" (sekejap)":""}`).join("\n"))}">${r.keluar||0}× <span class="muted">/${(r.log_keluar||[]).length}</span></span>`:"–"}</td><td>${r.nisn?`<button class="soft kelola-only" style="padding:3px 8px;font-size:12px" data-reset="${esc(r.nisn)}" title="Hapus hasil agar siswa bisa mengulang">reset</button> `:""}<button class="danger kelola-only" style="padding:3px 8px;font-size:12px" data-del="${esc(r.id)}">hapus</button></td></tr>`}).join("");bekukan(t);
@@ -829,11 +979,11 @@ window.addEventListener("DOMContentLoaded",()=>{
   if(qs.get("guru")!==null)bukaMenu();
   $("btn-peserta").onclick=async()=>{const el=$("g-peserta-box");$("g-peserta-panel").classList.remove("hidden");$("g-peserta-status").textContent="";if(!SISWA){el.textContent="Memuat data siswa…";try{SISWA=await rpc("tka_list_siswa",{p_pin:PIN})}catch(e){el.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}}GPES_ED=TKA_PESERTA.buat(el,{siswa:SISWA,nilai:GPES||{mode:"semua"}})};
   $("btn-peserta-batal").onclick=()=>$("g-peserta-panel").classList.add("hidden");
-  $("btn-peserta-simpan").onclick=async()=>{if(!GPES_ED)return;try{GPES=await rpc("tka_set_peserta",{p_pin:PIN,p_ujian:$("g-ujian").value,p_peserta:GPES_ED.get()});$("g-peserta-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(TKA_PESERTA.ringkas(GPES))} · ${GPES.n_peserta} siswa</span>`;$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES)+` · ${GPES.n_peserta} siswa`;$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`;ujSetel({n_peserta:GPES.n_peserta});if(!$("g-belum").classList.contains("hidden"))renderBelum()}catch(e){$("g-peserta-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
-  $("btn-refresh").onclick=loadGuru;pasangPemilihUjian();$("g-kelas").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
+  $("btn-peserta-simpan").onclick=async()=>{if(!GPES_ED)return;try{GPES=await rpc("tka_set_peserta",{p_pin:PIN,p_ujian:$("g-ujian").value,p_peserta:GPES_ED.get()});$("g-peserta-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(TKA_PESERTA.ringkas(GPES))} · ${GPES.n_peserta} siswa</span>`;$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES);renderInfo();$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`;ujSetel({n_peserta:GPES.n_peserta});if(!$("g-belum").classList.contains("hidden"))renderBelum()}catch(e){$("g-peserta-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
+  $("btn-refresh").onclick=loadGuru;["g-aktif","g-pemb","g-tamu"].forEach(id=>$(id).addEventListener("change",()=>setTimeout(ringkasAtur,0)));["btn-akses","btn-antikeluar"].forEach(id=>$(id).addEventListener("click",ringkasAtur));try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
   $("g-pemb").onchange=async e=>{try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"pembahasan",p_value:e.target.checked,p_ujian:$("g-ujian").value});toast(e.target.checked?"Pembahasan ditampilkan ke siswa":"Pembahasan disembunyikan")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
   $("g-aktif").onchange=async e=>{try{await rpc("tka_set_aktif",{p_pin:PIN,p_kode:$("g-ujian").value,p_aktif:e.target.checked});ujSetel({aktif:e.target.checked});toast(e.target.checked?"Ujian diaktifkan":"Ujian dinonaktifkan")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
-  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});
+  document.querySelectorAll(".ds-hasil .tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".ds-hasil .tabs button").forEach(x=>x.classList.toggle("on",x===b));["rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});
   $("btn-cari").onclick=renderRiwayat;$("g-cari").addEventListener("keydown",e=>{if(e.key==="Enter")renderRiwayat()});
   $("g-tamu").onchange=async e=>{try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"tamu",p_value:e.target.checked,p_ujian:$("g-ujian").value});toast(e.target.checked?"Jalur tamu dibuka":"Jalur tamu ditutup")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
   $("btn-antikeluar").onclick=async()=>{const m=Math.max(0,parseInt($("g-maks").value||"0",10)),tol=Math.max(0,parseInt($("g-tol").value||"0",10)),kb=$("g-buka").value.trim().toUpperCase();try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"maks_keluar",p_value:m,p_ujian:$("g-ujian").value});await rpc("tka_set_setting",{p_pin:PIN,p_key:"toleransi_keluar",p_value:tol,p_ujian:$("g-ujian").value});await rpc("tka_set_setting",{p_pin:PIN,p_key:"kode_buka",p_value:kb,p_ujian:$("g-ujian").value});toast(m?`Batas keluar ${m} kali`:"Tanpa batas keluar")}catch(err){toast("Gagal: "+err.message)}};
