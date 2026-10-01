@@ -93,6 +93,36 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .nisn{font-size:17px;letter-spacing:.06em;color:var(--acc);font-weight:700}.mini{padding:4px 8px;font-size:12px}.tgl{font-weight:600;color:var(--warn)}
 .lihat .kelola-only{display:none!important}
 .pe-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff}.pe-row{display:block;padding:4px 8px;border-bottom:1px solid var(--line);font-size:14px}.pe-row:last-child{border-bottom:0}
+/* Pemilih ujian di dasbor guru: kartu ujian terpilih + panel daftar per mapel (disamakan dengan Pustaka paket di admin.html) */
+.kode{font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:11.5px;letter-spacing:.02em;color:var(--tinta-2);background:var(--kertas-3);border:1px solid var(--line);border-radius:5px;padding:0 5px}
+.titik{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}.t-siap{background:var(--sakit)}.t-aktif{background:var(--hadir)}.t-selesai,.t-arsip{background:var(--tinta-3)}
+.pk-pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;padding:2px 10px 2px 8px;border-radius:999px;white-space:nowrap}
+.st-siap{background:var(--sakit-muda);color:var(--sakit)}.st-aktif{background:var(--hadir-muda);color:var(--hadir)}.st-selesai,.st-arsip{background:var(--netral-muda);color:var(--tinta-2)}
+.tag{font-size:11px;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--netral-muda);color:var(--tinta-2);margin-left:6px;white-space:nowrap;vertical-align:2px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}.tag.bad{background:var(--bad-soft);color:var(--bad)}
+.uj-prog{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--tinta-2);font-variant-numeric:tabular-nums;white-space:nowrap}.uj-prog i{display:block;width:56px;height:5px;border-radius:3px;background:var(--garis-2);overflow:hidden}.uj-prog b{display:block;height:100%;background:var(--hadir)}
+.uj-st{display:grid;gap:6px;justify-items:end;flex:none}
+.uj-kini{display:flex;gap:16px;align-items:center;width:100%;margin-top:12px;text-align:left;background:var(--kertas-3);color:var(--ink);border:1px solid var(--garis-2);border-radius:12px;padding:14px 16px;font-weight:400;letter-spacing:0;box-shadow:var(--bayang-1);transition:border-color .15s}
+.uj-kini:hover{border-color:var(--emas)}.uj-kini[aria-expanded=true]{border-color:var(--gelap)}.uj-kini:disabled{opacity:1;cursor:default}
+.uj-isi{display:grid;gap:3px;min-width:0;flex:1}
+.uj-kini .lbl,.uj-grup-k .lbl{display:block;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn)}
+.uj-kini .j{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-size:19px;font-weight:700;color:var(--gelap);line-height:1.25}
+.uj-meta{font-size:13px;color:var(--muted);line-height:1.5}
+.uj-kini .ganti{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--gelap);background:#fff;border:1px solid var(--garis-2);border-radius:999px;padding:6px 10px 6px 14px}
+.uj-kini .ganti svg{width:14px;height:14px;transition:transform .15s}.uj-kini[aria-expanded=true] .ganti svg{transform:rotate(180deg)}
+.uj-panel{margin-top:8px;padding:12px;background:var(--kertas);border:1px solid var(--garis-2);border-radius:12px;box-shadow:var(--bayang-2)}
+.uj-panel input[type=text]{padding:10px 12px;font-size:15px}
+#uj-status .chip{display:inline-flex;align-items:center;gap:6px;font-weight:600;letter-spacing:0}#uj-status .chip .n{font-variant-numeric:tabular-nums;opacity:.7}
+.uj-daftar{display:grid;gap:12px;max-height:min(62vh,560px);overflow:auto;padding:2px;overscroll-behavior:contain}
+.uj-grup{border:1px solid var(--garis-2);border-radius:12px;background:#fff;overflow:hidden;box-shadow:var(--bayang-1)}
+.uj-grup-k{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:8px 14px;background:var(--kertas-3);border-bottom:1px solid var(--garis-2)}
+.uj-grup-k h3{margin:0;font-family:"Fraunces",Georgia,"Times New Roman",serif;font-size:16px;font-weight:700;color:var(--gelap);line-height:1.25}
+.uj-grup-k .jml{font-size:12px;font-weight:600;color:var(--tinta-2);background:#fff;border:1px solid var(--garis-2);border-radius:999px;padding:2px 10px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.uj-baris{display:flex;gap:12px;align-items:center;width:100%;text-align:left;background:#fff;color:var(--ink);font-weight:400;letter-spacing:0;border-radius:0;border-top:1px solid var(--line);padding:10px 14px}
+.uj-grup-k+.uj-baris{border-top:0}.uj-baris:hover{background:var(--kertas-3)}
+.uj-baris.on{background:var(--emas-kabut);box-shadow:inset 4px 0 0 var(--emas)}
+.uj-baris:focus-visible{outline:2px solid var(--kuning);outline-offset:-2px}
+.uj-id{display:grid;gap:3px;min-width:0;flex:1}.uj-id .j{font-weight:600;font-size:15px;line-height:1.35}.uj-id .m{font-size:12.5px;color:var(--muted);line-height:1.5}
+@media (max-width:560px){.uj-kini{flex-wrap:wrap;gap:10px}.uj-kini .uj-isi{flex-basis:100%}.uj-kini .uj-st{justify-items:start}.uj-kini .ganti{margin-left:auto}.uj-baris{flex-wrap:wrap;gap:6px}.uj-baris .uj-id{flex-basis:100%}.uj-baris .uj-st{display:flex;flex-wrap:wrap;align-items:center;gap:10px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -186,7 +216,13 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div class="card form" id="g-login"><h2>Dasbor guru</h2><p class="muted small">Rekap hasil, analisis butir, sub-materi, riwayat siswa, dan pengaturan ujian.</p><label class="f" for="pin">PIN guru</label><input type="text" id="pin" autocomplete="off"><div class="row" style="margin-top:10px"><button id="btn-pin">Masuk</button><button class="ghost" id="btn-guru-back">Kembali</button></div><div id="g-login-msg" class="small" style="margin-top:6px"></div></div>
   <div id="g-main" class="hidden">
     <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Dasbor guru</h2><button class="ghost" id="btn-guru-out" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
-      <label class="f" for="g-ujian">Ujian</label><select id="g-ujian"></select>
+      <input type="hidden" id="g-ujian">
+      <button type="button" class="uj-kini" id="uj-kini" aria-expanded="false" aria-controls="uj-panel"></button>
+      <div class="uj-panel hidden" id="uj-panel" role="dialog" aria-label="Pilih ujian">
+        <input type="text" id="uj-cari" placeholder="Cari judul, kode, mapel, kelas, atau guru…" aria-label="Cari ujian" autocomplete="off">
+        <div class="chips" id="uj-status"></div>
+        <div class="uj-daftar" id="uj-daftar"></div>
+      </div>
       <div id="g-srv" class="small muted" style="margin-top:6px"></div>
       <div class="gbox kelola-only"><h3>Pengaturan ujian</h3><div class="row"><label class="small"><input type="checkbox" id="g-aktif"> Ujian aktif</label><label class="small"><input type="checkbox" id="g-pemb"> Tampilkan pembahasan ke siswa</label><label class="small"><input type="checkbox" id="g-tamu"> Izinkan tamu (siswa tak terdaftar)</label><button class="soft" id="btn-refresh" style="padding:8px 12px;font-size:13px">Muat ulang</button></div>
       <div class="row" style="margin-top:8px"><label class="small grow">Kode akses ujian (kosong = tidak dipakai)<input type="text" id="g-akses" autocomplete="off" style="text-transform:uppercase" placeholder="mis. 4821"></label><button class="soft" id="btn-akses" style="padding:8px 12px;font-size:13px">Simpan kode akses</button></div>
@@ -481,14 +517,71 @@ const rowItems=r=>String(r.items||"").split("").map((c,i)=>({no:i+1,v:(r.varian|
 function levelSummary(it){const o={};[...new Set(it.map(x=>x.level).filter(Boolean))].sort(lsort).forEach(L=>{const s=it.filter(x=>x.level===L);o[L]=pct(s.reduce((a,x)=>a+x.benar,0),s.length)});return o}
 async function loginGuru(){if(!PIN)PIN=$("pin").value.trim();$("g-login-msg").textContent="Memeriksa…";
   try{PAKETS=await rpc("tka_list_paket",{p_pin:PIN});$("g-login").classList.add("hidden");$("g-main").classList.remove("hidden");
-    const sel=$("g-ujian");sel.innerHTML=PAKETS.map(p=>`<option value="${esc(p.kode)}">${esc(p.kode)} — ${esc(p.judul)} (${p.n_hasil} hasil)</option>`).join("")||"<option value=''>Belum ada paket</option>";
-    const pref=(S&&S.kode)||qs.get("ujian");if(pref&&PAKETS.some(p=>p.kode===pref.toUpperCase()))sel.value=pref.toUpperCase();loadGuru()}
+    // urutan pilihan awal: ujian yang baru dikerjakan di HP ini → ?ujian= → pilihan terakhir di dasbor → paket terbaru yang tidak diarsipkan
+    let akhir="";try{akhir=localStorage.getItem("tka_dasbor_ujian")||""}catch(e){}
+    const pref=[(S&&S.kode),qs.get("ujian"),akhir].map(x=>String(x||"").toUpperCase()).find(x=>x&&PAKETS.some(p=>p.kode===x));
+    $("g-ujian").value=pref||((PAKETS.find(p=>!p.arsip)||PAKETS[0]||{}).kode||"");ujRenderKini();loadGuru()}
   catch(e){$("g-login-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+
+/* ---------- Pemilih ujian dasbor: kartu ujian terpilih + panel daftar (cari, status, per mapel) — gaya Pustaka paket di admin ---------- */
+const UJ_TAHAP={aktif:"Sedang dibuka",selesai:"Selesai",siap:"Siap dibuka",arsip:"Arsip"};
+const UJF={cari:"",status:"jalan"};
+const ujTahap=p=>p.arsip?"arsip":p.aktif?"aktif":p.n_hasil>0?"selesai":"siap";
+// "12", "XII", "10–12", "X s.d. XII" → ["12"], ["10","11","12"] (sama dengan TKA.info.parseTingkat di admin)
+function ujTingkat(p){const t=(p.info||{}).tingkat;if(t&&t.length)return t.map(String);
+  const s=String(p.kelas||"").toUpperCase(),ang={X:"10",XI:"11",XII:"12",10:"10",11:"11",12:"12"},a=(s.match(/\b(XII|XI|X|10|11|12)\b/g)||[]).map(x=>ang[x]);
+  if(a.length===2&&/[-–—]|S\.?\s?D|SAMPAI|HINGGA/.test(s)){const x=Math.min(+a[0],+a[1]),y=Math.max(+a[0],+a[1]);return Array.from({length:y-x+1},(_,i)=>String(x+i))}
+  return [...new Set(a)].sort((x,y)=>x-y)}
+function ujFmtTingkat(a){a=a.map(Number).sort((x,y)=>x-y);if(!a.length)return "";return a.length>1&&a[a.length-1]-a[0]===a.length-1?`${a[0]}–${a[a.length-1]}`:a.join(", ")}
+function ujMeta(p,denganMapel){const i=p.info||{},tk=ujTingkat(p);
+  return [`<span class="kode">${esc(p.kode)}</span>`,denganMapel&&p.mapel?esc(p.mapel):"",tk.length?"kelas "+ujFmtTingkat(tk):"",p.n_soal?p.n_soal+" soal":"",i.penyusun?esc(i.penyusun):""].filter(Boolean).join(" · ")}
+function ujStatus(p){const t=ujTahap(p),n=+p.n_hasil||0,m=+p.n_peserta||0,w=m?Math.min(100,Math.round(n/m*100)):0;
+  return `<span class="pk-pill st-${t}"><span class="titik t-${t}"></span>${UJ_TAHAP[t]}</span>`+
+    `<span class="uj-prog" title="${n} hasil${m?` dari ${m} peserta`:""}">${m?`<i><b style="width:${w}%"></b></i>`:""}${n}${m?"/"+m:""} hasil</span>`}
+const ujIni=()=>PAKETS.find(p=>p.kode===$("g-ujian").value);
+function ujRenderKini(){const el=$("uj-kini"),p=ujIni();el.disabled=!p;
+  if(!p){el.innerHTML='<span class="uj-isi"><span class="lbl">Ujian</span><span class="j">Belum ada paket</span><span class="uj-meta">Terbitkan paket dari Halaman admin terlebih dahulu.</span></span>';return}
+  const i=p.info||{};
+  el.innerHTML=`<span class="uj-isi"><span class="lbl">Ujian yang ditampilkan</span><span class="j">${esc(p.judul)}${i.jenis?`<span class="tag">${esc(i.jenis)}</span>`:""}${p.darurat?'<span class="tag bad">Darurat</span>':""}</span><span class="uj-meta">${ujMeta(p,true)}</span></span>`+
+    `<span class="uj-st">${ujStatus(p)}</span><span class="ganti">Ganti ujian<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`}
+// perubahan kecil dari dasbor (buka/tutup ujian, jumlah hasil) ikut tampil di kartu tanpa memuat ulang daftar
+function ujSetel(ubah){const p=ujIni();if(p){Object.assign(p,ubah);ujRenderKini();if(!$("uj-panel").classList.contains("hidden"))ujRenderPanel()}}
+function ujCocok(p){if(!UJF.cari)return true;const i=p.info||{},t=[p.judul,p.kode,p.mapel,p.materi,p.kelas,i.jenis,i.penyusun,"kelas "+ujTingkat(p).join(" ")].join(" ").toLowerCase();
+  return UJF.cari.toLowerCase().split(/\s+/).filter(Boolean).every(w=>t.includes(w))}
+const ujStatusCocok=(p,s)=>s==="jalan"?!p.arsip:ujTahap(p)===s;
+function ujRenderPanel(){const dasar=PAKETS.filter(ujCocok),n=s=>dasar.filter(p=>ujStatusCocok(p,s)).length,kini=$("g-ujian").value;
+  $("uj-status").innerHTML=[["jalan","Semua",""],["aktif","Sedang dibuka","t-aktif"],["selesai","Selesai","t-selesai"],["siap","Siap dibuka","t-siap"],["arsip","Arsip","t-arsip"]]
+    .filter(([s])=>s==="jalan"||s===UJF.status||n(s))
+    .map(([s,l,c])=>`<button type="button" class="chip${UJF.status===s?" on":""}" data-s="${s}" aria-pressed="${UJF.status===s}">${c?`<span class="titik ${c}"></span>`:""}${l} <span class="n">${n(s)}</span></button>`).join("");
+  const hasil=dasar.filter(p=>ujStatusCocok(p,UJF.status)),el=$("uj-daftar");
+  if(!hasil.length){el.innerHTML=`<p class="muted" style="margin:8px 4px">${PAKETS.length?"Tidak ada ujian yang cocok. Hapus kata pencarian atau pilih <b>Semua</b>.":"Belum ada paket."}</p>`;return}
+  // dikelompokkan per mapel (penulisan "Kimia"/"kimia" disatukan); di dalam kelompok: yang sedang dibuka di atas, lalu terbaru diubah
+  const g=new Map(),rank={aktif:0,siap:1,selesai:2,arsip:3};
+  hasil.forEach(p=>{const k=String(p.mapel||"").trim().replace(/\s+/g," ").toLowerCase();if(!g.has(k))g.set(k,{l:String(p.mapel||"").trim()||"Tanpa mapel",isi:[]});g.get(k).isi.push(p)});
+  el.innerHTML=[...g.entries()].sort((a,b)=>(a[0]?0:1)-(b[0]?0:1)||a[1].l.localeCompare(b[1].l,"id")).map(([,v])=>
+    `<section class="uj-grup"><header class="uj-grup-k"><div><span class="lbl">Mata pelajaran</span><h3>${esc(v.l)}</h3></div><span class="jml">${v.isi.length} ujian</span></header>`+
+    v.isi.sort((a,b)=>rank[ujTahap(a)]-rank[ujTahap(b)]||String(b.diubah||"").localeCompare(String(a.diubah||""))).map(p=>{const i=p.info||{};
+      return `<button type="button" class="uj-baris${p.kode===kini?" on":""}" data-kode="${esc(p.kode)}"${p.kode===kini?' aria-current="true"':""}><span class="uj-id"><span class="j">${esc(p.judul)}${i.jenis?`<span class="tag">${esc(i.jenis)}</span>`:""}${p.darurat?'<span class="tag bad">Darurat</span>':""}</span><span class="m">${ujMeta(p,false)}</span></span><span class="uj-st">${ujStatus(p)}</span></button>`}).join("")+`</section>`).join("")}
+function ujBuka(){$("uj-panel").classList.remove("hidden");$("uj-kini").setAttribute("aria-expanded","true");ujRenderPanel();$("uj-cari").focus();
+  const on=$("uj-daftar").querySelector(".uj-baris.on");if(on)on.scrollIntoView({block:"nearest"})}
+function ujTutup(){$("uj-panel").classList.add("hidden");$("uj-kini").setAttribute("aria-expanded","false")}
+function ujPilih(kode){ujTutup();if(kode!==$("g-ujian").value){$("g-ujian").value=kode;try{localStorage.setItem("tka_dasbor_ujian",kode)}catch(e){}ujRenderKini();loadGuru()}$("uj-kini").focus()}
+function pasangPemilihUjian(){
+  $("uj-kini").onclick=()=>$("uj-panel").classList.contains("hidden")?ujBuka():ujTutup();
+  $("uj-cari").oninput=e=>{UJF.cari=e.target.value;ujRenderPanel()};
+  $("uj-status").onclick=e=>{const b=e.target.closest("[data-s]");if(b){UJF.status=b.dataset.s;ujRenderPanel()}};
+  $("uj-daftar").onclick=e=>{const b=e.target.closest("[data-kode]");if(b)ujPilih(b.dataset.kode)};
+  // Esc menutup; panah atas/bawah berpindah antarbaris; Enter di kotak cari memilih hasil pertama
+  $("uj-panel").onkeydown=e=>{const bs=[...$("uj-daftar").querySelectorAll(".uj-baris")],i=bs.indexOf(document.activeElement);
+    if(e.key==="Escape"){e.preventDefault();ujTutup();$("uj-kini").focus()}
+    else if(e.key==="ArrowDown"||e.key==="ArrowUp"){if(!bs.length)return;e.preventDefault();const j=e.key==="ArrowDown"?Math.min(bs.length-1,i+1):i<=0?-1:i-1;(j<0?$("uj-cari"):bs[j]).focus()}
+    else if(e.key==="Enter"&&e.target.id==="uj-cari"&&bs.length){e.preventDefault();ujPilih(bs[0].dataset.kode)}}}
 async function loadGuru(){const kode=$("g-ujian").value;if(!kode)return;$("g-srv").textContent="Memuat…";
   try{GPK=await rpc("tka_get_paket_admin",{p_pin:PIN,p_kode:kode});const rows=await rpc("tka_list",{p_pin:PIN,p_ujian:kode});const s=await rpc("tka_settings_guru",{p_pin:PIN,p_ujian:kode});
     ROWS=rows.map(r=>({...r,nilai:+r.nilai,benar:+r.benar,durasi:+r.durasi||0}));$("g-aktif").checked=!!GPK.aktif;$("g-pemb").checked=!!(s&&s.pembahasan);$("g-tamu").checked=!!(s&&s.tamu);$("g-akses").value=(s&&s.kode_akses)||"";$("g-maks").value=(s&&s.maks_keluar!==undefined&&s.maks_keluar!==null)?s.maks_keluar:5;$("g-tol").value=(s&&s.toleransi_keluar!==undefined&&s.toleransi_keluar!==null)?s.toleransi_keluar:10;$("g-buka").value=(s&&s.kode_buka)||"";
     try{GPES=await rpc("tka_get_peserta",{p_pin:PIN,p_ujian:kode});$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES)+` · ${GPES.n_peserta} siswa`;$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`}catch(e){GPES=null;$("g-peserta-ringkas").textContent="–"}$("g-peserta-panel").classList.add("hidden");
-    $("g-srv").innerHTML=`${esc(GPK.judul)} · ${GPK.n_soal} soal · ${ROWS.length} hasil · diperbarui ${new Date().toLocaleTimeString("id-ID")}${(GPK.meta||{}).darurat?' · <span class="pill bad">Diterbitkan lewat jalur darurat (tanpa kisi-kisi resmi)</span>':""}`;
+    ujSetel({n_hasil:ROWS.length,aktif:!!GPK.aktif,judul:GPK.judul,...(GPES?{n_peserta:GPES.n_peserta}:{})});
+    $("g-srv").innerHTML=`${GPK.n_soal} soal · ${ROWS.length} hasil · diperbarui ${new Date().toLocaleTimeString("id-ID")}${(GPK.meta||{}).darurat?' · <span class="pill bad">Diterbitkan lewat jalur darurat (tanpa kisi-kisi resmi)</span>':""}`;
     const kelas=[...new Set(ROWS.map(r=>r.kelas))].sort();const sel=$("g-kelas"),cur=sel.value;sel.innerHTML=`<option value="">Semua</option>`+kelas.map(k=>`<option ${k===cur?"selected":""}>${esc(k)}</option>`).join("");renderRekap();renderButir();renderSub();
   }catch(e){$("g-srv").textContent="Gagal memuat: "+e.message}}
 const filtered=()=>{const k=$("g-kelas").value;return ROWS.filter(r=>!k||r.kelas===k)};
@@ -731,10 +824,10 @@ window.addEventListener("DOMContentLoaded",()=>{
   if(qs.get("guru")!==null)bukaMenu();
   $("btn-peserta").onclick=async()=>{const el=$("g-peserta-box");$("g-peserta-panel").classList.remove("hidden");$("g-peserta-status").textContent="";if(!SISWA){el.textContent="Memuat data siswa…";try{SISWA=await rpc("tka_list_siswa",{p_pin:PIN})}catch(e){el.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}}GPES_ED=TKA_PESERTA.buat(el,{siswa:SISWA,nilai:GPES||{mode:"semua"}})};
   $("btn-peserta-batal").onclick=()=>$("g-peserta-panel").classList.add("hidden");
-  $("btn-peserta-simpan").onclick=async()=>{if(!GPES_ED)return;try{GPES=await rpc("tka_set_peserta",{p_pin:PIN,p_ujian:$("g-ujian").value,p_peserta:GPES_ED.get()});$("g-peserta-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(TKA_PESERTA.ringkas(GPES))} · ${GPES.n_peserta} siswa</span>`;$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES)+` · ${GPES.n_peserta} siswa`;$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`;if(!$("g-belum").classList.contains("hidden"))renderBelum()}catch(e){$("g-peserta-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
-  $("btn-refresh").onclick=loadGuru;$("g-ujian").onchange=loadGuru;$("g-kelas").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
+  $("btn-peserta-simpan").onclick=async()=>{if(!GPES_ED)return;try{GPES=await rpc("tka_set_peserta",{p_pin:PIN,p_ujian:$("g-ujian").value,p_peserta:GPES_ED.get()});$("g-peserta-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(TKA_PESERTA.ringkas(GPES))} · ${GPES.n_peserta} siswa</span>`;$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES)+` · ${GPES.n_peserta} siswa`;$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`;ujSetel({n_peserta:GPES.n_peserta});if(!$("g-belum").classList.contains("hidden"))renderBelum()}catch(e){$("g-peserta-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
+  $("btn-refresh").onclick=loadGuru;pasangPemilihUjian();$("g-kelas").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
   $("g-pemb").onchange=async e=>{try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"pembahasan",p_value:e.target.checked,p_ujian:$("g-ujian").value});toast(e.target.checked?"Pembahasan ditampilkan ke siswa":"Pembahasan disembunyikan")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
-  $("g-aktif").onchange=async e=>{try{await rpc("tka_set_aktif",{p_pin:PIN,p_kode:$("g-ujian").value,p_aktif:e.target.checked});toast(e.target.checked?"Ujian diaktifkan":"Ujian dinonaktifkan")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
+  $("g-aktif").onchange=async e=>{try{await rpc("tka_set_aktif",{p_pin:PIN,p_kode:$("g-ujian").value,p_aktif:e.target.checked});ujSetel({aktif:e.target.checked});toast(e.target.checked?"Ujian diaktifkan":"Ujian dinonaktifkan")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
   document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});
   $("btn-cari").onclick=renderRiwayat;$("g-cari").addEventListener("keydown",e=>{if(e.key==="Enter")renderRiwayat()});
   $("g-tamu").onchange=async e=>{try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"tamu",p_value:e.target.checked,p_ujian:$("g-ujian").value});toast(e.target.checked?"Jalur tamu dibuka":"Jalur tamu ditutup")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
