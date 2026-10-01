@@ -110,6 +110,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <button id="btn-cek">Cek PIN &amp; muat daftar</button>
   </div>
   <div id="pin-status" class="small" style="margin-top:6px"></div>
+  <div id="sinkron-info" class="small" style="margin-top:6px"></div>
 </div>
 <div class="tabs"><button class="on" data-tab="kisi">Langkah 1 · Kisi-kisi</button><button data-tab="unggah">Langkah 2 · Soal</button><button data-tab="daftar">Pustaka paket</button><button data-tab="darurat" style="color:var(--bad)">Jalur darurat</button><button data-tab="siswa">Data siswa</button><button data-tab="impor">Impor kode hasil</button><button data-tab="cadangan">Cadangan</button><button data-tab="bantuan">Bantuan</button></div>
 
@@ -223,8 +224,10 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   </div>
   <div class="card op-only" id="s-induk"><h3 style="margin-top:0">Tarik dari data induk <span class="muted">(proyek Supabase lain, mis. Kehadiran_Guru → <code>v_siswa_aktif</code>)</span></h3>
     <p class="muted">Data induk siswa dikelola operator di proyek lain. Tombol ini menarik seluruh siswa aktif dari sana lewat fungsi <code>siswa_ekspor</code> ber-PIN (NISN, nama, rombel, tanggal lahir, dan <b>kelompok Matematika Dasar</b> seperti MD10-1), menampilkan pratinjau, lalu menyimpannya ke sini. Kelompok MD menentukan siapa yang boleh berlatih di Matematika Dasar dan pengelompokan rekapnya. Siswa yang tidak ada lagi di data induk <b>dinonaktifkan</b> (riwayat nilainya tetap).</p>
+    <p class="muted">URL, kunci, dan PIN ekspor cukup diisi <b>sekali</b>: setelah tersimpan di server, tarik berikutnya dari perangkat mana pun cukup menekan tombol. Kolom yang dikosongkan memakai nilai yang tersimpan; isi hanya bila ingin menggantinya.</p>
     <div class="row"><label class="small grow">URL proyek sumber<input type="text" id="i-url" placeholder="https://xxxx.supabase.co" autocomplete="off"></label><label class="small grow">Kunci anon proyek sumber<input type="password" id="i-key" autocomplete="off"></label><label class="small">PIN ekspor<input type="password" id="i-pin" autocomplete="off"></label></div>
-    <div class="row" style="margin-top:8px"><label class="small"><input type="checkbox" id="i-ingat" checked> ingat URL &amp; kunci di perangkat ini</label><button id="btn-i-tarik">Tarik &amp; pratinjau</button></div>
+    <div id="i-cfg" class="small" style="margin-top:6px"></div>
+    <div class="row" style="margin-top:8px"><label class="small"><input type="checkbox" id="i-ingat" checked> simpan isian ini di server (berlaku di semua perangkat)</label><button id="btn-i-tarik">Tarik &amp; pratinjau</button></div>
     <div id="i-status" class="small" style="margin-top:8px"></div>
   </div>
   <div class="card hidden op-only" id="s-map">
@@ -1297,15 +1300,29 @@ function parseTgl(v){if(v===null||v===undefined||v==="")return null;
   return null}
 function tebakKolom(h){const l=h.map(x=>String(x||"").toLowerCase().trim());const f=re=>l.findIndex(x=>re.test(x));
   return {nisn:f(/^nisn$|\bnisn\b/),nis:f(/^nis$|^nipd$|nomor induk(?! siswa nasional)/),nama:l.findIndex(x=>/^nama([ _](siswa|peserta_?didik|peserta didik|lengkap))?$/.test(x)),kelas:f(/rombel|^kelas|kelas saat ini/),tgl:f(/tanggal lahir|tgl[ _.]?lahir|tanggal_lahir|birth/),kelompok:f(/kelompok|matdas|^md$/)}}
-let SUMBER="";
-async function tarikInduk(){const url=$("i-url").value.trim().replace(/\/+$/,""),key=$("i-key").value.trim(),pin=$("i-pin").value.trim();if(!url||!key||!pin){toast("Isi URL, kunci anon, dan PIN ekspor");return}
-  try{localStorage.setItem("tka_induk_cfg",JSON.stringify($("i-ingat").checked?{url,key}:{}))}catch(e){}
+let SUMBER="",INDUK=null;
+// Pengaturan sumber data induk yang tersimpan di server (hanya operator); kunci & PIN tidak ditampilkan
+async function muatInduk(){if(PERAN!=="operator")return;try{INDUK=await rpc("tka_induk_ambil",{p_pin:PIN()})}catch(e){INDUK=null;return}
+  if(INDUK.url)$("i-url").value=INDUK.url;
+  if(INDUK.key){$("i-key").value="";$("i-key").placeholder="tersimpan di server"}if(INDUK.pin){$("i-pin").value="";$("i-pin").placeholder="tersimpan di server"}
+  $("i-cfg").innerHTML=INDUK.url&&INDUK.key&&INDUK.pin?'<span class="pill good">Pengaturan sumber tersimpan di server</span> cukup tekan <b>Tarik &amp; pratinjau</b>.':'<span class="pill warn">Pengaturan sumber belum lengkap di server</span> isi kolom yang kosong lalu tarik (centang "simpan isian ini di server").'}
+const tglWaktu=w=>new Date(w).toLocaleString("id-ID",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit"});
+// Keterangan "Terakhir disinkron" di bawah PIN; lebih dari 7 hari = peringatan (hanya pengingat, tidak menghalangi apa pun)
+async function muatSinkron(){const el=$("sinkron-info");try{const j=await rpc("tka_info_sinkron",{p_pin:PIN()}),t=j.terakhir;
+    if(!t){el.innerHTML=`<span class="pill warn">Data siswa belum pernah disinkron dari Data Induk</span>${PERAN==="operator"?" — tab <b>Data siswa</b> → <i>Tarik dari data induk</i>.":""}`;return}
+    const kapan=t.hari<1?"hari ini":t.hari<2?"kemarin":`${t.hari} hari lalu`,lama=t.hari>7;
+    el.innerHTML=`<span class="pill ${lama?"warn":"good"}">Terakhir disinkron dari Data Induk: ${kapan}</span> ${esc(tglWaktu(t.waktu))} · ${t.total_aktif} siswa aktif · ${t.anggota_md} anggota MD${lama&&PERAN==="operator"?" — sebaiknya tarik ulang di tab <b>Data siswa</b>.":""}`}
+  catch(e){el.innerHTML=""}}
+async function tarikInduk(){const url=$("i-url").value.trim().replace(/\/+$/,""),key=$("i-key").value.trim(),pin=$("i-pin").value.trim();
+  const U=url||INDUK?.url||"",K=key||INDUK?.key||"",P=pin||INDUK?.pin||"";if(!U||!K||!P){toast("Isi URL, kunci anon, dan PIN ekspor");return}
   const st=$("i-status");st.innerHTML='<span class="pill">Menarik data dari sumber…</span>';$("btn-i-tarik").disabled=true;
-  try{const r=await fetch(`${url}/rest/v1/rpc/siswa_ekspor`,{method:"POST",headers:{"Content-Type":"application/json",apikey:key,Authorization:"Bearer "+key},body:JSON.stringify({p_pin:pin})});
+  try{const r=await fetch(`${U}/rest/v1/rpc/siswa_ekspor`,{method:"POST",headers:{"Content-Type":"application/json",apikey:K,Authorization:"Bearer "+K},body:JSON.stringify({p_pin:P})});
     const txt=await r.text();let j;try{j=JSON.parse(txt)}catch(e){throw new Error("Balasan bukan JSON: "+txt.slice(0,80))}
     if(!r.ok)throw new Error(j.message||j.hint||txt.slice(0,120));
     if(!Array.isArray(j)||!j.length)throw new Error("Sumber mengembalikan 0 baris — periksa view v_siswa_aktif di proyek sumber");
     SHDR=[...new Set(j.flatMap(o=>Object.keys(o)))];SROWS=j.map(o=>SHDR.map(h=>o[h]??""));SUMBER="induk";
+    // Tarikan berhasil → isian yang baru diketik disimpan ke server (sekali saja), salinan lama di perangkat dibuang
+    if($("i-ingat").checked&&(url&&url!==INDUK?.url||key||pin)){try{await rpc("tka_induk_simpan",{p_pin:PIN(),p_url:url,p_key:key,p_pin_ekspor:pin});try{localStorage.removeItem("tka_induk_cfg")}catch(e){}await muatInduk()}catch(e){toast("Pengaturan sumber gagal disimpan ke server: "+e.message)}}
     const g=tebakKolom(SHDR);["nisn","nis","nama","kelas","tgl","kelompok"].forEach(k=>{const sel=$("m-"+k);sel.innerHTML=`<option value="-1">—</option>`+SHDR.map((h,i)=>`<option value="${i}" ${g[k]===i?"selected":""}>${esc(h)}</option>`).join("");sel.onchange=pratinjauSiswa});
     $("s-nonaktif").checked=true;$("s-status").innerHTML="";delete $("s-status").dataset.sheet;
     st.innerHTML=`<span class="pill good">Tertarik ${j.length} siswa</span> dari data induk (kolom: ${SHDR.map(esc).join(", ")}). ${g.tgl<0?'<span class="pill warn">Kolom tanggal lahir tidak ditemukan — terapkan migrasi siswa_ekspor terbaru di project utama atau pilih manual</span> ':""}Periksa pemetaan &amp; pratinjau di bawah, lalu <b>Simpan ke server</b>.`;
@@ -1336,9 +1353,15 @@ function pratinjauSiswa(){const {out,galat}=petakan();const kl={};out.forEach(x=
   $("s-prev").innerHTML=`<tr><th>NISN</th><th>NIS</th><th>Nama</th><th>Kelas</th><th>Tgl lahir</th><th>Kelompok MD</th></tr>`+out.slice(0,8).map(x=>`<tr><td>${esc(x.nisn)}</td><td>${esc(x.nis)}</td><td>${esc(x.nama)}</td><td>${esc(x.kelas)}</td><td>${x.tgl_lahir}</td><td>${x.kelompok_md===undefined?"<span class=\"muted\">tidak diubah</span>":esc(x.kelompok_md||"–")}</td></tr>`).join("")+(out.length>8?`<tr><td colspan="6" class="muted">… ${out.length-8} lainnya</td></tr>`:"");
   $("btn-s-simpan").disabled=!out.length}
 async function simpanSiswa(){if(!PIN()){toast("Isi PIN dahulu");return}const {out}=petakan();if(!out.length)return;const st=$("s-simpan-status");let n=0;
-  const sinkron=$("s-nonaktif").checked;if(sinkron&&!confirm(`Simpan ${out.length} siswa dan NONAKTIFKAN semua siswa lain yang tidak ada dalam data ini? (Riwayat nilai tetap tersimpan.)`))return;
+  const sinkron=$("s-nonaktif").checked;
+  if(sinkron){// Hitung dulu berapa siswa aktif yang akan dinonaktifkan; lebih dari 20% sekaligus → peringatan keras (tetap boleh dilanjutkan)
+    let off=null,aktif=0;try{const ada=(await rpc("tka_list_siswa",{p_pin:PIN()})).filter(x=>x.aktif),baru=new Set(out.map(x=>x.nisn));aktif=ada.length;off=ada.filter(x=>!baru.has(x.nisn)).length}catch(e){}
+    const banyak=off!==null&&aktif>0&&off/aktif>0.2;
+    const tanya=banyak?`PERHATIAN: ${off} dari ${aktif} siswa aktif (${Math.round(100*off/aktif)}%) akan DINONAKTIFKAN sekaligus — jauh lebih banyak dari biasanya.\n\nBisa jadi data dari sumber tidak lengkap (terpotong). Periksa dulu jumlah siswa di pratinjau.\n\nTetap simpan ${out.length} siswa dan nonaktifkan ${off} siswa itu?`
+      :`Simpan ${out.length} siswa dan NONAKTIFKAN ${off===null?"semua siswa lain":off+" siswa lain"} yang tidak ada dalam data ini? (Riwayat nilai tetap tersimpan.)`;
+    if(!confirm(tanya))return}
   $("btn-s-simpan").disabled=true;
-  try{if(sinkron){st.innerHTML='<span class="pill">Menyinkronkan…</span>';const j=await rpc("tka_sinkron_siswa",{p_pin:PIN(),p_rows:out,p_nonaktif:true});
+  try{if(sinkron){st.innerHTML='<span class="pill">Menyinkronkan…</span>';const j=await rpc("tka_sinkron_siswa",{p_pin:PIN(),p_rows:out,p_nonaktif:true,p_sumber:SUMBER==="induk"?"induk":"file"});muatSinkron();
       st.innerHTML=`<span class="pill good">Sinkron selesai</span> ${j.baru} baru · ${j.diubah} diperbarui · ${j.dinonaktifkan} dinonaktifkan · ${j.total_aktif} siswa aktif sekarang${j.anggota_md!==undefined?` · ${j.anggota_md} anggota kelompok MD`:""}`}
     else{for(let i=0;i<out.length;i+=200){const j=await rpc("tka_simpan_siswa",{p_pin:PIN(),p_rows:out.slice(i,i+200)});n+=j.n;st.innerHTML=`<span class="pill">Tersimpan ${n}/${out.length}…</span>`}
       st.innerHTML=`<span class="pill good">${n} siswa tersimpan/diperbarui</span>`}
@@ -1545,7 +1568,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-i-tarik").onclick=tarikInduk;
   $("btn-c-unduh").onclick=unduhCadangan;$("c-file").onchange=e=>{if(e.target.files[0])bacaCadangan(e.target.files[0])};$("btn-c-pulihkan").onclick=pulihkanCadangan;
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
-    try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});setPeran(j.peran);$("pin-status").innerHTML=`<span class="pill good">PIN benar · server terhubung</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — terbit & atur paket (data siswa hanya lihat)":"pengawas — hanya lihat"}</span>`;muatDaftarKisi();muatDaftar()}catch(e){setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
+    try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});setPeran(j.peran);$("pin-status").innerHTML=`<span class="pill good">PIN benar · server terhubung</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — terbit & atur paket (data siswa hanya lihat)":"pengawas — hanya lihat"}</span>`;muatDaftarKisi();muatDaftar();muatSinkron();muatInduk()}catch(e){setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;$("sinkron-info").innerHTML=""}};
   document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","siswa","impor","cadangan","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="siswa"&&PIN())muatSiswa();if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}});
   $("file").onchange=e=>{if(e.target.files[0])bacaFile(e.target.files[0])};
   $("file-k").onchange=e=>{if(e.target.files[0])bacaKisi(e.target.files[0])};
