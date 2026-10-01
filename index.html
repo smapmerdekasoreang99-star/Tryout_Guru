@@ -35,6 +35,8 @@ header.top .t{font-weight:700;font-size:15px}header.top .sub{font-size:12px;colo
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin:12px 0}
 h1{font-size:22px;margin:0 0 8px;text-wrap:balance}h2{font-size:18px;margin:0 0 8px;color:var(--gelap)}h3{font-size:15px;margin:16px 0 8px}p{margin:8px 0}
 .muted{color:var(--muted);font-size:14px}.small{font-size:13px}
+.tombol-masuk{font-size:var(--h-b);min-height:52px}
+.catatan-simpan{display:flex;gap:var(--j2);align-items:flex-start;background:var(--kertas-3);border-radius:var(--r1);padding:var(--j3);margin-top:var(--j3);font-size:var(--h-s);color:var(--tinta-2)}
 .staf{display:flex;justify-content:center;margin:4px 0 24px}
 .staf-link{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 12px;min-height:40px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--muted);font-size:13px;font-weight:600;letter-spacing:.01em;text-decoration:none;box-shadow:var(--bayang-1);transition:border-color .15s,color .15s,background-color .15s}
 .staf-link .ik{width:16px;height:16px;flex:none}.staf-link .pnh{width:14px;height:14px;flex:none;opacity:.55;transition:transform .15s,opacity .15s}
@@ -126,9 +128,9 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
       <li>Urutan soal, pilihan jawaban, dan variasi soal <b>berbeda untuk setiap siswa</b>. Kerjakan sendiri.</li>
       <li>Skor tiap nomor: 1 jika seluruh jawaban pada nomor itu tepat, selain itu 0.</li>
       <li>PGK: pilih <b>semua</b> jawaban yang benar. Kategori: isi <b>setiap baris</b>. Menjodohkan: pilih huruf untuk <b>setiap istilah</b>. Isian: tulis jawaban singkat (angka: gunakan koma/titik).</li>
-      <li>Jika HP tertutup atau halaman tersegarkan, jawaban dan sisa waktu tetap tersimpan. Saat waktu habis, jawaban dikumpulkan otomatis.</li>
     </ol>
-    <div class="row" style="margin-top:16px"><button id="btn-start" class="grow" disabled>Masuk &amp; mulai mengerjakan</button></div>
+    <div class="row" style="margin-top:16px"><button id="btn-start" class="grow tombol-masuk" disabled>Masuk &amp; mulai mengerjakan <span aria-hidden="true">→</span></button></div>
+    <div class="catatan-simpan"><span aria-hidden="true">💾</span><span>Jawaban dan sisa waktu tersimpan otomatis, juga bila HP tertutup atau halaman tersegarkan. Saat waktu habis, jawaban dikumpulkan otomatis.</span></div>
     <div id="resume-box" class="notice hidden">Ada pengerjaan yang belum selesai atas nama <b id="resume-nama"></b>. <button class="soft" id="btn-resume" style="padding:8px 12px;font-size:13px">Lanjutkan</button> <button class="ghost" id="btn-discard" style="padding:8px 12px;font-size:13px">Mulai baru</button></div>
   </div>
   <div class="staf"><a href="#" id="lnk-guru" class="staf-link"><svg class="ik" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg><span>Masuk guru / pengawas</span><svg class="pnh" viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3.5 10.5 8 6 12.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></a></div>
