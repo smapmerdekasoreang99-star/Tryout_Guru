@@ -391,6 +391,7 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 </section>
 
 <section id="v-guru" class="hidden">
+  <div class="card m-cek hidden" id="g-muat"><i aria-hidden="true"></i>Memuat dasbor…</div>
   <div class="card form" id="g-login"><h2>Dasbor guru</h2><p class="muted small">Rekap hasil, analisis butir, sub-materi, riwayat siswa, dan pengaturan ujian.</p><label class="f" for="pin">PIN guru</label><input type="text" id="pin" autocomplete="off"><div class="row" style="margin-top:10px"><button id="btn-pin">Masuk</button><button class="ghost" id="btn-guru-back">Kembali</button></div><div id="g-login-msg" class="small" style="margin-top:6px"></div></div>
   <div id="g-main" class="hidden">
     <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Dasbor guru</h2><button class="ghost" id="btn-guru-out" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
@@ -745,13 +746,22 @@ function renderSiswa(){if(!SISWA)return;const q=$("s-cari").value.trim().toLower
   $("s-list").querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);toast("NISN "+b.dataset.copy+" disalin")}catch(e){toast("NISN: "+b.dataset.copy)}})}
 const rowItems=r=>String(r.items||"").split("").map((c,i)=>({no:i+1,v:(r.varian||"")[i]||"?",benar:+c,level:(GPK.meta.blueprint[i]||{}).level||"",sub:(GPK.meta.blueprint[i]||{}).sub||""}));
 function levelSummary(it){const o={};[...new Set(it.map(x=>x.level).filter(Boolean))].sort(lsort).forEach(L=>{const s=it.filter(x=>x.level===L);o[L]=pct(s.reduce((a,x)=>a+x.benar,0),s.length)});return o}
-async function loginGuru(){if(!PIN)PIN=$("pin").value.trim();$("g-login-msg").textContent="Memeriksa…";
-  try{PAKETS=await rpc("tka_list_paket",{p_pin:PIN});$("g-login").classList.add("hidden");$("g-main").classList.remove("hidden");
-    // urutan pilihan awal: ujian yang baru dikerjakan di HP ini → ?ujian= → pilihan terakhir di dasbor → paket terbaru yang tidak diarsipkan
-    let akhir="";try{akhir=localStorage.getItem("tka_dasbor_ujian")||""}catch(e){}
-    const pref=[G_DASBOR,(S&&S.kode),qs.get("ujian"),akhir].map(x=>String(x||"").toUpperCase()).find(x=>x&&PAKETS.some(p=>p.kode===x));
-    $("g-ujian").value=pref||((PAKETS.find(p=>!p.arsip)||PAKETS[0]||{}).kode||"");ujRenderKini();loadGuru()}
-  catch(e){$("g-login-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+async function loginGuru(){const adaPin=!!PIN;if(!PIN)PIN=$("pin").value.trim();$("g-login-msg").textContent="Memeriksa…";
+  // PIN sudah diperiksa di menu guru: formulir PIN tidak perlu tampil, cukup "Memuat dasbor…"
+  if(adaPin){$("g-login").classList.add("hidden");$("g-muat").classList.remove("hidden")}
+  // urutan pilihan awal: ujian yang baru dikerjakan di HP ini → ?ujian= → pilihan terakhir di dasbor → paket terbaru yang tidak diarsipkan
+  let akhir="";try{akhir=localStorage.getItem("tka_dasbor_ujian")||""}catch(e){}
+  const calon=[G_DASBOR,(S&&S.kode),qs.get("ujian"),akhir].map(x=>String(x||"").toUpperCase()).filter(Boolean);
+  let dini="";
+  try{if(PAKETS.length)rpc("tka_list_paket",{p_pin:PIN}).then(p=>{PAKETS=p;ujRenderKini()}).catch(()=>{});   // daftar lama dipakai dulu, diperbarui di belakang
+    else{
+      // hasil paket yang terakhir dilihat dimuat bersamaan dengan daftar paket (tidak menunggu daftar selesai)
+      if(adaPin&&calon[0]){dini=calon[0];$("g-ujian").value=dini;loadGuru()}
+      PAKETS=await rpc("tka_list_paket",{p_pin:PIN})}
+    $("g-muat").classList.add("hidden");$("g-login").classList.add("hidden");$("g-main").classList.remove("hidden");
+    const pref=calon.find(x=>PAKETS.some(p=>p.kode===x)),pilih=pref||((PAKETS.find(p=>!p.arsip)||PAKETS[0]||{}).kode||"");
+    $("g-ujian").value=pilih;ujRenderKini();if(pilih!==dini)loadGuru()}
+  catch(e){$("g-muat").classList.add("hidden");$("g-login").classList.remove("hidden");$("g-login-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 
 /* ---------- Pemilih ujian dasbor: kartu ujian terpilih + panel daftar (cari, status, per mapel) — gaya Pustaka paket di admin ---------- */
 const UJ_TAHAP={aktif:"Sedang dibuka",selesai:"Selesai",siap:"Siap dibuka",arsip:"Arsip"};
@@ -812,9 +822,11 @@ function pasangPemilihUjian(){
     else if(e.key==="ArrowDown"||e.key==="ArrowUp"){if(!bs.length)return;e.preventDefault();const j=e.key==="ArrowDown"?Math.min(bs.length-1,i+1):i<=0?-1:i-1;(j<0?$("uj-cari"):bs[j]).focus()}
     else if(e.key==="Enter"&&e.target.id==="uj-cari"&&bs.length){e.preventDefault();ujPilih(bs[0].dataset.kode)}}}
 async function loadGuru(){const kode=$("g-ujian").value;if(!kode)return;$("g-srv").innerHTML='<span class="it">Memuat…</span>';$("btn-refresh").classList.add("putar");
-  try{const [pk,rows,ds]=await Promise.all([rpc("tka_get_paket_admin",{p_pin:PIN,p_kode:kode}),rpc("tka_list",{p_pin:PIN,p_ujian:kode}),rpc("tka_sesi_daftar",{p_pin:PIN,p_ujian:kode})]);
+  try{const pes=rpc("tka_get_peserta",{p_pin:PIN,p_ujian:kode}).catch(()=>null);
+    const [pk,rows,ds]=await Promise.all([rpc("tka_get_paket_admin",{p_pin:PIN,p_kode:kode}),rpc("tka_list",{p_pin:PIN,p_ujian:kode}),rpc("tka_sesi_daftar",{p_pin:PIN,p_ujian:kode})]);
+    if($("g-ujian").value!==kode)return;   // paket sudah diganti selama memuat: hasil ini diabaikan
     GPK=pk;GSESI=ds.sesi||[];ROWS=rows.map(r=>({...r,nilai:+r.nilai,benar:+r.benar,durasi:+r.durasi||0}));
-    try{GPES=await rpc("tka_get_peserta",{p_pin:PIN,p_ujian:kode});const rk=GPES.n_sesi?TKA_PESERTA.ringkas(GPES):"Belum ada sesi";$("g-peserta-ringkas").textContent=rk;$("g-belum-peserta").textContent=`(${rk}, ${GPES.n_peserta} peserta)`}catch(e){GPES=null;$("g-peserta-ringkas").textContent="–"}
+    try{GPES=await pes;if(!GPES)throw new Error("peserta");const rk=GPES.n_sesi?TKA_PESERTA.ringkas(GPES):"Belum ada sesi";$("g-peserta-ringkas").textContent=rk;$("g-belum-peserta").textContent=`(${rk}, ${GPES.n_peserta} peserta)`}catch(e){GPES=null;$("g-peserta-ringkas").textContent="–"}
     ujSetel({n_hasil:ROWS.length,aktif:GSESI.some(s=>s.buka),judul:GPK.judul,...(GPES?{n_peserta:GPES.n_peserta}:{})});
     renderSesiDasbor();renderInfo();ringkasAtur();
     const kelas=[...new Set(ROWS.map(r=>r.kelas))].sort();const sel=$("g-kelas"),cur=sel.value;sel.innerHTML=`<option value="">Semua</option>`+kelas.map(k=>`<option ${k===cur?"selected":""}>${esc(k)}</option>`).join("");
