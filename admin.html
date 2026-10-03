@@ -31,7 +31,7 @@
 <style>
 :root{--bg:var(--kertas);--card:#fff;--ink:var(--tinta);--muted:var(--tinta-2);--line:var(--garis);--acc:var(--gelap);--acc-soft:var(--emas-muda);--kuning:var(--emas);--warn:var(--emas-teks);--warn-soft:var(--emas-muda);--bad:var(--absen);--bad-soft:var(--absen-muda);--good:var(--hadir);--good-soft:var(--hadir-muda);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
-.wrap{max-width:980px;margin:0 auto;padding:12px 12px 60px}
+.wrap{max-width:980px;margin:0 auto;padding:12px 12px 60px}body.lebar .wrap{max-width:1280px}
 header.top{background:var(--gelap);color:#fff;padding:12px 16px;border-bottom:4px solid var(--kuning);display:flex;align-items:center;gap:12px}header.top img{height:44px}header.top .t{font-weight:700;font-size:17px}header.top .sub{font-size:12px;color:var(--kuning)}
 header.top .nav-link{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}header.top .nav-link a{color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:8px;padding:8px 12px;font-size:13px;text-decoration:none;white-space:nowrap}header.top .nav-link a:hover{background:rgba(255,255,255,.12)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
@@ -107,10 +107,32 @@ table[data-beku] th.fz-kol { z-index: 3; }
 table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 .g-alat{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between;margin:6px 0;padding:8px 10px;background:var(--kertas-3);border:1px solid var(--garis);border-radius:10px}
 .g-alat .row{gap:6px}.g-alat button{padding:8px 12px;font-size:13px}
-#g-list td.gk-aksi{white-space:nowrap}#g-list td.gk-aksi button{padding:3px 8px;font-size:12px;margin:1px}
+/* Tabel guru & PIN: gaya sama dengan menu Admin Matematika Dasar */
+#g-list{border-collapse:separate;border-spacing:0;width:100%;font-size:14px}
+#g-list th{background:var(--kertas-3);color:var(--tinta-2);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;text-align:left;padding:10px 12px;border-bottom:1px solid var(--garis-2)}
+#g-list td{padding:12px;border-bottom:1px solid var(--garis);vertical-align:middle;background:#fff}
+#g-list tr:hover td{background:var(--kertas)}
+#g-list .g-nama{min-width:210px}#g-list .g-nama b{display:block;font-size:14.5px;color:var(--tinta)}
+#g-list td.small{min-width:130px;font-size:13px;color:var(--tinta-2)}#g-list th:first-child,#g-list td:first-child{width:36px;text-align:center}#g-list .g-nama span{font-size:12px;color:var(--tinta-2)}
+#g-list .lencana{display:inline-block;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+#g-list .lencana.baik{background:var(--hadir-muda);color:var(--hadir-tua)}#g-list .lencana.emas{background:var(--emas-muda);color:var(--emas-teks)}#g-list .lencana.baru{background:var(--sakit-muda);color:var(--sakit-tua)}
+#g-list .pin-sel{display:inline-flex;align-items:center;gap:10px;flex-wrap:nowrap;white-space:nowrap}
+#g-list .pin-teks{font-family:ui-monospace,Consolas,"Courier New",monospace;font-size:18px;font-weight:800;letter-spacing:.16em;color:var(--gelap)}
+#g-list td.gk-aksi{white-space:nowrap}#g-list .gk-baris{display:inline-flex;gap:4px;flex-wrap:nowrap}
+#g-list td.gk-aksi button{padding:5px 10px;font-size:12.5px;border-radius:8px;white-space:nowrap}
 #kartu-lihat{position:fixed;inset:0;z-index:60;background:rgba(21,35,43,.85);display:flex;align-items:center;justify-content:center;padding:16px}
 #kartu-lihat .kl-in{background:#fff;border-radius:14px;padding:14px;max-width:440px;width:100%;max-height:96vh;overflow:auto;display:grid;gap:10px}
 #kartu-lihat img{width:100%;border-radius:8px;border:1px solid var(--garis)}
+/* Kartu versi HTML: cadangan bila peramban memblokir pembuatan gambar (bisa difoto layar) */
+.kh{border:1px solid var(--garis);border-radius:10px;overflow:hidden;background:#FAF7F0;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif}
+.kh-kop{display:flex;gap:12px;align-items:center;background:#1D2A3A;border-bottom:4px solid #C29433;padding:14px 16px;color:#fff}
+#kartu-lihat .kh-kop img{height:52px;width:auto;border:0;border-radius:0;flex:none}.kh-kop b{display:block;font-size:16px}.kh-kop span{color:#C29433;font-size:13px;font-weight:600}
+.kh-isi{padding:14px 16px;display:grid;gap:8px}.kh-lbl{font-size:10.5px;font-weight:700;letter-spacing:.08em;color:#8F6B1A}
+.kh-nama{font-family:Georgia,"Times New Roman",serif;font-size:22px;font-weight:700;color:#1D2A3A;line-height:1.2}.kh-id{font-size:12px;color:#5E5548}
+.kh-pin{background:#1D2A3A;color:#fff;border-radius:12px;padding:10px 14px}.kh-pin small{display:block;color:#C29433;font-weight:700;font-size:11px}
+.kh-pin b{display:block;text-align:center;font-family:ui-monospace,Consolas,monospace;font-size:38px;letter-spacing:.12em}
+.kh-app{font-size:12.5px;color:#221E17}.kh-app b{display:block;font-size:13.5px}.kh-app code{font-size:11px;color:#1D2A3A;word-break:break-all}
+.kh-rahasia{background:#F7E4DF;border-top:3px solid #A8432E;padding:10px 16px;color:#A8432E;font-weight:700;font-size:12.5px}
 .btn-tautan{display:inline-block;padding:9px 14px;border-radius:9px;background:var(--gelap);color:var(--kuning);font-weight:700;text-decoration:none;font-size:14px}
 </style>
 </head>
@@ -278,7 +300,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <p class="muted small" style="margin:4px 0 8px">Kartu PIN per guru ada di kolom <b>Kartu PIN</b>: <b>Bagikan</b> (HP) → WhatsApp → chat pribadi guru · <b>Salin</b> lalu tempel (Ctrl+V) di WhatsApp Web · <b>Unduh</b> PNG · <b>Lihat</b> pratinjau. Kirim ke chat pribadi, jangan ke grup.</p>
     <div class="tbl-wrap"><table class="t" id="g-list" data-beku="2"></table></div></div>
   <div id="kartu-lihat" class="hidden" role="dialog" aria-label="Kartu PIN"><div class="kl-in"><div class="row" style="justify-content:space-between"><b id="kl-nama"></b><button class="ghost mini" id="kl-tutup">Tutup</button></div>
-    <p id="kl-pesan" class="small hidden" style="margin:0;color:var(--warn)"></p><img id="kl-img" alt="Kartu PIN"><div class="row" id="kl-aksi"></div>
+    <p id="kl-pesan" class="small hidden" style="margin:0;color:var(--warn)"></p><div id="kl-isi"></div><div class="row" id="kl-aksi"></div>
     <p class="muted small" style="margin:0">Bila tombol tidak bekerja: klik kanan gambar → <i>Salin gambar</i> / <i>Simpan gambar</i> (laptop), atau tekan lama gambar (HP).</p></div></div>
 </section>
 
@@ -1472,20 +1494,21 @@ function renderGuru(){if(!GDATA)return;const q=$("g-cari").value.trim().toLowerC
   [...G_PILIH].forEach(id=>{const g=semua.find(x=>x.id===id);if(!g||!g.pin||!g.aktif)G_PILIH.delete(id)});
   const rows=semua.filter(g=>!q||[g.nama,g.id,...(g.kelas||[]),...(g.kelompok||[])].join(" ").toLowerCase().includes(q));
   const bagi=bisaBagiBerkas(),salin=bisaSalinGambar();
-  $("g-list").innerHTML=`<tr><th></th><th>Nama</th><th>ID</th><th>Kelas yang diampu</th><th>Kelompok MD</th><th>PIN pribadi</th><th>Kartu PIN (PNG)</th><th>Kelola</th></tr>`+
+  $("g-list").innerHTML=`<tr><th></th><th>Guru</th><th>Kelas yang diampu</th><th>Kelompok MD</th><th>PIN masuk</th><th>Kartu PIN (PNG)</th><th></th></tr>`+
     rows.map(g=>{const ok=g.pin&&g.aktif,d=esc(g.id);
       return `<tr style="${g.aktif?"":"opacity:.5"}"><td>${ok?`<input type="checkbox" data-pilih="${d}" ${G_PILIH.has(g.id)?"checked":""} aria-label="Pilih ${esc(g.nama)}">`:""}</td>`+
-        `<td>${esc(g.nama)}${G_BARU.has(g.id)?' <span class="pill good">PIN baru</span>':""}${g.aktif?"":' <span class="pill">nonaktif</span>'}</td><td>${d}</td><td class="small">${esc((g.kelas||[]).join(", ")||"–")}</td><td class="small">${esc((g.kelompok||[]).join(", ")||"–")}</td>`+
-        `<td>${g.pin?`<code data-pin="${esc(g.pin)}">••••••••</code> <button class="ghost mini" data-lihat-pin>lihat</button>`:'<span class="pill warn">belum</span>'}</td>`+
-        `<td class="gk-aksi">${ok?`<button class="ghost" data-k="lihat" data-id="${d}">Lihat</button>${bagi?`<button class="good" data-k="bagi" data-id="${d}">Bagikan</button>`:""}${salin?`<button class="soft" data-k="salin" data-id="${d}">Salin</button>`:""}<button class="ghost" data-k="unduh" data-id="${d}">Unduh</button>`:'<span class="muted small">buat PIN dulu</span>'}</td>`+
-        `<td class="gk-aksi">${g.aktif?`<button class="soft" data-acak="${d}">${g.pin?"Buat ulang":"Buat PIN"}</button>`:""}${g.pin?`<button class="ghost" data-hapus="${d}">Hapus PIN</button>`:""}</td></tr>`}).join("")||'<tr><td colspan="8" class="muted">Belum ada data guru. Tekan <b>Tarik guru dari Data Induk</b>.</td></tr>';
+        `<td class="g-nama"><b>${esc(g.nama)}</b><span>${d}${g.aktif?"":" · nonaktif"}</span></td><td class="small">${esc((g.kelas||[]).join(", ")||"–")}</td><td class="small">${esc((g.kelompok||[]).join(", ")||"–")}</td>`+
+        `<td><span class="pin-sel">${g.pin?`<span class="lencana ${G_BARU.has(g.id)?"baru":"baik"}">${G_BARU.has(g.id)?"PIN baru":"PIN pribadi"}</span><b class="pin-teks">${esc(g.pin)}</b>`:'<span class="lencana emas">Belum punya PIN</span>'}</span></td>`+
+        `<td class="gk-aksi">${ok?`<span class="gk-baris"><button class="ghost" data-k="lihat" data-id="${d}">Kartu</button>${bagi?`<button class="good" data-k="bagi" data-id="${d}">Bagikan</button>`:""}${salin?`<button class="soft" data-k="salin" data-id="${d}">Salin</button>`:""}<button class="ghost" data-k="unduh" data-id="${d}">Unduh</button></span>`:'<span class="muted small">buat PIN dulu</span>'}</td>`+
+        `<td class="gk-aksi">${g.aktif?`<span class="gk-baris"><button class="soft" data-acak="${d}">${g.pin?"Buat ulang":"Buat PIN"}</button>`:""}${g.pin?`<button class="ghost" data-hapus="${d}">Hapus PIN</button>`:""}</span></td></tr>`}).join("")||'<tr><td colspan="7" class="muted">Belum ada data guru. Tekan <b>Tarik guru dari Data Induk</b>.</td></tr>';
   const L=$("g-list");
-  L.querySelectorAll("[data-lihat-pin]").forEach(b=>b.onclick=()=>{const c=b.previousElementSibling;const tampak=c.textContent!=="••••••••";c.textContent=tampak?"••••••••":c.dataset.pin;b.textContent=tampak?"lihat":"sembunyikan"});
   L.querySelectorAll("[data-acak]").forEach(b=>b.onclick=()=>{const g=semua.find(x=>x.id===b.dataset.acak);if(g.pin&&!confirm(`Buat PIN baru untuk ${g.nama}? PIN lamanya tidak berlaku lagi.`))return;buatPin([g.id])});
   L.querySelectorAll("[data-hapus]").forEach(b=>b.onclick=async()=>{const g=semua.find(x=>x.id===b.dataset.hapus);if(!confirm(`Hapus PIN pribadi ${g.nama}? Ia tidak bisa masuk sampai dibuatkan PIN baru.`))return;
     try{await rpc("mtd_admin_hapus_pin",{p_pin:PIN(),p_guru:g.id});toast("PIN dihapus");muatGuru()}catch(e){toast("Gagal: "+e.message)}});
   L.querySelectorAll("[data-pilih]").forEach(c=>c.onchange=()=>{c.checked?G_PILIH.add(c.dataset.pilih):G_PILIH.delete(c.dataset.pilih);tombolPilihan()});
-  L.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>{const g=semua.find(x=>x.id===b.dataset.id);if(g)aksiKartu(b.dataset.k,g)});
+  // tombol langsung berubah saat diklik, supaya selalu terlihat ada reaksi
+  L.querySelectorAll("[data-k]").forEach(b=>b.onclick=async()=>{const g=semua.find(x=>x.id===b.dataset.id);if(!g)return;const t=b.textContent;b.disabled=true;b.textContent="Menyiapkan…";
+    try{await aksiKartu(b.dataset.k,g)}catch(e){toast("Gagal: "+e.message)}finally{b.disabled=false;b.textContent=t}});
   const bisa=rows.filter(g=>g.pin&&g.aktif);$("g-pilih-semua").checked=bisa.length>0&&bisa.every(g=>G_PILIH.has(g.id));
   $("g-pilih-semua").onchange=e=>{bisa.forEach(g=>e.target.checked?G_PILIH.add(g.id):G_PILIH.delete(g.id));renderGuru()};
   tombolPilihan();siapkanKartu(bisa)}
@@ -1493,29 +1516,51 @@ function tombolPilihan(){const n=guruTerpilih().length;$("g-n-pilih").textConten
   $("btn-g-bagi").disabled=!n;$("btn-g-png").disabled=!n;$("btn-g-bagi").classList.toggle("hidden",!bisaBagiBerkas());
   $("btn-g-xlsx").textContent=n?`Unduh XLSX (${n} guru)`:"Unduh XLSX (semua ber-PIN)"}
 // Kartu disimpan per guru selama PIN-nya sama
+// Sebagian peramban (perlindungan sidik jari kanvas di Brave/Firefox, atau ekstensi pemblokir) mengembalikan gambar kosong
+// dari kanvas tanpa galat. Diperiksa sekali dengan menggambar satu titik berwarna lalu membacanya kembali.
+let KANVAS_OK=null;
+function kanvasBisaDibaca(){if(KANVAS_OK!==null)return KANVAS_OK;
+  try{const c=document.createElement("canvas");c.width=c.height=4;const x=c.getContext("2d");x.fillStyle="rgb(10,200,30)";x.fillRect(0,0,4,4);const p=x.getImageData(1,1,1,1).data;KANVAS_OK=p[0]===10&&p[1]===200&&p[2]===30}
+  catch(e){KANVAS_OK=false}return KANVAS_OK}
+const SEBAB_KANVAS="Peramban ini memblokir pembuatan gambar (perlindungan sidik jari kanvas atau ekstensi pemblokir). Kartu di bawah tetap bisa difoto layar (Windows: Win+Shift+S) lalu ditempel ke WhatsApp, atau buka halaman ini di Chrome/Edge tanpa ekstensi pemblokir.";
 async function kartuDari(g){const c=KARTU.get(g.id);if(c&&c.pin===g.pin)return c;
-  const blob=await gambarKartu(g),k={pin:g.pin,blob,dataUrl:await keDataUrl(blob),file:new File([blob],namaBerkasKartu(g),{type:"image/png"})};KARTU.set(g.id,k);return k}
+  if(!kanvasBisaDibaca())throw new Error(SEBAB_KANVAS);
+  const blob=await Promise.race([gambarKartu(g),new Promise((_,gagal)=>setTimeout(()=>gagal(new Error("pembuatan gambar kartu tidak selesai dalam 15 detik")),15000))]);
+  if(!blob||blob.size<5000)throw new Error("gambar kartu kosong ("+(blob?blob.size:0)+" bita) — "+SEBAB_KANVAS);
+  const k={pin:g.pin,blob,dataUrl:await keDataUrl(blob),file:new File([blob],namaBerkasKartu(g),{type:"image/png"})};KARTU.set(g.id,k);return k}
 // Data URL tidak kedaluwarsa (blob: dicabut sesudah beberapa detik, gagal bila jendela "Simpan sebagai" masih terbuka) dan tidak diblokir peramban dalam aplikasi
 const keDataUrl=blob=>new Promise((ok,gagal)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>gagal(r.error);r.readAsDataURL(blob)});
 const kartuSiap=g=>{const c=KARTU.get(g.id);return c&&c.pin===g.pin?c:null};
 let SIAP_KE=0;
-function siapkanKartu(daftar){const ke=++SIAP_KE,antre=daftar.filter(g=>!kartuSiap(g));
+function siapkanKartu(daftar){const ke=++SIAP_KE,antre=kanvasBisaDibaca()?daftar.filter(g=>!kartuSiap(g)):[];
   (async()=>{for(const g of antre){if(ke!==SIAP_KE)return;try{await kartuDari(g)}catch(e){}await new Promise(r=>setTimeout(r,20))}})()}
 // Tautan unduh dipasang ke halaman dulu: sebagian peramban mengabaikan klik pada tautan yang tidak terpasang
 function unduhBlob(blob,nama,dataUrl){const a=document.createElement("a"),pakaiBlob=!dataUrl;a.href=dataUrl||URL.createObjectURL(blob);a.download=nama;a.style.display="none";document.body.appendChild(a);a.click();setTimeout(()=>{if(pakaiBlob)URL.revokeObjectURL(a.href);a.remove()},120000)}
 const teksBagi=g=>`PIN pribadi ${g.nama} untuk Asesmen Merdeka${(g.kelompok||[]).length?" dan Matematika Dasar":""}. Rahasia, mohon tidak diteruskan.`;
 let KL_URL="";
-function lihatKartu(g,k,pesan){const m=$("kartu-lihat"),img=$("kl-img");if(KL_URL)URL.revokeObjectURL(KL_URL);KL_URL=k.dataUrl?"":URL.createObjectURL(k.blob);
-  img.onerror=()=>{$("kl-pesan").textContent=`Gambar kartu (${Math.round(k.blob.size/1024)} KB) tidak bisa ditampilkan di peramban ini. Buka halaman ini di Chrome atau Edge biasa (bukan pratinjau di aplikasi lain).`;$("kl-pesan").classList.remove("hidden")};img.src=k.dataUrl||KL_URL;$("kl-nama").textContent=g.nama;$("kl-pesan").textContent=pesan||"";$("kl-pesan").classList.toggle("hidden",!pesan);
-  $("kl-aksi").innerHTML=(bisaBagiBerkas()?'<button class="good" data-kl="bagi">Bagikan</button>':"")+(bisaSalinGambar()?'<button class="soft" data-kl="salin">Salin gambar</button>':"")+'<button class="ghost" data-kl="unduh">Unduh PNG</button>';
+function kartuHtml(g){const logo=(document.querySelector("header.top img")||{}).src||"";
+  const app=(j,ket,url)=>`<div class="kh-app"><b>• ${esc(j)}</b>${esc(ket)}<br><code>${esc(alamatTanpaSkema(url))}</code></div>`;
+  return `<div class="kh"><div class="kh-kop">${logo?`<img src="${logo}" alt="">`:""}<div><b>SMA Plus Merdeka Soreang</b><span>PIN Pribadi Guru</span></div></div>
+    <div class="kh-isi"><span class="kh-lbl">UNTUK</span><div class="kh-nama">${esc(g.nama)}</div><div class="kh-id">ID guru ${esc(g.id)}</div>
+    <div class="kh-pin"><small>PIN</small><b>${esc(g.pin.slice(0,4)+" "+g.pin.slice(4))}</b></div><span class="kh-lbl">BERLAKU UNTUK</span>
+    ${app("Asesmen Merdeka (Tryout)","Unggah soal, buka sesi ujian untuk kelas Anda, lihat hasil.",studentBase()+"?guru")}
+    ${(g.kelompok||[]).length?app("Matematika Dasar","Kelompok "+g.kelompok.join(", ")+".",new URL("../matematika_dasar/guru.html",location.href).href):""}
+    <div class="kh-app">Cara masuk: buka alamat di atas → «Masuk guru / pengawas» → ketik PIN ini.</div></div>
+    <div class="kh-rahasia">RAHASIA — jangan dibagikan ke siswa atau grup.</div></div>`}
+function lihatKartu(g,k,pesan){const m=$("kartu-lihat"),isi=$("kl-isi");if(KL_URL)URL.revokeObjectURL(KL_URL);KL_URL="";
+  if(k){isi.innerHTML='<img id="kl-img" alt="Kartu PIN">';const img=$("kl-img");
+    img.onerror=()=>{isi.innerHTML=kartuHtml(g);$("kl-pesan").textContent=`Gambar kartu (${Math.round(k.blob.size/1024)} KB) tidak bisa ditampilkan di peramban ini. `+SEBAB_KANVAS;$("kl-pesan").classList.remove("hidden")};
+    img.src=k.dataUrl||(KL_URL=URL.createObjectURL(k.blob))}
+  else isi.innerHTML=kartuHtml(g);$("kl-nama").textContent=g.nama;$("kl-pesan").textContent=pesan||"";$("kl-pesan").classList.toggle("hidden",!pesan);
+  $("kl-aksi").innerHTML=k?(bisaBagiBerkas()?'<button class="good" data-kl="bagi">Bagikan</button>':"")+(bisaSalinGambar()?'<button class="soft" data-kl="salin">Salin gambar</button>':"")+'<button class="ghost" data-kl="unduh">Unduh PNG</button>':"";
   $("kl-aksi").querySelectorAll("[data-kl]").forEach(b=>b.onclick=()=>aksiKartu(b.dataset.kl,g,true));m.classList.remove("hidden")}
 async function aksiKartu(a,g,dariJendela){
   if(a==="salin"){
     // ClipboardItem menerima janji: izin dari klik tetap berlaku walau kartu baru selesai digambar
     try{window.focus();await navigator.clipboard.write([new ClipboardItem({"image/png":kartuDari(g).then(k=>k.blob)})]);toast(`Kartu ${g.nama} disalin — tempel (Ctrl+V) di chat WhatsApp-nya`)}
-    catch(e){const k=await kartuDari(g);lihatKartu(g,k,"Peramban menolak menyalin otomatis ("+e.message+"). Salin dari gambar di bawah.")}
+    catch(e){let k=null;try{k=await kartuDari(g)}catch(e2){}lihatKartu(g,k,k?"Peramban menolak menyalin otomatis ("+e.message+"). Salin dari gambar di bawah.":e.message)}
     return}
-  const k=kartuSiap(g)||await kartuDari(g);
+  let k=kartuSiap(g);if(!k){try{k=await kartuDari(g)}catch(e){lihatKartu(g,null,e.message);return}}
   if(a==="unduh"){unduhBlob(k.blob,k.file.name,k.dataUrl);toast(`Mengunduh ${k.file.name} (${Math.round(k.blob.size/1024)} KB) — lihat folder Unduhan`)}
   else if(a==="lihat")lihatKartu(g,k);
   else if(a==="bagi"){try{await navigator.share({files:[k.file],title:"PIN pribadi "+g.nama,text:teksBagi(g)})}
@@ -1753,7 +1798,7 @@ window.addEventListener("DOMContentLoaded",()=>{
         (j.bersama?' <span class="pill warn">PIN guru bersama</span> Paket yang diunggah dengan PIN ini tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator.':"")+
         (j.peran==="operator"&&j.guru_tanpa_pin?` <span class="pill warn">${j.guru_tanpa_pin} guru belum punya PIN pribadi</span> — tab <b>Guru &amp; PIN</b>.`:"");
       muatDaftarKisi();muatDaftar();muatSinkron();muatInduk()}catch(e){setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;$("sinkron-info").innerHTML=""}};
-  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","siswa","guru","impor","cadangan","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="siswa"&&PIN())muatSiswa();if(b.dataset.tab==="guru"&&PIN())muatGuru();if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}});
+  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","siswa","guru","impor","cadangan","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));document.body.classList.toggle("lebar",b.dataset.tab==="guru");if(b.dataset.tab==="siswa"&&PIN())muatSiswa();if(b.dataset.tab==="guru"&&PIN())muatGuru();if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}});
   $("file").onchange=e=>{if(e.target.files[0])bacaFile(e.target.files[0])};
   $("file-k").onchange=e=>{if(e.target.files[0])bacaKisi(e.target.files[0])};
   const dk=$("drop-k");dk.ondragover=e=>{e.preventDefault();dk.style.borderColor="var(--acc)"};dk.ondragleave=()=>dk.style.borderColor="";dk.ondrop=e=>{e.preventDefault();dk.style.borderColor="";if(e.dataTransfer.files[0])bacaKisi(e.dataTransfer.files[0])};
