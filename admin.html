@@ -103,6 +103,9 @@ table[data-beku] .fz-kol { position: sticky; z-index: 1; }
 table[data-beku] td.fz-kol { background-color: var(--kertas-2); }
 table[data-beku] th.fz-kol { z-index: 3; }
 table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
+.gk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;margin-top:10px}
+.gk{border:1px solid var(--garis);border-radius:12px;padding:10px;background:#fff;display:grid;gap:8px}
+.gk img{width:100%;border-radius:8px;border:1px solid var(--garis);display:block}.gk b{font-size:13px}.gk .row button{padding:6px 10px;font-size:12px}
 .btn-tautan{display:inline-block;padding:9px 14px;border-radius:9px;background:var(--gelap);color:var(--kuning);font-weight:700;text-decoration:none;font-size:14px}
 </style>
 </head>
@@ -266,7 +269,12 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   <div class="card" id="g-bersama-card"><h3 style="margin-top:0">PIN guru bersama</h3><div id="g-bersama" class="small"></div></div>
   <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Daftar guru</h3><input type="text" id="g-cari" placeholder="Cari nama, ID, atau kelas…" style="max-width:280px"></div>
     <div id="g-ringkas" class="small muted" style="margin:6px 0"></div>
-    <div class="tbl-wrap"><table class="t" id="g-list" data-beku="1"></table></div></div>
+    <div class="row" style="margin:6px 0"><label class="small"><input type="checkbox" id="g-pilih-semua"> pilih semua yang tampil (yang sudah ber-PIN)</label><button class="good" id="btn-g-kartu" disabled>Kartu PIN (PNG)</button></div>
+    <div class="tbl-wrap"><table class="t" id="g-list" data-beku="2"></table></div></div>
+  <div class="card hidden" id="g-kartu-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Kartu PIN <span class="muted" id="gk-n"></span></h3>
+      <span class="row"><button class="good" id="btn-gk-bagi">Bagikan semua</button><button class="btn-unduh ghost" data-fmt="zip" id="btn-gk-zip">Unduh semua (.zip)</button><button class="ghost" id="btn-gk-tutup">Tutup</button></span></div>
+    <p class="muted small">Kirim tiap kartu <b>langsung ke chat pribadi</b> guru yang bersangkutan, jangan ke grup. Di HP: <b>Bagikan</b> → pilih WhatsApp → pilih guru. Di laptop: <b>Salin gambar</b> lalu tempel (Ctrl+V) di chat WhatsApp Web, atau <b>Unduh</b> lalu lampirkan.</p>
+    <div id="g-kartu" class="gk-grid"></div></div>
 </section>
 
 <section id="tab-impor" class="hidden">
@@ -1404,7 +1412,7 @@ async function simpanSatu(){const nisn=$("e-nisn").value.replace(/\D/g,""),nama=
 /* ---------- guru & PIN (operator) ----------
    Daftar guru = mtd_guru di project ini (dipakai bersama Matematika Dasar). Ditarik dari Data Induk lewat guru_ekspor
    (semua guru aktif, kelompok MD, dan kelas yang diampu). PIN pribadi 8 angka dibuat acak oleh server. */
-let GDATA=null;
+let GDATA=null;const G_PILIH=new Set();let KARTU=[];
 async function muatGuru(){const st=$("g-status");
   if(PERAN&&PERAN!=="operator"){st.innerHTML='<span class="pill warn">Hanya PIN operator/kurikulum.</span>';return}
   try{GDATA=await rpc("mtd_admin_guru",{p_pin:PIN()});renderGuru();renderBersama()}catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
@@ -1417,19 +1425,77 @@ function renderGuru(){if(!GDATA)return;const q=$("g-cari").value.trim().toLowerC
   const semua=GDATA.guru,akt=semua.filter(g=>g.aktif),punya=akt.filter(g=>g.pin).length;
   $("g-ringkas").innerHTML=`<b>${akt.length}</b> guru aktif · <b>${punya}</b> punya PIN pribadi · <b>${akt.length-punya}</b> belum${GDATA.disinkron?" · ditarik dari Data Induk "+esc(new Date(GDATA.disinkron).toLocaleString("id-ID",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})):""}`;
   const rows=semua.filter(g=>!q||[g.nama,g.id,...(g.kelas||[]),...(g.kelompok||[])].join(" ").toLowerCase().includes(q));
-  $("g-list").innerHTML=`<tr><th>Nama</th><th>ID</th><th>Kelas yang diampu</th><th>Kelompok MD</th><th>PIN pribadi</th><th></th></tr>`+
-    rows.map(g=>`<tr style="${g.aktif?"":"opacity:.5"}"><td>${esc(g.nama)}${g.aktif?"":' <span class="pill">nonaktif</span>'}</td><td>${esc(g.id)}</td><td class="small">${esc((g.kelas||[]).join(", ")||"–")}</td><td class="small">${esc((g.kelompok||[]).join(", ")||"–")}</td>`+
+  [...G_PILIH].forEach(id=>{const g=semua.find(x=>x.id===id);if(!g||!g.pin||!g.aktif)G_PILIH.delete(id)});
+  $("g-list").innerHTML=`<tr><th></th><th>Nama</th><th>ID</th><th>Kelas yang diampu</th><th>Kelompok MD</th><th>PIN pribadi</th><th></th></tr>`+
+    rows.map(g=>`<tr style="${g.aktif?"":"opacity:.5"}"><td>${g.pin&&g.aktif?`<input type="checkbox" data-pilih="${esc(g.id)}" ${G_PILIH.has(g.id)?"checked":""} aria-label="Pilih ${esc(g.nama)}">`:""}</td><td>${esc(g.nama)}${g.aktif?"":' <span class="pill">nonaktif</span>'}</td><td>${esc(g.id)}</td><td class="small">${esc((g.kelas||[]).join(", ")||"–")}</td><td class="small">${esc((g.kelompok||[]).join(", ")||"–")}</td>`+
       `<td>${g.pin?`<code data-pin="${esc(g.pin)}">••••••••</code> <button class="ghost mini" data-lihat>lihat</button>`:'<span class="pill warn">belum</span>'}</td>`+
-      `<td class="row">${g.aktif?`<button class="soft mini" data-acak="${esc(g.id)}">${g.pin?"Buat ulang":"Buat PIN"}</button>`:""}${g.pin?`<button class="ghost mini" data-hapus="${esc(g.id)}">Hapus PIN</button>`:""}</td></tr>`).join("")||'<tr><td colspan="6" class="muted">Belum ada data guru. Tekan <b>Tarik guru dari Data Induk</b>.</td></tr>';
+      `<td class="row">${g.aktif?`<button class="soft mini" data-acak="${esc(g.id)}">${g.pin?"Buat ulang":"Buat PIN"}</button>`:""}${g.pin&&g.aktif?`<button class="ghost mini" data-kartu="${esc(g.id)}">Kartu PNG</button>`:""}${g.pin?`<button class="ghost mini" data-hapus="${esc(g.id)}">Hapus PIN</button>`:""}</td></tr>`).join("")||'<tr><td colspan="7" class="muted">Belum ada data guru. Tekan <b>Tarik guru dari Data Induk</b>.</td></tr>';
   $("g-list").querySelectorAll("[data-lihat]").forEach(b=>b.onclick=()=>{const c=b.previousElementSibling;const tampak=c.textContent!=="••••••••";c.textContent=tampak?"••••••••":c.dataset.pin;b.textContent=tampak?"lihat":"sembunyikan"});
   $("g-list").querySelectorAll("[data-acak]").forEach(b=>b.onclick=()=>{const g=semua.find(x=>x.id===b.dataset.acak);if(g.pin&&!confirm(`Buat PIN baru untuk ${g.nama}? PIN lamanya tidak berlaku lagi.`))return;buatPin([g.id])});
   $("g-list").querySelectorAll("[data-hapus]").forEach(b=>b.onclick=async()=>{const g=semua.find(x=>x.id===b.dataset.hapus);if(!confirm(`Hapus PIN pribadi ${g.nama}? Ia tidak bisa masuk sampai dibuatkan PIN baru.`))return;
-    try{await rpc("mtd_admin_hapus_pin",{p_pin:PIN(),p_guru:g.id});toast("PIN dihapus");muatGuru()}catch(e){toast("Gagal: "+e.message)}})}
+    try{await rpc("mtd_admin_hapus_pin",{p_pin:PIN(),p_guru:g.id});toast("PIN dihapus");muatGuru()}catch(e){toast("Gagal: "+e.message)}});
+  $("g-list").querySelectorAll("[data-pilih]").forEach(c=>c.onchange=()=>{c.checked?G_PILIH.add(c.dataset.pilih):G_PILIH.delete(c.dataset.pilih);tombolKartu()});
+  $("g-list").querySelectorAll("[data-kartu]").forEach(b=>b.onclick=()=>kartuPin([b.dataset.kartu]));
+  const bisa=rows.filter(g=>g.pin&&g.aktif);$("g-pilih-semua").checked=bisa.length>0&&bisa.every(g=>G_PILIH.has(g.id));
+  $("g-pilih-semua").onchange=e=>{bisa.forEach(g=>e.target.checked?G_PILIH.add(g.id):G_PILIH.delete(g.id));renderGuru()};tombolKartu()}
+function tombolKartu(){const b=$("btn-g-kartu"),n=G_PILIH.size;b.disabled=!n;b.textContent=n?`Kartu PIN (PNG) untuk ${n} guru terpilih`:"Kartu PIN (PNG) — centang guru dulu"}
 async function buatPin(ids){const st=$("g-status");
   if(!ids){const n=GDATA?GDATA.guru.filter(g=>g.aktif&&!g.pin).length:0;if(!n){toast("Semua guru aktif sudah punya PIN pribadi");return}if(!confirm(`Buat PIN pribadi untuk ${n} guru yang belum punya?`))return}
   try{const j=await rpc("mtd_admin_acak",{p_pin:PIN(),p_guru:ids});const box=$("g-baru");box.classList.remove("hidden");
     box.innerHTML=`<div class="notice"><b>${j.guru.length} PIN baru</b> — bagikan langsung kepada masing-masing guru (jangan lewat grup). PIN tetap bisa dilihat lagi di daftar di bawah.</div><table class="t"><tr><th>Nama</th><th>ID</th><th>PIN</th></tr>${j.guru.map(g=>`<tr><td>${esc(g.nama)}</td><td>${esc(g.id)}</td><td><code style="font-size:15px;letter-spacing:.1em">${esc(g.pin)}</code></td></tr>`).join("")}</table>`;
-    st.innerHTML="";await muatGuru()}catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+    box.insertAdjacentHTML("beforeend",`<div class="row" style="margin-top:8px"><button class="good" id="btn-g-kartu-baru">Buat kartu PNG untuk ${j.guru.length} PIN baru ini</button></div>`);
+    const baru=j.guru.map(g=>g.id);st.innerHTML="";await muatGuru();$("btn-g-kartu-baru").onclick=()=>kartuPin(baru)}catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+/* ---------- Kartu PIN (PNG) ----------
+   Digambar di <canvas> (1080×1350, pas untuk WhatsApp): kop sekolah, nama & ID guru, PIN besar, aplikasi tempat PIN berlaku
+   beserta alamatnya, cara masuk, dan peringatan rahasia. Tidak ada yang dikirim ke server. */
+const alamatTanpaSkema=u=>String(u).replace(/^https?:\/\//,"");
+function bungkusTeks(x,teks,lebar){const kata=String(teks).split(/\s+/),baris=[];let b="";kata.forEach(k=>{const c=b?b+" "+k:k;if(x.measureText(c).width>lebar&&b){baris.push(b);b=k}else b=c});if(b)baris.push(b);return baris}
+async function gambarKartu(g){const W=1080,H=1350,c=document.createElement("canvas");c.width=W;c.height=1800;const x=c.getContext("2d");
+  const SANS='system-ui,"Segoe UI",Roboto,Arial,sans-serif',SERIF='Georgia,"Times New Roman",serif',MONO='ui-monospace,Consolas,"Courier New",monospace';
+  const kotak=(X,Y,w,t,r,warna)=>{x.fillStyle=warna;x.beginPath();if(x.roundRect)x.roundRect(X,Y,w,t,r);else x.rect(X,Y,w,t);x.fill()};
+  x.fillStyle="#FAF7F0";x.fillRect(0,0,W,c.height);
+  // kop
+  x.fillStyle="#1D2A3A";x.fillRect(0,0,W,250);x.fillStyle="#C29433";x.fillRect(0,250,W,10);
+  const logo=document.querySelector("header.top img");if(logo&&logo.naturalWidth){const t=160,l=t*logo.naturalWidth/logo.naturalHeight;x.drawImage(logo,64,45,l,t)}
+  x.textBaseline="alphabetic";x.fillStyle="#FFFFFF";x.font=`700 48px ${SANS}`;x.fillText("SMA Plus Merdeka Soreang",230,118);
+  x.fillStyle="#C29433";x.font=`600 36px ${SANS}`;x.fillText("PIN Pribadi Guru",230,174);
+  // nama guru
+  let y=345;x.fillStyle="#8F6B1A";x.font=`700 26px ${SANS}`;x.fillText("UNTUK",80,y);
+  x.fillStyle="#1D2A3A";x.font=`700 60px ${SERIF}`;y+=72;bungkusTeks(x,g.nama,920).slice(0,3).forEach(b=>{x.fillText(b,80,y);y+=70});
+  x.fillStyle="#5E5548";x.font=`400 30px ${SANS}`;x.fillText("ID guru "+g.id,80,y);y+=50;
+  // PIN
+  kotak(80,y,920,240,30,"#1D2A3A");x.fillStyle="#C29433";x.font=`700 28px ${SANS}`;x.fillText("PIN",124,y+62);
+  x.fillStyle="#FFFFFF";x.font=`800 128px ${MONO}`;x.textAlign="center";x.fillText(g.pin.slice(0,4)+" "+g.pin.slice(4),W/2,y+190);x.textAlign="left";y+=300;
+  // berlaku untuk
+  x.fillStyle="#8F6B1A";x.font=`700 28px ${SANS}`;x.fillText("BERLAKU UNTUK",80,y);y+=52;
+  const app=(judul,ket,url)=>{x.fillStyle="#C29433";x.beginPath();x.arc(92,y-11,8,0,7);x.fill();x.fillStyle="#221E17";x.font=`700 34px ${SANS}`;x.fillText(judul,116,y);
+    x.fillStyle="#5E5548";x.font=`400 28px ${SANS}`;y+=42;bungkusTeks(x,ket,880).forEach(b=>{x.fillText(b,116,y);y+=38});x.fillStyle="#1D2A3A";const al=alamatTanpaSkema(url);let fs=26;do{x.font=`600 ${fs}px ${MONO}`}while(x.measureText(al).width>900&&--fs>14);x.fillText(al,116,y);y+=62};
+  app("Asesmen Merdeka (Tryout)","Unggah soal, buka sesi ujian untuk kelas Anda, lihat hasil.",studentBase()+"?guru");
+  if((g.kelompok||[]).length)app("Matematika Dasar","Kelompok "+g.kelompok.join(", ")+".",new URL("../matematika_dasar/guru.html",location.href).href);
+  // cara masuk
+  x.fillStyle="#221E17";x.font=`400 28px ${SANS}`;bungkusTeks(x,"Cara masuk: buka alamat di atas → ketuk «Masuk guru / pengawas» → ketik PIN ini.",920).forEach(b=>{x.fillText(b,80,y);y+=38});
+  // peringatan rahasia
+  // peringatan rahasia di bawah isi; tinggi kartu menyesuaikan (paling sedikit 1350)
+  const T=Math.max(H,y+40+150);kotak(0,T-150,W,150,0,"#F7E4DF");x.fillStyle="#A8432E";x.fillRect(0,T-150,W,6);
+  x.fillStyle="#A8432E";x.font=`700 30px ${SANS}`;x.fillText("RAHASIA — jangan dibagikan ke siswa atau grup.",80,T-92);
+  x.fillStyle="#5E5548";x.font=`400 24px ${SANS}`;x.fillText("Lupa PIN? Hubungi operator/kurikulum. Dibuat "+new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})+".",80,T-48);
+  const o=document.createElement("canvas");o.width=W;o.height=T;o.getContext("2d").drawImage(c,0,0,W,T,0,0,W,T);
+  return new Promise(r=>o.toBlob(r,"image/png"))}
+const namaBerkasKartu=g=>`PIN_${g.id}_${String(g.nama).split(",")[0].trim().replace(/[^\w]+/g,"_")}.png`;
+const bisaBagi=files=>{try{return !!(navigator.canShare&&navigator.canShare({files}))}catch(e){return false}};
+async function kartuPin(ids){const daftar=(GDATA?GDATA.guru:[]).filter(g=>ids.includes(g.id)&&g.pin&&g.aktif);if(!daftar.length){toast("Tidak ada guru ber-PIN yang dipilih");return}
+  KARTU.forEach(k=>URL.revokeObjectURL(k.url));KARTU=[];const card=$("g-kartu-card"),el=$("g-kartu");card.classList.remove("hidden");el.innerHTML='<p class="muted small">Menggambar kartu…</p>';
+  for(const g of daftar){const blob=await gambarKartu(g);KARTU.push({g,blob,url:URL.createObjectURL(blob),file:new File([blob],namaBerkasKartu(g),{type:"image/png"})})}
+  $("gk-n").textContent=`(${KARTU.length})`;const salinOk=!!(window.ClipboardItem&&navigator.clipboard&&navigator.clipboard.write);
+  el.innerHTML=KARTU.map((k,i)=>`<div class="gk"><img src="${k.url}" alt="Kartu PIN ${esc(k.g.nama)}"><b>${esc(k.g.nama)}</b><div class="row">${bisaBagi([k.file])?`<button class="good" data-gk-bagi="${i}">Bagikan</button>`:""}${salinOk?`<button class="soft" data-gk-salin="${i}">Salin gambar</button>`:""}<button class="ghost" data-gk-unduh="${i}">Unduh</button></div></div>`).join("");
+  $("btn-gk-bagi").classList.toggle("hidden",!bisaBagi(KARTU.map(k=>k.file)));
+  el.querySelectorAll("[data-gk-bagi]").forEach(b=>b.onclick=async()=>{const k=KARTU[+b.dataset.gkBagi];try{await navigator.share({files:[k.file],title:"PIN pribadi "+k.g.nama,text:`PIN pribadi ${k.g.nama} untuk Asesmen Merdeka${(k.g.kelompok||[]).length?" dan Matematika Dasar":""}. Rahasia, mohon tidak diteruskan.`})}catch(e){if(e.name!=="AbortError")toast("Gagal membagikan: "+e.message)}});
+  el.querySelectorAll("[data-gk-salin]").forEach(b=>b.onclick=async()=>{const k=KARTU[+b.dataset.gkSalin];try{await navigator.clipboard.write([new ClipboardItem({"image/png":k.blob})]);toast("Gambar disalin — tempel (Ctrl+V) di chat WhatsApp "+k.g.nama)}catch(e){toast("Gagal menyalin: "+e.message+". Pakai Unduh.")}});
+  el.querySelectorAll("[data-gk-unduh]").forEach(b=>b.onclick=()=>{const k=KARTU[+b.dataset.gkUnduh],a=document.createElement("a");a.href=k.url;a.download=k.file.name;a.click()});
+  card.scrollIntoView({behavior:"smooth"})}
+async function bagiSemuaKartu(){try{await navigator.share({files:KARTU.map(k=>k.file),title:"PIN pribadi guru"})}catch(e){if(e.name!=="AbortError")toast("Gagal membagikan: "+e.message)}}
+async function zipKartu(){if(!KARTU.length)return;const z=new JSZip();KARTU.forEach(k=>z.file(k.file.name,k.blob));const b=await z.generateAsync({type:"blob"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="Kartu_PIN_guru_RAHASIA.zip";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),5000)}
 async function tarikGuru(){const st=$("g-status");
   // pengaturan sumber diambil langsung dari server (tidak bergantung pada tombol Cek PIN sudah ditekan)
   try{INDUK=await rpc("tka_induk_ambil",{p_pin:PIN()})}catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}
@@ -1639,6 +1705,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   try{const c=JSON.parse(localStorage.getItem("tka_induk_cfg")||"{}");if(c.url){$("i-url").value=c.url;$("i-key").value=c.key||""}}catch(e){}
   $("btn-i-tarik").onclick=tarikInduk;
   $("btn-g-tarik").onclick=tarikGuru;$("btn-g-acak").onclick=()=>buatPin(null);$("btn-g-muat").onclick=muatGuru;$("btn-g-unduh").onclick=unduhPinCsv;$("g-cari").addEventListener("input",renderGuru);
+  $("btn-g-kartu").onclick=()=>kartuPin([...G_PILIH]);$("btn-gk-bagi").onclick=bagiSemuaKartu;$("btn-gk-zip").onclick=zipKartu;$("btn-gk-tutup").onclick=()=>$("g-kartu-card").classList.add("hidden");
   $("btn-c-unduh").onclick=unduhCadangan;$("c-file").onchange=e=>{if(e.target.files[0])bacaCadangan(e.target.files[0])};$("btn-c-pulihkan").onclick=pulihkanCadangan;
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
     try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});MASUK=j;setPeran(j.peran);
