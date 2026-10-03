@@ -277,7 +277,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
           <li>Tempelkan isi prompt, kirim, lalu unduh berkas Word yang dibuat AI.</li>
           <li>Bila AI tidak bisa membuat berkas Word, ia akan menuliskan isi tiap soal dalam format baku; salin isinya ke template secara manual (Cara 1).</li></ol>
         <h4>Wajib diperiksa sebelum terbit (AI bisa keliru)</h4>
-        <ul><li><b>Kunci jawaban</b> setiap soal — terutama yang dilaporkan AI sebagai "ditentukan sendiri" atau "ragu".</li>
+        <ul><li><b>Kunci jawaban</b> setiap soal — terutama soal yang kuncinya tidak tercantum di naskah asli (AI menentukannya sendiri).</li>
           <li>Jumlah soal sama dengan naskah asli, nomor berurutan, tidak ada soal yang terlewat atau terduplikasi.</li>
           <li>Rumus, tabel, dan gambar tampil benar. Setelah diunggah, aplikasi menampilkan <b>pratinjau</b> dengan kunci berwarna hijau — periksa di sana sebelum menekan <b>Terbitkan</b>.</li></ul>
         <h4>Kerahasiaan soal</h4>
@@ -1324,68 +1324,104 @@ function gambarQr(id){const el=$(id);el.innerHTML="";try{new QRCode(el,{text:stu
 let KISI=null;
 // Tautan unduh dipasang ke halaman dulu (sebagian peramban mengabaikan klik pada tautan yang tidak terpasang)
 function unduhBiner(nama,bytes,mime){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([bytes],{type:mime}));a.download=nama;a.style.display="none";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},60000)}
-/* Prompt AI untuk memindahkan naskah soal ke Template Soal Darurat. Aturannya sama dengan pembaca dokumen aplikasi
-   (TKA.parseDocx/buildPaket) dan dengan "Petunjuk konversi" di dalam template darurat. */
-const PROMPT_DARURAT=`PERAN
-Anda membantu guru SMA Plus Merdeka Soreang memindahkan naskah soal yang sudah ada ke "Template Soal — Jalur Darurat" milik aplikasi ujian Asesmen Merdeka. Hasil Anda akan dibaca oleh program, jadi strukturnya harus persis.
+/* Prompt AI untuk memindahkan naskah soal ke Template Soal Darurat: prompt yang sudah teruji di sekolah
+   (Prompt_Konversi_Soal_ke_Template_Darurat.txt), ditambah catatan baris keterangan INFORMASI UJIAN dan format cadangan (no. 12). */
+const PROMPT_DARURAT=`PROMPT UNTUK ChatGPT / AI — KONVERSI NASKAH SOAL KE TEMPLATE SOAL DARURAT (Asesmen Merdeka)
+Lampirkan DUA berkas: (1) naskah soal asli, (2) Template_Soal_Darurat.docx. Lalu tempel teks di bawah ini.
+-----------------------------------------------------------------------------------------------
 
-BERKAS YANG SAYA LAMPIRKAN
-1. Template_Soal_Darurat.docx — template resmi. Strukturnya TIDAK BOLEH diubah.
-2. Naskah soal saya (Word, PDF, atau gambar).
+Kamu akan memindahkan naskah soal terlampir ke dalam format Template_Soal_Darurat.docx terlampir, dan mengembalikannya sebagai SATU berkas Word (.docx). Ikuti aturan berikut dengan ketat; jangan berkreasi di luar aturan.
 
-TUGAS
-Isi template dengan SELURUH soal dari naskah, lalu berikan hasilnya sebagai SATU berkas Word (.docx) yang bisa saya unduh. Kerjakan langsung di atas template yang saya lampirkan (salin tabel kosong yang sesuai untuk setiap soal); jangan membuat dokumen baru dari nol.
+1. STRUKTUR DOKUMEN
+   - Isi dokumen: (a) satu tabel INFORMASI UJIAN, (b) satu tabel TEKS BACAAN untuk setiap teks/tabel/grafik yang dipakai bersama oleh beberapa soal, (c) SATU TABEL TERPISAH UNTUK SETIAP SOAL.
+   - Setiap tabel adalah tabel Word dua kolom persis seperti di template (kolom kiri = label, kolom kanan = isi), diawali baris judul berwarna ("INFORMASI UJIAN", "TEKS BACAAN", "SOAL — PG", dst.).
+   - Di antara dua tabel WAJIB ada satu paragraf kosong. Jangan pernah menggabungkan dua soal ke dalam satu tabel.
+   - Hapus tabel kosong contoh yang tidak dipakai. Jangan menambahkan teks lain di luar tabel selain judul bagian.
 
-ATURAN WAJIB
-1. STRUKTUR: dokumen berisi tabel dua kolom persis seperti template — satu tabel INFORMASI UJIAN, satu tabel TEKS BACAAN untuk setiap teks bersama (bila ada), dan SATU TABEL TERPISAH UNTUK SETIAP SOAL. Di antara tabel ada satu paragraf kosong. Jangan menyatukan beberapa soal dalam satu tabel. Bagian "KETENTUAN" dan "PETUNJUK KONVERSI" di awal template boleh dibiarkan.
-2. INFORMASI UJIAN: Kode ujian = huruf besar/angka/strip, 3–31 karakter, unik (mis. BIN-PAS-01); isi juga Judul, Mata pelajaran, Kelas, Materi, Durasi (menit), dan Jumlah varian (1 bila naskah hanya satu paket).
-3. KOLOM KIRI JANGAN DIUBAH, diterjemahkan, atau disingkat (Nomor, Varian, Bentuk, Kompetensi/Materi/Sub-materi, Indikator, Level, Kode teks, Perintah soal, Pertanyaan, Pilihan A–E, Pernyataan 1–5, Kiri 1–6, Kanan a–f, Kunci, Toleransi, Jawaban alternatif, Pembahasan). Judul tabel (baris pertama) tetap "SOAL — …" sesuai bentuk.
-4. PILIH TABEL SESUAI BENTUK: satu jawaban benar → "SOAL — PG"; lebih dari satu jawaban benar → "SOAL — PG KOMPLEKS"; pernyataan Benar/Salah → "SOAL — BENAR – SALAH"; menjodohkan → "SOAL — MENJODOHKAN"; jawaban singkat/angka → "SOAL — ISIAN SINGKAT / ANGKA". Baris Bentuk diisi tepat: PG / PG Kompleks / Benar - Salah / Menjodohkan / Isian.
-5. NOMOR berurutan 1..N tanpa lompatan. VARIAN diisi A bila hanya satu paket.
-6. PILIHAN: PG dan PG Kompleks — isi Pilihan A sampai E (minimal A–D), satu pilihan per baris, TANPA huruf "A." di depannya. Benar - Salah — isi Pernyataan 1–5. Menjodohkan — isi Kiri 1–6 dan Kanan a–f. Jangan meletakkan pilihan di dalam sel Pertanyaan.
-7. TEKS BACAAN BERSAMA: bila beberapa soal memakai satu teks/tabel/grafik yang sama, buat satu tabel TEKS BACAAN (Kode teks T1, T2, …; Judul; Isi) dan tulis kode yang sama di baris "Kode teks" setiap soal terkait. Jangan menyalin ulang teksnya ke setiap soal.
-8. TABEL DATA di dalam soal/teks: pertahankan sebagai TABEL WORD sungguhan (gaya Table Grid, garis penuh) di dalam sel Perintah soal atau sel Isi teks bacaan — jangan diubah menjadi teks dengan tanda "|". Gambar/grafik disisipkan sebagai gambar PNG/JPG (≤ 300 KB) di sel yang sama. Rumus memakai subscript/superscript Word (H₂O, 10²³).
-9. LEVEL tepat salah satu: Knowing (mengingat/memahami), Applying (menerapkan), Reasoning (menganalisis/mengevaluasi/mencipta). Pemetaan: C1–C2 → Knowing, C3 → Applying, C4–C6 → Reasoning; Mudah → Knowing, Sedang → Applying, Sukar → Reasoning.
-10. KUNCI: PG "B" · PG Kompleks "A, C, E" · Benar - Salah "Benar, Salah, Benar" sesuai urutan pernyataan · Menjodohkan "1-d, 2-c, 3-e" · Isian: nilai kunci, Toleransi (angka, mis. 0,05), Jawaban alternatif dipisah "|". Kunci harus merujuk ke pilihan yang benar-benar ada.
-11. KOMPETENSI dan INDIKATOR: ambil dari naskah bila ada; bila tidak ada, tuliskan sub-materi dan indikator yang wajar dari isi soal (jangan dikosongkan). PEMBAHASAN: ambil dari naskah; bila tidak ada, tulis pembahasan singkat yang benar.
-12. JANGAN mengarang soal baru, mengubah isi soal, atau mengubah urutan. Jangan menambahkan kolom, catatan, atau teks lain di dalam tabel. Tabel kosong yang tidak terpakai boleh dihapus.
+2. KOLOM KIRI TIDAK BOLEH DIUBAH
+   Gunakan label persis: Nomor, Varian, Bentuk, Kompetensi/ Materi/Sub-materi, Indikator, Level, Kode teks, Perintah soal, Pertanyaan, Pilihan A … Pilihan E, Label kategori, Pernyataan 1 … Pernyataan 5, Kiri 1 … Kiri 6, Kanan a … Kanan f, Kunci, Toleransi, Jawaban alternatif, Pembahasan.
 
-SETELAH SELESAI, TULIS LAPORAN SINGKAT
-- Jumlah soal per bentuk (PG, PG Kompleks, Benar - Salah, Menjodohkan, Isian) dan jumlah teks bacaan.
-- Daftar nomor soal yang kuncinya TIDAK ada di naskah sehingga Anda tentukan sendiri, dan nomor yang Anda ragukan.
-- Daftar nomor yang Level/Kompetensi/Indikatornya Anda tentukan sendiri.
+3. PILIH TABEL SESUAI BENTUK SOAL
+   - Pilihan ganda satu jawaban → tabel "SOAL — PG (Pilihan ganda)", Bentuk = PG
+   - Jawaban benar lebih dari satu → "SOAL — PG KOMPLEKS", Bentuk = PG Kompleks
+   - Pernyataan Benar/Salah → "SOAL — BENAR – SALAH", Bentuk = Benar - Salah
+   - Menjodohkan → "SOAL — MENJODOHKAN", Bentuk = Menjodohkan
+   - Jawaban singkat/angka → "SOAL — ISIAN SINGKAT / ANGKA", Bentuk = Isian
 
-BILA ANDA TIDAK BISA MEMBUAT BERKAS .DOCX
-Tuliskan isi setiap soal dengan format di bawah ini (satu blok per soal) agar saya salin manual ke template:
+4. ISI SEMUA PILIHAN — INI SERING TERLEWAT
+   - PG / PG Kompleks: isi Pilihan A sampai E (minimal A–D), satu pilihan per baris, TANPA awalan "A." / "B." dan tanpa kotak centang. Jangan menaruh pilihan di dalam sel Pertanyaan.
+   - Benar - Salah: Pernyataan 1–5 diisi; Label kategori = "Benar | Salah".
+   - Menjodohkan: Kiri 1–6 dan Kanan a–f diisi (jumlah kanan boleh lebih banyak dari kiri sebagai pengecoh).
 
-=== INFORMASI UJIAN ===
-Kode ujian: …
-Judul: …
-Mata pelajaran: …
-Kelas: …
-Materi: …
-Durasi (menit): …
-Jumlah varian: 1
+5. TEKS BACAAN BERSAMA
+   - Bila beberapa soal mengacu pada satu teks/tabel/grafik, buat satu tabel TEKS BACAAN: Kode teks (T1, T2, …), Judul, Isi. Tulis kode yang sama pada baris "Kode teks" setiap soal yang mengacu ke teks itu. Jangan menyalin ulang teks ke setiap soal.
+   - Soal yang berdiri sendiri: Kode teks dikosongkan.
 
-=== TEKS T1 ===   (hanya bila ada teks bersama)
-Judul: …
-Isi: …
+6. TABEL DATA DAN GAMBAR DI DALAM TEKS
+   - Tabel data (mis. tabel tahun/nilai) harus tetap menjadi TABEL WORD SUNGGUHAN yang diletakkan di dalam sel "Isi" (teks bacaan) atau sel "Perintah soal". JANGAN mengubahnya menjadi teks dengan tanda "|", tab, atau daftar.
+   - Semua tabel data tersebut diberi gaya "Table Grid" (border penuh pada semua sel) dan baris pertamanya dijadikan baris judul (tebal), agar terbaca jelas saat dicetak.
+   - Grafik/gambar: sisipkan sebagai gambar PNG/JPG (≤ 300 KB) di dalam sel yang sama.
 
-=== SOAL 1 · Varian A · PG ===
-Kompetensi/Materi/Sub-materi: …
-Indikator: …
-Level: Knowing
-Kode teks: (kosong, atau T1)
-Perintah soal: …
-Pertanyaan: …
-Pilihan A: …
-Pilihan B: …
-Pilihan C: …
-Pilihan D: …
-Pilihan E: …
-Kunci: B
-Pembahasan: …
-`;
+7. LEVEL — tepat salah satu dari: Knowing / Applying / Reasoning
+   - Knowing = mengingat/memahami; Applying = menerapkan; Reasoning = menganalisis/mengevaluasi/mencipta.
+   - Bila naskah memakai C1–C6: C1–C2 → Knowing, C3 → Applying, C4–C6 → Reasoning.
+   - Bila naskah memakai Mudah/Sedang/Sukar: Mudah → Knowing, Sedang → Applying, Sukar → Reasoning, kecuali isi soal jelas menunjukkan level lain.
+
+8. KUNCI
+   - PG: "B"  ·  PG Kompleks: "A, C, E"  ·  Benar - Salah: "Benar, Salah, Benar, Benar, Salah" (urut sesuai pernyataan; boleh 1/2)
+   - Menjodohkan: "1-d, 2-c, 3-e, 4-a"  ·  Isian: nilai kunci, Toleransi (angka), Jawaban alternatif dipisah " | "
+   - Kunci harus merujuk pada pilihan yang benar-benar ada di tabel yang sama.
+
+9. KOMPETENSI, INDIKATOR, PEMBAHASAN
+   - Ambil dari naskah bila ada. Bila tidak ada, tuliskan sub-materi dan indikator yang wajar dari isi soal — jangan dikosongkan. Pembahasan singkat wajib ada.
+
+10. INFORMASI UJIAN
+   - Kode ujian: huruf besar/angka/strip tanpa spasi, mis. TKA-BI-2026-PA. Durasi dalam menit (angka). Jumlah varian = 1 bila hanya satu versi soal; Varian tiap soal = A.
+   - Nomor soal berurutan 1..N tanpa lompatan.
+   - Baris Jenis, Tingkat peserta, Cakupan materi, Semester, dan Guru penyusun pada tabel INFORMASI UJIAN: isi bila diketahui dari naskah; boleh dikosongkan.
+
+11. SEBELUM MENYERAHKAN, PERIKSA SENDIRI:
+   [ ] jumlah tabel soal = jumlah soal, masing-masing terpisah paragraf kosong
+   [ ] semua Pilihan/Pernyataan/Kiri–Kanan terisi
+   [ ] setiap Kunci ada di pilihan
+   [ ] setiap Kode teks pada soal punya tabel TEKS BACAAN
+   [ ] Level hanya Knowing/Applying/Reasoning
+   [ ] tabel data tetap tabel, bukan teks "|", dan bergaris (Table Grid)
+
+12. BILA KAMU TIDAK BISA MEMBUAT BERKAS .DOCX
+   Tuliskan isi setiap tabel dalam format di bawah (satu blok per tabel, label persis seperti kolom kiri template) agar guru bisa menyalinnya ke template secara manual:
+
+   === INFORMASI UJIAN ===
+   Kode ujian: …
+   Judul: …
+   Mata pelajaran: …
+   Kelas: …
+   Materi: …
+   Durasi (menit): …
+   Jumlah varian: 1
+
+   === TEKS BACAAN T1 ===   (hanya bila ada teks bersama)
+   Kode teks: T1
+   Judul: …
+   Isi: …
+
+   === SOAL — PG (Pilihan ganda) ===
+   Nomor: 1
+   Varian: A
+   Bentuk: PG
+   Kompetensi/ Materi/Sub-materi: …
+   Indikator: …
+   Level: Knowing
+   Kode teks: (kosong, atau T1)
+   Perintah soal: …
+   Pertanyaan: …
+   Pilihan A: …
+   Pilihan B: …
+   Pilihan C: …
+   Pilihan D: …
+   Pilihan E: …
+   Kunci: B
+   Pembahasan: …`;
 async function bacaKisi(f){$("k-status").innerHTML=`<span class="pill">Membaca ${esc(f.name)}…</span>`;
   try{const parsed=await TKA.parseDocx(await f.arrayBuffer(),JSZip,DOMParser);const r=TKA.buildKisi(parsed);KISI=r.ok?r.kisi:null;
     $("k-status").innerHTML=`<span class="pill ${r.ok?"good":"bad"}">${r.ok?"Kisi-kisi terbaca":"Terbaca dengan galat"}</span> ${esc(f.name)}`;$("k-hasil").classList.remove("hidden");
