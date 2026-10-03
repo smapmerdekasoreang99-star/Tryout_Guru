@@ -219,6 +219,13 @@ div.ds-baris{cursor:default;flex-wrap:wrap}
 .ds-panel table.rekap td button{border-radius:6px}
 #g-sub-isi h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);margin:18px 0 8px}#g-sub-isi h3:first-child{margin-top:0}
 @media (max-width:560px){.ds-hasil{padding:12px}.ds-alat{width:100%}.ds-pilih{flex:1}.ds-pilih select{flex:1}}
+/* Freeze pane tabel data (table[data-beku]): wadah bergulir dua arah, judul di atas & kolom identitas di kiri tetap terlihat */
+.fz-wadah { overflow: auto; max-height: calc(100vh - 150px); -webkit-overflow-scrolling: touch; }
+table[data-beku] thead th, table[data-beku] > tbody:first-child > tr:first-child > th { position: sticky; top: 0; z-index: 2; }
+table[data-beku] .fz-kol { position: sticky; z-index: 1; }
+table[data-beku] td.fz-kol { background-color: var(--kertas-2); }
+table[data-beku] th.fz-kol { z-index: 3; }
+table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 </style>
 </head>
 <body>
@@ -366,8 +373,8 @@ div.ds-baris{cursor:default;flex-wrap:wrap}
       </div>
       <div id="g-stat" class="stats"></div>
       <div class="tabs" role="tablist"><button class="on" data-tab="rekap">Rekap siswa <span class="tb-n" id="tb-rekap"></span></button><button data-tab="butir">Analisis butir</button><button data-tab="sub">Sub-materi</button><button data-tab="belum">Belum mengerjakan <span class="tb-n warn" id="tb-belum"></span></button><button data-tab="riwayat">Riwayat siswa</button></div>
-      <div class="ds-panel" id="g-rekap"><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-tabel"></table></div><p class="ds-catatan">Nilai: <span class="nilai t">≥ 75</span> tuntas · <span class="nilai s">60–74</span> · <span class="nilai r">&lt; 60</span>. Kolom <b>Keluar</b>: dihitung / semua kejadian (arahkan kursor untuk rincian).<span class="kelola-only"> <b>reset</b> = hapus hasil agar siswa bisa mengulang.</span></p></div>
-      <div class="ds-panel hidden" id="g-butir"><p class="ds-catatan" style="margin-top:0">Nomor = nomor asli pada kisi-kisi. Kesukaran: <span class="pill bad">sukar</span> &lt; 30% · <span class="pill warn">sedang</span> 30–70% · <span class="pill good">mudah</span> &gt; 70%. Kolom varian menunjukkan % benar tiap varian (uji kesetaraan).</p><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-butir-tabel"></table></div></div>
+      <div class="ds-panel" id="g-rekap"><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-tabel" data-beku="2"></table></div><p class="ds-catatan">Nilai: <span class="nilai t">≥ 75</span> tuntas · <span class="nilai s">60–74</span> · <span class="nilai r">&lt; 60</span>. Kolom <b>Keluar</b>: dihitung / semua kejadian (arahkan kursor untuk rincian).<span class="kelola-only"> <b>reset</b> = hapus hasil agar siswa bisa mengulang.</span></p></div>
+      <div class="ds-panel hidden" id="g-butir"><p class="ds-catatan" style="margin-top:0">Nomor = nomor asli pada kisi-kisi. Kesukaran: <span class="pill bad">sukar</span> &lt; 30% · <span class="pill warn">sedang</span> 30–70% · <span class="pill good">mudah</span> &gt; 70%. Kolom varian menunjukkan % benar tiap varian (uji kesetaraan).</p><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-butir-tabel" data-beku="1"></table></div></div>
       <div class="ds-panel hidden" id="g-sub"><div id="g-sub-isi"></div></div>
       <div class="ds-panel hidden" id="g-belum"><p class="ds-catatan" style="margin-top:0">Peserta ujian ini (sesuai peruntukan) yang belum punya hasil. Kelas mengikuti saringan di atas. <span id="g-belum-peserta"></span></p><div id="g-belum-isi"></div></div>
       <div class="ds-panel hidden" id="g-riwayat"><div class="row"><input type="text" id="g-cari" class="grow" placeholder="Cari NISN atau nama…"><button class="soft" id="btn-cari" style="padding:10px 16px;font-size:14px">Cari</button></div><p class="ds-catatan">Riwayat nilai lintas ujian. Kosongkan pencarian dan pilih kelas di atas untuk melihat satu kelas.</p><div class="tbl-wrap tbl-beku"><div id="g-riwayat-isi"></div></div></div>
@@ -762,14 +769,14 @@ function renderSub(){const rows=filtered(),box=$("g-sub-isi");if(!rows.length){b
   const lv=[...new Set(all.map(x=>x.level).filter(Boolean))].sort(lsort).map(L=>{const s=all.filter(x=>x.level===L);return {L,p:pct(s.reduce((a,x)=>a+x.benar,0),s.length)}});
   box.innerHTML=`<h3 style="margin-top:0">Per level kognitif (kelas)</h3>`+(lv.map(x=>`<div class="kv"><span>${LV[x.L]||x.L}</span><b>${x.p}%</b></div>${bar(x.p)}`).join("")||"<p class='muted'>Level tidak diisi.</p>")+`<h3>Per sub-materi (terendah di atas)</h3>`+(subs.map(x=>`<div class="kv"><span>${esc(x.sb)}</span><b>${x.p}%</b></div>${bar(x.p)}`).join("")||"<p class='muted'>Sub-materi tidak diisi.</p>")+`<h3>Rekomendasi tindak lanjut</h3><ol style="padding-left:20px" class="small">${subs.filter(x=>x.p<60).slice(0,3).map(x=>`<li><b>${esc(x.sb)}</b> (${x.p}%): remedial terarah, ulangi konsep lalu latihan soal berkonteks.</li>`).join("")||"<li>Tidak ada sub-materi di bawah 60%. Lanjutkan pengayaan level tinggi.</li>"}</ol>`}
 async function renderBelum(){const box=$("g-belum-isi");box.innerHTML="Memuat…";try{const k=$("g-kelas").value||null;const rows=await rpc("tka_belum",{p_pin:PIN,p_ujian:$("g-ujian").value,p_kelas:k});
-  box.innerHTML=rows.length?`<p class="small"><b>${rows.length} siswa</b> belum mengerjakan.</p><div class="tbl-wrap"><table class="rekap"><tr><th>#</th><th>Nama</th><th>NISN</th><th>Kelas</th></tr>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.nama)}</td><td>${esc(r.nisn)}</td><td>${esc(r.kelas)}</td></tr>`).join("")}</table></div>`:"<p class='muted'>Semua siswa terdaftar sudah mengerjakan (atau data siswa belum dimuat).</p>"}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+  box.innerHTML=rows.length?`<p class="small"><b>${rows.length} siswa</b> belum mengerjakan.</p><div class="tbl-wrap"><table class="rekap" data-beku="2"><tr><th>#</th><th>Nama</th><th>NISN</th><th>Kelas</th></tr>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.nama)}</td><td>${esc(r.nisn)}</td><td>${esc(r.kelas)}</td></tr>`).join("")}</table></div>`:"<p class='muted'>Semua siswa terdaftar sudah mengerjakan (atau data siswa belum dimuat).</p>"}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 async function renderRiwayat(){const box=$("g-riwayat-isi");box.innerHTML="Memuat…";try{const q=$("g-cari").value.trim();let rows;
   if(q){if(/^\d{4,}$/.test(q))rows=await rpc("tka_riwayat",{p_pin:PIN,p_nisn:q});else{const sis=(await rpc("tka_list_siswa",{p_pin:PIN})).filter(x=>x.nama.toLowerCase().includes(q.toLowerCase())).slice(0,5);rows=[];for(const x of sis)rows.push(...await rpc("tka_riwayat",{p_pin:PIN,p_nisn:x.nisn}))}}
   else{const k=$("g-kelas").value;if(!k){box.innerHTML="<p class='muted'>Pilih kelas pada filter di atas, atau cari NISN/nama.</p>";return}rows=await rpc("tka_riwayat",{p_pin:PIN,p_kelas:k})}
   if(!rows.length){box.innerHTML="<p class='muted'>Tidak ada riwayat.</p>";return}
   const uj=[...new Set(rows.map(r=>r.ujian))];const sis={};rows.forEach(r=>{const key=r.nisn||("~"+r.nama);(sis[key]=sis[key]||{nama:r.nama,nisn:r.nisn,kelas:r.kelas,n:{}}).n[r.ujian]=r.nilai});
   const list=Object.values(sis).sort((a,b)=>a.kelas.localeCompare(b.kelas)||a.nama.localeCompare(b.nama));
-  box.innerHTML=`<table class="rekap"><tr><th class="beku">Nama</th><th>NISN</th><th>Kelas</th>${uj.map(u=>`<th>${esc(u)}</th>`).join("")}<th>Rata-rata</th></tr>${list.map(x=>{const v=uj.map(u=>x.n[u]);const ada=v.filter(y=>y!==undefined);return `<tr><td class="beku">${esc(x.nama)}</td><td>${esc(x.nisn||"–")}</td><td>${esc(x.kelas)}</td>${v.map(y=>`<td class="n">${y===undefined?"–":y}</td>`).join("")}<td class="n"><b>${ada.length?Math.round(ada.reduce((a,b)=>a+b,0)/ada.length):"–"}</b></td></tr>`}).join("")}</table>`;bekukan(box.querySelector("table"))}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+  box.innerHTML=`<table class="rekap" data-beku="1"><tr><th class="beku">Nama</th><th>NISN</th><th>Kelas</th>${uj.map(u=>`<th>${esc(u)}</th>`).join("")}<th>Rata-rata</th></tr>${list.map(x=>{const v=uj.map(u=>x.n[u]);const ada=v.filter(y=>y!==undefined);return `<tr><td class="beku">${esc(x.nama)}</td><td>${esc(x.nisn||"–")}</td><td>${esc(x.kelas)}</td>${v.map(y=>`<td class="n">${y===undefined?"–":y}</td>`).join("")}<td class="n"><b>${ada.length?Math.round(ada.reduce((a,b)=>a+b,0)/ada.length):"–"}</b></td></tr>`}).join("")}</table>`;bekukan(box.querySelector("table"))}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 /* ================= UNDUH EXCEL (.xlsx) =================
    Rekap dasbor guru sebagai buku kerja Excel berformat (ExcelJS, dimuat hanya saat diperlukan — sama seperti Data Induk).
    Empat lembar: Rekap · Jawaban per Soal · Analisis Butir · Sub-materi & Level.
@@ -989,6 +996,39 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-antikeluar").onclick=async()=>{const m=Math.max(0,parseInt($("g-maks").value||"0",10)),tol=Math.max(0,parseInt($("g-tol").value||"0",10)),kb=$("g-buka").value.trim().toUpperCase();try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"maks_keluar",p_value:m,p_ujian:$("g-ujian").value});await rpc("tka_set_setting",{p_pin:PIN,p_key:"toleransi_keluar",p_value:tol,p_ujian:$("g-ujian").value});await rpc("tka_set_setting",{p_pin:PIN,p_key:"kode_buka",p_value:kb,p_ujian:$("g-ujian").value});toast(m?`Batas keluar ${m} kali`:"Tanpa batas keluar")}catch(err){toast("Gagal: "+err.message)}};
   $("btn-akses").onclick=async()=>{const v=$("g-akses").value.trim().toUpperCase();try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"kode_akses",p_value:v,p_ujian:$("g-ujian").value});toast(v?"Kode akses "+v+" aktif":"Kode akses dinonaktifkan")}catch(err){toast("Gagal: "+err.message)}};
 });
+</script>
+<script>
+/* Freeze pane tabel data: <table data-beku="n"> → baris judul tetap di atas saat tabel digulir ke
+   bawah, n kolom pertama tetap di kiri saat digulir ke samping. Dihitung ulang otomatis bila isi tabel
+   berganti, tabel baru muncul, atau ukurannya berubah (mis. tab dibuka, layar diputar). */
+(function () {
+  if (!("ResizeObserver" in window)) return;
+  const ukur = new ResizeObserver((es) => es.forEach((e) => bekukan(e.target)));
+  const dikenal = new WeakSet();
+  function bekukan(t) {
+    const n = +t.dataset.beku || 0, baris = t.rows;
+    if (t.parentElement) t.parentElement.classList.add("fz-wadah");
+    if (!n || !baris.length) return;
+    const kepala = baris[0].cells, kiri = [];
+    let x = 0;
+    for (let i = 0; i < Math.min(n, kepala.length); i++) { kiri.push(x); x += kepala[i].getBoundingClientRect().width; }
+    if (!x) return;                                    // tabel tersembunyi: dihitung saat tampil
+    for (const r of baris) {
+      for (let i = 0; i < kiri.length && i < r.cells.length; i++) {
+        const c = r.cells[i];
+        if (c.colSpan > 1) break;                      // baris gabungan (mis. "Tidak ada data") tidak dibekukan
+        c.classList.add("fz-kol"); c.style.left = kiri[i] + "px"; c.classList.toggle("fz-akhir", i === kiri.length - 1);
+      }
+    }
+  }
+  function pindai() {
+    document.querySelectorAll("table[data-beku]").forEach((t) => { if (!dikenal.has(t)) { dikenal.add(t); ukur.observe(t); } bekukan(t); });
+  }
+  let jadwal = 0;
+  new MutationObserver(() => { cancelAnimationFrame(jadwal); jadwal = requestAnimationFrame(pindai); })
+    .observe(document.documentElement, { childList: true, subtree: true });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", pindai); else pindai();
+})();
 </script>
 </body>
 </html>

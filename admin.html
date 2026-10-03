@@ -96,6 +96,13 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 @media (max-width:760px){.pk-isi{grid-template-columns:1fr}.pk-mapel{position:static;flex-direction:row;overflow-x:auto;padding:0 0 8px;border-bottom:1px solid var(--line)}.pk-mapel .lbl{display:none}.pk-mapel button{flex:none}.pk-baris{grid-template-columns:1fr auto;gap:10px}.pk-st{grid-column:1}.pk-aksi{grid-column:2;grid-row:1/span 2;align-self:center}}.pe-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff}.pe-row{display:block;padding:4px 8px;border-bottom:1px solid var(--line);font-size:14px}.pe-row:last-child{border-bottom:0}
 .peran-guru .op-only,.peran-pengawas .op-only{display:none!important}.peran-pengawas .tulis-only{display:none!important}
 .notice.op-note{background:var(--emas-muda);color:var(--emas-teks);border-color:var(--emas)}
+/* Freeze pane tabel data (table[data-beku]): wadah bergulir dua arah, judul di atas & kolom identitas di kiri tetap terlihat */
+.fz-wadah { overflow: auto; max-height: calc(100vh - 150px); -webkit-overflow-scrolling: touch; }
+table[data-beku] thead th, table[data-beku] > tbody:first-child > tr:first-child > th { position: sticky; top: 0; z-index: 2; }
+table[data-beku] .fz-kol { position: sticky; z-index: 1; }
+table[data-beku] td.fz-kol { background-color: var(--kertas-2); }
+table[data-beku] th.fz-kol { z-index: 3; }
+table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 </style>
 </head>
 <body>
@@ -123,7 +130,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div class="card hidden" id="k-hasil">
     <h2>Hasil pembacaan kisi-kisi</h2>
     <div id="k-ringkas"></div><div id="k-errs"></div>
-    <div class="tbl-wrap"><table class="t" id="k-bp"></table></div>
+    <div class="tbl-wrap"><table class="t" id="k-bp" data-beku="1"></table></div>
     <div id="k-komposisi" class="small" style="margin-top:8px"></div>
     <div class="row" style="margin-top:12px"><button id="btn-k-simpan" class="good">Simpan ke server &amp; unduh Template Soal</button><button class="btn-unduh" data-fmt="docx" id="btn-k-unduh">Unduh template soal saja</button></div>
     <div id="k-simpan-status" class="small" style="margin-top:8px"></div>
@@ -144,7 +151,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <h2>Hasil pembacaan &amp; pencocokan dengan kisi-kisi</h2>
     <div id="ringkas"></div>
     <div id="errs"></div>
-    <div class="tbl-wrap"><table class="t" id="bp"></table></div>
+    <div class="tbl-wrap"><table class="t" id="bp" data-beku="1"></table></div>
     <h3>Pratinjau soal <span class="muted">(kunci ditandai hijau)</span></h3>
     <div id="prev"></div>
   </div>
@@ -205,7 +212,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div class="card hidden" id="d-hasil">
     <h2>Hasil pembacaan &amp; kisi-kisi otomatis</h2>
     <div id="d-ringkas"></div><div id="d-errs"></div>
-    <div class="tbl-wrap"><table class="t" id="d-bp"></table></div>
+    <div class="tbl-wrap"><table class="t" id="d-bp" data-beku="1"></table></div>
     <div id="d-komposisi" class="small" style="margin-top:8px"></div>
     <h3>Pratinjau soal <span class="muted">(kunci ditandai hijau)</span></h3><div id="d-prev"></div>
     <h3>Peruntukan</h3><div id="d-peserta-box" class="small muted">Memuat data siswa…</div>
@@ -234,7 +241,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
     <h3 style="margin-top:0">Pemetaan kolom <span class="muted">(terdeteksi otomatis; ubah bila keliru)</span></h3>
     <div class="row"><label class="small">NISN <select id="m-nisn"></select></label><label class="small">Nama <select id="m-nama"></select></label><label class="small">Kelas/Rombel <select id="m-kelas"></select></label><label class="small">Tanggal lahir <select id="m-tgl"></select></label><label class="small">NIS (opsional) <select id="m-nis"></select></label><label class="small">Kelompok MD (opsional) <select id="m-kelompok"></select></label></div>
     <div id="s-ringkas" class="small" style="margin-top:8px"></div>
-    <div class="tbl-wrap"><table class="t" id="s-prev"></table></div>
+    <div class="tbl-wrap"><table class="t" id="s-prev" data-beku="3"></table></div>
     <div class="row" style="margin-top:10px"><button id="btn-s-simpan" class="good">Simpan ke server</button><label class="small"><input type="checkbox" id="s-nonaktif"> nonaktifkan siswa yang <b>tidak ada</b> dalam data ini (untuk data lengkap satu sekolah)</label></div>
     <div id="s-simpan-status" class="small" style="margin-top:8px"></div>
   </div>
@@ -244,7 +251,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
   <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Siswa di server</h3><button class="soft" id="btn-s-muat" style="padding:8px 12px;font-size:13px">Muat</button></div>
     <div id="s-server" class="small" style="margin-top:8px"></div>
     <div class="row" style="margin-top:8px"><input type="text" id="s-cari" class="grow" placeholder="Cari nama/NISN…"><button class="danger op-only" id="btn-s-hapus-semua">Hapus semua data siswa</button></div>
-    <div class="tbl-wrap"><table class="t" id="s-list"></table></div></div>
+    <div class="tbl-wrap"><table class="t" id="s-list" data-beku="2"></table></div></div>
 </section>
 
 <section id="tab-impor" class="hidden">
@@ -1603,6 +1610,39 @@ window.addEventListener("DOMContentLoaded",()=>{
     for(const l of lines){try{const o=JSON.parse(decodeURIComponent(escape(atob(l))));if(!o.kode||!o.jawaban)throw new Error("format kode salah");const j=await rpc("tka_submit2",{p:o});out.push(`✔ ${esc(o.nama)} (${esc(o.kelas)}) — ${o.kode}: nilai ${j.nilai}`)}catch(e){out.push(`✘ ${esc(l.slice(0,24))}… : ${esc(e.message)}`)}}
     $("impor-status").innerHTML=out.join("<br>")||"Tidak ada kode.";$("kode-hasil").value=""};
 });
+</script>
+<script>
+/* Freeze pane tabel data: <table data-beku="n"> → baris judul tetap di atas saat tabel digulir ke
+   bawah, n kolom pertama tetap di kiri saat digulir ke samping. Dihitung ulang otomatis bila isi tabel
+   berganti, tabel baru muncul, atau ukurannya berubah (mis. tab dibuka, layar diputar). */
+(function () {
+  if (!("ResizeObserver" in window)) return;
+  const ukur = new ResizeObserver((es) => es.forEach((e) => bekukan(e.target)));
+  const dikenal = new WeakSet();
+  function bekukan(t) {
+    const n = +t.dataset.beku || 0, baris = t.rows;
+    if (t.parentElement) t.parentElement.classList.add("fz-wadah");
+    if (!n || !baris.length) return;
+    const kepala = baris[0].cells, kiri = [];
+    let x = 0;
+    for (let i = 0; i < Math.min(n, kepala.length); i++) { kiri.push(x); x += kepala[i].getBoundingClientRect().width; }
+    if (!x) return;                                    // tabel tersembunyi: dihitung saat tampil
+    for (const r of baris) {
+      for (let i = 0; i < kiri.length && i < r.cells.length; i++) {
+        const c = r.cells[i];
+        if (c.colSpan > 1) break;                      // baris gabungan (mis. "Tidak ada data") tidak dibekukan
+        c.classList.add("fz-kol"); c.style.left = kiri[i] + "px"; c.classList.toggle("fz-akhir", i === kiri.length - 1);
+      }
+    }
+  }
+  function pindai() {
+    document.querySelectorAll("table[data-beku]").forEach((t) => { if (!dikenal.has(t)) { dikenal.add(t); ukur.observe(t); } bekukan(t); });
+  }
+  let jadwal = 0;
+  new MutationObserver(() => { cancelAnimationFrame(jadwal); jadwal = requestAnimationFrame(pindai); })
+    .observe(document.documentElement, { childList: true, subtree: true });
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", pindai); else pindai();
+})();
 </script>
 </body>
 </html>
