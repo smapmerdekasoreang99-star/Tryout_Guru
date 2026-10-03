@@ -350,7 +350,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <div id="g-ringkas" class="small muted" style="margin:6px 0"></div>
     <div class="g-alat"><span class="row"><label class="small"><input type="checkbox" id="g-pilih-semua"> pilih semua yang tampil</label><span id="g-n-pilih" class="small muted"></span></span>
       <span class="row"><button class="good" id="btn-g-bagi">Bagikan kartu terpilih</button><button class="soft" id="btn-g-png">Unduh kartu PNG terpilih</button><button class="btn-unduh" data-fmt="xlsx" id="btn-g-xlsx" title="Daftar PIN guru yang dicentang; bila tidak ada yang dicentang, semua guru ber-PIN">Unduh XLSX</button></span></div>
-    <p class="muted small" style="margin:4px 0 8px">Kartu PIN per guru ada di kolom <b>Kartu PIN</b>: <b>Bagikan</b> (HP) → WhatsApp → chat pribadi guru · <b>Salin</b> lalu tempel (Ctrl+V) di WhatsApp Web · <b>Unduh</b> PNG · <b>Lihat</b> pratinjau. Kirim ke chat pribadi, jangan ke grup.</p>
+    <p class="muted small" style="margin:4px 0 8px">Kartu PIN per guru ada di kolom <b>Kartu PIN</b>: <b>Bagikan</b> (HP) → WhatsApp → chat pribadi guru · <b>Unduh</b> PNG lalu lampirkan di WhatsApp Web · <b>Kartu</b> untuk melihat kartunya (di sana juga ada <i>Salin gambar</i>). Kirim ke chat pribadi, jangan ke grup.</p>
     <div class="tbl-wrap"><table class="t" id="g-list" data-beku="2"></table></div></div>
   <div id="kartu-lihat" class="hidden" role="dialog" aria-label="Kartu PIN"><div class="kl-in"><div class="row" style="justify-content:space-between"><b id="kl-nama"></b><button class="ghost mini" id="kl-tutup">Tutup</button></div>
     <p id="kl-pesan" class="small hidden" style="margin:0;color:var(--warn)"></p><div id="kl-isi"></div><div class="row" id="kl-aksi"></div>
@@ -1658,13 +1658,13 @@ function renderGuru(){if(!GDATA)return;const q=$("g-cari").value.trim().toLowerC
   $("g-ringkas").innerHTML=`<b>${akt.length}</b> guru aktif · <b>${punya}</b> punya PIN pribadi · <b>${akt.length-punya}</b> belum${GDATA.disinkron?" · ditarik dari Data Induk "+esc(new Date(GDATA.disinkron).toLocaleString("id-ID",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})):""}`;
   [...G_PILIH].forEach(id=>{const g=semua.find(x=>x.id===id);if(!g||!g.pin||!g.aktif)G_PILIH.delete(id)});
   const rows=semua.filter(g=>!q||[g.nama,g.id,...(g.kelas||[]),...(g.kelompok||[])].join(" ").toLowerCase().includes(q));
-  const bagi=bisaBagiBerkas(),salin=bisaSalinGambar();
+  const bagi=bisaBagiBerkas();
   $("g-list").innerHTML=`<tr><th></th><th>Guru</th><th>Kelas yang diampu</th><th>Kelompok MD</th><th>PIN masuk</th><th>Kartu PIN (PNG)</th><th></th></tr>`+
     rows.map(g=>{const ok=g.pin&&g.aktif,d=esc(g.id);
       return `<tr style="${g.aktif?"":"opacity:.5"}"><td>${ok?`<input type="checkbox" data-pilih="${d}" ${G_PILIH.has(g.id)?"checked":""} aria-label="Pilih ${esc(g.nama)}">`:""}</td>`+
         `<td class="g-nama"><b>${esc(g.nama)}</b><span>${d}${g.aktif?"":" · nonaktif"}</span></td><td class="small">${esc((g.kelas||[]).join(", ")||"–")}</td><td class="small">${esc((g.kelompok||[]).join(", ")||"–")}</td>`+
         `<td><span class="pin-sel">${g.pin?`<span class="lencana ${G_BARU.has(g.id)?"baru":"baik"}">${G_BARU.has(g.id)?"PIN baru":"PIN pribadi"}</span><b class="pin-teks">${esc(g.pin)}</b>`:'<span class="lencana emas">Belum punya PIN</span>'}</span></td>`+
-        `<td class="gk-aksi">${ok?`<span class="gk-baris"><button class="ghost" data-k="lihat" data-id="${d}">Kartu</button>${bagi?`<button class="good" data-k="bagi" data-id="${d}">Bagikan</button>`:""}${salin?`<button class="soft" data-k="salin" data-id="${d}">Salin</button>`:""}<button class="ghost" data-k="unduh" data-id="${d}">Unduh</button></span>`:'<span class="muted small">buat PIN dulu</span>'}</td>`+
+        `<td class="gk-aksi">${ok?`<span class="gk-baris"><button class="ghost" data-k="lihat" data-id="${d}">Kartu</button>${bagi?`<button class="good" data-k="bagi" data-id="${d}">Bagikan</button>`:""}<button class="ghost" data-k="unduh" data-id="${d}">Unduh</button></span>`:'<span class="muted small">buat PIN dulu</span>'}</td>`+
         `<td class="gk-aksi">${g.aktif?`<span class="gk-baris"><button class="soft" data-acak="${d}">${g.pin?"Buat ulang":"Buat PIN"}</button>`:""}${g.pin?`<button class="ghost" data-hapus="${d}">Hapus PIN</button>`:""}</span></td></tr>`}).join("")||'<tr><td colspan="7" class="muted">Belum ada data guru. Tekan <b>Tarik guru dari Data Induk</b>.</td></tr>';
   const L=$("g-list");
   L.querySelectorAll("[data-acak]").forEach(b=>b.onclick=()=>{const g=semua.find(x=>x.id===b.dataset.acak);if(g.pin&&!confirm(`Buat PIN baru untuk ${g.nama}? PIN lamanya tidak berlaku lagi.`))return;buatPin([g.id])});
