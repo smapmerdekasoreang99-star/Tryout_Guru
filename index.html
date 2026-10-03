@@ -89,6 +89,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 /* Menu guru: kartu sambutan + ubin berikon (gaya ikon sama dengan bilah menu Matematika Dasar) */
 .menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin:14px 0 24px}
 .mi{display:flex;gap:14px;align-items:flex-start;text-align:left;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;font:inherit;font-weight:400;letter-spacing:0;text-decoration:none;cursor:pointer;box-shadow:var(--bayang-1);transition:transform .12s,box-shadow .12s,border-color .12s}
+.m-cek{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:15px}.m-cek.hidden{display:none}.m-cek i{width:18px;height:18px;border-radius:50%;border:2px solid var(--garis-2);border-top-color:var(--emas);animation:ds-putar .8s linear infinite}
 .mi:hover{transform:translateY(-2px);box-shadow:var(--bayang-2);border-color:var(--emas);background:#fff}.mi:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 .mi-ik{flex:none;width:50px;height:50px;border-radius:13px;background:var(--gelap);color:var(--emas);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -8px rgba(29,42,58,.7)}
 .mi-ik svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
@@ -307,6 +308,7 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 </section>
 
 <section id="v-menu" class="hidden">
+  <div class="card m-cek hidden" id="m-cek"><i aria-hidden="true"></i>Memeriksa PIN…</div>
   <div class="card form" id="m-login"><h2>Menu guru / pengawas</h2><p class="muted small">Masukkan PIN sekali; berlaku selama peramban ini terbuka. <b>PIN pribadi guru</b> (sama dengan PIN Matematika Dasar): membuka sesi ujian untuk kelas Anda dan mengelola paket buatan Anda. <b>PIN pengawas</b>: melihat sesi, membantu siswa masuk, membuka kunci. <b>PIN operator</b>: semuanya termasuk data siswa dan PIN guru.</p>
     <label class="f" for="m-pin">PIN</label><input type="text" id="m-pin" autocomplete="off">
     <div class="row" style="margin-top:10px"><button id="btn-m-masuk">Masuk</button><button class="ghost" id="btn-m-back">Kembali</button></div><div id="m-msg" class="small" style="margin-top:6px"></div></div>
@@ -719,7 +721,8 @@ async function masukMenu(pin){$("m-msg").textContent="Memeriksa…";
     return true}
   catch(e){$("m-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return false}}
 function bukaMenu(){show("v-menu");const sv=ssGet(CFG.lsPin,null);if(PIN&&PERAN){$("m-login").classList.add("hidden");$("m-main").classList.remove("hidden")}
-  else if(sv&&sv.pin){masukMenu(sv.pin)}else{$("m-login").classList.remove("hidden");$("m-main").classList.add("hidden");$("m-pin").value="";$("m-pin").focus()}}
+  else if(sv&&sv.pin){$("m-login").classList.add("hidden");$("m-main").classList.add("hidden");$("m-cek").classList.remove("hidden");
+    masukMenu(sv.pin).then(ok=>{$("m-cek").classList.add("hidden");if(!ok){ssSet(CFG.lsPin,null);$("m-login").classList.remove("hidden");$("m-pin").focus()}})}else{$("m-login").classList.remove("hidden");$("m-main").classList.add("hidden");$("m-pin").value="";$("m-pin").focus()}}
 function keluarMenu(){PIN="";PERAN="";document.body.classList.remove("bukan-op");GURU={};PAKETS=[];SESI=[];SE_PANTAU=null;clearInterval(SE_TIMER);ssSet(CFG.lsPin,null);SISWA=null;document.body.classList.remove("lihat");$("g-main").classList.add("hidden");$("g-login").classList.remove("hidden");$("m-main").classList.add("hidden");$("m-login").classList.remove("hidden");show("v-start")}
 /* ---------- Daftar siswa (bantu login) ---------- */
 let SISWA=null,S_KELAS="",S_HASIL=null;

@@ -3,6 +3,7 @@
 <script src="config.js"></script><!-- Cara yang disarankan: buat berkas config.js (sekali saja) berisi  window.TKA_SUPABASE = { url: "https://xxxx.supabase.co", key: "eyJ..." };  di folder yang sama. Berkas ini tidak ikut ditimpa saat index.html/admin.html diperbarui. Alternatif: isi baris ke-2 di atas, atau tautan ?sb=URL&key=ANON. -->
 <html lang="id">
 <head>
+<script>try{var _p=JSON.parse(sessionStorage.getItem("tka_v2_pin")||"null");if(_p&&_p.pin)document.documentElement.classList.add("pin-otomatis")}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
@@ -40,6 +41,8 @@
 .tabs.tab-ikon button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
 .tabs.tab-ikon button:hover{background:var(--kertas-3);color:var(--gelap)}
 .tabs.tab-ikon button.on{background:var(--gelap);color:#fff;box-shadow:0 4px 12px -4px rgba(29,42,58,.5)}.tabs.tab-ikon button.on svg{color:var(--emas)}
+.pin-otomatis #pin-baris{display:none!important}.pin-cek{display:none;align-items:center;gap:10px;color:var(--tinta-2);font-size:14px}.pin-otomatis .pin-cek{display:flex}
+.pin-cek i{width:16px;height:16px;border-radius:50%;border:2px solid var(--garis-2);border-top-color:var(--emas);animation:pin-putar .8s linear infinite}@keyframes pin-putar{to{transform:rotate(360deg)}}
 .kartu-pin.masuk{padding:10px 16px}#pin-ganti{color:var(--emas-teks);font-weight:600;margin-left:4px}.kartu-pin.masuk #cfg{display:none}
 .tanpa-hak section[id^="tab-"]{display:none!important}
 section[id^="tab-"]>.card:first-child h2{font-family:"Fraunces",Georgia,"Times New Roman",serif;font-size:21px}body.lebar .wrap{max-width:1280px}
@@ -165,6 +168,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <label class="small"><input type="checkbox" id="pin-ingat"> ingat di perangkat ini</label>
     <button id="btn-cek">Cek PIN &amp; muat daftar</button>
   </div>
+  <div class="pin-cek"><i aria-hidden="true"></i>Memeriksa PIN…</div>
   <div id="pin-status" class="small" style="margin-top:6px"></div><div id="hak-menu" class="notice hidden"></div>
   <div id="sinkron-info" class="small" style="margin-top:6px"></div>
 </div>
@@ -1955,14 +1959,14 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("kl-tutup").onclick=()=>$("kartu-lihat").classList.add("hidden");$("kartu-lihat").onclick=e=>{if(e.target.id==="kartu-lihat")e.target.classList.add("hidden")};
   $("btn-c-unduh").onclick=unduhCadangan;$("c-file").onchange=e=>{if(e.target.files[0])bacaCadangan(e.target.files[0])};$("btn-c-pulihkan").onclick=pulihkanCadangan;
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
-    try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});MASUK=j;setPeran(j.peran);cekHakMenu(j.peran);
+    try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});document.documentElement.classList.remove("pin-otomatis");MASUK=j;setPeran(j.peran);cekHakMenu(j.peran);
       try{sessionStorage.setItem("tka_v2_pin",JSON.stringify({pin:PIN(),peran:j.peran}))}catch(e){}
       $("pin-baris").classList.add("hidden");$("pin-card").classList.add("masuk");
       $("pin-status").innerHTML=`<span class="pill good">PIN benar · ${esc(j.nama)}</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — unggah paket, kelola paket sendiri (data siswa hanya lihat)":"pengawas — hanya lihat"}</span>`+
         (j.bersama?' <span class="pill warn">PIN guru bersama</span> Paket yang diunggah dengan PIN ini tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator.':"")+
         (j.peran==="operator"&&j.guru_tanpa_pin?` <span class="pill warn">${j.guru_tanpa_pin} guru belum punya PIN pribadi</span> — menu <b>Admin → PIN Guru</b>.`:"");
       $("pin-status").insertAdjacentHTML("beforeend",' <a href="#" id="pin-ganti" class="small">Ganti PIN</a>');$("pin-ganti").onclick=ev=>{ev.preventDefault();$("pin-baris").classList.remove("hidden");$("pin-card").classList.remove("masuk");$("pin").focus()};
-      muatDaftarKisi();muatDaftar();muatSinkron();muatInduk();const tb=document.querySelector("#tabs button.on");if(tb)bukaTab(tb.dataset.tab)}catch(e){setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;$("sinkron-info").innerHTML=""}};
+      muatDaftarKisi();muatDaftar();muatSinkron();muatInduk();const tb=document.querySelector("#tabs button.on");if(tb)bukaTab(tb.dataset.tab)}catch(e){document.documentElement.classList.remove("pin-otomatis");try{sessionStorage.removeItem("tka_v2_pin")}catch(er){}setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span> Ketik PIN lalu tekan Cek PIN.`;$("sinkron-info").innerHTML=""}};
   document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>bukaTab(b.dataset.tab));
   window.bukaTab=t=>{const b=document.querySelector(`#tabs button[data-tab="${t}"]`);if(!b)return;document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","siswa","guru","impor","cadangan","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));document.body.classList.toggle("lebar",b.dataset.tab==="guru");if(b.dataset.tab==="siswa"&&PIN())muatSiswa();if(b.dataset.tab==="guru"&&PIN())muatGuru();if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}};pasangMenu();
   $("file").onchange=e=>{if(e.target.files[0])bacaFile(e.target.files[0])};
