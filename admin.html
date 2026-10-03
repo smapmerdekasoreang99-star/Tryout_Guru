@@ -143,6 +143,14 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 .kh-pin b{display:block;text-align:center;font-family:ui-monospace,Consolas,monospace;font-size:38px;letter-spacing:.12em}
 .kh-app{font-size:12.5px;color:#221E17}.kh-app b{display:block;font-size:13.5px}.kh-app code{font-size:11px;color:#1D2A3A;word-break:break-all}
 .kh-rahasia{background:#F7E4DF;border-top:3px solid #A8432E;padding:10px 16px;color:#A8432E;font-weight:700;font-size:12.5px}
+.dr-siap{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin:12px 0}
+.dr-opsi{display:flex;gap:12px;align-items:flex-start;background:var(--kertas-3);border:1px solid var(--garis);border-radius:12px;padding:14px}
+.dr-opsi b{font-size:15px;color:var(--gelap)}.dr-opsi p{margin:4px 0 10px;font-size:13px;color:var(--tinta-2);line-height:1.5}
+.dr-no{flex:none;width:30px;height:30px;border-radius:50%;background:var(--gelap);color:var(--emas);font-weight:800;display:flex;align-items:center;justify-content:center}
+.dr-jelas{margin:4px 0 14px;border:1px solid var(--garis);border-radius:12px;background:#fff;padding:10px 14px}
+.dr-jelas summary{cursor:pointer;font-weight:700;color:var(--gelap);font-size:14px}
+.dr-isi{font-size:13.5px;line-height:1.55;color:var(--tinta)}.dr-isi h4{margin:14px 0 4px;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--emas-teks)}
+.dr-isi ol,.dr-isi ul{margin:4px 0;padding-left:20px}.dr-isi li{margin:3px 0}
 .btn-tautan{display:inline-block;padding:9px 14px;border-radius:9px;background:var(--gelap);color:var(--kuning);font-weight:700;text-decoration:none;font-size:14px}
 </style>
 </head>
@@ -246,7 +254,37 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 <section id="tab-darurat" class="hidden">
   <div class="card" style="border-color:var(--bad)">
     <h2 style="color:var(--bad)">Jalur darurat — terbit tanpa kisi-kisi</h2>
-    <p class="muted">Hanya untuk keadaan mendesak dan hanya dengan <b>PIN darurat</b> (dipegang pimpinan; berbeda dari PIN guru). Guru mengisi <b>Template_Soal_Darurat.docx</b>: setiap tabel soal wajib memuat Bentuk dan Level, sebaiknya juga Kompetensi & Indikator. Aplikasi menyusun kisi-kisi otomatis dari soal, menandainya <b>darurat</b>, lalu menerbitkan.</p>
+    <p class="muted">Untuk guru yang <b>sudah punya naskah soal</b> (Word, PDF, atau hasil cetak) dan perlu segera menerbitkannya tanpa membuat kisi-kisi lebih dulu. Naskah dipindahkan ke <b>Template Soal Darurat</b>, lalu diunggah di sini dengan <b>PIN darurat</b> (dipegang pimpinan/kurikulum, berbeda dari PIN guru). Aplikasi menyusun kisi-kisi otomatis dari isian soal dan menandai paketnya <b>Darurat</b> sampai disahkan.</p>
+    <div class="dr-siap">
+      <div class="dr-opsi"><span class="dr-no">1</span><div><b>Pindahkan sendiri (manual)</b><p>Unduh templatenya, lalu salin setiap soal ke tabel yang sesuai bentuknya (PG, PG Kompleks, Benar–Salah, Menjodohkan, Isian). Di dalam template sudah ada ketentuan dan contoh format kunci.</p>
+        <button class="btn-unduh" data-fmt="docx" id="btn-d-template">Unduh template darurat</button></div></div>
+      <div class="dr-opsi"><span class="dr-no">2</span><div><b>Dengan bantuan AI</b><p>Unggah <b>template darurat</b> dan <b>naskah soal</b> Anda ke ChatGPT / Gemini / Claude, lalu tempelkan prompt ini. AI akan mengisi template dan memberikan berkas Word yang siap diunggah.</p>
+        <span class="row"><button class="btn-unduh" data-fmt="txt" id="btn-d-prompt">Unduh prompt AI</button><button class="ghost mini" id="btn-d-salin">Salin prompt</button></span></div></div>
+    </div>
+    <details class="dr-jelas"><summary>Penjelasan lengkap untuk guru — baca sebelum memakai jalur darurat</summary>
+      <div class="dr-isi">
+        <h4>Kapan memakai jalur darurat?</h4>
+        <p>Saat soal sudah jadi dalam bentuk lain dan waktunya mepet, sehingga tidak sempat mengikuti Langkah 1 (kisi-kisi) dan Langkah 2 (template soal). Bila waktunya cukup, tetap gunakan Langkah 1 &amp; 2: hasil analisisnya lebih rapi.</p>
+        <h4>Cara 1 — Pindahkan sendiri</h4>
+        <ol><li>Tekan <b>Unduh template darurat</b> dan buka di Microsoft Word.</li>
+          <li>Isi tabel <b>INFORMASI UJIAN</b>: kode ujian yang unik (mis. <code>BIN-PAS-01</code>), judul, mapel, kelas, durasi, jumlah varian (biasanya 1).</li>
+          <li>Untuk <b>setiap soal</b>, salin satu tabel kosong yang sesuai bentuknya, lalu isi: Nomor, Varian (A), Bentuk, Level (<i>Knowing</i> / <i>Applying</i> / <i>Reasoning</i>), Kompetensi, Indikator, Pertanyaan, pilihan jawaban, Kunci, dan Pembahasan. Jangan mengubah tulisan di kolom kiri.</li>
+          <li>Soal yang memakai satu teks/tabel/grafik bersama: tulis teksnya sekali di tabel <b>TEKS BACAAN</b> (kode T1, T2, …) dan isi kode itu pada baris <i>Kode teks</i> soal-soalnya.</li>
+          <li>Simpan sebagai .docx, lalu unggah di kotak di bawah.</li></ol>
+        <h4>Cara 2 — Dengan bantuan AI</h4>
+        <ol><li>Tekan <b>Unduh template darurat</b> dan <b>Unduh prompt AI</b> (atau <b>Salin prompt</b>).</li>
+          <li>Buka layanan AI yang bisa membaca dan membuat berkas, misalnya ChatGPT, Gemini, atau Claude. Lampirkan <b>dua berkas</b>: template darurat dan naskah soal Anda (Word, PDF, atau foto yang jelas).</li>
+          <li>Tempelkan isi prompt, kirim, lalu unduh berkas Word yang dibuat AI.</li>
+          <li>Bila AI tidak bisa membuat berkas Word, ia akan menuliskan isi tiap soal dalam format baku; salin isinya ke template secara manual (Cara 1).</li></ol>
+        <h4>Wajib diperiksa sebelum terbit (AI bisa keliru)</h4>
+        <ul><li><b>Kunci jawaban</b> setiap soal — terutama yang dilaporkan AI sebagai "ditentukan sendiri" atau "ragu".</li>
+          <li>Jumlah soal sama dengan naskah asli, nomor berurutan, tidak ada soal yang terlewat atau terduplikasi.</li>
+          <li>Rumus, tabel, dan gambar tampil benar. Setelah diunggah, aplikasi menampilkan <b>pratinjau</b> dengan kunci berwarna hijau — periksa di sana sebelum menekan <b>Terbitkan</b>.</li></ul>
+        <h4>Kerahasiaan soal</h4>
+        <p>Soal ujian yang diunggah ke layanan AI berada di luar sistem sekolah. Gunakan akun pribadi/sekolah yang aman, jangan membagikan percakapannya, dan hapus percakapan setelah selesai bila soal bersifat rahasia (PTS/PAS).</p>
+        <h4>Sesudah terbit</h4>
+        <p>Paket bertanda <b>Darurat</b>. Untuk mengesahkannya: <i>Pustaka Paket → buka paket → Kisi-kisi .docx</i>, periksa/lengkapi, lalu unggah di <b>Langkah 1</b> dengan kode yang sama.</p>
+      </div></details>
     <label class="small">PIN darurat<input type="password" id="pin-d" autocomplete="off"></label>
     <div class="drop" id="drop-d" style="margin-top:10px"><p><b>Seret file soal ke sini</b> atau <label style="color:var(--acc);text-decoration:underline;cursor:pointer">pilih file<input type="file" id="file-d" accept=".docx" class="hidden"></label></p></div>
     <div id="d-status" class="small" style="margin-top:8px"></div>
@@ -1284,7 +1322,70 @@ function gambarQr(id){const el=$(id);el.innerHTML="";try{new QRCode(el,{text:stu
 
 /* ---------- kisi-kisi (langkah 1) ---------- */
 let KISI=null;
-function unduhBiner(nama,bytes,mime){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([bytes],{type:mime}));a.download=nama;a.click()}
+// Tautan unduh dipasang ke halaman dulu (sebagian peramban mengabaikan klik pada tautan yang tidak terpasang)
+function unduhBiner(nama,bytes,mime){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([bytes],{type:mime}));a.download=nama;a.style.display="none";document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},60000)}
+/* Prompt AI untuk memindahkan naskah soal ke Template Soal Darurat. Aturannya sama dengan pembaca dokumen aplikasi
+   (TKA.parseDocx/buildPaket) dan dengan "Petunjuk konversi" di dalam template darurat. */
+const PROMPT_DARURAT=`PERAN
+Anda membantu guru SMA Plus Merdeka Soreang memindahkan naskah soal yang sudah ada ke "Template Soal — Jalur Darurat" milik aplikasi ujian Asesmen Merdeka. Hasil Anda akan dibaca oleh program, jadi strukturnya harus persis.
+
+BERKAS YANG SAYA LAMPIRKAN
+1. Template_Soal_Darurat.docx — template resmi. Strukturnya TIDAK BOLEH diubah.
+2. Naskah soal saya (Word, PDF, atau gambar).
+
+TUGAS
+Isi template dengan SELURUH soal dari naskah, lalu berikan hasilnya sebagai SATU berkas Word (.docx) yang bisa saya unduh. Kerjakan langsung di atas template yang saya lampirkan (salin tabel kosong yang sesuai untuk setiap soal); jangan membuat dokumen baru dari nol.
+
+ATURAN WAJIB
+1. STRUKTUR: dokumen berisi tabel dua kolom persis seperti template — satu tabel INFORMASI UJIAN, satu tabel TEKS BACAAN untuk setiap teks bersama (bila ada), dan SATU TABEL TERPISAH UNTUK SETIAP SOAL. Di antara tabel ada satu paragraf kosong. Jangan menyatukan beberapa soal dalam satu tabel. Bagian "KETENTUAN" dan "PETUNJUK KONVERSI" di awal template boleh dibiarkan.
+2. INFORMASI UJIAN: Kode ujian = huruf besar/angka/strip, 3–31 karakter, unik (mis. BIN-PAS-01); isi juga Judul, Mata pelajaran, Kelas, Materi, Durasi (menit), dan Jumlah varian (1 bila naskah hanya satu paket).
+3. KOLOM KIRI JANGAN DIUBAH, diterjemahkan, atau disingkat (Nomor, Varian, Bentuk, Kompetensi/Materi/Sub-materi, Indikator, Level, Kode teks, Perintah soal, Pertanyaan, Pilihan A–E, Pernyataan 1–5, Kiri 1–6, Kanan a–f, Kunci, Toleransi, Jawaban alternatif, Pembahasan). Judul tabel (baris pertama) tetap "SOAL — …" sesuai bentuk.
+4. PILIH TABEL SESUAI BENTUK: satu jawaban benar → "SOAL — PG"; lebih dari satu jawaban benar → "SOAL — PG KOMPLEKS"; pernyataan Benar/Salah → "SOAL — BENAR – SALAH"; menjodohkan → "SOAL — MENJODOHKAN"; jawaban singkat/angka → "SOAL — ISIAN SINGKAT / ANGKA". Baris Bentuk diisi tepat: PG / PG Kompleks / Benar - Salah / Menjodohkan / Isian.
+5. NOMOR berurutan 1..N tanpa lompatan. VARIAN diisi A bila hanya satu paket.
+6. PILIHAN: PG dan PG Kompleks — isi Pilihan A sampai E (minimal A–D), satu pilihan per baris, TANPA huruf "A." di depannya. Benar - Salah — isi Pernyataan 1–5. Menjodohkan — isi Kiri 1–6 dan Kanan a–f. Jangan meletakkan pilihan di dalam sel Pertanyaan.
+7. TEKS BACAAN BERSAMA: bila beberapa soal memakai satu teks/tabel/grafik yang sama, buat satu tabel TEKS BACAAN (Kode teks T1, T2, …; Judul; Isi) dan tulis kode yang sama di baris "Kode teks" setiap soal terkait. Jangan menyalin ulang teksnya ke setiap soal.
+8. TABEL DATA di dalam soal/teks: pertahankan sebagai TABEL WORD sungguhan (gaya Table Grid, garis penuh) di dalam sel Perintah soal atau sel Isi teks bacaan — jangan diubah menjadi teks dengan tanda "|". Gambar/grafik disisipkan sebagai gambar PNG/JPG (≤ 300 KB) di sel yang sama. Rumus memakai subscript/superscript Word (H₂O, 10²³).
+9. LEVEL tepat salah satu: Knowing (mengingat/memahami), Applying (menerapkan), Reasoning (menganalisis/mengevaluasi/mencipta). Pemetaan: C1–C2 → Knowing, C3 → Applying, C4–C6 → Reasoning; Mudah → Knowing, Sedang → Applying, Sukar → Reasoning.
+10. KUNCI: PG "B" · PG Kompleks "A, C, E" · Benar - Salah "Benar, Salah, Benar" sesuai urutan pernyataan · Menjodohkan "1-d, 2-c, 3-e" · Isian: nilai kunci, Toleransi (angka, mis. 0,05), Jawaban alternatif dipisah "|". Kunci harus merujuk ke pilihan yang benar-benar ada.
+11. KOMPETENSI dan INDIKATOR: ambil dari naskah bila ada; bila tidak ada, tuliskan sub-materi dan indikator yang wajar dari isi soal (jangan dikosongkan). PEMBAHASAN: ambil dari naskah; bila tidak ada, tulis pembahasan singkat yang benar.
+12. JANGAN mengarang soal baru, mengubah isi soal, atau mengubah urutan. Jangan menambahkan kolom, catatan, atau teks lain di dalam tabel. Tabel kosong yang tidak terpakai boleh dihapus.
+
+SETELAH SELESAI, TULIS LAPORAN SINGKAT
+- Jumlah soal per bentuk (PG, PG Kompleks, Benar - Salah, Menjodohkan, Isian) dan jumlah teks bacaan.
+- Daftar nomor soal yang kuncinya TIDAK ada di naskah sehingga Anda tentukan sendiri, dan nomor yang Anda ragukan.
+- Daftar nomor yang Level/Kompetensi/Indikatornya Anda tentukan sendiri.
+
+BILA ANDA TIDAK BISA MEMBUAT BERKAS .DOCX
+Tuliskan isi setiap soal dengan format di bawah ini (satu blok per soal) agar saya salin manual ke template:
+
+=== INFORMASI UJIAN ===
+Kode ujian: …
+Judul: …
+Mata pelajaran: …
+Kelas: …
+Materi: …
+Durasi (menit): …
+Jumlah varian: 1
+
+=== TEKS T1 ===   (hanya bila ada teks bersama)
+Judul: …
+Isi: …
+
+=== SOAL 1 · Varian A · PG ===
+Kompetensi/Materi/Sub-materi: …
+Indikator: …
+Level: Knowing
+Kode teks: (kosong, atau T1)
+Perintah soal: …
+Pertanyaan: …
+Pilihan A: …
+Pilihan B: …
+Pilihan C: …
+Pilihan D: …
+Pilihan E: …
+Kunci: B
+Pembahasan: …
+`;
 async function bacaKisi(f){$("k-status").innerHTML=`<span class="pill">Membaca ${esc(f.name)}…</span>`;
   try{const parsed=await TKA.parseDocx(await f.arrayBuffer(),JSZip,DOMParser);const r=TKA.buildKisi(parsed);KISI=r.ok?r.kisi:null;
     $("k-status").innerHTML=`<span class="pill ${r.ok?"good":"bad"}">${r.ok?"Kisi-kisi terbaca":"Terbaca dengan galat"}</span> ${esc(f.name)}`;$("k-hasil").classList.remove("hidden");
@@ -1832,6 +1933,9 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("file-s").onchange=e=>{if(e.target.files[0])bacaSiswa(e.target.files[0])};
   const ds=$("drop-s");ds.ondragover=e=>{e.preventDefault();ds.style.borderColor="var(--acc)"};ds.ondragleave=()=>ds.style.borderColor="";ds.ondrop=e=>{e.preventDefault();ds.style.borderColor="";if(e.dataTransfer.files[0])bacaSiswa(e.dataTransfer.files[0])};
   pasangPustaka();$("btn-dp-batal").onclick=()=>$("daftar-pemilik-card").classList.add("hidden");$("btn-di-batal").onclick=()=>$("daftar-info-card").classList.add("hidden");$("btn-di-simpan").onclick=simpanKeterangan;
+  $("btn-d-template").onclick=async e=>{const b=e.currentTarget,t=b.textContent;b.disabled=true;b.textContent="Menyiapkan…";try{unduhBiner("Template_Soal_Darurat.docx",await TKA_DOC.buatTemplateDarurat(JSZip),"application/vnd.openxmlformats-officedocument.wordprocessingml.document");toast("Template darurat diunduh — lihat folder Unduhan")}catch(er){toast("Gagal membuat template: "+er.message)}finally{b.disabled=false;b.textContent=t}};
+  $("btn-d-prompt").onclick=()=>{unduhBiner("Prompt_AI_Template_Darurat.txt",new TextEncoder().encode("\ufeff"+PROMPT_DARURAT.split("\n").join("\r\n")),"text/plain;charset=utf-8");toast("Prompt AI diunduh — lampirkan bersama template darurat dan naskah soal")};
+  $("btn-d-salin").onclick=async e=>{try{await navigator.clipboard.writeText(PROMPT_DARURAT);e.currentTarget.textContent="Prompt tersalin ✓";setTimeout(()=>$("btn-d-salin").textContent="Salin prompt",1800)}catch(er){toast("Gagal menyalin: "+er.message+" — pakai Unduh prompt AI")}};
   $("btn-k-kosong").onclick=async()=>{try{unduhBiner("Template_Kisi_Kisi.docx",await TKA_DOC.buatKisiKosong(JSZip),"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}catch(e){toast("Gagal membuat dokumen: "+e.message)}};$("btn-dl-tutup").onclick=()=>$("daftar-lihat-card").classList.add("hidden");
   $("btn-s-simpan").onclick=simpanSiswa;$("btn-s-muat").onclick=muatSiswa;$("btn-e-simpan").onclick=simpanSatu;$("s-cari").addEventListener("input",renderSiswa);
   $("btn-s-hapus-semua").onclick=async()=>{if(!confirm("Hapus SEMUA data siswa? Siswa tidak bisa masuk dengan NISN sampai data diunggah lagi."))return;if(!confirm("Yakin?"))return;try{await rpc("tka_hapus_siswa",{p_pin:PIN(),p_semua:true});toast("Semua data siswa dihapus");muatSiswa()}catch(e){toast("Gagal: "+e.message)}};

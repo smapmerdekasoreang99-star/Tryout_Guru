@@ -73,6 +73,7 @@ PIN cukup dimasukkan sekali di menu guru; halaman Upload Soal, Pustaka Paket, da
 ## C2. Jalur darurat (hanya keadaan mendesak)
 
 - Tab **Jalur darurat** di `admin.html` menerbitkan paket langsung dari `Template_Soal_Darurat.docx` tanpa Langkah 1.
+- **Menyiapkan berkas** (kotak Jalur darurat): **Unduh template darurat** (dibuat aplikasi, berisi ketentuan & petunjuk konversi) untuk memindahkan soal secara manual, atau **Unduh prompt AI** / **Salin prompt** untuk ChatGPT/Gemini/Claude — lampirkan template darurat + naskah soal, tempel prompt, unduh berkas Word hasil AI. Prompt memuat aturan yang sama dengan pembaca dokumen aplikasi dan format cadangan bila AI tidak bisa membuat berkas. Bagian *Penjelasan lengkap untuk guru* menjelaskan kapan memakai jalur ini, langkah manual & AI, yang wajib diperiksa (kunci!), dan kerahasiaan soal.
 - Hanya bisa dengan **PIN darurat** (bawaan `darurat2026`, terpisah dari PIN guru; dicek di server). Ganti di SQL Editor: `update public.tka_privat set v = 'PIN_BARU' where k = 'pin_darurat';` Simpan PIN ini pada pimpinan/kurikulum, bukan pada semua guru.
 - Setiap tabel soal wajib mengisi Bentuk dan Level; Kompetensi & Indikator sangat dianjurkan. Aplikasi menyusun kisi-kisi otomatis dari soal, menampilkan komposisi (peringatan bila Reasoning < 20% atau Knowing > 30%), lalu menerbitkan.
 - Paket dan kisi-kisinya ditandai **Darurat** di daftar admin dan di dasbor guru (bisa diaudit). Kisi-kisi resmi yang sudah ada tidak ditimpa oleh jalur darurat.
