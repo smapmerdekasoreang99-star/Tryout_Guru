@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <script src="config.js"></script>
-<script src="assets/simpan.js?v=2"></script><!-- Cara yang disarankan: buat berkas config.js (sekali saja) berisi  window.TKA_SUPABASE = { url: "https://xxxx.supabase.co", key: "eyJ..." };  di folder yang sama. Berkas ini tidak ikut ditimpa saat index.html/admin.html diperbarui. Alternatif: isi baris ke-2 di atas, atau tautan ?sb=URL&key=ANON. -->
+<script src="assets/simpan.js?v=3"></script><!-- Cara yang disarankan: buat berkas config.js (sekali saja) berisi  window.TKA_SUPABASE = { url: "https://xxxx.supabase.co", key: "eyJ..." };  di folder yang sama. Berkas ini tidak ikut ditimpa saat index.html/admin.html diperbarui. Alternatif: isi baris ke-2 di atas, atau tautan ?sb=URL&key=ANON. -->
 <html lang="id">
 <head>
 <meta charset="utf-8">
@@ -1136,7 +1136,7 @@ async function unduhExcel(){if(!GPK){toast("Muat ujian dahulu");return}const b=$
     const kelas=$("g-kelas").value;const wb=bukuHasil({ExcelJS,paket:GPK,rows:filtered(),kelas,logoBase64:logo,sekolah:"SMA Plus Merdeka Soreang"});
     const buf=await wb.xlsx.writeBuffer();const t=new Date(),tgl=`${t.getFullYear()}${String(t.getMonth()+1).padStart(2,"0")}${String(t.getDate()).padStart(2,"0")}`;
     const nama=`Hasil_${GPK.kode}${kelas?"_"+kelas.replace(/[^\w-]+/g,"-"):""}_${tgl}.xlsx`;
-    const st=await simpanBerkas(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}),nama);if(st!=="batal")toast(pesanSimpan(st,nama))}
+    const st=await simpanBerkas(buf,nama);if(st!=="batal")toast(pesanSimpan(st,nama))}
   catch(e){toast("Gagal menyusun Excel: "+e.message)}finally{b.disabled=false;b.textContent=lama}}
 
 /* ================= EVENT ================= */

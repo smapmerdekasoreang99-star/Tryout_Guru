@@ -26,8 +26,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>window.XL_APLIKASI = "Asesmen Merdeka";</script>
-<script src="assets/simpan.js?v=2"></script>
-<script src="assets/excel.js?v=2"></script>
+<script src="assets/simpan.js?v=3"></script>
+<script src="assets/excel.js?v=3"></script>
 <link rel="stylesheet" href="assets/dasar.css?v=3">
 <style>
 :root{--bg:var(--kertas);--card:#fff;--ink:var(--tinta);--muted:var(--tinta-2);--line:var(--garis);--acc:var(--gelap);--acc-soft:var(--emas-muda);--kuning:var(--emas);--warn:var(--emas-teks);--warn-soft:var(--emas-muda);--bad:var(--absen);--bad-soft:var(--absen-muda);--good:var(--hadir);--good-soft:var(--hadir-muda);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
@@ -1325,7 +1325,7 @@ function gambarQr(id){const el=$(id);el.innerHTML="";try{new QRCode(el,{text:stu
 let KISI=null;
 // Tautan unduh dipasang ke halaman dulu (sebagian peramban mengabaikan klik pada tautan yang tidak terpasang)
 // lewat assets/simpan.js: unduhan biasa (data: untuk berkas kecil, blob: untuk berkas besar), dengan batas waktu
-async function unduhBiner(nama,bytes,mime){const st=await simpanBerkas(new Blob([bytes],{type:mime}),nama);if(st!=="batal")toast(pesanSimpan(st,nama));return st}
+async function unduhBiner(nama,bytes,mime){const st=await simpanBerkas(bytes,nama,mime);if(st!=="batal")toast(pesanSimpan(st,nama));return st}
 /* Prompt AI untuk memindahkan naskah soal ke Template Soal Darurat: prompt yang sudah teruji di sekolah
    (Prompt_Konversi_Soal_ke_Template_Darurat.txt), ditambah catatan baris keterangan INFORMASI UJIAN dan format cadangan (no. 12). */
 const PROMPT_DARURAT=`PROMPT UNTUK ChatGPT / AI — KONVERSI NASKAH SOAL KE TEMPLATE SOAL DARURAT (Asesmen Merdeka)
@@ -1687,6 +1687,9 @@ const fileKartu=(g,blob)=>new File([blob],namaBerkasKartu(g),{type:"image/png"})
 function siapkanKartu(){}   // dulu menyiapkan kartu di latar belakang; tidak dipakai lagi
 // Tautan unduh dipasang ke halaman dulu: sebagian peramban mengabaikan klik pada tautan yang tidak terpasang
 const unduhBlob=(blob,nama)=>simpanBerkas(blob,nama);
+// PNG kartu sebagai alamat data: langsung dari kanvas (untuk diunduh; tidak lewat Blob)
+const pngKartu=g=>{const u=kanvasKartu(g).toDataURL("image/png");if(u.length<5000)throw new Error("peramban mengembalikan PNG kosong");return u};
+
 const teksBagi=g=>`PIN pribadi ${g.nama} untuk Asesmen Merdeka${(g.kelompok||[]).length?" dan Matematika Dasar":""}. Rahasia, mohon tidak diteruskan.`;
 // Kartu versi HTML: cadangan bila kanvas sama sekali tidak bisa digambar
 function kartuHtml(g){const logo=(document.querySelector("header.top img")||{}).src||"";
@@ -1711,8 +1714,8 @@ async function aksiKartu(a,g,dariJendela){
     try{window.focus();await batasWaktu(navigator.clipboard.write([new ClipboardItem({"image/png":gambarKartu(g)})]),"menyalin ke clipboard");toast(`Kartu ${g.nama} disalin — tempel (Ctrl+V) di chat WhatsApp-nya`)}
     catch(e){if(dariJendela)toast("Gagal menyalin: "+e.message+" — klik kanan gambar → Salin gambar");else lihatKartu(g,"Gagal menyalin otomatis ("+e.message+"). Klik kanan gambar di bawah → Salin gambar.")}
     return}
-  let blob;try{blob=await gambarKartu(g)}catch(e){lihatKartu(g,"Gagal membuat PNG: "+e.message+". Klik kanan gambar di bawah → Simpan/Salin gambar, atau foto layar (Win+Shift+S).");return}
-  if(a==="unduh"){const st=await unduhBlob(blob,namaBerkasKartu(g));if(st!=="batal")toast(pesanSimpan(st,namaBerkasKartu(g)))}
+  let blob;try{blob=a==="unduh"?pngKartu(g):await gambarKartu(g)}catch(e){lihatKartu(g,"Gagal membuat PNG: "+e.message+". Klik kanan gambar di bawah → Simpan/Salin gambar, atau foto layar (Win+Shift+S).");return}
+  if(a==="unduh"){const st=await simpanBerkas(blob,namaBerkasKartu(g));if(st!=="batal")toast(pesanSimpan(st,namaBerkasKartu(g)))}
   else if(a==="bagi"){const file=fileKartu(g,blob);
     if(!bisaBagiBerkas()){const st=await unduhBlob(blob,file.name);if(st!=="batal")toast("Peramban ini belum bisa membagikan gambar langsung — "+pesanSimpan(st,file.name)+". Lampirkan di WhatsApp.");return}
     try{await navigator.share({files:[file],title:"PIN pribadi "+g.nama,text:teksBagi(g)})}
@@ -1721,7 +1724,7 @@ async function bagiKartuBanyak(daftar){if(!daftar.length)return;
   try{const files=[];for(const g of daftar)files.push(fileKartu(g,await gambarKartu(g)));await navigator.share({files,title:"PIN pribadi guru"})}
   catch(e){if(e.name!=="AbortError")toast("Gagal membagikan: "+e.message+" — bagikan satu per satu dari barisnya")}}
 async function unduhKartuBanyak(daftar){if(!daftar.length)return;
-  try{const isi=[];for(const g of daftar)isi.push({blob:await gambarKartu(g),nama:namaBerkasKartu(g)});const st=await simpanBanyak(isi);
+  try{const isi=[];for(const g of daftar)isi.push({isi:pngKartu(g),nama:namaBerkasKartu(g)});const st=await simpanBanyak(isi);
     if(st!=="batal")toast(st==="disimpan"?`${daftar.length} kartu tersimpan di folder pilihan`:`${daftar.length} kartu diunduh${daftar.length>1?' — bila peramban bertanya "unduh beberapa berkas", pilih Izinkan':""}`)}
   catch(e){toast("Gagal membuat PNG: "+e.message)}}
 async function bagiTerpilih(){return bagiKartuBanyak(guruTerpilih())}
@@ -1937,7 +1940,7 @@ function pasangPustaka(){const d=$("pk-daftar");
   $("pk-mapel").onclick=e=>{const b=e.target.closest("[data-m]");if(b){PKF.mapel=b.dataset.m;renderPustaka()}};
   $("pk-status").onclick=$("pk-tindakan").onclick=e=>{const b=e.target.closest("[data-s]");if(b){PKF.status=b.dataset.s;renderPustaka()}};
   $("btn-muat").onclick=muatDaftar;$("btn-dt-tutup").onclick=()=>$("daftar-tautan").classList.add("hidden")}
-async function unduh(nama,isi){const st=await simpanBerkas(new Blob([isi],{type:"application/json"}),nama);if(st!=="batal")toast(pesanSimpan(st,nama));return st}
+async function unduh(nama,isi){const st=await simpanBerkas(String(isi),nama,"application/json");if(st!=="batal")toast(pesanSimpan(st,nama));return st}
 
 /* ---------- event ---------- */
 window.addEventListener("DOMContentLoaded",()=>{
