@@ -26,7 +26,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>window.XL_APLIKASI = "Asesmen Merdeka";</script>
-<script src="assets/simpan.js?v=1"></script>
+<script src="assets/simpan.js?v=2"></script>
 <script src="assets/excel.js?v=2"></script>
 <link rel="stylesheet" href="assets/dasar.css?v=3">
 <style>
@@ -1324,7 +1324,7 @@ function gambarQr(id){const el=$(id);el.innerHTML="";try{new QRCode(el,{text:stu
 /* ---------- kisi-kisi (langkah 1) ---------- */
 let KISI=null;
 // Tautan unduh dipasang ke halaman dulu (sebagian peramban mengabaikan klik pada tautan yang tidak terpasang)
-// lewat assets/simpan.js: jendela "Simpan sebagai" atau alamat data: (unduhan blob: diblokir Chrome yang dikelola sekolah)
+// lewat assets/simpan.js: unduhan biasa (data: untuk berkas kecil, blob: untuk berkas besar), dengan batas waktu
 async function unduhBiner(nama,bytes,mime){const st=await simpanBerkas(new Blob([bytes],{type:mime}),nama);if(st!=="batal")toast(pesanSimpan(st,nama));return st}
 /* Prompt AI untuk memindahkan naskah soal ke Template Soal Darurat: prompt yang sudah teruji di sekolah
    (Prompt_Konversi_Soal_ke_Template_Darurat.txt), ditambah catatan baris keterangan INFORMASI UJIAN dan format cadangan (no. 12). */
