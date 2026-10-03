@@ -85,9 +85,20 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .nilai.t{background:var(--good-soft);color:var(--good)}.nilai.s{background:var(--warn-soft);color:var(--warn)}.nilai.r{background:var(--bad-soft);color:var(--bad)}
 .lv{display:inline-block;width:64px;height:8px;background:var(--garis);border-radius:4px;vertical-align:middle;margin-right:4px;overflow:hidden}.lv>i{display:block;height:100%;background:var(--gelap)}
 .gbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:12px 0}.gbox h3{margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:12px 0}
-.mi{display:block;text-align:left;background:#fff;color:var(--ink);border:1px solid var(--line);border-left:5px solid var(--acc);border-radius:12px;padding:16px 16px;font:inherit;text-decoration:none;cursor:pointer}
-.mi b{display:block;font-size:16px;color:var(--acc);margin-bottom:3px}.mi span{display:block;font-size:13px;color:var(--muted)}.mi:hover{background:var(--kertas-3)}
+/* Menu guru: kartu sambutan + ubin berikon (gaya ikon sama dengan bilah menu Matematika Dasar) */
+.menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin:14px 0 24px}
+.mi{display:flex;gap:14px;align-items:flex-start;text-align:left;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;font:inherit;font-weight:400;letter-spacing:0;text-decoration:none;cursor:pointer;box-shadow:var(--bayang-1);transition:transform .12s,box-shadow .12s,border-color .12s}
+.mi:hover{transform:translateY(-2px);box-shadow:var(--bayang-2);border-color:var(--emas);background:#fff}.mi:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
+.mi-ik{flex:none;width:50px;height:50px;border-radius:13px;background:var(--gelap);color:var(--emas);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -8px rgba(29,42,58,.7)}
+.mi-ik svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mi-tx{display:grid;gap:3px;min-width:0}.mi-tx b{font-size:16.5px;color:var(--gelap)}.mi-tx span{font-size:13px;color:var(--muted);line-height:1.45}
+.m-sambut{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(160deg,var(--gelap-2),var(--gelap));color:#fff;border-radius:16px;padding:20px 22px;margin:12px 0 4px;border-bottom:4px solid var(--emas);position:relative;overflow:hidden}
+.m-sambut:before{content:"";position:absolute;right:-50px;bottom:-70px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(220,192,110,.25),rgba(220,192,110,0) 70%)}
+.m-sambut .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--emas);font-weight:700}
+.m-sambut h2{color:#fff;margin:4px 0 4px;font-family:"Fraunces",Georgia,serif;font-size:23px}.m-sambut .small{color:var(--tinta-terang-2)}.m-sambut .small b{color:#fff}
+.m-kanan{display:flex;gap:8px;align-items:center;position:relative}.m-kanan .pill{background:rgba(255,255,255,.12);color:var(--emas)}
+.m-kanan button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6);padding:8px 14px;font-size:13px}
+.bukan-op .op-only{display:none!important}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.chip{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px}.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 .srow{border-bottom:1px solid var(--line);padding:8px 2px}.srow.off{opacity:.55}.sr-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.sr-bot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:5px}
 .nisn{font-size:17px;letter-spacing:.06em;color:var(--acc);font-weight:700}.mini{padding:4px 8px;font-size:12px}.tgl{font-weight:600;color:var(--warn)}
@@ -299,13 +310,15 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
     <label class="f" for="m-pin">PIN</label><input type="text" id="m-pin" autocomplete="off">
     <div class="row" style="margin-top:10px"><button id="btn-m-masuk">Masuk</button><button class="ghost" id="btn-m-back">Kembali</button></div><div id="m-msg" class="small" style="margin-top:6px"></div></div>
   <div id="m-main" class="hidden">
-    <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Menu guru</h2><span><span class="pill" id="m-peran"></span> <button class="ghost" id="btn-m-out" style="padding:8px 12px;font-size:13px">Keluar</button></span></div><div id="m-info" class="small muted" style="margin-top:4px"></div></div>
+    <div class="m-sambut"><div><span class="lbl">Menu guru · Asesmen Merdeka</span><h2 id="m-halo">Selamat datang</h2><div id="m-info" class="small"></div></div>
+      <div class="m-kanan"><span class="pill" id="m-peran"></span><button id="btn-m-out">Keluar</button></div></div>
     <div class="menu">
-      <button class="mi mi-utama" id="mi-sesi"><b>Sesi ujian</b><span>Buka ujian untuk kelas, tampilkan kode akses, pantau siswa yang sedang mengerjakan</span></button>
-      <button class="mi" id="mi-dasbor"><b>Dasbor hasil</b><span>Rekap nilai, analisis butir, belum mengerjakan, riwayat siswa</span></button>
-      <button class="mi" id="mi-siswa"><b>Daftar siswa</b><span>Cari NISN untuk membantu siswa yang lupa NISN-nya</span></button>
-      <button class="mi" id="mi-ujicoba"><b>Uji coba soal</b><span>Mengerjakan seperti siswa; hasil tidak disimpan</span></button>
-      <a class="mi kelola-only" id="mi-admin" href="admin.html"><b>Halaman admin</b><span>Unggah soal ke bank soal, pustaka paket, data siswa, guru &amp; PIN</span></a>
+      <button class="mi" id="mi-sesi"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg></span><span class="mi-tx"><b>Sesi Ujian</b><span>Buka ujian untuk kelas, tampilkan kode akses, pantau siswa yang sedang mengerjakan</span></span></button>
+      <button class="mi" id="mi-dasbor"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="mi-tx"><b>Dasbor Hasil</b><span>Rekap nilai, analisis butir, belum mengerjakan, riwayat siswa, unduh Excel</span></span></button>
+      <a class="mi kelola-only" id="mi-soal" href="admin.html?menu=soal"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg></span><span class="mi-tx"><b>Upload Soal</b><span>Kisi-kisi, template soal, terbit ke bank soal, jalur darurat</span></span></a>
+      <a class="mi kelola-only" id="mi-pustaka" href="admin.html?menu=pustaka"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h3v18H6a2 2 0 0 1-2-2zM9 3h4v18H9zM14.5 4.2l3.9-1 3.4 16.6-3.9.9z"/></svg></span><span class="mi-tx"><b>Pustaka Paket</b><span>Bank soal: cari paket, buka sesi, coba soal, lihat hasil</span></span></a>
+      <button class="mi" id="mi-siswa"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="8" r="4"/><path d="M3.5 21a7.5 7.5 0 0 1 12.2-5.8M17 17l2 2 3.5-3.5"/></svg></span><span class="mi-tx"><b>Daftar Siswa</b><span>Bantu pengawas: cari NISN siswa yang lupa NISN-nya</span></span></button>
+      <a class="mi op-only" id="mi-admin" href="admin.html?menu=admin"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.1 7.5 9.5 4.3-1.4 7.5-4.9 7.5-9.5V6z"/><circle cx="12" cy="11" r="2.2"/><path d="M12 13.2V16"/></svg></span><span class="mi-tx"><b>Admin</b><span>Data siswa, PIN guru, impor kode hasil, cadangan, bantuan</span></span></a>
     </div>
     <div class="card hidden" id="v-ujicoba"><h2>Uji coba soal</h2><p class="muted small">Paket mana pun di bank soal bisa dicoba tanpa membuka sesi. Hasil <b>tidak disimpan</b>. Kunci &amp; pembahasan tersedia di halaman hasil bila Anda penyusun paketnya.</p>
       <label class="f" for="uc-kode">Kode ujian</label><input type="text" id="uc-kode" autocapitalize="characters" style="text-transform:uppercase" placeholder="contoh: KIM-STO-01">
@@ -692,17 +705,21 @@ function renderDetail(i,pos){const q=Q(i),a=S.answers[i],ok=S.result.detail[i].b
 let ROWS=[],PIN="",PERAN="",PAKETS=[],GPK=null,GPES=null,GSESI=[],G_SESI_AWAL="";
 let GURU={};   // identitas dari PIN: {id, nama, bersama, kelas_saya, atur}
 /* ---------- Menu guru / pengawas ---------- */
-function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);$("m-peran").textContent=PERAN==="operator"?"Operator · akses penuh":PERAN==="guru"?"Guru · kelola":"Pengawas · lihat"}
+function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);document.body.classList.toggle("bukan-op",PERAN!=="operator");$("m-peran").textContent=PERAN==="operator"?"Operator · akses penuh":PERAN==="guru"?"Guru · kelola":"Pengawas · lihat"}
 let SESI_URL=qs.get("sesi");   // admin.html → index.html?guru&sesi=KODE: langsung ke form buka sesi untuk paket itu
+let DASBOR_URL=qs.get("dasbor"),UJI_URL=qs.get("ujicoba"),G_DASBOR="";   // Pustaka paket → Hasil / Coba soal
 async function masukMenu(pin){$("m-msg").textContent="Memeriksa…";
   try{const j=await rpc("tka_masuk_guru",{p_pin:pin});PIN=pin;GURU=j;setPeran(j.peran);ssSet(CFG.lsPin,{pin,peran:j.peran});$("m-login").classList.add("hidden");$("m-main").classList.remove("hidden");$("m-msg").textContent="";
-    $("m-info").innerHTML=`Masuk sebagai <b>${esc(j.nama)}</b> · ${j.n_siswa} siswa aktif terdaftar`+(j.bersama?'<br><span class="pill warn">PIN guru bersama</span> Mintalah PIN pribadi kepada operator: sesi dan paket yang Anda buat dengan PIN bersama tidak tercatat atas nama Anda.':"");
+    $("m-halo").textContent="Selamat datang, "+String(j.nama).split(",")[0];
+    $("m-info").innerHTML=`${j.n_siswa} siswa aktif terdaftar`+(j.bersama?'<br><span class="pill warn">PIN guru bersama</span> Mintalah PIN pribadi kepada operator: sesi dan paket yang Anda buat dengan PIN bersama tidak tercatat atas nama Anda.':"");
     if(SESI_URL){const k=SESI_URL.toUpperCase();SESI_URL=null;bukaSesi({paket:k})}
+    else if(DASBOR_URL){G_DASBOR=DASBOR_URL.toUpperCase();DASBOR_URL=null;show("v-guru");$("g-main").classList.add("hidden");loginGuru()}
+    else if(UJI_URL){const k=UJI_URL.toUpperCase();UJI_URL=null;mulaiUjiCoba(k)}
     return true}
   catch(e){$("m-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return false}}
 function bukaMenu(){show("v-menu");const sv=ssGet(CFG.lsPin,null);if(PIN&&PERAN){$("m-login").classList.add("hidden");$("m-main").classList.remove("hidden")}
   else if(sv&&sv.pin){masukMenu(sv.pin)}else{$("m-login").classList.remove("hidden");$("m-main").classList.add("hidden");$("m-pin").value="";$("m-pin").focus()}}
-function keluarMenu(){PIN="";PERAN="";GURU={};PAKETS=[];SESI=[];SE_PANTAU=null;clearInterval(SE_TIMER);ssSet(CFG.lsPin,null);SISWA=null;document.body.classList.remove("lihat");$("g-main").classList.add("hidden");$("g-login").classList.remove("hidden");$("m-main").classList.add("hidden");$("m-login").classList.remove("hidden");show("v-start")}
+function keluarMenu(){PIN="";PERAN="";document.body.classList.remove("bukan-op");GURU={};PAKETS=[];SESI=[];SE_PANTAU=null;clearInterval(SE_TIMER);ssSet(CFG.lsPin,null);SISWA=null;document.body.classList.remove("lihat");$("g-main").classList.add("hidden");$("g-login").classList.remove("hidden");$("m-main").classList.add("hidden");$("m-login").classList.remove("hidden");show("v-start")}
 /* ---------- Daftar siswa (bantu login) ---------- */
 let SISWA=null,S_KELAS="",S_HASIL=null;
 const kelasSort=(a,b)=>String(a).localeCompare(String(b),"id",{numeric:true});
@@ -728,7 +745,7 @@ async function loginGuru(){if(!PIN)PIN=$("pin").value.trim();$("g-login-msg").te
   try{PAKETS=await rpc("tka_list_paket",{p_pin:PIN});$("g-login").classList.add("hidden");$("g-main").classList.remove("hidden");
     // urutan pilihan awal: ujian yang baru dikerjakan di HP ini → ?ujian= → pilihan terakhir di dasbor → paket terbaru yang tidak diarsipkan
     let akhir="";try{akhir=localStorage.getItem("tka_dasbor_ujian")||""}catch(e){}
-    const pref=[(S&&S.kode),qs.get("ujian"),akhir].map(x=>String(x||"").toUpperCase()).find(x=>x&&PAKETS.some(p=>p.kode===x));
+    const pref=[G_DASBOR,(S&&S.kode),qs.get("ujian"),akhir].map(x=>String(x||"").toUpperCase()).find(x=>x&&PAKETS.some(p=>p.kode===x));
     $("g-ujian").value=pref||((PAKETS.find(p=>!p.arsip)||PAKETS[0]||{}).kode||"");ujRenderKini();loadGuru()}
   catch(e){$("g-login-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 
@@ -850,6 +867,12 @@ async function renderRiwayat(){const box=$("g-riwayat-isi");box.innerHTML="Memua
   const uj=[...new Set(rows.map(r=>r.ujian))];const sis={};rows.forEach(r=>{const key=r.nisn||("~"+r.nama);(sis[key]=sis[key]||{nama:r.nama,nisn:r.nisn,kelas:r.kelas,n:{}}).n[r.ujian]=r.nilai});
   const list=Object.values(sis).sort((a,b)=>a.kelas.localeCompare(b.kelas)||a.nama.localeCompare(b.nama));
   box.innerHTML=`<table class="rekap" data-beku="1"><tr><th class="beku">Nama</th><th>NISN</th><th>Kelas</th>${uj.map(u=>`<th>${esc(u)}</th>`).join("")}<th>Rata-rata</th></tr>${list.map(x=>{const v=uj.map(u=>x.n[u]);const ada=v.filter(y=>y!==undefined);return `<tr><td class="beku">${esc(x.nama)}</td><td>${esc(x.nisn||"–")}</td><td>${esc(x.kelas)}</td>${v.map(y=>`<td class="n">${y===undefined?"–":y}</td>`).join("")}<td class="n"><b>${ada.length?Math.round(ada.reduce((a,b)=>a+b,0)/ada.length):"–"}</b></td></tr>`}).join("")}</table>`;bekukan(box.querySelector("table"))}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+/* Uji coba soal: guru mengerjakan seperti siswa, hasil tidak disimpan. Dibuka dari Pustaka paket → Coba soal (?ujicoba=KODE). */
+async function mulaiUjiCoba(kode){
+  try{const j=await rpc("tka_login_guru",{p_pin:PIN,p_kode:kode});PK=j.paket;KUNCI=j.kunci;
+    newSession(j.nama,j.kelas,{token:j.token,tamu:true});S.ujicoba=true;S.kunci=true;S.kunciData=j.kunci;save();$("hd-t").textContent=PK.judul+" (UJI COBA)";$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer();
+    if(!j.kunci)toast("Kunci & pembahasan hanya untuk penyusun paket ini; hasil tetap dinilai")}
+  catch(e){toast(e.message)}}
 /* ================= SESI UJIAN (guru membuka/menutup, pengawas memantau) =================
    Paket = bank soal. Guru memilih paket + kelas + lama pengerjaan → server membuat kode akses 6 angka.
    Daftar dan pantauan diperbarui otomatis tiap 20 detik selama layar ini terbuka. */
@@ -1158,15 +1181,11 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("s-cari").addEventListener("input",renderSiswa);$("s-ujian").onchange=async()=>{await muatStatusSiswa();renderSiswa()};
   $("mi-dasbor").onclick=()=>{show("v-guru");if($("g-main").classList.contains("hidden"))loginGuru()};
   $("mi-sesi").onclick=()=>bukaSesi();pasangSesi();
-  $("mi-ujicoba").onclick=()=>{$("v-ujicoba").classList.remove("hidden");$("uc-kode").value=$("uc-kode").value||qs.get("ujian")||"";$("v-ujicoba").scrollIntoView({behavior:"smooth"});$("uc-kode").focus()};
   $("btn-uc-batal").onclick=()=>$("v-ujicoba").classList.add("hidden");
-  $("btn-uc").onclick=async()=>{const kode=$("uc-kode").value.trim().toUpperCase(),pin=PIN;if(!kode){toast("Isi kode ujian");return}
-    try{const j=await rpc("tka_login_guru",{p_pin:pin,p_kode:kode});PK=j.paket;KUNCI=j.kunci;
-      newSession(j.nama,j.kelas,{token:j.token,tamu:true});S.ujicoba=true;S.kunci=true;S.kunciData=j.kunci;save();$("hd-t").textContent=PK.judul+" (UJI COBA)";$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer();
-      if(!j.kunci)toast("Kunci & pembahasan hanya untuk penyusun paket ini; hasil tetap dinilai")}
-    catch(e){toast(e.message)}};$("btn-guru-back").onclick=bukaMenu;$("btn-pin").onclick=()=>{PIN=$("pin").value.trim();loginGuru()};
+  $("btn-uc").onclick=()=>{const kode=$("uc-kode").value.trim().toUpperCase();if(!kode){toast("Isi kode ujian");return}mulaiUjiCoba(kode)};
+  $("btn-guru-back").onclick=bukaMenu;$("btn-pin").onclick=()=>{PIN=$("pin").value.trim();loginGuru()};
   $("btn-guru-out").onclick=bukaMenu;
-  if(qs.get("guru")!==null||SESI_URL)bukaMenu();
+  if(qs.get("guru")!==null||SESI_URL||DASBOR_URL||UJI_URL)bukaMenu();
   $("btn-refresh").onclick=loadGuru;try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=$("g-sesi").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
   $("btn-g-sesi-baru").onclick=()=>bukaSesi({paket:$("g-ujian").value});
   document.querySelectorAll(".ds-hasil .tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".ds-hasil .tabs button").forEach(x=>x.classList.toggle("on",x===b));["rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});

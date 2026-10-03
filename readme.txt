@@ -32,6 +32,19 @@ Isi folder:
 | `Template_Data_Siswa.xlsx` | Contoh format data siswa (NISN, NIS, Nama, Kelas, Tanggal Lahir); ekspor Dapodik juga diterima |
 | `supabase_setup_v6.sql` | Skema database (aman dijalankan di atas v1–v5) |
 
+## Menu guru (index.html → Masuk guru / pengawas → PIN)
+
+| Menu | Isi | Pengawas | Guru | Operator |
+|---|---|---|---|---|
+| **Sesi Ujian** | buka/tutup sesi, kode akses, pantau siswa | ✓ (lihat, Lepas) | ✓ | ✓ |
+| **Dasbor Hasil** | rekap, analisis butir, belum mengerjakan, riwayat, Excel | ✓ | ✓ | ✓ |
+| **Upload Soal** (`admin.html?menu=soal`) | Langkah 1 · Kisi-kisi, Langkah 2 · Soal, Jalur Darurat | | ✓ | ✓ |
+| **Pustaka Paket** (`admin.html?menu=pustaka`) | bank soal: buka sesi, coba soal, lihat hasil, kelola paket | | ✓ | ✓ |
+| **Daftar Siswa** | cari NISN siswa yang lupa | ✓ | ✓ | ✓ |
+| **Admin** (`admin.html?menu=admin`) | Data Siswa, PIN Guru, Impor Kode Hasil, Cadangan, Bantuan | | | ✓ |
+
+PIN cukup dimasukkan sekali di menu guru; halaman Upload Soal, Pustaka Paket, dan Admin memakai PIN yang sama (tab peramban yang sama). Uji coba soal: Pustaka Paket → buka paket → **Coba soal**. **Lihat hasil** membuka Dasbor Hasil dengan paket itu terpilih.
+
 ## A. Pemasangan / pembaruan (±10 menit)
 
 1. Supabase (proyek **Tryout_Guru**) → SQL Editor → tempel seluruh `supabase_setup_v6.sql` → Run.
@@ -89,7 +102,7 @@ Isi folder:
 | Pengawas | `tka_privat.pin_pengawas` | Lihat sesi & dasbor (tanpa tombol pengaturan/reset/hapus), daftar siswa, uji coba soal, **Lepas** siswa, buka kunci di HP siswa |
 | Guru bersama (peralihan) | `tka_privat.pin` | Seperti guru tetapi tanpa nama; paket/sesi yang dibuat tidak tercatat atas nama siapa pun. Matikan setelah semua guru memegang PIN pribadi |
 
-- **Membuat PIN pribadi**: `admin.html` → PIN operator → tab **Guru & PIN** → *Tarik guru dari Data Induk* (semua guru aktif + kelas yang diampu menurut jadwal KBM) → *Buat PIN untuk guru yang belum punya*. Bagikan PIN langsung ke masing-masing guru. PIN bisa dibuat ulang atau dihapus per guru. Setelah semua guru memegang PIN pribadi: **Matikan PIN guru bersama**. **Satu tabel daftar guru**: kolom **Kartu PIN (PNG)** di tiap baris — *Lihat* (pratinjau), **Bagikan** (HP → WhatsApp → chat pribadi guru), **Salin** (tempel di WhatsApp Web), **Unduh** PNG. Centang satu atau beberapa guru untuk *Bagikan kartu terpilih*, *Unduh kartu PNG terpilih*, dan **Unduh XLSX** (daftar PIN guru terpilih, atau semua guru ber-PIN bila tidak ada yang dicentang). Guru yang baru dibuatkan PIN langsung tercentang dan bertanda *PIN baru*. Bila peramban menolak menyalin/membagikan, kartu tampil di jendela pratinjau untuk disalin atau disimpan manual. Kartu dibuat di peramban, tidak dikirim ke server.
+- **Membuat PIN pribadi**: `admin.html` → PIN operator → menu **Admin → PIN Guru** → *Tarik guru dari Data Induk* (semua guru aktif + kelas yang diampu menurut jadwal KBM) → *Buat PIN untuk guru yang belum punya*. Bagikan PIN langsung ke masing-masing guru. PIN bisa dibuat ulang atau dihapus per guru. Setelah semua guru memegang PIN pribadi: **Matikan PIN guru bersama**. **Satu tabel daftar guru**: kolom **Kartu PIN (PNG)** di tiap baris — *Lihat* (pratinjau), **Bagikan** (HP → WhatsApp → chat pribadi guru), **Salin** (tempel di WhatsApp Web), **Unduh** PNG. Centang satu atau beberapa guru untuk *Bagikan kartu terpilih*, *Unduh kartu PNG terpilih*, dan **Unduh XLSX** (daftar PIN guru terpilih, atau semua guru ber-PIN bila tidak ada yang dicentang). Guru yang baru dibuatkan PIN langsung tercentang dan bertanda *PIN baru*. Bila peramban menolak menyalin/membagikan, kartu tampil di jendela pratinjau untuk disalin atau disimpan manual. Kartu dibuat di peramban, tidak dikirim ke server.
 - ID guru di Data Induk (mis. G161) hanya PIN sementara untuk Matematika Dasar; di Tryout tidak berlaku.
 - Ganti PIN operator/pengawas: `update public.tka_privat set v='PIN_BARU' where k='pin_operator';` (juga `k='pin_pengawas'`).
 - **Daftar siswa** (bantu login): untuk siswa yang lupa NISN. Kotak cari nama/NISN menyaring seketika; chip kelas untuk mengelompokkan (jumlah siswa aktif per kelas ikut tampil); NISN tampil besar dengan tombol **Salin NISN**. Pilih ujian pada *Tandai sudah/belum mengerjakan* untuk melihat siapa yang belum masuk tanpa pindah ke dasbor. Siswa nonaktif tampil pudar. Tidak ada tombol ubah/hapus di halaman ini — itu tetap di `admin.html`.
