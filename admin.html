@@ -1430,7 +1430,10 @@ async function buatPin(ids){const st=$("g-status");
   try{const j=await rpc("mtd_admin_acak",{p_pin:PIN(),p_guru:ids});const box=$("g-baru");box.classList.remove("hidden");
     box.innerHTML=`<div class="notice"><b>${j.guru.length} PIN baru</b> — bagikan langsung kepada masing-masing guru (jangan lewat grup). PIN tetap bisa dilihat lagi di daftar di bawah.</div><table class="t"><tr><th>Nama</th><th>ID</th><th>PIN</th></tr>${j.guru.map(g=>`<tr><td>${esc(g.nama)}</td><td>${esc(g.id)}</td><td><code style="font-size:15px;letter-spacing:.1em">${esc(g.pin)}</code></td></tr>`).join("")}</table>`;
     st.innerHTML="";await muatGuru()}catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
-async function tarikGuru(){const st=$("g-status");const U=INDUK?.url||"",K=INDUK?.key||"",P=INDUK?.pin||"";
+async function tarikGuru(){const st=$("g-status");
+  // pengaturan sumber diambil langsung dari server (tidak bergantung pada tombol Cek PIN sudah ditekan)
+  try{INDUK=await rpc("tka_induk_ambil",{p_pin:PIN()})}catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}
+  const U=INDUK?.url||"",K=INDUK?.key||"",P=INDUK?.pin||"";
   if(!U||!K||!P){st.innerHTML='<span class="pill warn">Pengaturan sumber Data Induk belum lengkap</span> — isi sekali di tab <b>Data siswa</b> → Tarik dari data induk.';return}
   st.innerHTML='<span class="pill">Menarik guru dari Data Induk…</span>';$("btn-g-tarik").disabled=true;
   try{const r=await fetch(`${U}/rest/v1/rpc/guru_ekspor`,{method:"POST",headers:{"Content-Type":"application/json",apikey:K,Authorization:"Bearer "+K},body:JSON.stringify({p_pin:P})});
