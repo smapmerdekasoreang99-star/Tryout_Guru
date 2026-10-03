@@ -103,6 +103,7 @@ table[data-beku] .fz-kol { position: sticky; z-index: 1; }
 table[data-beku] td.fz-kol { background-color: var(--kertas-2); }
 table[data-beku] th.fz-kol { z-index: 3; }
 table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
+.btn-tautan{display:inline-block;padding:9px 14px;border-radius:9px;background:var(--gelap);color:var(--kuning);font-weight:700;text-decoration:none;font-size:14px}
 </style>
 </head>
 <body>
@@ -111,14 +112,14 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 <div class="card">
   <div id="cfg" class="small"></div>
   <div class="row" style="margin-top:8px">
-    <label class="grow small">PIN (operator / guru / pengawas)<input type="password" id="pin" autocomplete="off"></label>
+    <label class="grow small">PIN pribadi guru, PIN operator, atau PIN pengawas<input type="password" id="pin" autocomplete="off"></label>
     <label class="small"><input type="checkbox" id="pin-ingat"> ingat di perangkat ini</label>
     <button id="btn-cek">Cek PIN &amp; muat daftar</button>
   </div>
   <div id="pin-status" class="small" style="margin-top:6px"></div>
   <div id="sinkron-info" class="small" style="margin-top:6px"></div>
 </div>
-<div class="tabs"><button class="on" data-tab="kisi">Langkah 1 · Kisi-kisi</button><button data-tab="unggah">Langkah 2 · Soal</button><button data-tab="daftar">Pustaka paket</button><button data-tab="darurat" style="color:var(--bad)">Jalur darurat</button><button data-tab="siswa">Data siswa</button><button data-tab="impor">Impor kode hasil</button><button data-tab="cadangan">Cadangan</button><button data-tab="bantuan">Bantuan</button></div>
+<div class="tabs"><button class="on" data-tab="kisi">Langkah 1 · Kisi-kisi</button><button data-tab="unggah">Langkah 2 · Soal</button><button data-tab="daftar">Pustaka paket</button><button data-tab="darurat" style="color:var(--bad)">Jalur darurat</button><button data-tab="siswa">Data siswa</button><button data-tab="guru" class="op-only">Guru &amp; PIN</button><button data-tab="impor">Impor kode hasil</button><button data-tab="cadangan">Cadangan</button><button data-tab="bantuan">Bantuan</button></div>
 
 <section id="tab-kisi">
   <div class="card">
@@ -156,10 +157,9 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <div id="prev"></div>
   </div>
   <div class="card hidden" id="terbit-card">
-    <h2>Terbitkan</h2>
-    <div class="row"><label class="small"><input type="checkbox" id="aktif" checked> langsung aktif (siswa bisa mengerjakan)</label></div>
-    <h3>Peruntukan (siapa yang boleh mengerjakan)</h3><div id="peserta-box" class="small muted">Memuat data siswa…</div>
-    <div class="row" style="margin-top:8px"><button id="btn-terbit" class="good">Terbitkan ke Supabase</button><button class="btn-unduh" data-fmt="docx" id="btn-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-docx-siswa">Unduh naskah siswa</button><button class="btn-unduh" data-fmt="json" id="btn-json">Unduh cadangan</button></div>
+    <h2>Terbitkan ke bank soal</h2>
+    <p class="muted small">Paket yang diterbitkan masuk <b>bank soal</b> dan belum bisa dikerjakan siswa. Untuk ujian di kelas, buka sesi dari <b>Menu guru → Sesi ujian</b>: pilih paket ini dan kelasnya, lalu tuliskan kode akses di papan. Semua guru boleh memakai paket ini untuk membuka sesi; soal dan kuncinya hanya bisa dilihat penyusunnya dan operator.</p>
+    <div class="row" style="margin-top:8px"><button id="btn-terbit" class="good">Terbitkan ke bank soal</button><button class="btn-unduh" data-fmt="docx" id="btn-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-docx-siswa">Unduh naskah siswa</button><button class="btn-unduh" data-fmt="json" id="btn-json">Unduh cadangan</button></div>
     <div id="terbit-status" class="small" style="margin-top:8px"></div>
     <div id="tautan" class="hidden" style="margin-top:10px"></div>
   </div>
@@ -182,8 +182,10 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   </div>
   <div id="pk-kartu">
   <div class="card hidden" id="daftar-tautan"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Tautan &amp; QR</h3><button class="ghost" id="btn-dt-tutup">Tutup</button></div><div id="dt-isi" style="margin-top:8px"></div></div>
-  <div class="card hidden" id="daftar-peserta-card"><h3 style="margin-top:0">Peruntukan ujian <span id="dp-kode" class="pill"></span></h3><div id="dp-box"></div>
-    <div class="row" style="margin-top:12px"><button id="btn-dp-simpan" class="good">Simpan peruntukan</button><button class="ghost" id="btn-dp-batal">Tutup</button></div><div id="dp-status" class="small" style="margin-top:8px"></div></div>
+  <div class="card hidden" id="daftar-pemilik-card"><h3 style="margin-top:0">Penyusun paket <span id="dp-kode" class="pill"></span></h3>
+    <p class="muted" style="margin-top:0">Penyusun (dan operator) yang boleh melihat soal &amp; kunci, mengubah, mengarsipkan, dan menghapus paket ini. Semua guru tetap boleh memakainya untuk membuka sesi. Tanpa penyusun: semua guru boleh mengelolanya (paket lama).</p>
+    <label class="small">Guru penyusun<select id="dp-guru"></select></label>
+    <div class="row" style="margin-top:12px"><button id="btn-dp-simpan" class="good">Simpan penyusun</button><button class="ghost" id="btn-dp-batal">Tutup</button></div><div id="dp-status" class="small" style="margin-top:8px"></div></div>
   <div class="card hidden" id="daftar-info-card"><h3 style="margin-top:0">Keterangan paket <span id="di-kode" class="pill"></span></h3>
     <p class="muted" style="margin-top:0">Kode tidak berubah, jadi tautan, QR, dan hasil siswa tetap. Keterangan dipakai untuk mencari dan mengelompokkan paket.</p>
     <div class="info-grid">
@@ -215,8 +217,8 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <div class="tbl-wrap"><table class="t" id="d-bp" data-beku="1"></table></div>
     <div id="d-komposisi" class="small" style="margin-top:8px"></div>
     <h3>Pratinjau soal <span class="muted">(kunci ditandai hijau)</span></h3><div id="d-prev"></div>
-    <h3>Peruntukan</h3><div id="d-peserta-box" class="small muted">Memuat data siswa…</div>
-    <div class="row" style="margin-top:12px"><label class="small"><input type="checkbox" id="d-aktif" checked> langsung aktif</label><button id="btn-d-terbit" class="danger">Terbitkan (jalur darurat)</button><button class="btn-unduh" data-fmt="docx" id="btn-d-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-d-docx-siswa">Unduh naskah siswa</button></div>
+    <p class="muted small">Paket darurat juga masuk bank soal; ujiannya dibuka lewat <b>Menu guru → Sesi ujian</b>.</p>
+    <div class="row" style="margin-top:12px"><button id="btn-d-terbit" class="danger">Terbitkan (jalur darurat)</button><button class="btn-unduh" data-fmt="docx" id="btn-d-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-d-docx-siswa">Unduh naskah siswa</button></div>
     <div id="d-terbit-status" class="small" style="margin-top:8px"></div><div id="d-tautan" class="hidden" style="margin-top:10px"></div>
   </div>
 </section>
@@ -225,7 +227,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   <div class="card">
     <h2>Data siswa</h2>
     <p class="notice op-note hidden" id="s-op-note">Menambah, mengubah, menonaktifkan, dan menghapus siswa hanya bisa dengan <b>PIN operator/kurikulum</b>. Dengan PIN ini Anda hanya dapat melihat daftar.</p>
-    <p class="muted op-only">Unggah <b>ekspor Excel Dapodik</b> (atau CSV/Excel apa pun) yang memuat kolom NISN, Nama, Rombel/Kelas, dan Tanggal Lahir. Kolom lain diabaikan. Setelah data siswa ada, siswa masuk ujian dengan <b>NISN + tanggal lahir</b>; nama & kelas terisi otomatis dan tiap siswa hanya punya satu hasil per ujian.</p>
+    <p class="muted op-only">Unggah <b>ekspor Excel Dapodik</b> (atau CSV/Excel apa pun) yang memuat kolom NISN, Nama, Rombel/Kelas, dan Tanggal Lahir. Kolom lain diabaikan. Siswa masuk ujian dengan <b>NISN + kode akses sesi</b>; nama &amp; kelas terisi otomatis dan tiap siswa hanya punya satu hasil per ujian.</p>
     <div class="drop op-only" id="drop-s"><p><b>Seret file Excel/CSV ke sini</b> atau <label style="color:var(--acc);text-decoration:underline;cursor:pointer">pilih file<input type="file" id="file-s" accept=".xlsx,.xls,.csv" class="hidden"></label></p></div>
     <div id="s-status" class="small" style="margin-top:8px"></div>
   </div>
@@ -254,6 +256,19 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <div class="tbl-wrap"><table class="t" id="s-list" data-beku="2"></table></div></div>
 </section>
 
+<section id="tab-guru" class="hidden">
+  <div class="card"><h2>Guru &amp; PIN pribadi</h2>
+    <p class="muted">Setiap guru memegang <b>satu PIN pribadi 8 angka</b> untuk Asesmen Merdeka dan Matematika Dasar. Dengan PIN itu guru membuka sesi ujian untuk kelasnya, dan paket yang ia unggah tercatat atas namanya: guru lain boleh <b>memakai</b> paket itu untuk membuka sesi, tetapi soal dan kuncinya hanya bisa dilihat penyusunnya dan operator. Daftar guru dan kelas yang diampu diambil dari jadwal KBM di Data Induk.</p>
+    <div class="row"><button id="btn-g-tarik">Tarik guru dari Data Induk</button><button class="good" id="btn-g-acak">Buat PIN untuk guru yang belum punya</button><button class="btn-unduh ghost" data-fmt="csv" id="btn-g-unduh">Unduh daftar PIN (.csv)</button><button class="soft" id="btn-g-muat">Muat ulang</button></div>
+    <div id="g-status" class="small" style="margin-top:8px"></div>
+    <div id="g-baru" class="hidden" style="margin-top:10px"></div>
+  </div>
+  <div class="card" id="g-bersama-card"><h3 style="margin-top:0">PIN guru bersama</h3><div id="g-bersama" class="small"></div></div>
+  <div class="card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Daftar guru</h3><input type="text" id="g-cari" placeholder="Cari nama, ID, atau kelas…" style="max-width:280px"></div>
+    <div id="g-ringkas" class="small muted" style="margin:6px 0"></div>
+    <div class="tbl-wrap"><table class="t" id="g-list" data-beku="1"></table></div></div>
+</section>
+
 <section id="tab-impor" class="hidden">
   <div class="card"><h2>Impor kode hasil siswa</h2>
   <p class="muted">Untuk siswa yang hasilnya gagal terkirim (tidak ada sinyal). Tempel kode yang mereka kirim (boleh banyak, satu per baris). Jawaban akan dinilai oleh server dan masuk ke rekap.</p>
@@ -280,18 +295,18 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   <div class="card"><h2>Alur kerja</h2>
   <ol class="small" style="padding-left:20px">
     <li>Guru mengisi <b>Template_Kisi_Kisi.docx</b> → unggah di <b>Langkah 1</b> → simpan → unduh <b>Template Soal</b> (sudah terisi nomor, bentuk, indikator, level untuk setiap varian).</li>
-    <li>Guru mengisi Template Soal (perintah soal, pertanyaan, pilihan, kunci, pembahasan) → unggah di <b>Langkah 2</b> → periksa galat/peringatan & pratinjau → <b>Terbitkan</b>. Soal yang menyimpang dari kisi-kisi ditolak.</li>
-    <li>Bagikan tautan/QR yang muncul ke siswa. Tautan berbentuk <code>index.html?ujian=KODE</code>.</li>
-    <li>Rekap dan analisis: buka <code>index.html</code> → "Guru / pengawas" (atau tautan <code>index.html?guru</code>) → PIN → <b>Menu guru</b>: Daftar siswa (bantu login), Dasbor hasil, Uji coba soal, Halaman admin. Saklar pembahasan ada di <b>Pustaka paket</b> dan di dasbor guru.</li>
+    <li>Guru mengisi Template Soal (perintah soal, pertanyaan, pilihan, kunci, pembahasan) → unggah di <b>Langkah 2</b> → periksa galat/peringatan & pratinjau → <b>Terbitkan ke bank soal</b>. Soal yang menyimpang dari kisi-kisi ditolak.</li>
+    <li>Ujian di kelas: <code>index.html</code> → "Guru / pengawas" → PIN pribadi → <b>Sesi ujian</b> → <b>Buka sesi baru</b>: pilih paket, kelas (tombol <i>Kelas saya</i>), lama pengerjaan → server membuat <b>kode akses 6 angka</b>. Siswa membuka <code>index.html</code> (satu alamat untuk semua ujian) dan masuk dengan <b>NISN + kode akses</b>. Sesi tertutup sendiri; bisa diperpanjang atau ditutup lebih awal. Saklar pembahasan ada pada tiap sesi.</li>
+    <li>Rekap dan analisis: <b>Menu guru → Dasbor hasil</b> (hasil bisa disaring per sesi). <b>Pantau siswa</b> di Sesi ujian menampilkan siapa yang belum masuk, sedang mengerjakan, tidak aktif, atau selesai; <b>Lepas</b> mengizinkan siswa masuk lagi dari perangkat lain.</li>
     <li>Revisi soal: perbaiki Word, unggah ulang dengan <b>kode ujian yang sama</b> → paket lama ditimpa (hasil siswa tetap tersimpan).</li>
-    <li>Pustaka paket: satu baris per kode (kisi-kisi → soal → dibuka → hasil). Saring menurut mapel, kelas, jenis, semester, dan status; kelompokkan menurut kelas/jenis/guru/semester. Klik baris untuk tautan, peruntukan, lihat soal, unduhan, keterangan, arsip, dan hapus. Paket semester lalu cukup <b>diarsipkan</b>: tertutup untuk siswa dan tersembunyi, hasil tetap tersimpan.</li>
+    <li>Pustaka paket: satu baris per kode (kisi-kisi → soal → dibuka → hasil). Saring menurut mapel, kelas, jenis, semester, dan status; kelompokkan menurut kelas/jenis/guru/semester. Klik baris untuk buka sesi, lihat soal, unduhan, keterangan, arsip, dan hapus. Paket semester lalu cukup <b>diarsipkan</b>: tersembunyi dan tidak bisa dibuka sesinya, hasil tetap tersimpan.</li>
     <li>Ganti judul dan keterangan (jenis, tingkat peserta, cakupan materi, semester, guru penyusun): buka paketnya di <b>Pustaka paket</b>, lalu <b>Ubah judul &amp; keterangan</b>. Kode tidak berubah, jadi tautan, QR, dan hasil siswa tetap. Unggah ulang Word hanya mengisi yang masih kosong, tidak menimpa yang sudah tersimpan.</li>
   </ol>
   <h3>Pengaturan server (config.js)</h3><p class="small">Agar tidak perlu mengedit baris ke-2 setiap kali ada pembaruan, buat sekali berkas <code>config.js</code> di folder yang sama dengan <code>index.html</code> (di GitHub: <i>Add file → Create new file</i>) berisi satu baris:<br><code>window.TKA_SUPABASE = { url: "https://xxxx.supabase.co", key: "eyJ..." };</code><br>Nilai <b>url</b> = Project URL dan <b>key</b> = kunci <b>anon public</b> (Supabase → Project Settings → API). Setelah itu <code>index.html</code>/<code>admin.html</code> versi baru cukup ditimpa apa adanya. Urutan prioritas: tautan <code>?sb=…&amp;key=…</code> &gt; <code>config.js</code> &gt; baris ke-2.</p>
 <h3>Kode ujian</h3><p class="small">Huruf besar/angka/strip, 3–31 karakter, unik per paket. Saran: MAPEL-MATERI-NOMOR, mis. <code>KIM-STO-01</code>, <code>BIN-TKA-02</code>.</p>
-  <h3>Tiga PIN: operator, guru, pengawas</h3><p class="small"><b>PIN operator/kurikulum</b> (bawaan <code>operator2026</code>, kunci <code>pin_operator</code>): akses penuh, satu-satunya yang boleh <b>menambah, mengubah, menonaktifkan, menghapus data siswa</b>. <b>PIN guru</b> (bawaan <code>merdeka2026</code>, kunci <code>pin</code>): terbit paket, peruntukan, pengaturan, dasbor, reset hasil; data siswa hanya lihat. <b>PIN pengawas</b> (bawaan <code>pengawas2026</code>, kunci <code>pin_pengawas</code>): hanya lihat — dasbor tanpa tombol pengaturan, daftar siswa (NISN &amp; tanggal lahir untuk membantu siswa yang lupa NISN), uji coba soal. Pembatasan dicek di server, bukan hanya disembunyikan. Ganti di SQL Editor: <code>update public.tka_privat set v='PIN_BARU' where k='pin_operator';</code> (juga <code>k='pin'</code>, <code>k='pin_pengawas'</code>).</p>
-<h3>Peruntukan ujian (siapa yang boleh mengerjakan)</h3><p class="small">Saat menerbitkan (Langkah 2 atau jalur darurat) pilih <b>Semua siswa</b>, <b>Kelas tertentu</b> (klik rombel; tombol <i>Semua kelas 12</i> memilih seluruh rombel tingkat itu), atau <b>Siswa tertentu</b> (centang nama, atau tempel daftar NISN). Siswa di luar peruntukan ditolak saat masuk dengan pesan yang jelas, dan tab <i>Belum mengerjakan</i> di dasbor hanya menghitung peserta. Peruntukan bisa diubah kapan saja: <b>Pustaka paket → buka paket → Atur peruntukan</b>, atau dari dasbor guru (<i>Peruntukan ujian → Ubah</i>). Contoh: <code>TO-MAT-TKA</code> → semua kelas 12; <code>TO-MAT-CHANDRA-1</code> → XII-1 dan XII-2; <code>TO-OSN-INF-1</code> → 12 siswa peserta olimpiade.</p>
-<h3>Jalur darurat</h3><p class="small">Tab <b>Jalur darurat</b> menerbitkan paket langsung dari file soal (Template_Soal_Darurat.docx) tanpa Langkah 1, hanya dengan <b>PIN darurat</b> (bawaan <code>darurat2026</code>; ganti di SQL Editor: <code>update public.tka_privat set v='...' where k='pin_darurat';</code>). Kisi-kisi disusun otomatis dari soal dan ditandai Darurat. Untuk mengesahkan: <b>Pustaka paket → buka paket → Kisi-kisi .docx</b> → periksa/lengkapi di Word → unggah di <b>Langkah 1</b> dengan kode yang sama; bila jumlah soal dan bentuk per nomor cocok, tanda Darurat dicabut (jejak "disahkan" tetap tercatat).</p><h3>Data siswa &amp; identitas</h3><p class="small">Tab <b>Data siswa</b>: unggah ekspor Dapodik/CSV, atau <b>Tarik dari data induk</b> — data siswa dikelola operator di proyek Supabase lain (view <code>v_siswa_aktif</code>); pasang <code>sumber_siswa_setup.sql</code> di proyek sumber (membuat fungsi <code>siswa_ekspor</code> ber-PIN, bawaan <code>ekspor2026</code>) dan <code>supabase_tambahan_v7.sql</code> di proyek ini, lalu isi URL + kunci anon proyek sumber + PIN ekspor → <i>Tarik &amp; pratinjau</i> → <i>Simpan</i>. Siswa yang tidak ada lagi di data induk dinonaktifkan otomatis (centang "nonaktifkan siswa yang tidak ada"). Setelah ada data siswa, siswa masuk dengan NISN + tanggal lahir (nama/kelas otomatis, satu hasil per ujian; guru bisa <i>reset</i> di dasbor). Per ujian, guru dapat membuka <b>jalur tamu</b> untuk siswa yang belum terdaftar dan menetapkan <b>kode akses</b> yang diumumkan di kelas.</p><h3>Cadangan &amp; pemulihan</h3><p class="small">Tab <b>Cadangan</b> (PIN operator): <i>Unduh cadangan</i> → satu berkas JSON berisi seluruh isi data. <i>Pulihkan</i>: pilih berkas → mode <b>gabung</b> (timpa baris yang sama, sisanya dibiarkan) atau <b>timpa</b> (kosongkan tabel yang ada di cadangan, isi ulang). Struktur database dipulihkan dengan menjalankan ulang <code>supabase_setup_v7.sql</code> — aman dijalankan kapan saja.</p><h3>Keamanan</h3><p class="small">Kunci jawaban tersimpan di server dan tidak pernah dikirim ke HP siswa; penilaian dilakukan di server. PIN diverifikasi di server (tabel <code>tka_privat</code>).</p>
+  <h3>PIN: guru (pribadi), operator, pengawas</h3><p class="small"><b>PIN pribadi guru</b> (8 angka, dibuat operator di tab <b>Guru &amp; PIN</b>; sama dengan PIN Matematika Dasar): membuka sesi ujian, mengunggah paket, dan mengelola paket buatannya sendiri. Paket guru lain boleh <b>dipakai</b> untuk membuka sesi, tetapi soal dan kuncinya hanya terlihat oleh penyusunnya dan operator. <b>PIN operator/kurikulum</b> (kunci <code>pin_operator</code>): akses penuh termasuk data siswa, PIN guru, penyusun paket, dan semua sesi; juga berlaku sebagai admin Matematika Dasar. <b>PIN pengawas</b> (kunci <code>pin_pengawas</code>): melihat sesi dan dasbor, membantu siswa masuk, melepas siswa, membuka kunci di HP siswa. <b>PIN guru bersama</b> (kunci <code>pin</code>) hanya untuk masa peralihan; matikan di tab Guru &amp; PIN setelah semua guru memegang PIN pribadi. Pembatasan dicek di server.</p>
+<h3>Sesi ujian (siapa yang boleh mengerjakan)</h3><p class="small">Paket tidak punya saklar aktif lagi. Peserta ditentukan saat guru membuka sesi: <b>kelas tertentu</b> (tombol <i>Kelas saya</i> dari jadwal KBM, atau <i>Semua kelas 12</i>), <b>siswa tertentu</b>, atau semua siswa. Siswa di luar peserta ditolak saat masuk. Satu siswa satu hasil per paket (guru penyusun atau guru yang membuka sesinya bisa <i>reset</i> di dasbor). Selama sesi terbuka, satu NISN hanya bisa mengerjakan di satu perangkat.</p>
+<h3>Jalur darurat</h3><p class="small">Tab <b>Jalur darurat</b> menerbitkan paket langsung dari file soal (Template_Soal_Darurat.docx) tanpa Langkah 1, hanya dengan <b>PIN darurat</b> (bawaan <code>darurat2026</code>; ganti di SQL Editor: <code>update public.tka_privat set v='...' where k='pin_darurat';</code>). Kisi-kisi disusun otomatis dari soal dan ditandai Darurat. Untuk mengesahkan: <b>Pustaka paket → buka paket → Kisi-kisi .docx</b> → periksa/lengkapi di Word → unggah di <b>Langkah 1</b> dengan kode yang sama; bila jumlah soal dan bentuk per nomor cocok, tanda Darurat dicabut (jejak "disahkan" tetap tercatat).</p><h3>Data siswa &amp; identitas</h3><p class="small">Tab <b>Data siswa</b>: unggah ekspor Dapodik/CSV, atau <b>Tarik dari data induk</b> — data siswa dikelola operator di proyek Supabase lain (view <code>v_siswa_aktif</code>); pasang <code>sumber_siswa_setup.sql</code> di proyek sumber (membuat fungsi <code>siswa_ekspor</code> ber-PIN, bawaan <code>ekspor2026</code>) dan <code>supabase_tambahan_v7.sql</code> di proyek ini, lalu isi URL + kunci anon proyek sumber + PIN ekspor → <i>Tarik &amp; pratinjau</i> → <i>Simpan</i>. Siswa yang tidak ada lagi di data induk dinonaktifkan otomatis (centang "nonaktifkan siswa yang tidak ada"). Siswa masuk dengan NISN + kode akses sesi (nama/kelas otomatis, satu hasil per ujian; guru bisa <i>reset</i> di dasbor). Per sesi, guru dapat membuka <b>jalur tamu</b> untuk siswa yang belum terdaftar.</p><h3>Cadangan &amp; pemulihan</h3><p class="small">Tab <b>Cadangan</b> (PIN operator): <i>Unduh cadangan</i> → satu berkas JSON berisi seluruh isi data. <i>Pulihkan</i>: pilih berkas → mode <b>gabung</b> (timpa baris yang sama, sisanya dibiarkan) atau <b>timpa</b> (kosongkan tabel yang ada di cadangan, isi ulang). Struktur database dipulihkan dengan menjalankan ulang <code>supabase_setup_v7.sql</code> — aman dijalankan kapan saja.</p><h3>Keamanan</h3><p class="small">Kunci jawaban tersimpan di server dan tidak pernah dikirim ke HP siswa; penilaian dilakukan di server. PIN diverifikasi di server (tabel <code>tka_privat</code>).</p>
   </div>
 </section>
 </div>
@@ -1194,7 +1209,7 @@ function prevSoal(no,v,q,bp){const L="ABCDE",l="abcdef";let h=`<div class="prev"
 
 let PAKET=null,DL_PAKET=null;
 function tampilkan(r){
-  PAKET=r.ok?r.paket:null;$("hasil-card").classList.remove("hidden");$("terbit-card").classList.toggle("hidden",!r.ok);if(r.ok)siapkanPeserta("terbit","peserta-box",null);
+  PAKET=r.ok?r.paket:null;$("hasil-card").classList.remove("hidden");$("terbit-card").classList.toggle("hidden",!r.ok);
   const p=r.paket;
   $("ringkas").innerHTML=`<div class="row"><span class="pill ${r.ok?"good":"bad"}">${r.ok?"Sesuai kisi-kisi — siap diterbitkan":"Ada galat — perbaiki Word lalu unggah ulang"}</span></div>
    <table class="t" style="margin-top:8px"><tr><th>Kode</th><td><b>${esc(p.kode)}</b></td><th>Judul</th><td>${esc(p.judul)}</td></tr><tr><th>Mapel / Kelas</th><td>${esc(p.mapel)} / ${esc(p.kelas)}</td><th>Materi</th><td>${esc(p.materi)}</td></tr><tr><th>Durasi</th><td>${p.durasi} menit</td><th>Soal / varian</th><td>${p.n_soal} nomor · ${p.n_varian} varian · teks bacaan: ${Object.keys(p.publik.teks).length}</td></tr></table>`;
@@ -1218,8 +1233,8 @@ async function bacaFile(f){
     $("parse-status").innerHTML=`<span class="pill ${r.ok?"good":"bad"}">${r.ok?"Terbaca":"Terbaca dengan galat"}</span> ${esc(f.name)}`;tampilkan(r);
   }catch(e){$("parse-status").innerHTML=`<span class="pill bad">Gagal membaca</span> ${esc(e.message)}`;console.error(e)}
 }
-function tautanHtml(kode,elQr){const url=`${studentBase()}?ujian=${encodeURIComponent(kode)}`;return `<div class="row" style="align-items:flex-start"><div id="${elQr}"></div><div class="grow"><b>Tautan siswa</b><br><code>${esc(url)}</code><div class="row" style="margin-top:6px"><button class="soft" onclick="navigator.clipboard.writeText('${url}').then(()=>toast('Tautan disalin'))">Salin tautan</button><a class="ghost" href="${url}" target="_blank" style="padding:8px 12px;border:1px solid var(--acc);border-radius:8px;color:var(--acc);text-decoration:none;font-size:14px">Buka</a></div><p class="muted">Siswa juga bisa membuka <code>${esc(studentBase())}</code> lalu mengetik kode <b>${esc(kode)}</b>.</p></div></div>`}
-function gambarQr(id,kode){const el=$(id);el.innerHTML="";try{new QRCode(el,{text:`${studentBase()}?ujian=${encodeURIComponent(kode)}`,width:140,height:140})}catch(e){el.textContent=""}}
+function tautanHtml(kode,elQr){const url=studentBase(),sesi=`index.html?guru&sesi=${encodeURIComponent(kode)}`;return `<div class="row" style="align-items:flex-start"><div id="${elQr}"></div><div class="grow"><b>Halaman ujian siswa</b> <span class="muted">(satu alamat untuk semua ujian)</span><br><code>${esc(url)}</code><p class="muted" style="margin:6px 0">Siswa masuk dengan NISN + kode akses sesi. Paket <b>${esc(kode)}</b> sudah ada di bank soal; buka sesinya untuk kelas Anda:</p><div class="row"><a class="btn-tautan" href="${sesi}" target="_blank">Buka sesi untuk paket ini</a><button class="soft" onclick="navigator.clipboard.writeText('${url}').then(()=>toast('Alamat disalin'))">Salin alamat siswa</button></div></div></div>`}
+function gambarQr(id){const el=$(id);el.innerHTML="";try{new QRCode(el,{text:studentBase(),width:140,height:140})}catch(e){el.textContent=""}}
 
 
 /* ---------- kisi-kisi (langkah 1) ---------- */
@@ -1276,7 +1291,7 @@ let DPAKET=null;
 async function bacaDarurat(f){$("d-status").innerHTML=`<span class="pill">Membaca ${esc(f.name)}…</span>`;
   try{const r=TKA.buildPaket(await TKA.parseDocx(await f.arrayBuffer(),JSZip,DOMParser));let k=null;
     if(r.paket.kode&&r.paket.n_soal){k=TKA.kisiDariPaket(r);r.errors.push(...k.errors);r.warnings.push(...k.warnings);r.ok=r.errors.length===0}
-    DPAKET=r.ok?r.paket:null;const p=r.paket;$("d-hasil").classList.remove("hidden");if(r.ok)siapkanPeserta("darurat","d-peserta-box",null);
+    DPAKET=r.ok?r.paket:null;const p=r.paket;$("d-hasil").classList.remove("hidden");
     $("d-status").innerHTML=`<span class="pill ${r.ok?"good":"bad"}">${r.ok?"Terbaca — siap diterbitkan (darurat)":"Ada galat"}</span> ${esc(f.name)}`;
     $("d-ringkas").innerHTML=`<table class="t"><tr><th>Kode</th><td><b>${esc(p.kode)}</b></td><th>Judul</th><td>${esc(p.judul)}</td></tr><tr><th>Mapel / Kelas</th><td>${esc(p.mapel)} / ${esc(p.kelas)}</td><th>Durasi · soal · varian</th><td>${p.durasi} menit · ${p.n_soal} · ${p.n_varian}</td></tr></table>`;
     $("d-errs").innerHTML=(r.errors.length?`<h3 style="color:var(--bad)">Galat (${r.errors.length})</h3><ul class="err">${r.errors.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"")+(r.warnings.length?`<h3 style="color:var(--warn)">Peringatan (${r.warnings.length})</h3><ul class="warn">${r.warnings.map(e=>`<li>${esc(e)}</li>`).join("")}</ul>`:"");
@@ -1288,9 +1303,8 @@ async function bacaDarurat(f){$("d-status").innerHTML=`<span class="pill">Membac
 async function terbitDarurat(){if(!DPAKET)return;const pd=$("pin-d").value.trim();if(!pd){toast("Isi PIN darurat");return}const p=DPAKET;
   if(!confirm(`Terbitkan ${p.kode} lewat jalur darurat (tanpa kisi-kisi resmi)? Paket akan ditandai "darurat".`))return;
   $("d-terbit-status").innerHTML='<span class="pill">Mengirim…</span>';
-  try{const j=await rpc("tka_terbitkan_darurat",{p_pin_darurat:pd,p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:$("d-aktif").checked});
-    let pes="";try{if(PESERTA_ED.darurat&&PIN()){const r=await rpc("tka_set_peserta",{p_pin:PIN(),p_ujian:j.kode,p_peserta:PESERTA_ED.darurat.get()});pes=` · Peruntukan: ${esc(TKA_PESERTA.ringkas(r,SSERVER))}`}else if(PESERTA_ED.darurat&&PESERTA_ED.darurat.get().mode!=="semua")pes=' · <span class="pill warn">Peruntukan belum tersimpan (perlu PIN guru di bagian atas) — atur di Pustaka paket</span>'}catch(e){pes=` · <span class="pill warn">Peruntukan gagal: ${esc(e.message)}</span>`}
-    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit (darurat): ${esc(j.kode)}</span>${pes} <button class="btn-unduh" data-fmt="docx" id="btn-d-kisi">Unduh kisi-kisi otomatis untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
+  try{const j=await rpc("tka_terbitkan_darurat",{p_pin_darurat:pd,p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:false});
+    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit ke bank soal (darurat): ${esc(j.kode)}</span> <button class="btn-unduh" data-fmt="docx" id="btn-d-kisi">Unduh kisi-kisi otomatis untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
   }catch(e){$("d-terbit-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
 
 
@@ -1373,11 +1387,8 @@ async function simpanSiswa(){if(!PIN()){toast("Isi PIN dahulu");return}const {ou
     else{for(let i=0;i<out.length;i+=200){const j=await rpc("tka_simpan_siswa",{p_pin:PIN(),p_rows:out.slice(i,i+200)});n+=j.n;st.innerHTML=`<span class="pill">Tersimpan ${n}/${out.length}…</span>`}
       st.innerHTML=`<span class="pill good">${n} siswa tersimpan/diperbarui</span>`}
     muatSiswa()}catch(e){st.innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>${/tka_sinkron_siswa/.test(e.message)?" — jalankan <code>supabase_tambahan_v7.sql</code> di SQL Editor.":""}`}finally{$("btn-s-simpan").disabled=false}}
-let SSERVER=[],PERAN="";
+let SSERVER=[],PERAN="",MASUK={};
 function setPeran(p){PERAN=p||"";document.body.className=document.body.className.replace(/\bperan-\w+/g,"").trim();if(PERAN)document.body.classList.add("peran-"+PERAN);$("s-op-note").classList.toggle("hidden",!PERAN||PERAN==="operator");$("c-op-note").classList.toggle("hidden",!PERAN||PERAN==="operator")}
-const PESERTA_ED={};
-async function siapkanPeserta(key,elId,nilai){const el=$(elId);if(!SSERVER.length){try{SSERVER=await rpc("tka_list_siswa",{p_pin:PIN()})}catch(e){el.innerHTML=`<span class="pill warn">Data siswa belum termuat (${esc(e.message)}) — isi PIN lalu Cek PIN; peruntukan bisa diatur nanti di Pustaka paket.</span>`;PESERTA_ED[key]=null;return}}
-  el.classList.remove("muted");PESERTA_ED[key]=TKA_PESERTA.buat(el,{siswa:SSERVER,nilai:nilai||{mode:"semua"}})}
 async function muatSiswa(){const box=$("s-server");box.textContent="Memuat…";try{SSERVER=await rpc("tka_list_siswa",{p_pin:PIN()});const kl={};SSERVER.forEach(x=>kl[x.kelas]=(kl[x.kelas]||0)+1);
   box.innerHTML=`<b>${SSERVER.length} siswa</b> · `+Object.entries(kl).sort().map(([k,v])=>`${esc(k)} (${v}) <button class="ghost op-only" style="padding:2px 8px;font-size:11px" data-hk="${esc(k)}">hapus kelas</button>`).join(" · ");
   box.querySelectorAll("[data-hk]").forEach(b=>b.onclick=async()=>{if(!confirm(`Hapus semua siswa kelas ${b.dataset.hk}?`))return;await rpc("tka_hapus_siswa",{p_pin:PIN(),p_kelas:b.dataset.hk});muatSiswa()});renderSiswa()}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
@@ -1389,6 +1400,49 @@ function renderSiswa(){const q=$("s-cari").value.trim().toLowerCase();const rows
 async function simpanSatu(){const nisn=$("e-nisn").value.replace(/\D/g,""),nama=$("e-nama").value.trim(),kelas=$("e-kelas").value.trim(),tgl=$("e-tgl").value,nis=$("e-nis").value.trim();
   if(!nisn||!nama||!kelas||!tgl){toast("Isi NISN, nama, kelas, tanggal lahir");return}
   try{await rpc("tka_simpan_siswa",{p_pin:PIN(),p_rows:[{nisn,nis,nama,kelas,tgl_lahir:tgl}]});toast("Tersimpan: "+nama);["e-nisn","e-nis","e-nama","e-kelas","e-tgl"].forEach(i=>$(i).value="");muatSiswa()}catch(e){toast("Gagal: "+e.message)}}
+
+/* ---------- guru & PIN (operator) ----------
+   Daftar guru = mtd_guru di project ini (dipakai bersama Matematika Dasar). Ditarik dari Data Induk lewat guru_ekspor
+   (semua guru aktif, kelompok MD, dan kelas yang diampu). PIN pribadi 8 angka dibuat acak oleh server. */
+let GDATA=null;
+async function muatGuru(){const st=$("g-status");
+  if(PERAN&&PERAN!=="operator"){st.innerHTML='<span class="pill warn">Hanya PIN operator/kurikulum.</span>';return}
+  try{GDATA=await rpc("mtd_admin_guru",{p_pin:PIN()});renderGuru();renderBersama()}catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+function renderBersama(){const el=$("g-bersama"),ada=MASUK.pin_bersama;
+  el.innerHTML=ada?`<span class="pill warn">Masih berlaku</span> PIN guru bersama (lama) masih bisa dipakai semua guru. Paket dan sesi yang dibuat dengan PIN itu tidak tercatat atas nama siapa pun. Matikan setelah semua guru memegang PIN pribadi.${GDATA?` (${GDATA.guru.filter(g=>g.aktif&&!g.pin).length} guru aktif belum punya PIN pribadi.)`:""} <button class="danger mini" id="btn-g-bersama">Matikan PIN guru bersama</button>`
+    :'<span class="pill good">Sudah dimatikan</span> Guru masuk hanya dengan PIN pribadi.';
+  const b=$("btn-g-bersama");if(b)b.onclick=async()=>{if(!confirm("Matikan PIN guru bersama? Guru yang belum punya PIN pribadi tidak bisa masuk lagi."))return;
+    try{await rpc("tka_pin_bersama_matikan",{p_pin:PIN()});MASUK.pin_bersama=false;renderBersama();toast("PIN guru bersama dimatikan")}catch(e){toast("Gagal: "+e.message)}}}
+function renderGuru(){if(!GDATA)return;const q=$("g-cari").value.trim().toLowerCase();
+  const semua=GDATA.guru,akt=semua.filter(g=>g.aktif),punya=akt.filter(g=>g.pin).length;
+  $("g-ringkas").innerHTML=`<b>${akt.length}</b> guru aktif · <b>${punya}</b> punya PIN pribadi · <b>${akt.length-punya}</b> belum${GDATA.disinkron?" · ditarik dari Data Induk "+esc(new Date(GDATA.disinkron).toLocaleString("id-ID",{day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})):""}`;
+  const rows=semua.filter(g=>!q||[g.nama,g.id,...(g.kelas||[]),...(g.kelompok||[])].join(" ").toLowerCase().includes(q));
+  $("g-list").innerHTML=`<tr><th>Nama</th><th>ID</th><th>Kelas yang diampu</th><th>Kelompok MD</th><th>PIN pribadi</th><th></th></tr>`+
+    rows.map(g=>`<tr style="${g.aktif?"":"opacity:.5"}"><td>${esc(g.nama)}${g.aktif?"":' <span class="pill">nonaktif</span>'}</td><td>${esc(g.id)}</td><td class="small">${esc((g.kelas||[]).join(", ")||"–")}</td><td class="small">${esc((g.kelompok||[]).join(", ")||"–")}</td>`+
+      `<td>${g.pin?`<code data-pin="${esc(g.pin)}">••••••••</code> <button class="ghost mini" data-lihat>lihat</button>`:'<span class="pill warn">belum</span>'}</td>`+
+      `<td class="row">${g.aktif?`<button class="soft mini" data-acak="${esc(g.id)}">${g.pin?"Buat ulang":"Buat PIN"}</button>`:""}${g.pin?`<button class="ghost mini" data-hapus="${esc(g.id)}">Hapus PIN</button>`:""}</td></tr>`).join("")||'<tr><td colspan="6" class="muted">Belum ada data guru. Tekan <b>Tarik guru dari Data Induk</b>.</td></tr>';
+  $("g-list").querySelectorAll("[data-lihat]").forEach(b=>b.onclick=()=>{const c=b.previousElementSibling;const tampak=c.textContent!=="••••••••";c.textContent=tampak?"••••••••":c.dataset.pin;b.textContent=tampak?"lihat":"sembunyikan"});
+  $("g-list").querySelectorAll("[data-acak]").forEach(b=>b.onclick=()=>{const g=semua.find(x=>x.id===b.dataset.acak);if(g.pin&&!confirm(`Buat PIN baru untuk ${g.nama}? PIN lamanya tidak berlaku lagi.`))return;buatPin([g.id])});
+  $("g-list").querySelectorAll("[data-hapus]").forEach(b=>b.onclick=async()=>{const g=semua.find(x=>x.id===b.dataset.hapus);if(!confirm(`Hapus PIN pribadi ${g.nama}? Ia tidak bisa masuk sampai dibuatkan PIN baru.`))return;
+    try{await rpc("mtd_admin_hapus_pin",{p_pin:PIN(),p_guru:g.id});toast("PIN dihapus");muatGuru()}catch(e){toast("Gagal: "+e.message)}})}
+async function buatPin(ids){const st=$("g-status");
+  if(!ids){const n=GDATA?GDATA.guru.filter(g=>g.aktif&&!g.pin).length:0;if(!n){toast("Semua guru aktif sudah punya PIN pribadi");return}if(!confirm(`Buat PIN pribadi untuk ${n} guru yang belum punya?`))return}
+  try{const j=await rpc("mtd_admin_acak",{p_pin:PIN(),p_guru:ids});const box=$("g-baru");box.classList.remove("hidden");
+    box.innerHTML=`<div class="notice"><b>${j.guru.length} PIN baru</b> — bagikan langsung kepada masing-masing guru (jangan lewat grup). PIN tetap bisa dilihat lagi di daftar di bawah.</div><table class="t"><tr><th>Nama</th><th>ID</th><th>PIN</th></tr>${j.guru.map(g=>`<tr><td>${esc(g.nama)}</td><td>${esc(g.id)}</td><td><code style="font-size:15px;letter-spacing:.1em">${esc(g.pin)}</code></td></tr>`).join("")}</table>`;
+    st.innerHTML="";await muatGuru()}catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+async function tarikGuru(){const st=$("g-status");const U=INDUK?.url||"",K=INDUK?.key||"",P=INDUK?.pin||"";
+  if(!U||!K||!P){st.innerHTML='<span class="pill warn">Pengaturan sumber Data Induk belum lengkap</span> — isi sekali di tab <b>Data siswa</b> → Tarik dari data induk.';return}
+  st.innerHTML='<span class="pill">Menarik guru dari Data Induk…</span>';$("btn-g-tarik").disabled=true;
+  try{const r=await fetch(`${U}/rest/v1/rpc/guru_ekspor`,{method:"POST",headers:{"Content-Type":"application/json",apikey:K,Authorization:"Bearer "+K},body:JSON.stringify({p_pin:P})});
+    const txt=await r.text();let j;try{j=JSON.parse(txt)}catch(e){throw new Error("Balasan bukan JSON: "+txt.slice(0,80))}
+    if(!r.ok)throw new Error(/guru_ekspor/.test(j.message||"")?"Fungsi guru_ekspor belum ada di Data Induk. Terapkan migrasinya dulu.":(j.message||j.hint||txt.slice(0,120)));
+    if(!Array.isArray(j)||!j.length)throw new Error("Data Induk mengembalikan 0 guru");
+    const s=await rpc("mtd_sinkron_guru",{p_pin:PIN(),p_rows:j});
+    st.innerHTML=`<span class="pill good">Tertarik ${s.jumlah} guru</span> ${s.baru} baru · ${s.dinonaktifkan} dinonaktifkan · ${s.tanpa_pin} belum punya PIN pribadi`;await muatGuru()}
+  catch(e){st.innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}finally{$("btn-g-tarik").disabled=false}}
+function unduhPinCsv(){if(!GDATA){toast("Muat daftar guru dulu");return}const rows=GDATA.guru.filter(g=>g.aktif&&g.pin);if(!rows.length){toast("Belum ada guru ber-PIN pribadi");return}
+  const sel=v=>'"'+String(v??"").replace(/"/g,'""')+'"';const isi="\ufeff"+["ID;Nama;PIN;Kelas yang diampu;Kelompok MD"].concat(rows.map(g=>[g.id,g.nama,g.pin,(g.kelas||[]).join(", "),(g.kelompok||[]).join(", ")].map(sel).join(";"))).join("\r\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([isi],{type:"text/csv"}));a.download="PIN_guru_RAHASIA.csv";a.click()}
 
 /* ---------- cadangan ---------- */
 let CDATA=null;
@@ -1416,7 +1470,7 @@ async function pulihkanCadangan(){if(!CDATA)return;if(!PIN()){toast("Isi PIN dah
 // Kartu tindakan (tautan, peruntukan, keterangan, pratinjau) dipindah ke bawah baris yang sedang dibuka,
 // dan dikembalikan ke #pk-kartu sebelum daftar digambar ulang supaya tidak ikut terhapus.
 let PK=[],PK_BUKA=null,PK_JADWAL=null;
-const PK_KARTU=["daftar-tautan","daftar-peserta-card","daftar-info-card","daftar-lihat-card"];
+const PK_KARTU=["daftar-tautan","daftar-pemilik-card","daftar-info-card","daftar-lihat-card"];
 const PK_TAHAP={kisi:"Menunggu soal",siap:"Siap dibuka",aktif:"Sedang dibuka",selesai:"Selesai"};
 const PKF={mapel:"",status:"jalan",cari:"",kelas:"",jenis:"",semester:"",grup:"kelas",urut:"diubah"};
 try{const s=JSON.parse(localStorage.getItem("tka_pustaka")||"{}");["mapel","kelas","jenis","semester","grup"].forEach(k=>{if(typeof s[k]==="string")PKF[k]=s[k]})}catch(e){}
@@ -1444,7 +1498,9 @@ async function muatPustaka(){const el=$("pk-daftar");if(!PK.length)el.innerHTML=
       dibuat:[k&&k.dibuat,p&&p.dibuat].filter(Boolean).sort()[0],diubah:[k&&k.diubah,p&&p.diubah].filter(Boolean).sort().pop()||"",
       info,kisi:k,paket:p,tahap:!p?"kisi":p.aktif?"aktif":p.n_hasil>0?"selesai":"siap",
       // unggah ulang soal (Langkah 2) menghapus tanda arsip paket; tanda pada kisi-kisi saja tidak menahan
-      arsip:!!(p?p.arsip:k.arsip),darurat:!!((p&&p.darurat)||(k&&k.darurat)),n_hasil:p?p.n_hasil:0}});
+      arsip:!!(p?p.arsip:k.arsip),darurat:!!((p&&p.darurat)||(k&&k.darurat)),n_hasil:p?p.n_hasil:0,
+      // milik = boleh melihat kunci, mengubah, mengarsipkan, menghapus (penyusun atau operator; paket lama tanpa penyusun: semua guru)
+      milik:p?!!p.milik:!!(k&&k.milik),pemilik:(p&&p.pemilik)||(k&&k.pemilik)||null,pemilik_nama:(p&&p.pemilik_nama)||(k&&k.pemilik_nama)||""}});
   renderPustaka()}
 
 function pkCocokDasar(o){
@@ -1506,8 +1562,8 @@ function pkStatus(o){const s={kisi:["ok","kini","",""],siap:["ok","ok","kini",""
     `<div class="pk-seg" title="${nm.map((x,i)=>x+(s[i]==="ok"?" ✓":s[i]==="kini"?" (sekarang)":"")).join(" → ")}">${s.map(c=>`<i class="${c}"></i>`).join("")}<span>${sub}</span></div></div>`}
 function pkAksiUtama(o){if(o.arsip)return '<button class="ghost mini tulis-only" data-a="arsip0">Kembalikan</button>';
   if(o.tahap==="kisi")return '<button class="soft mini tulis-only" data-a="tpl">Template soal</button>';
-  if(o.tahap==="siap")return '<button class="soft mini tulis-only" data-a="buka">Buka untuk siswa</button>';
-  if(o.tahap==="aktif")return '<button class="mini" data-a="tautan">Tautan &amp; QR</button>';
+  if(o.tahap==="siap")return '<button class="soft mini tulis-only" data-a="sesi">Buka sesi</button>';
+  if(o.tahap==="aktif")return `<button class="mini" data-a="sesi">${o.paket.n_sesi_buka>1?o.paket.n_sesi_buka+" sesi berjalan":"Sesi berjalan"}</button>`;
   return '<button class="ghost mini" data-a="hasil">Lihat hasil</button>'}
 function pkBaris(o){const I=TKA.info,tk=pkTingkat(o),i=o.info,b=PK_BUKA===o.kode,g=PKF.grup;
   const meta=[`<span class="kode">${esc(o.kode)}</span>`,PKF.mapel?"":esc(o.mapel),g==="kelas"&&tk.length===1?"":tk.length?"kelas "+I.fmtTingkat(tk):"",(i.cakupan||[]).length?"materi kelas "+I.fmtTingkat(i.cakupan):"",
@@ -1519,10 +1575,13 @@ function pkRinci(o){const p=o.paket,k=o.kisi;
   const fakta=[o.mapel?esc(o.mapel):"Mapel belum diisi",o.kelas?"Kelas "+esc(o.kelas):"",o.materi?esc(o.materi):"",o.durasi?o.durasi+" menit":"",o.n_soal+" soal · "+o.n_varian+" varian",p?p.n_hasil+" hasil":""].filter(Boolean).join(" · ");
   let h=`<div class="pk-rinci"><div class="small">${fakta}${infoRingkas(o)}</div>`;
   if(o.darurat)h+='<div class="small"><span class="pill bad">Darurat</span> Unduh kisi-kisi, periksa/lengkapi di Word, lalu unggah di Langkah 1 dengan kode yang sama untuk mengesahkan.</div>';
-  if(p)h+=`<div class="grp"><b>Siswa</b><label class="small"><input type="checkbox" data-c="aktif" ${p.aktif?"checked":""}> dibuka (siswa bisa mengerjakan)</label><label class="small"><input type="checkbox" data-c="pemb" ${p.pembahasan?"checked":""}> pembahasan ditampilkan</label><span class="small muted">Peruntukan: ${esc(TKA_PESERTA.ringkas(p.peserta))} · ${p.n_peserta} siswa</span></div>`;
-  h+=`<div class="grp"><b>Bagikan</b>${p?'<button class="soft mini" data-a="tautan">Tautan &amp; QR</button><button class="ghost mini tulis-only" data-a="peserta">Atur peruntukan</button><button class="ghost mini" data-a="hasil">Hasil di Menu guru</button>':'<span class="small muted">Soal belum diunggah. Isi template soal, lalu unggah di Langkah 2.</span>'}</div>`;
-  h+=`<div class="grp"><b>Soal</b>${p?'<button class="ghost mini tulis-only" data-a="lihat">Lihat soal</button>':""}${k?'<button class="ghost mini tulis-only" data-a="tpl">Template soal .docx</button><button class="ghost mini tulis-only" data-a="kisi">Kisi-kisi .docx</button>':""}${p?'<button class="ghost mini" data-a="json">JSON</button>':""}</div>`;
-  h+=`<div class="grp tulis-only"><b>Kelola</b><button class="ghost mini" data-a="ket">Ubah judul &amp; keterangan</button><button class="ghost mini" data-a="${o.arsip?"arsip0":"arsip1"}">${o.arsip?"Kembalikan dari arsip":"Arsipkan"}</button>${p?'<button class="danger mini" data-a="hapus">Hapus paket</button>':""}${k?'<button class="danger mini" data-a="hapuskisi">Hapus kisi-kisi</button>':""}</div>`;
+  const pny=o.pemilik_nama?"Penyusun: <b>"+esc(o.pemilik_nama)+"</b>":"Penyusun belum ditetapkan (semua guru boleh mengelola)";
+  h+=`<div class="small">${pny}${PERAN==="operator"?' <button class="ghost mini" data-a="pemilik">Atur penyusun</button>':""}</div>`;
+  if(p)h+=`<div class="grp"><b>Ujian</b><span class="small muted">${p.n_sesi_buka?`<b>${p.n_sesi_buka} sesi sedang dibuka</b> · `:""}${p.n_sesi} sesi${p.n_sesi?" · peserta "+esc(TKA_PESERTA.ringkas(p.peserta))+" · "+p.n_peserta+" siswa":""}</span><button class="soft mini tulis-only" data-a="sesi">Buka sesi</button><button class="ghost mini" data-a="tautan">Alamat siswa &amp; QR</button><button class="ghost mini" data-a="hasil">Hasil di Menu guru</button></div>`;
+  else h+='<div class="grp"><b>Ujian</b><span class="small muted">Soal belum diunggah. Isi template soal, lalu unggah di Langkah 2.</span></div>';
+  h+=`<div class="grp"><b>Soal</b>${p&&o.milik?'<button class="ghost mini tulis-only" data-a="lihat">Lihat soal</button>':""}${k?'<button class="ghost mini tulis-only" data-a="tpl">Template soal .docx</button><button class="ghost mini tulis-only" data-a="kisi">Kisi-kisi .docx</button>':""}${p?'<button class="ghost mini" data-a="json">JSON</button>':""}</div>`;
+  h+=o.milik?`<div class="grp tulis-only"><b>Kelola</b><button class="ghost mini" data-a="ket">Ubah judul &amp; keterangan</button><button class="ghost mini" data-a="${o.arsip?"arsip0":"arsip1"}">${o.arsip?"Kembalikan dari arsip":"Arsipkan"}</button>${p?'<button class="danger mini" data-a="hapus">Hapus paket</button>':""}${k?'<button class="danger mini" data-a="hapuskisi">Hapus kisi-kisi</button>':""}</div>`
+    :`<div class="grp"><b>Kelola</b><span class="small muted">Soal, kunci, dan pengelolaan paket ini hanya untuk ${esc(o.pemilik_nama||"penyusunnya")} dan operator. Anda tetap bisa membuka sesi dan mencobanya lewat Menu guru → Uji coba soal.</span></div>`;
   return h+'<div class="pk-slot"></div></div>'}
 
 function pkKartuPulang(){const h=$("pk-kartu");PK_KARTU.forEach(id=>h.appendChild($(id)))}
@@ -1534,26 +1593,28 @@ function pkBukaTutup(kode){PK_BUKA=PK_BUKA===kode?null:kode;pkTutupKartu();rende
 
 async function pkAksi(o,a){const k=o.kode;
   try{
-    if(a==="tautan"){pkTampilKartu(k,"daftar-tautan");$("dt-isi").innerHTML=tautanHtml(k,"qr2");gambarQr("qr2",k)}
-    else if(a==="peserta"){pkTampilKartu(k,"daftar-peserta-card");$("dp-kode").textContent=k;$("dp-status").textContent="";await siapkanPeserta("daftar","dp-box",o.paket.peserta);
-      $("btn-dp-simpan").onclick=async()=>{try{const res=await rpc("tka_set_peserta",{p_pin:PIN(),p_ujian:k,p_peserta:PESERTA_ED.daftar.get()});$("dp-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(TKA_PESERTA.ringkas(res,SSERVER))}</span>`;muatDaftar()}catch(e){$("dp-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}}
+    if(a==="tautan"){pkTampilKartu(k,"daftar-tautan");$("dt-isi").innerHTML=tautanHtml(k,"qr2");gambarQr("qr2")}
+    else if(a==="sesi")window.open(`index.html?guru&sesi=${encodeURIComponent(k)}`,"_blank");
+    else if(a==="pemilik"){pkTampilKartu(k,"daftar-pemilik-card");$("dp-kode").textContent=k;$("dp-status").textContent="";$("dp-guru").innerHTML="<option>Memuat…</option>";
+      const g=await rpc("mtd_admin_guru",{p_pin:PIN()});
+      $("dp-guru").innerHTML='<option value="">— tanpa penyusun (semua guru boleh mengelola) —</option>'+g.guru.filter(x=>x.aktif||x.id===o.pemilik).map(x=>`<option value="${esc(x.id)}">${esc(x.nama)} (${esc(x.id)})</option>`).join("");$("dp-guru").value=o.pemilik||"";
+      $("btn-dp-simpan").onclick=async()=>{try{const r=await rpc("tka_set_pemilik",{p_pin:PIN(),p_kode:k,p_guru:$("dp-guru").value||null});$("dp-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(r.pemilik_nama||"tanpa penyusun")}</span>`;muatDaftar()}catch(e){$("dp-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}}
     else if(a==="ket"){pkTampilKartu(k,"daftar-info-card");bukaKeterangan(o)}
     else if(a==="lihat")await pkLihatSoal(k);
     else if(a==="hasil")window.open("index.html?guru","_blank");
     else if(a==="tpl")await unduhTemplate(await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:k}));
     else if(a==="kisi")await unduhKisi(await rpc("tka_get_kisi",{p_pin:PIN(),p_kode:k}));
     else if(a==="json"){const p=await rpc("tka_get_paket_admin",{p_pin:PIN(),p_kode:k});unduh(`paket_${p.kode}.json`,JSON.stringify(p,null,1))}
-    else if(a==="buka"){await rpc("tka_set_aktif",{p_pin:PIN(),p_kode:k,p_aktif:true});toast(`${k} dibuka untuk siswa`);muatDaftar()}
-    else if(a==="arsip1"){if(!confirm(`Arsipkan ${k}?\n\nPaket ditutup untuk siswa dan disembunyikan dari daftar. Hasil siswa tetap tersimpan; paket bisa dikembalikan dari saringan Arsip.`))return;
+    else if(a==="arsip1"){if(!confirm(`Arsipkan ${k}?\n\nSesi yang masih terbuka ikut ditutup dan paket disembunyikan dari daftar. Hasil siswa tetap tersimpan; paket bisa dikembalikan dari saringan Arsip.`))return;
       await rpc("tka_set_arsip",{p_pin:PIN(),p_kode:k,p_arsip:true});toast(`${k} diarsipkan`);PK_BUKA=null;pkTutupKartu();muatDaftar()}
-    else if(a==="arsip0"){await rpc("tka_set_arsip",{p_pin:PIN(),p_kode:k,p_arsip:false});toast(`${k} dikembalikan dari arsip (masih tertutup; buka bila perlu)`);muatDaftar()}
+    else if(a==="arsip0"){await rpc("tka_set_arsip",{p_pin:PIN(),p_kode:k,p_arsip:false});toast(`${k} dikembalikan dari arsip`);muatDaftar()}
     else if(a==="hapus"){const n=o.n_hasil;if(!confirm(`Hapus paket ${k}?`))return;let hh=false;if(n>0)hh=confirm(`Paket ini punya ${n} hasil siswa. Hapus juga hasilnya? (Batal = hasil tetap disimpan)`);
       await rpc("tka_hapus_paket",{p_pin:PIN(),p_kode:k,p_hapus_hasil:hh});toast("Paket dihapus");pkTutupKartu();muatDaftar()}
     else if(a==="hapuskisi"){if(!confirm(`Hapus kisi-kisi ${k}? (Paket soal yang sudah terbit tidak ikut terhapus.)`))return;await rpc("tka_hapus_kisi",{p_pin:PIN(),p_kode:k});toast("Kisi-kisi dihapus");muatDaftar()}
   }catch(e){toast("Gagal: "+e.message)}}
 async function pkLihatSoal(k){const card=pkTampilKartu(k,"daftar-lihat-card");$("dl-kode").textContent=k;$("dl-prev").innerHTML="Memuat…";$("dl-info").textContent="";
-  DL_PAKET=null;try{const p=await rpc("tka_get_paket_admin",{p_pin:PIN(),p_kode:k});if(!p.kunci){$("dl-prev").innerHTML='<span class="pill warn">PIN pengawas hanya bisa melihat lewat Menu guru → Uji coba soal.</span>';return}
-    DL_PAKET=p;const bp=(p.meta||{}).blueprint||[];PREV_TEKS=p.kunci.teks||{};$("dl-info").innerHTML=`${esc(p.judul)} · ${esc(p.mapel||"")} ${esc(p.kelas||"")} · ${p.n_soal} soal · ${p.n_varian} varian · ${p.durasi} menit · ${p.aktif?'<span class="pill good">aktif</span>':'<span class="pill">nonaktif</span>'}${(p.meta||{}).darurat?' <span class="pill bad">Darurat</span>':""}`;
+  DL_PAKET=null;try{const p=await rpc("tka_get_paket_admin",{p_pin:PIN(),p_kode:k});if(!p.kunci){$("dl-prev").innerHTML=`<span class="pill warn">Soal dan kunci paket ini hanya bisa dilihat ${esc(p.pemilik_nama||"penyusunnya")} dan operator.</span> Cobalah lewat Menu guru → Uji coba soal.`;return}
+    DL_PAKET=p;const bp=(p.meta||{}).blueprint||[];PREV_TEKS=p.kunci.teks||{};$("dl-info").innerHTML=`${esc(p.judul)} · ${esc(p.mapel||"")} ${esc(p.kelas||"")} · ${p.n_soal} soal · ${p.n_varian} varian · ${p.durasi} menit${p.pemilik_nama?" · penyusun "+esc(p.pemilik_nama):""}${(p.meta||{}).darurat?' <span class="pill bad">Darurat</span>':""}`;
     $("dl-prev").innerHTML=(Object.keys(PREV_TEKS).length?`<details><summary>Teks bacaan (${Object.keys(PREV_TEKS).length})</summary>${Object.entries(PREV_TEKS).map(([kk,tt])=>`<div class="prev"><b>${esc(kk)} — ${esc(tt.judul)}</b><div class="stim">${safeHtml(tt.isi)}</div></div>`).join("")}</details>`:"")+p.kunci.soal.map((sq,i)=>`<details><summary>No. ${sq.no} — ${esc((bp[i]||{}).sub||"")} (${Object.keys(sq.varian).join("/")})</summary>${Object.entries(sq.varian).map(([v,q])=>prevSoal(sq.no,v,q,bp[i]||{})).join("")}</details>`).join("");mathRender($("dl-prev"))}
   catch(e){$("dl-prev").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 function pasangPustaka(){const d=$("pk-daftar");
@@ -1561,10 +1622,6 @@ function pasangPustaka(){const d=$("pk-daftar");
     const a=e.target.closest("[data-a]");if(a){pkAksi(o,a.dataset.a);return}
     if(e.target.closest(".pk-baris"))pkBukaTutup(o.kode)});
   d.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.classList.contains("pk-baris")){e.preventDefault();const k=e.target.closest(".pk").dataset.k;pkBukaTutup(k);const b=document.querySelector(`.pk[data-k="${CSS.escape(k)}"] .pk-baris`);if(b)b.focus()}});
-  d.addEventListener("change",async e=>{const c=e.target.closest("[data-c]");if(!c)return;const k=c.closest(".pk").dataset.k;
-    try{if(c.dataset.c==="aktif"){await rpc("tka_set_aktif",{p_pin:PIN(),p_kode:k,p_aktif:c.checked});toast(c.checked?"Ujian dibuka untuk siswa":"Ujian ditutup")}
-      else{await rpc("tka_set_setting",{p_pin:PIN(),p_key:"pembahasan",p_value:c.checked,p_ujian:k});toast(c.checked?"Pembahasan dibuka untuk siswa":"Pembahasan ditutup")}
-      muatDaftar()}catch(err){toast("Gagal: "+err.message);c.checked=!c.checked}});
   $("pk-cari").addEventListener("input",e=>{PKF.cari=e.target.value;renderPustaka()});
   ["kelas","jenis","semester","grup","urut"].forEach(f=>$("pk-"+f).onchange=e=>{PKF[f]=e.target.value;renderPustaka()});
   $("pk-mapel").onclick=e=>{const b=e.target.closest("[data-m]");if(b){PKF.mapel=b.dataset.m;renderPustaka()}};
@@ -1578,10 +1635,15 @@ window.addEventListener("DOMContentLoaded",()=>{
   try{const s=localStorage.getItem("tka_admin_pin");if(s){$("pin").value=s;$("pin-ingat").checked=true}}catch(e){}
   try{const c=JSON.parse(localStorage.getItem("tka_induk_cfg")||"{}");if(c.url){$("i-url").value=c.url;$("i-key").value=c.key||""}}catch(e){}
   $("btn-i-tarik").onclick=tarikInduk;
+  $("btn-g-tarik").onclick=tarikGuru;$("btn-g-acak").onclick=()=>buatPin(null);$("btn-g-muat").onclick=muatGuru;$("btn-g-unduh").onclick=unduhPinCsv;$("g-cari").addEventListener("input",renderGuru);
   $("btn-c-unduh").onclick=unduhCadangan;$("c-file").onchange=e=>{if(e.target.files[0])bacaCadangan(e.target.files[0])};$("btn-c-pulihkan").onclick=pulihkanCadangan;
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
-    try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});setPeran(j.peran);$("pin-status").innerHTML=`<span class="pill good">PIN benar · server terhubung</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — terbit & atur paket (data siswa hanya lihat)":"pengawas — hanya lihat"}</span>`;muatDaftarKisi();muatDaftar();muatSinkron();muatInduk()}catch(e){setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;$("sinkron-info").innerHTML=""}};
-  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","siswa","impor","cadangan","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="siswa"&&PIN())muatSiswa();if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}});
+    try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});MASUK=j;setPeran(j.peran);
+      $("pin-status").innerHTML=`<span class="pill good">PIN benar · ${esc(j.nama)}</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — unggah paket, kelola paket sendiri (data siswa hanya lihat)":"pengawas — hanya lihat"}</span>`+
+        (j.bersama?' <span class="pill warn">PIN guru bersama</span> Paket yang diunggah dengan PIN ini tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator.':"")+
+        (j.peran==="operator"&&j.guru_tanpa_pin?` <span class="pill warn">${j.guru_tanpa_pin} guru belum punya PIN pribadi</span> — tab <b>Guru &amp; PIN</b>.`:"");
+      muatDaftarKisi();muatDaftar();muatSinkron();muatInduk()}catch(e){setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;$("sinkron-info").innerHTML=""}};
+  document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","siswa","guru","impor","cadangan","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="siswa"&&PIN())muatSiswa();if(b.dataset.tab==="guru"&&PIN())muatGuru();if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}});
   $("file").onchange=e=>{if(e.target.files[0])bacaFile(e.target.files[0])};
   $("file-k").onchange=e=>{if(e.target.files[0])bacaKisi(e.target.files[0])};
   const dk=$("drop-k");dk.ondragover=e=>{e.preventDefault();dk.style.borderColor="var(--acc)"};dk.ondragleave=()=>dk.style.borderColor="";dk.ondrop=e=>{e.preventDefault();dk.style.borderColor="";if(e.dataTransfer.files[0])bacaKisi(e.dataTransfer.files[0])};
@@ -1590,7 +1652,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-d-terbit").onclick=terbitDarurat;
   $("file-s").onchange=e=>{if(e.target.files[0])bacaSiswa(e.target.files[0])};
   const ds=$("drop-s");ds.ondragover=e=>{e.preventDefault();ds.style.borderColor="var(--acc)"};ds.ondragleave=()=>ds.style.borderColor="";ds.ondrop=e=>{e.preventDefault();ds.style.borderColor="";if(e.dataTransfer.files[0])bacaSiswa(e.dataTransfer.files[0])};
-  pasangPustaka();$("btn-dp-batal").onclick=()=>$("daftar-peserta-card").classList.add("hidden");$("btn-di-batal").onclick=()=>$("daftar-info-card").classList.add("hidden");$("btn-di-simpan").onclick=simpanKeterangan;
+  pasangPustaka();$("btn-dp-batal").onclick=()=>$("daftar-pemilik-card").classList.add("hidden");$("btn-di-batal").onclick=()=>$("daftar-info-card").classList.add("hidden");$("btn-di-simpan").onclick=simpanKeterangan;
   $("btn-k-kosong").onclick=async()=>{try{unduhBiner("Template_Kisi_Kisi.docx",await TKA_DOC.buatKisiKosong(JSZip),"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}catch(e){toast("Gagal membuat dokumen: "+e.message)}};$("btn-dl-tutup").onclick=()=>$("daftar-lihat-card").classList.add("hidden");
   $("btn-s-simpan").onclick=simpanSiswa;$("btn-s-muat").onclick=muatSiswa;$("btn-e-simpan").onclick=simpanSatu;$("s-cari").addEventListener("input",renderSiswa);
   $("btn-s-hapus-semua").onclick=async()=>{if(!confirm("Hapus SEMUA data siswa? Siswa tidak bisa masuk dengan NISN sampai data diunggah lagi."))return;if(!confirm("Yakin?"))return;try{await rpc("tka_hapus_siswa",{p_pin:PIN(),p_semua:true});toast("Semua data siswa dihapus");muatSiswa()}catch(e){toast("Gagal: "+e.message)}};
@@ -1602,9 +1664,8 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-d-docx-kunci").onclick=()=>unduhNaskah(DPAKET,true);$("btn-d-docx-siswa").onclick=()=>unduhNaskah(DPAKET,false);
   $("btn-terbit").onclick=async()=>{if(!PAKET)return;if(!PIN()){toast("Isi PIN dahulu");return}
     const p=PAKET;$("terbit-status").innerHTML='<span class="pill">Mengirim…</span>';$("btn-terbit").disabled=true;
-    try{const j=await rpc("tka_terbitkan",{p_pin:PIN(),p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:$("aktif").checked});
-      let pes="";try{if(PESERTA_ED.terbit){const r=await rpc("tka_set_peserta",{p_pin:PIN(),p_ujian:j.kode,p_peserta:PESERTA_ED.terbit.get()});pes=` · Peruntukan: ${esc(TKA_PESERTA.ringkas(r,SSERVER))}`}}catch(e){pes=` · <span class="pill warn">Peruntukan gagal disimpan: ${esc(e.message)} — atur di Pustaka paket</span>`}
-      $("terbit-status").innerHTML=`<span class="pill good">Terbit: ${esc(j.kode)}</span>${pes}. Bagikan tautan berikut ke siswa.`;const d=$("tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr1");gambarQr("qr1",j.kode);
+    try{const j=await rpc("tka_terbitkan",{p_pin:PIN(),p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:false});
+      $("terbit-status").innerHTML=`<span class="pill good">Terbit ke bank soal: ${esc(j.kode)}</span> Paket belum bisa dikerjakan siswa sampai sesi ujiannya dibuka.`;const d=$("tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr1");gambarQr("qr1",j.kode);
     }catch(e){$("terbit-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}finally{$("btn-terbit").disabled=false}};
   $("btn-impor").onclick=async()=>{const lines=$("kode-hasil").value.split(/\s+/).filter(Boolean);const out=[];
     for(const l of lines){try{const o=JSON.parse(decodeURIComponent(escape(atob(l))));if(!o.kode||!o.jawaban)throw new Error("format kode salah");const j=await rpc("tka_submit2",{p:o});out.push(`✔ ${esc(o.nama)} (${esc(o.kelas)}) — ${o.kode}: nilai ${j.nilai}`)}catch(e){out.push(`✘ ${esc(l.slice(0,24))}… : ${esc(e.message)}`)}}

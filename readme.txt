@@ -1,4 +1,4 @@
-# Asesmen Merdeka (Tryout) v6 — Panduan (kisi-kisi → template soal → terbit; data siswa; menu guru; tiga PIN; peruntukan ujian)
+# Asesmen Merdeka (Tryout) v7 — Panduan (kisi-kisi → template soal → bank soal → sesi ujian; data siswa; PIN pribadi guru)
 
 ## Alur kerja
 
@@ -12,7 +12,10 @@ Aplikasi membuatkan Template_Soal_<KODE>.docx  ← sudah terisi: nomor, varian, 
 Guru isi perintah soal, pertanyaan, pilihan, kunci, pembahasan
         │  (Langkah 2, admin.html) unggah → dicocokkan dengan kisi-kisi di server → pratinjau
         ▼
-Terbitkan → tautan/QR untuk siswa (index.html?ujian=KODE) → hasil & analisis di dasbor guru
+Terbitkan → masuk bank soal
+        │  (Menu guru → Sesi ujian) pilih paket + kelas + lama pengerjaan → kode akses 6 angka
+        ▼
+Siswa buka index.html, masuk dengan NISN + kode akses → hasil & analisis di dasbor guru
 ```
 
 Isi folder:
@@ -51,7 +54,7 @@ Isi folder:
 - Sub/superscript Word, tabel di sel Perintah soal, dan gambar PNG/JPG (≤ 300 KB) ikut terbaca.
 - `admin.html` → **Langkah 2** → unggah → aplikasi mencocokkan dengan kisi-kisi di server. **Ditolak** bila: kode ujian berbeda, nomor hilang/lebih, varian kurang/lebih, bentuk berbeda dari kisi-kisi, kode teks berbeda dari kisi-kisi, atau teks bacaan yang dirujuk belum diisi.
 - Di layar siswa, teks bacaan tampil di atas setiap soal yang merujuknya (bisa dilipat), dan soal-soal dengan teks yang sama tetap berkelompok meski urutan diacak. Sub-materi/indikator/level selalu mengikuti kisi-kisi (perbedaan hanya diperingatkan).
-- Pratinjau (kunci hijau) → **Terbitkan** → tautan & QR.
+- Pratinjau (kunci hijau) → **Terbitkan ke bank soal**. Paket belum bisa dikerjakan siswa sampai guru membuka sesinya (bagian C3c).
 - **Unduh naskah (.docx)**: di pratinjau Langkah 2, tab *Pustaka paket → buka paket → Lihat soal*, dan jalur darurat tersedia dua unduhan Word — **Soal & pembahasan** (kunci ditandai hijau ✔, pembahasan tiap soal, rekap kunci per varian; rahasia, untuk guru/arsip) dan **Naskah siswa** (tanpa kunci/pembahasan, untuk dicetak sebagai cadangan bila jaringan bermasalah). Tiap varian di halaman terpisah; teks bacaan tampil sekali sebelum soal pertama yang merujuknya; gambar, tabel, sub/superscript ikut; rumus Word Equation tampil sebagai kode `( … )` (belum dikonversi balik ke rumus Word). Hanya untuk PIN guru/operator.
 
 ## C2. Jalur darurat (hanya keadaan mendesak)
@@ -66,55 +69,64 @@ Isi folder:
 
 - **Unggah data siswa**: `admin.html` → tab *Data siswa* → unggah ekspor Excel Dapodik (.xls/.xlsx, **semua sheet dibaca dan digabung** — ekspor per rombel langsung bisa) atau CSV. Kolom NISN, Nama, Rombel/Kelas, Tanggal lahir dideteksi otomatis (bisa diubah pada pemetaan kolom); tanggal diterima dalam format `2008-05-17`, `17/05/2008`, `17 Mei 2008`, atau tanggal Excel. Baris tanpa NISN/tanggal dilewati dan dilaporkan. Unggah ulang = memperbarui (NISN sebagai kunci). Perbarui tiap awal tahun ajaran.
 - **Mutasi siswa**: *masuk* → isi formulir *Tambah/ubah satu siswa* (NISN, nama, kelas, tanggal lahir) → Simpan; *pindah kelas/koreksi* → tombol **ubah** pada daftar → perbaiki → Simpan; *keluar* → tombol **nonaktifkan** (riwayat nilai tetap tersimpan, siswa tidak bisa masuk ujian dan tidak dihitung "belum mengerjakan"); **hapus** hanya untuk data yang salah. Awal tahun ajaran: unggah ekspor Dapodik terbaru — kelas semua siswa ikut diperbarui otomatis (NISN sebagai kunci).
-- **Guru mencoba soal**: halaman siswa → *Guru / pengawas* → PIN → **Uji coba soal** → kode ujian. Paket **nonaktif pun bisa dicoba** (jadi paket bisa diperiksa sebelum diaktifkan), hasil **tidak disimpan**, dan kunci/pembahasan langsung tersedia di halaman hasil. Untuk membaca semua soal beserta kunci tanpa mengerjakan, gunakan pratinjau di `admin.html` (Langkah 2 sebelum terbit, atau *Pustaka paket → buka paket → JSON*).
-- **Masuk ujian**: begitu data siswa ada, halaman siswa meminta **NISN + tanggal lahir** (nama & kelas terisi otomatis dari data sekolah, tidak bisa diketik). Tanpa data siswa, halaman tetap meminta nama/kelas seperti sebelumnya.
-- **Satu hasil per siswa per ujian**: siswa yang sudah mengerjakan tidak bisa masuk lagi; guru dapat **reset** dari dasbor (hasil lama dihapus, siswa boleh mengulang). Kirim-ulang jawaban yang gagal terkirim tetap diperbolehkan (bukan pengerjaan baru).
-- **Jalur tamu** (per ujian, saklar di dasbor guru): siswa tak terdaftar mengetik nama/kelas; hasilnya berlabel *tamu*. Default mati.
-- **Kode akses ujian** (per ujian, diisi di dasbor guru, mis. `4821`): diumumkan di kelas saat ujian dimulai; siapa pun tanpa kode tidak bisa mulai walau tahu tautannya. Kosongkan untuk menonaktifkan.
-- **Dasbor guru** bertambah: kolom NISN, tombol *reset*, tab **Belum mengerjakan** (siswa terdaftar tanpa hasil, per kelas), tab **Riwayat siswa** (nilai tiap siswa lintas ujian, cari NISN/nama atau per kelas).
-- Privasi: data siswa tersimpan di tabel yang dikunci RLS dan hanya bisa dibaca dengan PIN guru; siswa hanya bisa memverifikasi dirinya sendiri (NISN + tanggal lahir). Tanggal lahir adalah verifikasi ringan — cukup untuk tryout; untuk penilaian berisiko tinggi gunakan kode akses + pengawasan.
+- **Guru mencoba soal**: halaman siswa → *Guru / pengawas* → PIN → **Uji coba soal** → kode ujian. Paket mana pun di bank soal bisa dicoba tanpa membuka sesi, hasil **tidak disimpan**, dan kunci/pembahasan tersedia di halaman hasil bila Anda penyusun paketnya (atau operator). Untuk membaca semua soal beserta kunci tanpa mengerjakan, gunakan pratinjau di `admin.html` (Langkah 2 sebelum terbit, atau *Pustaka paket → buka paket → JSON*).
+- **Masuk ujian**: siswa membuka `index.html` (satu alamat untuk semua ujian) dan mengisi **NISN + kode akses sesi** (6 angka dari guru/pengawas). Server menampilkan nama, kelas, dan ujiannya; siswa menekan *Ya, benar* baru token pengerjaan dibuat. Tanggal lahir tidak dipakai lagi untuk masuk (tetap disimpan sebagai data).
+- **Satu hasil per siswa per paket**: siswa yang sudah mengerjakan tidak bisa masuk lagi, juga di sesi lain dengan paket yang sama; penyusun paket, guru yang membuka sesinya, atau operator dapat **reset** dari dasbor. Kirim-ulang jawaban yang gagal terkirim tetap diperbolehkan (bukan pengerjaan baru).
+- **Satu NISN satu perangkat**: selama sesi terbuka, NISN yang sedang mengerjakan tidak bisa masuk dari perangkat lain ("Kamu sudah masuk ujian ini di perangkat lain"). Bila HP siswa mati atau harus berganti perangkat, guru/pengawas membuka *Sesi ujian → Pantau siswa* dan menekan **Lepas** pada namanya.
+- **Jalur tamu** (per sesi, *Pengawasan & jalur tamu* saat membuka sesi): siswa tak terdaftar mengetik nama/kelas + kode akses; hasilnya berlabel *tamu*. Default mati.
+- **Dasbor guru**: saringan **Sesi**, kolom NISN, tombol *reset*, tab **Belum mengerjakan** (peserta gabungan semua sesi tanpa hasil, per kelas), tab **Riwayat siswa** (nilai tiap siswa lintas ujian, cari NISN/nama atau per kelas).
+- Privasi: data siswa tersimpan di tabel yang dikunci RLS dan hanya bisa dibaca dengan PIN guru. Kode akses hanya berlaku selama sesi terbuka dan hanya untuk peserta sesi itu; kode yang salah diperlambat server agar tidak bisa ditebak beruntun.
 
-## C3b. Menu guru, PIN pengawas, dan Daftar siswa (v5)
+## C3b. Menu guru, PIN pribadi, dan Daftar siswa (v7)
 
-- Layar awal siswa kini hanya punya satu tautan kecil **Guru / pengawas** (atau buka langsung `index.html?guru`). Setelah PIN dimasukkan **sekali** (berlaku selama tab/peramban terbuka), tampil **Menu guru**: *Daftar siswa*, *Dasbor hasil*, *Uji coba soal*, dan *Halaman admin* (yang terakhir hanya untuk PIN guru).
-- **Tiga PIN** (dicek di server, bukan hanya disembunyikan di layar):
+- Layar awal siswa hanya punya satu tautan kecil **Guru / pengawas** (atau buka langsung `index.html?guru`). Setelah PIN dimasukkan **sekali** (berlaku selama tab/peramban terbuka), tampil **Menu guru**: *Sesi ujian*, *Dasbor hasil*, *Daftar siswa*, *Uji coba soal*, dan *Halaman admin*. Menu menampilkan nama pemilik PIN.
+- **PIN** (dicek di server, bukan hanya disembunyikan di layar):
 
-| PIN | Bawaan (kunci di `tka_privat`) | Boleh |
+| PIN | Tempat | Boleh |
 |---|---|---|
-| Operator / kurikulum | `operator2026` (`pin_operator`) | Semuanya, termasuk **tambah/ubah/nonaktifkan/hapus data siswa** (unggah Dapodik, mutasi) |
-| Guru | `merdeka2026` (`pin`) | Terbit paket, peruntukan, pengaturan ujian, dasbor, reset/hapus hasil, kisi-kisi; data siswa hanya lihat |
-| Pengawas | `pengawas2026` (`pin_pengawas`) | Hanya lihat: dasbor tanpa tombol pengaturan/reset/hapus, daftar siswa (bantu login), uji coba soal |
+| **Pribadi guru** (8 angka) | `mtd_guru.pin` — sama dengan PIN Matematika Dasar | Unggah paket (tercatat atas namanya), kelola paket buatannya, buka/perpanjang/tutup sesi miliknya, pembahasan, reset hasil sesinya, dasbor; data siswa hanya lihat |
+| Operator / kurikulum | `tka_privat.pin_operator` | Semuanya, termasuk data siswa, **guru & PIN pribadi**, penyusun paket, dan semua sesi; juga admin Matematika Dasar |
+| Pengawas | `tka_privat.pin_pengawas` | Lihat sesi & dasbor (tanpa tombol pengaturan/reset/hapus), daftar siswa, uji coba soal, **Lepas** siswa, buka kunci di HP siswa |
+| Guru bersama (peralihan) | `tka_privat.pin` | Seperti guru tetapi tanpa nama; paket/sesi yang dibuat tidak tercatat atas nama siapa pun. Matikan setelah semua guru memegang PIN pribadi |
 
-  Ganti: `update public.tka_privat set v='PIN_BARU' where k='pin_operator';` (juga `k='pin'`, `k='pin_pengawas'`). Bagikan PIN pengawas ke pengawas ruang, PIN guru ke guru mapel, PIN operator hanya ke operator/kurikulum.
-- **Daftar siswa** (bantu login): untuk siswa yang lupa NISN. Kotak cari nama/NISN menyaring seketika; chip kelas untuk mengelompokkan (jumlah siswa aktif per kelas ikut tampil); NISN tampil besar dengan tombol **Salin NISN**; **tanggal lahir disembunyikan** sampai tombol *Tgl lahir* diketuk (agar tidak terbaca siswa lain dari layar HP pengawas). Pilih ujian pada *Tandai sudah/belum mengerjakan* untuk melihat siapa yang belum masuk tanpa pindah ke dasbor. Siswa nonaktif tampil pudar. Tidak ada tombol ubah/hapus di halaman ini — itu tetap di `admin.html`.
+- **Membuat PIN pribadi**: `admin.html` → PIN operator → tab **Guru & PIN** → *Tarik guru dari Data Induk* (semua guru aktif + kelas yang diampu menurut jadwal KBM) → *Buat PIN untuk guru yang belum punya*. Bagikan PIN langsung ke masing-masing guru (*Unduh daftar PIN (.csv)* bersifat rahasia). PIN bisa dibuat ulang atau dihapus per guru. Setelah semua guru memegang PIN pribadi: **Matikan PIN guru bersama**.
+- ID guru di Data Induk (mis. G161) hanya PIN sementara untuk Matematika Dasar; di Tryout tidak berlaku.
+- Ganti PIN operator/pengawas: `update public.tka_privat set v='PIN_BARU' where k='pin_operator';` (juga `k='pin_pengawas'`).
+- **Daftar siswa** (bantu login): untuk siswa yang lupa NISN. Kotak cari nama/NISN menyaring seketika; chip kelas untuk mengelompokkan (jumlah siswa aktif per kelas ikut tampil); NISN tampil besar dengan tombol **Salin NISN**. Pilih ujian pada *Tandai sudah/belum mengerjakan* untuk melihat siapa yang belum masuk tanpa pindah ke dasbor. Siswa nonaktif tampil pudar. Tidak ada tombol ubah/hapus di halaman ini — itu tetap di `admin.html`.
 - Data daftar siswa dimuat sekali per sesi (tombol *Muat ulang* bila ada perubahan) sehingga pencarian tidak membebani server saat ujian serentak.
 
-## C3c. Peruntukan ujian (v6)
+## C3c. Sesi ujian (v7)
 
-- Setiap kode ujian punya **peruntukan**: *Semua siswa*, *Kelas tertentu* (pilih rombel; tombol "Semua kelas 12" memilih seluruh rombel tingkat itu), atau *Siswa tertentu* (centang nama; bisa juga tempel daftar NISN). Contoh: `TO-MAT-TKA` → semua kelas 12; `TO-MAT-CHANDRA-1` → XII-1 & XII-2 saja; `TO-OSN-INF-1` → 12 siswa peserta olimpiade.
-- Dipilih saat menerbitkan (Langkah 2 / jalur darurat, bagian *Peruntukan*), dan **bisa diubah kapan saja**: `admin.html` → *Pustaka paket → buka paket → Atur peruntukan*, atau dasbor guru → *Peruntukan ujian → Ubah peruntukan* (PIN guru/operator).
-- Akibatnya: siswa di luar peruntukan **ditolak saat masuk** ("Ujian ini tidak diperuntukkan bagi kamu (kelas XI-1)"), tab **Belum mengerjakan** hanya menghitung peserta, dan halaman *Daftar siswa* menandai *bukan peserta* bila ujian dipilih. Jalur tamu tidak terpengaruh (tamu tidak punya data kelas) — tutup jalur tamu bila peruntukan harus ketat.
-- Peruntukan berdasarkan nama rombel di data siswa; bila rombel baru ditambahkan operator setelah peruntukan dibuat, tambahkan rombel itu lewat *Ubah peruntukan*.
+Paket adalah **bank soal**: tidak ada lagi saklar aktif, tautan `?ujian=KODE`, kode akses manual, atau peruntukan per paket. Ujian dibuka lewat **sesi**.
+
+- **Buka sesi**: Menu guru → **Sesi ujian** → **Buka sesi baru** → pilih paket (cari judul/kode/mapel; semua paket di bank soal boleh dipakai), **peserta** (kelas tertentu — tombol *Kelas saya* memilih rombel yang Anda ampu menurut jadwal KBM, *Semua kelas 12*, dst. — atau siswa tertentu), **lama pengerjaan** (bawaan: durasi paket), dan **kelonggaran masuk** (untuk siswa yang terlambat). Sesi tertutup pada *lama pengerjaan + kelonggaran*. Bagian *Pengawasan & jalur tamu*: batas keluar, toleransi, kode buka (kosong = PIN guru/pengawas/operator), izinkan tamu. Pengaturan terakhir diingat untuk sesi berikutnya.
+- Server membuat **kode akses 6 angka**, unik di antara sesi yang terbuka, jadi kode sekaligus menentukan ujiannya. **Tampilkan besar** menampilkan kode untuk proyektor beserta alamat halaman siswa dan jam tutup.
+- **Waktu**: batas tiap siswa = yang lebih awal di antara (saat ia masuk + lama pengerjaan) dan akhir sesi, mengikuti jam server. HP siswa memberi kabar tiap menit: bila guru **memperpanjang** (+15/+30 menit) waktunya ikut bertambah; bila guru **menutup sekarang**, siswa yang sedang mengerjakan otomatis mengumpulkan jawaban dalam ±1 menit. Sesi yang sudah tertutup bisa **dibuka lagi 15 menit**.
+- **Pantau siswa**: setiap peserta dengan status *Belum masuk*, *Mengerjakan*, *Tidak aktif* (HP tidak memberi kabar >3 menit), *Selesai* (dengan nilai), atau *Sudah di sesi lain*; diperbarui tiap 20 detik. **Lepas** = siswa boleh masuk lagi dari perangkat lain (jawaban di perangkat lama tidak ikut pindah).
+- **Pembahasan** per sesi (saklar pada kartu sesi): siswa sesi itu yang sudah mengumpulkan boleh melihat kunci & pembahasan. Kelas lain yang memakai paket sama tidak ikut terbuka.
+- Sesi hanya bisa diubah oleh guru yang membukanya dan operator. Sesi tanpa siswa yang masuk boleh **dihapus**. Daftar menampilkan sesi yang terbuka dan yang ditutup 12 jam terakhir; sesi lama tetap terlihat di dasbor (kartu *Sesi ujian untuk paket ini*).
+- **Penyusun paket**: paket yang diunggah dengan PIN pribadi tercatat atas nama pengunggahnya. Semua guru boleh memakainya untuk membuka sesi, tetapi melihat soal & kunci, mengubah, mengarsipkan, dan menghapus hanya penyusun dan operator. Paket lama tanpa penyusun tetap boleh dikelola semua guru; operator menetapkan penyusunnya di *Pustaka paket → buka paket → Atur penyusun*.
+- Dari admin: *Pustaka paket → buka paket → Buka sesi* membuka Menu guru dengan paket itu sudah terpilih (`index.html?guru&sesi=KODE`).
 
 ## C4. Pengawasan keluar halaman
 
-- Halaman web **tidak bisa mencegah** siswa berpindah aplikasi; aplikasi **mendeteksi dan mencatat** setiap kali halaman ujian ditinggalkan (pindah aplikasi/tab, layar dikunci). **Toleransi**: keluar lebih singkat dari batas toleransi (bawaan **10 detik** — notifikasi diketuk, telepon ditolak, salah sentuh) hanya dicatat, tidak dihitung. Keluar yang lebih lama dihitung dan siswa diperingatkan; setelah **batas** (bawaan **5 kali**; 0 = tanpa batas) ujian **dikunci**. Kedua angka diatur guru per ujian di dasbor. Pengawas memasukkan **kode buka** (diatur guru; bila kosong dipakai kode akses ujian) di HP siswa, atau siswa mengumpulkan jawaban. Jumlah keluar dan waktunya tersimpan dan tampil di rekap guru (kolom *Keluar*) serta CSV.
+- Halaman web **tidak bisa mencegah** siswa berpindah aplikasi; aplikasi **mendeteksi dan mencatat** setiap kali halaman ujian ditinggalkan (pindah aplikasi/tab, layar dikunci). **Toleransi**: keluar lebih singkat dari batas toleransi (bawaan **10 detik** — notifikasi diketuk, telepon ditolak, salah sentuh) hanya dicatat, tidak dihitung. Keluar yang lebih lama dihitung dan siswa diperingatkan; setelah **batas** (bawaan **5 kali**; 0 = tanpa batas) ujian **dikunci**. Kedua angka diatur guru per sesi saat membuka sesi. Pengawas memasukkan **kode buka** sesi, atau PIN guru/pengawas/operator bila kode buka sesi kosong, di HP siswa; atau siswa mengumpulkan jawaban. Jumlah keluar dan waktunya tersimpan dan tampil di rekap guru (kolom *Keluar*) serta CSV.
 - **Alarm & peringatan**: begitu halaman ujian ditinggalkan, HP siswa membunyikan sirene **2 detik** (dan bergetar bila didukung). Setiap kali siswa kembali muncul layar peringatan berjudul **"Dilarang keras, keluar halaman ini selama ujian !!!"** (keluar sekejap: disebutkan tidak dihitung); bila keluarnya dihitung, sirene 2 detik berbunyi lagi sehingga pengawas mendengar. Suara aktif setelah siswa mengetuk layar sekali (aturan peramban), dan **tidak berbunyi bila HP dalam mode senyap/volume media nol**. Sebagian peramban (terutama iPhone) membisukan suara halaman di latar — pada HP seperti itu yang pasti terdengar adalah sirene saat kembali. Uji coba guru tidak membunyikan alarm.
 - Rekap menampilkan `jumlah dihitung× / total kejadian` dengan rincian waktu & durasi tiap kejadian, sehingga guru bisa membedakan layar mati sekali dua menit dari keluar 40 detik berulang. Gunakan bersama pengawasan (kode akses diumumkan saat mulai, HP di meja, tanpa earphone, 2–4 varian soal). Untuk penguncian sungguhan gunakan fitur perangkat: Android *Sematkan layar / Screen pinning*, Chromebook mode kiosk, atau Safe Exam Browser di laptop.
 - Di HP, aplikasi juga meminta mode layar penuh dan menonaktifkan salin/klik-kanan selama ujian (pengaman ringan).
 
 ## D. Setelah ujian
 
-`index.html` → *Guru / pengawas* → PIN → **Dasbor hasil** → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah; judul kolom tetap di atas dan kolom nomor & nama tetap di kiri saat tabel digulir), analisis butir (judul kolom juga tetap) (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, tombol **Unduh (.xlsx)** (buku kerja Excel berformat: lembar Rekap, Jawaban per Soal, Analisis Butir, Sub-materi & Level; kop sekolah, nilai berwarna, panel beku, filter; ExcelJS dimuat dari CDN saat tombol ditekan). Saklar **pembahasan** membuka kunci & pembahasan bagi siswa yang sudah selesai.
+`index.html` → *Guru / pengawas* → PIN → **Dasbor hasil** → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah; judul kolom tetap di atas dan kolom nomor & nama tetap di kiri saat tabel digulir), analisis butir (judul kolom juga tetap) (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, tombol **Unduh (.xlsx)** (buku kerja Excel berformat: lembar Rekap, Jawaban per Soal, Analisis Butir, Sub-materi & Level; kop sekolah, nilai berwarna, panel beku, filter; ExcelJS dimuat dari CDN saat tombol ditekan). Hasil bisa disaring **per sesi**. Saklar **pembahasan** ada pada kartu sesi (Menu guru → Sesi ujian) dan hanya berlaku bagi siswa sesi itu.
 
-Revisi soal: perbaiki Word → unggah ulang di Langkah 2 (kode sama) → paket ditimpa, hasil siswa tetap. Judul dan keterangan paket yang sudah tersimpan tidak ikut tertimpa oleh isian Word (Word hanya mengisi yang masih kosong); untuk menggantinya (bukan kode), buka paketnya di **Pustaka paket** → **Ubah judul & keterangan** — tautan, QR, dan hasil siswa tetap.
+Revisi soal: perbaiki Word → unggah ulang di Langkah 2 (kode sama; hanya penyusun atau operator) → paket ditimpa, hasil siswa tetap. Judul dan keterangan paket yang sudah tersimpan tidak ikut tertimpa oleh isian Word (Word hanya mengisi yang masih kosong); untuk menggantinya (bukan kode), buka paketnya di **Pustaka paket** → **Ubah judul & keterangan** — tautan, QR, dan hasil siswa tetap.
 
-Pustaka paket (tab admin): satu baris per kode ujian dengan jalur Kisi-kisi → Soal → Dibuka → Hasil; saring menurut mapel, kelas, jenis, semester, status; kelompokkan menurut kelas, jenis, guru, atau semester; klik baris untuk semua tindakan. Paket semester lalu cukup **diarsipkan** (tertutup untuk siswa, tersembunyi, hasil tetap; kembalikan lewat saringan Arsip; unggah ulang soal dengan kode sama otomatis mengeluarkannya dari arsip).
+Pustaka paket (tab admin): satu baris per kode ujian dengan jalur Kisi-kisi → Soal → Dibuka → Hasil; saring menurut mapel, kelas, jenis, semester, status; kelompokkan menurut kelas, jenis, guru, atau semester; klik baris untuk semua tindakan. Paket semester lalu cukup **diarsipkan** (sesi terbuka ikut ditutup, tersembunyi, tidak bisa dibuka sesinya, hasil tetap; kembalikan lewat saringan Arsip; unggah ulang soal dengan kode sama otomatis mengeluarkannya dari arsip).
 
 Keterangan paket (baris di tabel INFORMASI UJIAN; template kosong: tombol *Unduh template kisi-kisi kosong* di Langkah 1): **Jenis** (Latihan / Ulangan Harian / Tengah Semester / Akhir Semester / Tryout TKA / Tryout UTBK), **Tingkat peserta** (kelas yang mengerjakan, mis. 12 atau 10–12; kosong = ditebak dari isian Kelas), **Cakupan materi** (hanya bila berbeda dari tingkat peserta, mis. tryout TKA kelas 12 dengan materi 10–12), **Semester** (kosong = otomatis dari tanggal), **Guru penyusun**. Keterangan hanya untuk mencari & mengelompokkan paket; siapa yang boleh mengerjakan tetap diatur di Peruntukan. Revisi kisi-kisi: unggah ulang di Langkah 1 → unduh Template Soal baru → isi ulang bagian yang berubah → Langkah 2.
 
 ## E. Catatan
 
-- Kunci tidak pernah dikirim ke HP siswa; penilaian di server. Tiga PIN: guru/kelola, pengawas/lihat, darurat.
+- Kunci tidak pernah dikirim ke HP siswa; penilaian di server. PIN: pribadi guru, operator, pengawas, darurat (dan guru bersama selama peralihan).
 - Proyek gratis Supabase dijeda bila 7 hari tanpa aktivitas → *Restore* sehari sebelum ujian.
 - Diuji ujung-ke-ujung dengan PostgreSQL lokal dan tiruan browser (kisi → template → soal → terbit → data siswa CSV Dapodik → login NISN/tgl lahir → satu hasil → reset → tamu → kode akses → dasbor belum/riwayat → menu guru → tiga PIN → daftar siswa → peruntukan kelas/siswa: tolak login, belum mengerjakan, editor). Tombol "Kembali ke menu guru" tersedia di halaman hasil uji coba. Pembacaan **Excel (.xlsx)** memakai pustaka SheetJS dari CDN dan belum diuji di sini; bila gagal, simpan sebagai CSV. Belum diuji di Supabase/GitHub sungguhan — uji dengan berkas contoh dulu.

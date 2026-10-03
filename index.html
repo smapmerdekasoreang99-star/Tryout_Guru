@@ -226,6 +226,40 @@ table[data-beku] .fz-kol { position: sticky; z-index: 1; }
 table[data-beku] td.fz-kol { background-color: var(--kertas-2); }
 table[data-beku] th.fz-kol { z-index: 3; }
 table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
+/* ================= Masuk siswa & Sesi ujian ================= */
+body.mode-sesi .wrap{max-width:1000px}
+input.kode-akses{font-size:24px;font-weight:800;letter-spacing:.3em;text-align:center;font-variant-numeric:tabular-nums}
+input.kode-akses::placeholder{font-size:16px;font-weight:400;letter-spacing:0}
+.mi.mi-utama{border-left-color:var(--emas);background:var(--emas-kabut)}
+.konfirm{display:grid;gap:6px;margin:6px 0 10px;color:var(--ink)}.konfirm .nm{font-size:18px;font-weight:800;color:var(--gelap)}
+.konfirm .uj{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px}
+.se-paket{display:grid;max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;margin-top:6px}
+.se-pk{display:flex;gap:10px;align-items:center;width:100%;text-align:left;background:#fff;color:var(--ink);font-weight:400;letter-spacing:0;border-radius:0;border-bottom:1px solid var(--line);padding:9px 12px}
+.se-pk:last-child{border-bottom:0}.se-pk:hover{background:var(--kertas-3)}.se-pk.on{background:var(--emas-kabut);box-shadow:inset 4px 0 0 var(--emas)}
+.se-pk .j{font-weight:600;font-size:14.5px;line-height:1.35}.se-pk .m{font-size:12px;color:var(--muted)}.se-pk>span{display:grid;gap:2px;min-width:0;flex:1}
+.se-grup{padding:6px 12px;background:var(--kertas-3);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);border-bottom:1px solid var(--line)}
+.se-jam{font-family:"Fraunces",Georgia,serif;font-size:22px;color:var(--gelap);padding:4px 0}
+.se-lain{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#fff}.se-lain summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--gelap)}
+.se-kartu{border-left:5px solid var(--tinta-3)}.se-kartu.buka{border-left-color:var(--hadir)}
+.se-kepala{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.se-kepala .lbl{display:block;font-size:10.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--warn)}
+.se-kepala h3{margin:2px 0;font-family:"Fraunces",Georgia,serif;font-size:18px;color:var(--gelap)}.se-kepala .m{font-size:13px;color:var(--muted)}
+.se-kode{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:12px 0;padding:10px 14px;background:var(--gelap);color:#fff;border-radius:12px}
+.se-kode span{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--kuning)}
+.se-kode b{font-size:34px;letter-spacing:.18em;font-variant-numeric:tabular-nums;line-height:1}
+.se-kode button{margin-left:auto;padding:8px 12px;font-size:13px}
+.se-angka{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.se-angka span{background:var(--kertas-3);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;color:var(--muted)}.se-angka b{color:var(--ink);font-variant-numeric:tabular-nums}
+.se-aksi{margin-top:6px}.se-aksi button,.se-aksi label.se-sak{padding:8px 12px;font-size:13px}
+label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;background:#fff;font-weight:600;cursor:pointer}
+.se-pantau{margin-top:12px;border-top:1px dashed var(--garis-2);padding-top:10px}
+.st-belum{background:var(--netral-muda);color:var(--tinta-2)}.st-kerja{background:var(--emas-muda);color:var(--emas-teks)}.st-diam{background:var(--bad-soft);color:var(--bad)}.st-selesai2{background:var(--good-soft);color:var(--good)}
+#se-layar{position:fixed;inset:0;background:var(--gelap);color:#fff;z-index:var(--lapis-tirai);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+#se-layar .in{display:grid;gap:12px;justify-items:center}#se-layar .j{font-family:"Fraunces",Georgia,serif;font-size:clamp(20px,4vw,34px);max-width:900px}
+#se-layar .lbl{font-size:14px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--kuning)}
+#se-layar .kd{font-size:clamp(64px,18vw,200px);font-weight:800;letter-spacing:.12em;line-height:1;font-variant-numeric:tabular-nums}
+#se-layar .ket{font-size:clamp(14px,2.4vw,22px);color:var(--tinta-terang-2)}
+.ds-sesi{display:grid;gap:0;margin-top:6px}.ds-sesi-baris{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.ds-sesi-baris>div{display:grid;gap:1px;flex:1;min-width:0}.ds-sesi-baris>div span{font-size:12.5px;color:var(--muted)}.ds-sesi-baris .n{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -236,31 +270,24 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   <div class="hero"><div class="sek">SMA Plus Merdeka Soreang</div><h1 id="st-judul">Tryout / Asesmen Merdeka</h1><div class="ket">Kerjakan dengan jujur dan teliti · hasil &amp; analisis tampil seketika</div></div>
   <div class="card form">
     <div id="srv-status" class="muted small"></div>
-    <label class="f" for="kode">Kode ujian</label>
-    <div class="row"><input type="text" id="kode" class="grow" placeholder="contoh: KIM-STO-01" autocapitalize="characters" autocomplete="off" style="text-transform:uppercase"><button class="soft" id="btn-muat">Muat</button></div>
-    <div id="pk-info" class="hidden" style="margin-top:10px">
-      <div class="notice" style="background:var(--kertas-3);color:var(--gelap);border-left:4px solid var(--gelap)"><b id="pk-judul"></b><br><span id="pk-det" class="small"></span></div>
-      <div id="pk-petunjuk" class="small"></div>
-    </div>
-    <div id="f-siswa" class="hidden">
+    <div id="f-siswa">
       <label class="f" for="nisn">NISN</label><input type="text" id="nisn" inputmode="numeric" autocomplete="off" placeholder="10 digit NISN">
-      <label class="f" for="tgl">Tanggal lahir</label><input type="date" id="tgl" autocomplete="off" style="width:100%;padding:12px 12px;font-size:16px;border:1px solid var(--line);border-radius:8px;font-family:inherit;background:#fff">
-      <p class="muted small hidden" id="lnk-tamu-box"><a href="#" id="lnk-tamu" style="color:var(--muted)">Belum terdaftar? Masuk sebagai tamu</a></p>
     </div>
-    <div id="f-tamu">
+    <div id="f-tamu" class="hidden">
       <label class="f" for="nama">Nama lengkap</label><input type="text" id="nama" autocomplete="name" placeholder="Nama sesuai absen">
       <label class="f" for="kelas">Kelas</label><input type="text" id="kelas" placeholder="Contoh: XI-1" autocomplete="off">
-      <p class="muted small hidden" id="lnk-siswa-box"><a href="#" id="lnk-siswa" style="color:var(--muted)">Kembali masuk dengan NISN</a></p>
     </div>
-    <div id="f-akses" class="hidden"><label class="f" for="akses">Kode akses ujian (dari guru)</label><input type="text" id="akses" autocomplete="off" autocapitalize="characters" style="text-transform:uppercase"></div>
+    <label class="f" for="akses">Kode akses (dari guru atau pengawas)</label><input type="text" id="akses" class="kode-akses" inputmode="numeric" autocomplete="off" maxlength="7" placeholder="6 angka">
+    <p class="muted small"><a href="#" id="lnk-tamu" style="color:var(--muted)">Belum terdaftar? Masuk sebagai tamu</a><a href="#" id="lnk-siswa" class="hidden" style="color:var(--muted)">Kembali masuk dengan NISN</a></p>
     <div id="login-info" class="notice hidden" style="background:var(--good-soft);color:var(--good)"></div>
     <h3>Petunjuk</h3>
     <ol class="small" style="padding-left:20px;margin:4px 0">
+      <li>Masukkan <b>NISN</b> dan <b>kode akses</b> yang diumumkan guru atau pengawas di kelas.</li>
       <li>Urutan soal, pilihan jawaban, dan variasi soal <b>berbeda untuk setiap siswa</b>. Kerjakan sendiri.</li>
       <li>Skor tiap nomor: 1 jika seluruh jawaban pada nomor itu tepat, selain itu 0.</li>
       <li>PGK: pilih <b>semua</b> jawaban yang benar. Kategori: isi <b>setiap baris</b>. Menjodohkan: pilih huruf untuk <b>setiap istilah</b>. Isian: tulis jawaban singkat (angka: gunakan koma/titik).</li>
     </ol>
-    <div class="row" style="margin-top:16px"><button id="btn-start" class="grow tombol-masuk" disabled>Masuk &amp; mulai mengerjakan <span aria-hidden="true">→</span></button></div>
+    <div class="row" style="margin-top:16px"><button id="btn-start" class="grow tombol-masuk">Masuk <span aria-hidden="true">→</span></button></div>
     <div class="catatan-simpan"><span aria-hidden="true">💾</span><span>Jawaban dan sisa waktu tersimpan otomatis, juga bila HP tertutup atau halaman tersegarkan. Saat waktu habis, jawaban dikumpulkan otomatis.</span></div>
     <div id="resume-box" class="notice hidden">Ada pengerjaan yang belum selesai atas nama <b id="resume-nama"></b>. <button class="soft" id="btn-resume" style="padding:8px 12px;font-size:13px">Lanjutkan</button> <button class="ghost" id="btn-discard" style="padding:8px 12px;font-size:13px">Mulai baru</button></div>
   </div>
@@ -268,18 +295,19 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 </section>
 
 <section id="v-menu" class="hidden">
-  <div class="card form" id="m-login"><h2>Menu guru / pengawas</h2><p class="muted small">Masukkan PIN sekali; berlaku selama peramban ini terbuka. <b>PIN pengawas</b>: dasbor (baca saja), daftar siswa untuk bantu masuk, uji coba soal. <b>PIN guru</b>: ditambah pengaturan, peruntukan, reset. <b>PIN operator</b>: semuanya termasuk data siswa.</p>
+  <div class="card form" id="m-login"><h2>Menu guru / pengawas</h2><p class="muted small">Masukkan PIN sekali; berlaku selama peramban ini terbuka. <b>PIN pribadi guru</b> (sama dengan PIN Matematika Dasar): membuka sesi ujian untuk kelas Anda dan mengelola paket buatan Anda. <b>PIN pengawas</b>: melihat sesi, membantu siswa masuk, membuka kunci. <b>PIN operator</b>: semuanya termasuk data siswa dan PIN guru.</p>
     <label class="f" for="m-pin">PIN</label><input type="text" id="m-pin" autocomplete="off">
     <div class="row" style="margin-top:10px"><button id="btn-m-masuk">Masuk</button><button class="ghost" id="btn-m-back">Kembali</button></div><div id="m-msg" class="small" style="margin-top:6px"></div></div>
   <div id="m-main" class="hidden">
     <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Menu guru</h2><span><span class="pill" id="m-peran"></span> <button class="ghost" id="btn-m-out" style="padding:8px 12px;font-size:13px">Keluar</button></span></div><div id="m-info" class="small muted" style="margin-top:4px"></div></div>
     <div class="menu">
-      <button class="mi" id="mi-siswa"><b>Daftar siswa</b><span>Cari NISN &amp; tanggal lahir untuk membantu siswa yang kesulitan masuk</span></button>
+      <button class="mi mi-utama" id="mi-sesi"><b>Sesi ujian</b><span>Buka ujian untuk kelas, tampilkan kode akses, pantau siswa yang sedang mengerjakan</span></button>
       <button class="mi" id="mi-dasbor"><b>Dasbor hasil</b><span>Rekap nilai, analisis butir, belum mengerjakan, riwayat siswa</span></button>
+      <button class="mi" id="mi-siswa"><b>Daftar siswa</b><span>Cari NISN untuk membantu siswa yang lupa NISN-nya</span></button>
       <button class="mi" id="mi-ujicoba"><b>Uji coba soal</b><span>Mengerjakan seperti siswa; hasil tidak disimpan</span></button>
-      <a class="mi kelola-only" id="mi-admin" href="admin.html"><b>Halaman admin</b><span>Terbitkan paket, jalur darurat, data siswa (PIN guru)</span></a>
+      <a class="mi kelola-only" id="mi-admin" href="admin.html"><b>Halaman admin</b><span>Unggah soal ke bank soal, pustaka paket, data siswa, guru &amp; PIN</span></a>
     </div>
-    <div class="card hidden" id="v-ujicoba"><h2>Uji coba soal</h2><p class="muted small">Paket nonaktif pun bisa dicoba. Hasil <b>tidak disimpan</b>; kunci &amp; pembahasan langsung tersedia di halaman hasil.</p>
+    <div class="card hidden" id="v-ujicoba"><h2>Uji coba soal</h2><p class="muted small">Paket mana pun di bank soal bisa dicoba tanpa membuka sesi. Hasil <b>tidak disimpan</b>. Kunci &amp; pembahasan tersedia di halaman hasil bila Anda penyusun paketnya.</p>
       <label class="f" for="uc-kode">Kode ujian</label><input type="text" id="uc-kode" autocapitalize="characters" style="text-transform:uppercase" placeholder="contoh: KIM-STO-01">
       <div class="row" style="margin-top:10px"><button id="btn-uc">Mulai uji coba</button><button class="ghost" id="btn-uc-batal">Batal</button></div></div>
   </div>
@@ -287,7 +315,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 
 <section id="v-siswa" class="hidden">
   <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Daftar siswa</h2><button class="ghost" id="btn-s-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
-    <p class="muted small">Untuk membantu siswa yang lupa NISN. Tanggal lahir disembunyikan; ketuk <b>Tgl lahir</b> bila perlu. Jangan perlihatkan layar ini kepada siswa lain.</p>
+    <p class="muted small">Untuk membantu siswa yang lupa NISN. Jangan perlihatkan layar ini kepada siswa lain.</p>
     <input type="text" id="s-cari" placeholder="Cari nama atau NISN…" autocomplete="off">
     <div class="chips" id="s-kelas"></div>
     <div class="row"><label class="small grow">Tandai sudah/belum mengerjakan pada ujian <select id="s-ujian" style="padding:6px 8px"><option value="">(tidak ditandai)</option></select></label><button class="soft mini" id="btn-s-refresh">Muat ulang</button></div>
@@ -295,6 +323,38 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   </div>
   <div class="card" id="s-list-card"><div id="s-list"></div></div>
 </section>
+
+<section id="v-sesi" class="hidden">
+  <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Sesi ujian</h2><button class="ghost" id="btn-se-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
+    <p class="muted small">Pilih paket dari bank soal dan kelasnya, lalu tuliskan <b>kode akses</b> di papan. Siswa membuka halaman depan dan masuk dengan <b>NISN + kode akses</b>. Sesi tertutup sendiri saat waktunya habis.</p>
+    <div class="row"><button id="btn-se-baru" class="kelola-only">+ Buka sesi baru</button><button type="button" class="ds-muat" id="btn-se-muat"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Muat ulang</button><span id="se-info" class="small muted"></span></div>
+  </div>
+  <div class="card hidden" id="se-form">
+    <h2>Buka sesi baru</h2>
+    <label class="f" for="se-cari">Paket soal</label>
+    <input type="text" id="se-cari" placeholder="Cari judul, kode, mapel, atau penyusun…" autocomplete="off">
+    <div class="se-paket" id="se-paket" role="listbox" aria-label="Paket soal"></div>
+    <div id="se-paket-info" class="small" style="margin-top:6px"></div>
+    <label class="f">Peserta</label><div id="se-peserta" class="small muted">Memuat data siswa…</div>
+    <div class="ds-tiga" style="margin-top:12px">
+      <label class="ds-isian"><span>Lama pengerjaan</span><span class="ds-satuan"><input type="number" id="se-durasi" min="5" max="300" inputmode="numeric"><em>menit</em></span><small>tiap siswa, sejak ia masuk</small></label>
+      <label class="ds-isian"><span>Kelonggaran masuk</span><span class="ds-satuan"><input type="number" id="se-tambah" min="0" max="420" inputmode="numeric"><em>menit</em></span><small>untuk siswa yang terlambat masuk</small></label>
+      <div class="ds-isian"><span>Sesi tertutup pukul</span><b id="se-sampai" class="se-jam">–</b><small>sesudahnya siswa tidak bisa masuk</small></div>
+    </div>
+    <details class="se-lain"><summary>Pengawasan &amp; jalur tamu</summary>
+      <div class="ds-tiga">
+        <label class="ds-isian"><span>Batas keluar halaman</span><span class="ds-satuan"><input type="number" id="se-maks" min="0" max="20" inputmode="numeric"><em>kali</em></span><small>0 = tanpa batas</small></label>
+        <label class="ds-isian"><span>Abaikan keluar di bawah</span><span class="ds-satuan"><input type="number" id="se-tol" min="0" max="120" inputmode="numeric"><em>detik</em></span><small>hanya dicatat, tidak dihitung</small></label>
+        <label class="ds-isian"><span>Kode buka kunci</span><input type="text" id="se-buka" autocomplete="off" spellcheck="false" placeholder="PIN guru/pengawas"><small>kosong = PIN guru, pengawas, atau operator</small></label>
+      </div>
+      <label class="ds-baris"><span class="ds-l"><b>Izinkan tamu</b><span>Siswa yang belum terdaftar boleh masuk dengan nama dan kelas (memakai kode akses yang sama).</span></span><span class="saklar"><input type="checkbox" role="switch" id="se-tamu"><i></i></span></label>
+    </details>
+    <div class="row" style="margin-top:12px"><button id="btn-se-buka">Buka sesi</button><button class="ghost" id="btn-se-batal">Batal</button></div>
+    <div id="se-form-msg" class="small" style="margin-top:6px"></div>
+  </div>
+  <div id="se-daftar"></div>
+</section>
+<div id="se-layar" class="hidden" role="dialog" aria-label="Kode akses"><div class="in"><div class="j" id="sl-judul"></div><div class="lbl">Kode akses</div><div class="kd" id="sl-kode"></div><div class="ket" id="sl-ket"></div><button class="soft" id="btn-sl-tutup">Tutup</button></div></div>
 
 <section id="v-exam" class="hidden">
   <div class="card" id="q-card"></div>
@@ -330,45 +390,32 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     </div>
 
     <div class="ds-atur">
-      <!-- Pengaturan ujian (guru/operator). Diciutkan/dibuka diingat per perangkat. -->
-      <details class="ds-kartu kelola-only" id="ds-pengaturan" open>
-        <summary><span class="ds-ikon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg></span>
-          <span class="ds-judul"><b>Pengaturan ujian</b><span id="ds-atur-ringkas" class="ds-ringkas"></span></span><span class="ds-buka" aria-hidden="true"></span></summary>
+      <!-- Sesi ujian paket ini (pengaturan ujian kini melekat pada sesi). Diciutkan/dibuka diingat per perangkat. -->
+      <details class="ds-kartu" id="ds-pengaturan" open>
+        <summary><span class="ds-ikon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18"/></svg></span>
+          <span class="ds-judul"><b>Sesi ujian untuk paket ini</b><span id="ds-atur-ringkas" class="ds-ringkas"></span></span><span class="ds-buka" aria-hidden="true"></span></summary>
         <div class="ds-isi">
-          <div class="ds-sub">Akses siswa</div>
-          <label class="ds-baris"><span class="ds-l"><b>Ujian aktif</b><span>Siswa bisa membuka dan mengerjakan ujian ini.</span></span><span class="saklar"><input type="checkbox" role="switch" id="g-aktif"><i></i></span></label>
-          <label class="ds-baris"><span class="ds-l"><b>Tampilkan pembahasan</b><span>Siswa melihat kunci dan pembahasan setelah mengumpulkan.</span></span><span class="saklar"><input type="checkbox" role="switch" id="g-pemb"><i></i></span></label>
-          <label class="ds-baris"><span class="ds-l"><b>Izinkan tamu</b><span>Siswa yang tidak terdaftar boleh masuk dengan nama dan kelas.</span></span><span class="saklar"><input type="checkbox" role="switch" id="g-tamu"><i></i></span></label>
-          <div class="ds-baris"><label class="ds-l" for="g-akses"><b>Kode akses</b><span>Diminta saat siswa masuk. Kosongkan lalu Simpan untuk menonaktifkan.</span></label>
-            <span class="ds-kode"><input type="text" id="g-akses" autocomplete="off" spellcheck="false" placeholder="Tidak dipakai"><button type="button" id="btn-akses">Simpan</button></span></div>
-          <div class="ds-sub">Pengawasan keluar halaman</div>
-          <div class="ds-tiga">
-            <label class="ds-isian"><span>Batas keluar</span><span class="ds-satuan"><input type="number" id="g-maks" min="0" max="20" inputmode="numeric"><em>kali</em></span><small>0 = tanpa batas</small></label>
-            <label class="ds-isian"><span>Abaikan keluar di bawah</span><span class="ds-satuan"><input type="number" id="g-tol" min="0" max="120" inputmode="numeric"><em>detik</em></span><small>hanya dicatat, tidak dihitung</small></label>
-            <label class="ds-isian"><span>Kode buka kunci pengawas</span><input type="text" id="g-buka" autocomplete="off" spellcheck="false" placeholder="Pakai kode akses"><small>kosong = memakai kode akses</small></label>
-          </div>
-          <div class="ds-aksi"><p class="ds-catatan">Keluar yang lebih singkat dari toleransi (notifikasi diketuk, telepon ditolak) hanya dicatat. Melewati batas, ujian dikunci sampai pengawas memasukkan kode buka atau siswa mengumpulkan. Rinciannya ada di kolom <b>Keluar</b> pada rekap.</p><button type="button" id="btn-antikeluar">Simpan pengawasan</button></div>
+          <div id="g-sesi-daftar" class="ds-sesi"></div>
+          <div class="ds-aksi"><p class="ds-catatan">Buka, perpanjang, atau tutup sesi, serta saklar pembahasan, ada di <b>Menu guru → Sesi ujian</b>. Hasil di bawah bisa disaring per sesi.</p><button type="button" class="kelola-only" id="btn-g-sesi-baru">Buka sesi untuk paket ini</button></div>
         </div>
       </details>
 
-      <!-- Peruntukan: siapa yang boleh mengerjakan + kemajuan pengerjaan -->
+      <!-- Peserta: gabungan peserta semua sesi + kemajuan pengerjaan -->
       <section class="ds-kartu ds-peserta">
-        <div class="ds-kepala"><span class="ds-ikon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><b>Peruntukan ujian</b></div>
+        <div class="ds-kepala"><span class="ds-ikon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><b>Peserta</b></div>
         <div class="ds-isi">
-          <span class="ds-label">Boleh dikerjakan oleh</span>
+          <span class="ds-label">Gabungan peserta semua sesi</span>
           <div class="ds-besar" id="g-peserta-ringkas">–</div>
           <div class="ds-maju" id="g-peserta-maju"></div>
-          <button type="button" class="ds-garis kelola-only" id="btn-peserta">Ubah peruntukan</button>
         </div>
       </section>
     </div>
-    <div id="g-peserta-panel" class="ds-kartu ds-panel-pe hidden"><div class="ds-kepala"><b>Ubah peruntukan ujian</b></div><div class="ds-isi"><div id="g-peserta-box"></div><div class="row" style="margin-top:12px"><button id="btn-peserta-simpan">Simpan peruntukan</button><button class="ghost" id="btn-peserta-batal">Tutup</button></div><div id="g-peserta-status" class="small" style="margin-top:6px"></div></div></div>
 
     <!-- Hasil ujian: filter kelas & unduhan berlaku untuk semua tab -->
     <section class="ds-hasil">
       <div class="ds-hasil-kepala">
         <div><h2>Hasil ujian</h2><p class="muted small" id="ds-hasil-sub">Ringkasan nilai siswa untuk ujian di atas.</p></div>
-        <div class="ds-alat"><label class="ds-pilih"><span>Kelas</span><select id="g-kelas" aria-label="Saring kelas"></select></label>
+        <div class="ds-alat"><label class="ds-pilih"><span>Sesi</span><select id="g-sesi" aria-label="Saring sesi"></select></label><label class="ds-pilih"><span>Kelas</span><select id="g-kelas" aria-label="Saring kelas"></select></label>
           <button class="btn-unduh utama" data-fmt="xlsx" id="btn-xlsx" title="Rekap, jawaban per soal, analisis butir, dan sub-materi dalam satu buku kerja Excel berformat">Unduh rekap</button></div>
       </div>
       <div id="g-stat" class="stats"></div>
@@ -376,7 +423,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       <div class="ds-panel" id="g-rekap"><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-tabel" data-beku="2"></table></div><p class="ds-catatan">Nilai: <span class="nilai t">≥ 75</span> tuntas · <span class="nilai s">60–74</span> · <span class="nilai r">&lt; 60</span>. Kolom <b>Keluar</b>: dihitung / semua kejadian (arahkan kursor untuk rincian).<span class="kelola-only"> <b>reset</b> = hapus hasil agar siswa bisa mengulang.</span></p></div>
       <div class="ds-panel hidden" id="g-butir"><p class="ds-catatan" style="margin-top:0">Nomor = nomor asli pada kisi-kisi. Kesukaran: <span class="pill bad">sukar</span> &lt; 30% · <span class="pill warn">sedang</span> 30–70% · <span class="pill good">mudah</span> &gt; 70%. Kolom varian menunjukkan % benar tiap varian (uji kesetaraan).</p><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-butir-tabel" data-beku="1"></table></div></div>
       <div class="ds-panel hidden" id="g-sub"><div id="g-sub-isi"></div></div>
-      <div class="ds-panel hidden" id="g-belum"><p class="ds-catatan" style="margin-top:0">Peserta ujian ini (sesuai peruntukan) yang belum punya hasil. Kelas mengikuti saringan di atas. <span id="g-belum-peserta"></span></p><div id="g-belum-isi"></div></div>
+      <div class="ds-panel hidden" id="g-belum"><p class="ds-catatan" style="margin-top:0">Peserta ujian ini (gabungan semua sesi) yang belum punya hasil. Kelas mengikuti saringan di atas; untuk satu sesi, buka <b>Pantau</b> di Sesi ujian. <span id="g-belum-peserta"></span></p><div id="g-belum-isi"></div></div>
       <div class="ds-panel hidden" id="g-riwayat"><div class="row"><input type="text" id="g-cari" class="grow" placeholder="Cari NISN atau nama…"><button class="soft" id="btn-cari" style="padding:10px 16px;font-size:14px">Cari</button></div><p class="ds-catatan">Riwayat nilai lintas ujian. Kosongkan pencarian dan pilih kelas di atas untuk melihat satu kelas.</p><div class="tbl-wrap tbl-beku"><div id="g-riwayat-isi"></div></div></div>
     </section>
   </div>
@@ -418,11 +465,12 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     const kelasList = [...new Set(siswa.map(s => String(s.kelas || '–')))].sort(ksort);
     const nKelas = k => siswa.filter(s => String(s.kelas || '–') === k).length;
     const tingkatList = [...new Set(kelasList.map(tingkat).filter(Boolean))].sort();
+    const kelasSaya = (opsi.kelasSaya || []).map(String).filter(k => kelasList.includes(k));   // rombel yang diampu guru (jadwal KBM)
     function render() {
       const r = (m, label, ket) => `<label class="small" style="display:block;margin:4px 0"><input type="radio" name="${id}-m" value="${m}" ${v.mode === m ? 'checked' : ''}> <b>${label}</b> <span class="muted">${ket}</span></label>`;
       let h = `<div class="pe">${r('semua', 'Semua siswa', 'setiap siswa terdaftar boleh mengerjakan')}${r('kelas', 'Kelas tertentu', 'pilih rombel; siswa kelas lain ditolak saat masuk')}${r('siswa', 'Siswa tertentu', 'pilih nama satu per satu atau tempel daftar NISN')}`;
       if (v.mode === 'kelas') {
-        h += `<div class="row" style="margin:6px 0 2px">${tingkatList.map(t => `<button type="button" class="chip" data-tk="${t}">Semua kelas ${t}</button>`).join('')}<button type="button" class="chip" data-tk="">Kosongkan</button></div>`;
+        h += `<div class="row" style="margin:6px 0 2px">${kelasSaya.length ? `<button type="button" class="chip" data-saya title="${esc(kelasSaya.join(', '))}">Kelas saya (${kelasSaya.length})</button>` : ''}${tingkatList.map(t => `<button type="button" class="chip" data-tk="${t}">Semua kelas ${t}</button>`).join('')}<button type="button" class="chip" data-tk="">Kosongkan</button></div>`;
         h += `<div class="chips">${kelasList.map(k => `<button type="button" class="chip${v.kelas.includes(k) ? ' on' : ''}" data-k="${esc(k)}">${esc(k)} (${nKelas(k)})</button>`).join('') || '<span class="muted small">Belum ada data siswa di server.</span>'}</div>`;
       }
       if (v.mode === 'siswa') {
@@ -439,6 +487,8 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       el.querySelectorAll(`input[name="${id}-m"]`).forEach(x => x.onchange = () => { v.mode = x.value; if (v.mode !== 'kelas') v.kelas = []; if (v.mode !== 'siswa') v.nisn = []; render(); });
       el.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { const k = b.dataset.k; v.kelas = v.kelas.includes(k) ? v.kelas.filter(x => x !== k) : [...v.kelas, k]; render(); });
       el.querySelectorAll('[data-tk]').forEach(b => b.onclick = () => { const t = b.dataset.tk; v.kelas = t ? [...new Set([...v.kelas, ...kelasList.filter(k => tingkat(k) === t)])] : []; render(); });
+      const sy = el.querySelector('[data-saya]'); if (sy) sy.onclick = () => { v.kelas = [...new Set([...v.kelas, ...kelasSaya])]; render(); };
+      if (opsi.onchange) opsi.onchange(norm(v));
       const qi = el.querySelector('[data-q]'); if (qi) { qi.oninput = () => { q = qi.value.trim().toLowerCase(); const pos = qi.selectionStart; render(); const n = el.querySelector('[data-q]'); n.focus(); n.setSelectionRange(pos, pos); }; }
       const qs = el.querySelector('[data-qk]'); if (qs) qs.onchange = () => { qk = qs.value; render(); };
       el.querySelectorAll('[data-n]').forEach(c => c.onchange = () => { const n = c.dataset.n; v.nisn = c.checked ? [...new Set([...v.nisn, n])] : v.nisn.filter(x => x !== n); el.querySelector('.pill').textContent = ringkas(v, siswa); });
@@ -471,7 +521,7 @@ function mathRender(el){if(!el)return;try{autoSup(el)}catch(e){}if(window.render
   else if((mathRender.n=(mathRender.n||0)+1)<=8){setTimeout(()=>mathRender(el),800)}}
 
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
-function show(id){["v-start","v-exam","v-result","v-guru","v-menu","v-siswa"].forEach(v=>$(v).classList.toggle("hidden",v!==id));document.body.classList.toggle("mode-dasbor",id==="v-guru");$("nav").classList.toggle("hidden",id!=="v-exam");$("timer").classList.toggle("hidden",id!=="v-exam");window.scrollTo(0,0)}
+function show(id){["v-start","v-exam","v-result","v-guru","v-menu","v-siswa","v-sesi"].forEach(v=>$(v).classList.toggle("hidden",v!==id));document.body.classList.toggle("mode-dasbor",id==="v-guru");document.body.classList.toggle("mode-sesi",id==="v-sesi");$("nav").classList.toggle("hidden",id!=="v-exam");$("timer").classList.toggle("hidden",id!=="v-exam");window.scrollTo(0,0)}
 const b64e=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o))));
 function fmtT(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
 const pct=(a,b)=>b?Math.round(a/b*100):0;
@@ -481,17 +531,16 @@ async function rpc(fn,args){if(!SB)throw new Error("Server belum diatur (buat co
   const r=await fetch(`${SB.url}/rest/v1/rpc/${fn}`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SB.key,"Authorization":"Bearer "+SB.key},body:JSON.stringify(args||{})});
   let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw new Error((j&&(j.message||j.hint||j.error))||("HTTP "+r.status));return j}
 
-/* ================= PAKET & SESI ================= */
-let PK=null,S=null,MODE="tamu",PENDING=null;
-function aturForm(){const st=(PK&&PK.settings)||{};$("f-siswa").classList.toggle("hidden",MODE!=="siswa");$("f-tamu").classList.toggle("hidden",MODE!=="tamu");
-  $("lnk-tamu-box").classList.toggle("hidden",!(st.wajib_siswa&&st.tamu));$("lnk-siswa-box").classList.toggle("hidden",!st.wajib_siswa)}
-async function muatPaket(kode){kode=(kode||"").trim().toUpperCase();if(!kode){toast("Isi kode ujian");return}
-  $("btn-muat").disabled=true;$("pk-info").classList.add("hidden");$("btn-start").disabled=true;$("login-info").classList.add("hidden");PENDING=null;
-  try{PK=await rpc("tka_get_paket",{p_kode:kode});$("pk-judul").textContent=PK.judul;$("hd-t").textContent=PK.judul;$("hd-s").textContent=[PK.mapel,PK.kelas?"Kelas "+PK.kelas:"",PK.materi].filter(Boolean).join(" · ")||"SMA Plus Merdeka Soreang";
-    $("pk-det").textContent=`${PK.n_soal} soal · ${PK.durasi} menit · ${PK.n_varian} varian · kode ${PK.kode}`;$("pk-petunjuk").innerHTML=PK.meta.petunjuk?`<div class="notice">${safeHtml(PK.meta.petunjuk)}</div>`:"";
-    $("pk-info").classList.remove("hidden");$("btn-start").disabled=false;$("kode").value=PK.kode;
-    const st=PK.settings||{};MODE=st.wajib_siswa?"siswa":"tamu";aturForm();$("f-akses").classList.toggle("hidden",!st.perlu_kode_akses);
-  }catch(e){toast(e.message);PK=null}finally{$("btn-muat").disabled=false}}
+/* ================= MASUK SISWA & PENGERJAAN =================
+   Siswa cukup membuka satu alamat dan memasukkan NISN + kode akses sesi (6 angka, dari guru/pengawas).
+   Kode menentukan ujiannya; server memeriksa kelas, satu hasil per ujian, dan satu perangkat per NISN. */
+let PK=null,S=null,MODE="siswa",PENDING=null;
+function aturForm(){$("f-siswa").classList.toggle("hidden",MODE!=="siswa");$("f-tamu").classList.toggle("hidden",MODE!=="tamu");
+  $("lnk-tamu").classList.toggle("hidden",MODE!=="siswa");$("lnk-siswa").classList.toggle("hidden",MODE!=="tamu");$("login-info").classList.add("hidden");PENDING=null}
+const kodeAkses=()=>$("akses").value.replace(/\D/g,"");
+// Batas waktu dihitung dari selisih jam server, jadi jam HP yang salah tidak berpengaruh
+const batasLokal=(batas,sekarang)=>Date.now()+Math.max(0,new Date(batas)-new Date(sekarang));
+function galatMasuk(m){const b=$("login-info");b.classList.remove("hidden");b.style.background="var(--bad-soft)";b.style.color="var(--bad)";b.textContent=m;b.scrollIntoView({behavior:"smooth",block:"nearest"})}
 function newSession(nama,kelas,ident){
   const seed=(Date.now()^Math.floor(Math.random()*1e9))>>>0,rnd=mulberry32(seed);const soal=PK.publik.soal,n=soal.length;
   const varian=soal.map(s=>{const vs=Object.keys(s.varian).sort();return vs[Math.floor(rnd()*vs.length)]});
@@ -501,9 +550,23 @@ function newSession(nama,kelas,ident){
   const perm={};soal.forEach((s,i)=>{const q=s.varian[varian[i]];
     if(q.bentuk==="PG"||q.bentuk==="PGK")perm[i]=shuffle([...q.opsi.keys()],rnd);else if(q.bentuk==="KATEGORI")perm[i]=shuffle([...q.baris.keys()],rnd);
     else if(q.bentuk==="JODOH")perm[i]={kiri:shuffle([...q.kiri.keys()],rnd),kanan:shuffle([...q.kanan.keys()],rnd)};else perm[i]=null});
-  const now=Date.now();
-  S={kode:PK.kode,pk:PK,nama,kelas,nisn:(ident||{}).nisn||null,token:(ident||{}).token||null,tamu:!!(ident||{}).tamu,seed,varian,order,perm,answers:{},cur:0,startAt:now,deadline:now+PK.durasi*60000,submitted:false,result:null,payload:null,saved:false,keluar:0,logKeluar:[],terkunci:false};save();
+  const now=Date.now(),id=ident||{};
+  S={kode:PK.kode,pk:PK,nama,kelas,nisn:id.nisn||null,token:id.token||null,tamu:!!id.tamu,sesi:id.sesi_id||null,seed,varian,order,perm,answers:{},cur:0,startAt:now,
+    deadline:id.batas?batasLokal(id.batas,id.sekarang):now+PK.durasi*60000,submitted:false,result:null,payload:null,saved:false,keluar:0,logKeluar:[],terkunci:false};save();
 }
+function mulaiUjian(ident){PK=ident.paket;$("login-info").classList.add("hidden");PENDING=null;
+  $("hd-t").textContent=PK.judul;$("hd-s").textContent=[PK.mapel,PK.materi].filter(Boolean).join(" · ")||"SMA Plus Merdeka Soreang";
+  newSession(ident.nama,ident.kelas,ident);mintaLayarPenuh();
+  $("data-umum").innerHTML=[PK.meta.petunjuk,PK.meta.data_umum].filter(Boolean).map(safeHtml).join("<br>");show("v-exam");renderQ();startTimer();mulaiDenyut()}
+/* Denyut tiap menit selama mengerjakan: guru bisa memperpanjang atau menutup sesi, pengawas melihat siapa yang
+   sedang mengerjakan. Sinyal hilang tidak mengganggu; dicoba lagi menit berikutnya. */
+let DENYUT=null;
+function mulaiDenyut(){clearInterval(DENYUT);if(!S||!S.sesi||S.ujicoba||S.submitted)return;DENYUT=setInterval(denyut,60000);denyut()}
+async function denyut(){if(!S||S.submitted||!S.sesi){clearInterval(DENYUT);return}
+  try{const r=await rpc("tka_status",{p_token:S.token});if(!r||!r.ada||S.submitted)return;
+    if(r.batas){const d=batasLokal(r.batas,r.sekarang);if(Math.abs(d-S.deadline)>5000){const lebih=d>S.deadline;S.deadline=d;save();if(lebih)toast("Waktu ujian diperpanjang oleh guru")}}
+    if(r.buka===false){clearInterval(DENYUT);submit(true,"Sesi ujian ditutup guru — jawaban dikunci, mengirim dalam beberapa detik…")}}
+  catch(e){}}
 const save=()=>lsSet(CFG.lsKey,S);
 const Q=i=>S.pk.publik.soal[i].varian[S.varian[i]];
 const BP=i=>(S.pk.meta.blueprint||[])[i]||{};
@@ -582,10 +645,11 @@ function mintaLayarPenuh(){try{const el=document.documentElement;if(el.requestFu
 /* ================= KUMPUL & HASIL ================= */
 function buildPayload(){const jaw={};S.pk.publik.soal.forEach((s,i)=>{jaw[String(s.no)]={v:S.varian[i],a:S.answers[i]===undefined?null:S.answers[i]}});
   return {kode:S.kode,id:String(S.seed),nama:S.nama,kelas:S.kelas,nisn:S.nisn||null,token:S.token||null,keluar:S.keluar||0,log_keluar:(S.logKeluar||[]).slice(0,50),mulai:new Date(S.startAt).toISOString(),selesai:new Date().toISOString(),durasi:Math.round((Date.now()-S.startAt)/1000),jawaban:jaw}}
-async function submit(auto){if(S.submitted)return;const kurang=S.order.filter(i=>!complete(i)).length;
+async function submit(auto,pesan){if(S.submitted)return;const kurang=S.order.filter(i=>!complete(i)).length;
   if(!auto&&!confirm(kurang?`Masih ada ${kurang} soal yang belum lengkap. Tetap kumpulkan?`:"Kumpulkan jawaban sekarang?"))return;
-  clearInterval(tick);S.submitted=true;S.payload=buildPayload();save();show("v-result");$("r-kode").value=b64e(S.payload);
-  if(auto){const tunda=Math.floor(Math.random()*30000);$("r-save").innerHTML='<span class="pill warn">Waktu habis — jawaban dikunci, mengirim dalam beberapa detik…</span>';await new Promise(r=>setTimeout(r,tunda))}
+  clearInterval(tick);clearInterval(DENYUT);$("kunci").classList.add("hidden");S.submitted=true;S.payload=buildPayload();save();show("v-result");$("r-kode").value=b64e(S.payload);
+  // pengumpulan otomatis serentak (waktu habis / sesi ditutup) disebar dalam 30 detik agar server tidak dibanjiri
+  if(auto){const tunda=Math.floor(Math.random()*30000);$("r-save").innerHTML=`<span class="pill warn">${esc(pesan||"Waktu habis — jawaban dikunci, mengirim dalam beberapa detik…")}</span>`;await new Promise(r=>setTimeout(r,tunda))}
   await kirim()}
 let KIRIM_ON=false;
 async function kirim(){if(KIRIM_ON)return;KIRIM_ON=true;try{await kirim_()}finally{KIRIM_ON=false}}
@@ -609,7 +673,7 @@ function renderResult(){const r=S.result;show("v-result");$("r-aksi").innerHTML=
   const g=$("r-grid");g.innerHTML=S.order.map((i,pos)=>`<button class="${det[i].benar?"right":"wrong"}" data-i="${i}" data-pos="${pos}">${pos+1}</button>`).join("");g.querySelectorAll("button").forEach(b=>b.onclick=()=>renderDetail(+b.dataset.i,+b.dataset.pos));$("r-detail").innerHTML="";
   if(S.kunci)$("btn-pemb").classList.add("hidden");if(S.ujicoba&&!KUNCI&&S.kunciData)KUNCI=S.kunciData;}
 let KUNCI=null;Object.defineProperty(window,"S_KUNCI",{get:()=>KUNCI});
-async function ambilPembahasan(){try{KUNCI=await rpc("tka_pembahasan",{p_kode:S.kode});S.kunci=true;$("btn-pemb").classList.add("hidden");toast("Kunci & pembahasan tersedia — ketuk nomor soal")}catch(e){toast(e.message)}}
+async function ambilPembahasan(){try{KUNCI=S.sesi?await rpc("tka_pembahasan_sesi",{p_token:S.token}):await rpc("tka_pembahasan",{p_kode:S.kode});S.kunci=true;$("btn-pemb").classList.add("hidden");toast("Kunci & pembahasan tersedia — ketuk nomor soal")}catch(e){toast(e.message)}}
 function fmtAns(q,a,i){if(a===undefined||a===null)return "(kosong)";const p=S.perm[i];
   if(q.bentuk==="PG")return LETTERS[p.indexOf(a)];if(q.bentuk==="PGK")return a.map(x=>LETTERS[p.indexOf(x)]).sort().join(", ");
   if(q.bentuk==="KATEGORI")return p.map((ri,k)=>`${LETTERS[k]}:${a[ri]===undefined?"–":q.label[a[ri]]}`).join("; ");
@@ -625,20 +689,23 @@ function renderDetail(i,pos){const q=Q(i),a=S.answers[i],ok=S.result.detail[i].b
   $("r-detail").innerHTML=h+"</div>";mathRender($("r-detail"));$("r-detail").scrollIntoView({behavior:"smooth"})}
 
 /* ================= GURU ================= */
-let ROWS=[],PIN="",PERAN="",PAKETS=[],GPK=null,GPES=null,GPES_ED=null;
+let ROWS=[],PIN="",PERAN="",PAKETS=[],GPK=null,GPES=null,GSESI=[],G_SESI_AWAL="";
+let GURU={};   // identitas dari PIN: {id, nama, bersama, kelas_saya, atur}
 /* ---------- Menu guru / pengawas ---------- */
-function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);$("m-peran").textContent=PERAN==="operator"?"PIN operator · akses penuh":PERAN==="guru"?"PIN guru · kelola":"PIN pengawas · lihat"}
+function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);$("m-peran").textContent=PERAN==="operator"?"Operator · akses penuh":PERAN==="guru"?"Guru · kelola":"Pengawas · lihat"}
+let SESI_URL=qs.get("sesi");   // admin.html → index.html?guru&sesi=KODE: langsung ke form buka sesi untuk paket itu
 async function masukMenu(pin){$("m-msg").textContent="Memeriksa…";
-  try{const j=await rpc("tka_masuk_guru",{p_pin:pin});PIN=pin;setPeran(j.peran);ssSet(CFG.lsPin,{pin,peran:j.peran});$("m-login").classList.add("hidden");$("m-main").classList.remove("hidden");$("m-msg").textContent="";
-    $("m-info").textContent=`${j.n_siswa} siswa aktif terdaftar`;return true}
+  try{const j=await rpc("tka_masuk_guru",{p_pin:pin});PIN=pin;GURU=j;setPeran(j.peran);ssSet(CFG.lsPin,{pin,peran:j.peran});$("m-login").classList.add("hidden");$("m-main").classList.remove("hidden");$("m-msg").textContent="";
+    $("m-info").innerHTML=`Masuk sebagai <b>${esc(j.nama)}</b> · ${j.n_siswa} siswa aktif terdaftar`+(j.bersama?'<br><span class="pill warn">PIN guru bersama</span> Mintalah PIN pribadi kepada operator: sesi dan paket yang Anda buat dengan PIN bersama tidak tercatat atas nama Anda.':"");
+    if(SESI_URL){const k=SESI_URL.toUpperCase();SESI_URL=null;bukaSesi({paket:k})}
+    return true}
   catch(e){$("m-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return false}}
 function bukaMenu(){show("v-menu");const sv=ssGet(CFG.lsPin,null);if(PIN&&PERAN){$("m-login").classList.add("hidden");$("m-main").classList.remove("hidden")}
   else if(sv&&sv.pin){masukMenu(sv.pin)}else{$("m-login").classList.remove("hidden");$("m-main").classList.add("hidden");$("m-pin").value="";$("m-pin").focus()}}
-function keluarMenu(){PIN="";PERAN="";ssSet(CFG.lsPin,null);SISWA=null;document.body.classList.remove("lihat");$("g-main").classList.add("hidden");$("g-login").classList.remove("hidden");$("m-main").classList.add("hidden");$("m-login").classList.remove("hidden");show("v-start")}
+function keluarMenu(){PIN="";PERAN="";GURU={};PAKETS=[];SESI=[];SE_PANTAU=null;clearInterval(SE_TIMER);ssSet(CFG.lsPin,null);SISWA=null;document.body.classList.remove("lihat");$("g-main").classList.add("hidden");$("g-login").classList.remove("hidden");$("m-main").classList.add("hidden");$("m-login").classList.remove("hidden");show("v-start")}
 /* ---------- Daftar siswa (bantu login) ---------- */
 let SISWA=null,S_KELAS="",S_HASIL=null;
 const kelasSort=(a,b)=>String(a).localeCompare(String(b),"id",{numeric:true});
-const fmtTgl=d=>{if(!d)return"–";const m=String(d).match(/^(\d{4})-(\d{2})-(\d{2})/);if(!m)return String(d);const B=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];return `${+m[3]} ${B[+m[2]-1]} ${m[1]} (${m[3]}/${m[2]}/${m[1]})`};
 async function bukaSiswa(force){show("v-siswa");if(!SISWA||force){$("s-list").textContent="Memuat data siswa…";try{SISWA=await rpc("tka_list_siswa",{p_pin:PIN})}catch(e){$("s-list").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}}
   const sel=$("s-ujian");if(sel.options.length<=1||force){try{if(!PAKETS.length||force)PAKETS=await rpc("tka_list_paket",{p_pin:PIN})}catch(e){}
     const cur=sel.value;sel.innerHTML='<option value="">(tidak ditandai)</option>'+PAKETS.map(p=>`<option value="${esc(p.kode)}">${esc(p.kode)} — ${esc(p.judul)}</option>`).join("");const pref=cur||qs.get("ujian")||"";if(pref&&PAKETS.some(p=>p.kode===pref.toUpperCase()))sel.value=pref.toUpperCase()}
@@ -653,9 +720,8 @@ function renderSiswa(){if(!SISWA)return;const q=$("s-cari").value.trim().toLower
   const rows=SISWA.filter(x=>(!S_KELAS||(x.kelas||"–")===S_KELAS)&&(!q||String(x.nama).toLowerCase().includes(q)||String(x.nisn).includes(q))).sort((a,b)=>kelasSort(a.kelas,b.kelas)||String(a.nama).localeCompare(String(b.nama),"id"));
   const lim=rows.slice(0,300);let ket=`${rows.length} siswa`;const na=rows.filter(x=>!x.aktif).length;if(na)ket+=` (${na} nonaktif)`;const pst=x=>!S_PESERTA||S_PESERTA.has(String(x.nisn));if(S_HASIL)ket+=` · sudah ${rows.filter(x=>S_HASIL.has(String(x.nisn))).length}, belum ${rows.filter(x=>x.aktif&&pst(x)&&!S_HASIL.has(String(x.nisn))).length}${S_PESERTA?`, bukan peserta ${rows.filter(x=>!pst(x)).length}`:""}`;if(rows.length>300)ket+=" · ditampilkan 300 pertama, persempit pencarian";$("s-info").textContent=ket;
   $("s-list").innerHTML=lim.map(x=>{const st=S_HASIL?(S_HASIL.has(String(x.nisn))?'<span class="pill good">Sudah</span>':(!pst(x)?'<span class="pill" style="background:var(--kertas-3);color:var(--muted)">bukan peserta</span>':x.aktif?'<span class="pill warn">Belum</span>':"")):"";
-    return `<div class="srow${x.aktif?"":" off"}"><div class="sr-top"><div><b>${esc(x.nama)}</b> <span class="muted small">${esc(x.kelas||"–")}${x.aktif?"":" · nonaktif"}</span></div>${st}</div><div class="sr-bot"><code class="nisn">${esc(x.nisn)}</code><button class="soft mini" data-copy="${esc(x.nisn)}">Salin NISN</button><button class="ghost mini" data-tgl="${esc(x.tgl_lahir||"")}">Tgl lahir</button><span class="tgl small hidden"></span></div></div>`}).join("")||"<p class='muted'>Tidak ada siswa yang cocok.</p>";
-  $("s-list").querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);toast("NISN "+b.dataset.copy+" disalin")}catch(e){toast("NISN: "+b.dataset.copy)}});
-  $("s-list").querySelectorAll("[data-tgl]").forEach(b=>b.onclick=()=>{const sp=b.nextElementSibling;const h=sp.classList.toggle("hidden");sp.textContent=h?"":fmtTgl(b.dataset.tgl);b.textContent=h?"Tgl lahir":"Sembunyikan"})}
+    return `<div class="srow${x.aktif?"":" off"}"><div class="sr-top"><div><b>${esc(x.nama)}</b> <span class="muted small">${esc(x.kelas||"–")}${x.aktif?"":" · nonaktif"}</span></div>${st}</div><div class="sr-bot"><code class="nisn">${esc(x.nisn)}</code><button class="soft mini" data-copy="${esc(x.nisn)}">Salin NISN</button></div></div>`}).join("")||"<p class='muted'>Tidak ada siswa yang cocok.</p>";
+  $("s-list").querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);toast("NISN "+b.dataset.copy+" disalin")}catch(e){toast("NISN: "+b.dataset.copy)}})}
 const rowItems=r=>String(r.items||"").split("").map((c,i)=>({no:i+1,v:(r.varian||"")[i]||"?",benar:+c,level:(GPK.meta.blueprint[i]||{}).level||"",sub:(GPK.meta.blueprint[i]||{}).sub||""}));
 function levelSummary(it){const o={};[...new Set(it.map(x=>x.level).filter(Boolean))].sort(lsort).forEach(L=>{const s=it.filter(x=>x.level===L);o[L]=pct(s.reduce((a,x)=>a+x.benar,0),s.length)});return o}
 async function loginGuru(){if(!PIN)PIN=$("pin").value.trim();$("g-login-msg").textContent="Memeriksa…";
@@ -725,12 +791,17 @@ function pasangPemilihUjian(){
     else if(e.key==="ArrowDown"||e.key==="ArrowUp"){if(!bs.length)return;e.preventDefault();const j=e.key==="ArrowDown"?Math.min(bs.length-1,i+1):i<=0?-1:i-1;(j<0?$("uj-cari"):bs[j]).focus()}
     else if(e.key==="Enter"&&e.target.id==="uj-cari"&&bs.length){e.preventDefault();ujPilih(bs[0].dataset.kode)}}}
 async function loadGuru(){const kode=$("g-ujian").value;if(!kode)return;$("g-srv").innerHTML='<span class="it">Memuat…</span>';$("btn-refresh").classList.add("putar");
-  try{GPK=await rpc("tka_get_paket_admin",{p_pin:PIN,p_kode:kode});const rows=await rpc("tka_list",{p_pin:PIN,p_ujian:kode});const s=await rpc("tka_settings_guru",{p_pin:PIN,p_ujian:kode});
-    ROWS=rows.map(r=>({...r,nilai:+r.nilai,benar:+r.benar,durasi:+r.durasi||0}));$("g-aktif").checked=!!GPK.aktif;$("g-pemb").checked=!!(s&&s.pembahasan);$("g-tamu").checked=!!(s&&s.tamu);$("g-akses").value=(s&&s.kode_akses)||"";$("g-maks").value=(s&&s.maks_keluar!==undefined&&s.maks_keluar!==null)?s.maks_keluar:5;$("g-tol").value=(s&&s.toleransi_keluar!==undefined&&s.toleransi_keluar!==null)?s.toleransi_keluar:10;$("g-buka").value=(s&&s.kode_buka)||"";
-    try{GPES=await rpc("tka_get_peserta",{p_pin:PIN,p_ujian:kode});$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES);$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`}catch(e){GPES=null;$("g-peserta-ringkas").textContent="–"}$("g-peserta-panel").classList.add("hidden");
-    ujSetel({n_hasil:ROWS.length,aktif:!!GPK.aktif,judul:GPK.judul,...(GPES?{n_peserta:GPES.n_peserta}:{})});
-    renderInfo();ringkasAtur();
-    const kelas=[...new Set(ROWS.map(r=>r.kelas))].sort();const sel=$("g-kelas"),cur=sel.value;sel.innerHTML=`<option value="">Semua</option>`+kelas.map(k=>`<option ${k===cur?"selected":""}>${esc(k)}</option>`).join("");renderRekap();renderButir();renderSub();
+  try{const [pk,rows,ds]=await Promise.all([rpc("tka_get_paket_admin",{p_pin:PIN,p_kode:kode}),rpc("tka_list",{p_pin:PIN,p_ujian:kode}),rpc("tka_sesi_daftar",{p_pin:PIN,p_ujian:kode})]);
+    GPK=pk;GSESI=ds.sesi||[];ROWS=rows.map(r=>({...r,nilai:+r.nilai,benar:+r.benar,durasi:+r.durasi||0}));
+    try{GPES=await rpc("tka_get_peserta",{p_pin:PIN,p_ujian:kode});const rk=GPES.n_sesi?TKA_PESERTA.ringkas(GPES):"Belum ada sesi";$("g-peserta-ringkas").textContent=rk;$("g-belum-peserta").textContent=`(${rk}, ${GPES.n_peserta} peserta)`}catch(e){GPES=null;$("g-peserta-ringkas").textContent="–"}
+    ujSetel({n_hasil:ROWS.length,aktif:GSESI.some(s=>s.buka),judul:GPK.judul,...(GPES?{n_peserta:GPES.n_peserta}:{})});
+    renderSesiDasbor();renderInfo();ringkasAtur();
+    const kelas=[...new Set(ROWS.map(r=>r.kelas))].sort();const sel=$("g-kelas"),cur=sel.value;sel.innerHTML=`<option value="">Semua</option>`+kelas.map(k=>`<option ${k===cur?"selected":""}>${esc(k)}</option>`).join("");
+    // saringan sesi: pilihan sebelumnya dipertahankan; dari tombol "Hasil" di Sesi ujian langsung ke sesi itu
+    const ss=$("g-sesi"),sv=G_SESI_AWAL||ss.value,lama=ROWS.some(r=>!r.sesi_id);G_SESI_AWAL="";
+    ss.innerHTML=`<option value="">Semua sesi</option>`+GSESI.map(s=>`<option value="${s.id}">${esc(tglJam(s.mulai))} · ${esc(TKA_PESERTA.ringkas(s.peserta).replace(/^Kelas: /,""))}</option>`).join("")+(lama?'<option value="lama">Sebelum ada sesi</option>':"");
+    ss.value=[...ss.options].some(o=>o.value===String(sv))?String(sv):"";
+    renderRekap();renderButir();renderSub();
   }catch(e){$("g-srv").innerHTML=`<span class="it bad">Gagal memuat: ${esc(e.message)}</span>`}finally{$("btn-refresh").classList.remove("putar")}}
 /* Bilah status di bawah kartu ujian + kemajuan pengerjaan di kartu Peruntukan + jumlah di tab "Belum mengerjakan". */
 function renderInfo(){if(!GPK)return;const nP=GPES?+GPES.n_peserta||0:0,nT=ROWS.filter(r=>!r.tamu).length,w=nP?Math.min(100,Math.round(nT/nP*100)):0,belum=Math.max(0,nP-nT);
@@ -741,12 +812,14 @@ function renderInfo(){if(!GPK)return;const nP=GPES?+GPES.n_peserta||0:0,nT=ROWS.
     ((GPK.meta||{}).darurat?'<span class="it bad">Jalur darurat (tanpa kisi-kisi resmi)</span>':"");
   $("g-peserta-maju").innerHTML=nP?`<div class="batang"><i style="width:${w}%"></i></div><div class="angka"><span><b>${nT}</b> sudah mengerjakan</span><span><b>${belum}</b> belum · ${w}%</span></div><span>dari <b>${nP}</b> peserta</span>`:'<span>Jumlah peserta belum diketahui.</span>';
   $("tb-belum").textContent=nP&&belum?belum:""}
-/* Ringkasan pengaturan di judul kartu (terlihat walau kartu diciutkan). */
-function ringkasAtur(){const a=$("g-aktif").checked,ka=$("g-akses").value.trim(),m=+$("g-maks").value||0;
-  $("ds-atur-ringkas").innerHTML=[[a?"on":"off",a?"Aktif":"Nonaktif"],[$("g-pemb").checked?"on":"","Pembahasan "+($("g-pemb").checked?"tampil":"disembunyikan")],
-    [$("g-tamu").checked?"on":"",$("g-tamu").checked?"Tamu diizinkan":"Tanpa tamu"],[ka?"on":"",ka?"Kode akses "+ka.toUpperCase():"Tanpa kode akses"],[m?"on":"",m?`Batas keluar ${m}×`:"Keluar tanpa batas"]]
+/* Ringkasan sesi di judul kartu (terlihat walau kartu diciutkan). */
+function ringkasAtur(){const b=GSESI.filter(s=>s.buka).length;
+  $("ds-atur-ringkas").innerHTML=[[b?"on":"",b?`${b} sedang dibuka`:"Tidak ada sesi terbuka"],["",`${GSESI.length} sesi`],[GSESI.some(s=>s.atur&&s.atur.pembahasan)?"on":"","Pembahasan "+(GSESI.some(s=>s.atur&&s.atur.pembahasan)?"dibuka di sebagian sesi":"tertutup")]]
     .map(([c,t])=>`<span class="${c}">${esc(t)}</span>`).join("")}
-const filtered=()=>{const k=$("g-kelas").value;return ROWS.filter(r=>!k||r.kelas===k)};
+function renderSesiDasbor(){const el=$("g-sesi-daftar"),lama=ROWS.filter(r=>!r.sesi_id).length;
+  el.innerHTML=(GSESI.length?GSESI.map(s=>`<div class="ds-sesi-baris"><span class="titik ${s.buka?"t-aktif":"t-selesai"}"></span><div><b>${esc(TKA_PESERTA.ringkas(s.peserta).replace(/^Kelas: /,"Kelas "))}</b><span>${esc(tglJam(s.mulai))}–${esc(jam(s.sampai))} · ${s.durasi} menit · ${esc(s.oleh_nama||s.oleh)}${s.buka?` · <b>kode ${esc(kodeTampil(s.kode))}</b>`:""}${s.atur&&s.atur.pembahasan?" · pembahasan dibuka":""}</span></div><span class="n">${s.n_selesai}/${s.n_peserta} hasil</span></div>`).join("")
+    :'<p class="muted small" style="margin:6px 0">Belum ada sesi untuk paket ini.</p>')+(lama?`<p class="ds-catatan">${lama} hasil berasal dari sebelum ada sesi ujian (pilih <b>Sebelum ada sesi</b> pada saringan Sesi).</p>`:"")}
+const filtered=()=>{const k=$("g-kelas").value,s=$("g-sesi").value;return ROWS.filter(r=>(!k||r.kelas===k)&&(!s||(s==="lama"?!r.sesi_id:String(r.sesi_id)===s)))};
 // Kolom berkelas .beku dibuat sticky berurutan: left = jumlah lebar kolom beku di kirinya
 function bekukan(t){if(!t)return;t.querySelectorAll("tr").forEach(tr=>{const cs=[...tr.children].filter(c=>c.classList.contains("beku"));let left=0;cs.forEach((c,i)=>{c.style.left=left+"px";left+=c.offsetWidth;c.classList.toggle("beku-akhir",i===cs.length-1)})})}
 function renderRekap(){const rows=filtered().sort((a,b)=>(a.kelas||"").localeCompare(b.kelas||"")||(a.nama||"").localeCompare(b.nama||""));const t=$("g-tabel");
@@ -777,6 +850,112 @@ async function renderRiwayat(){const box=$("g-riwayat-isi");box.innerHTML="Memua
   const uj=[...new Set(rows.map(r=>r.ujian))];const sis={};rows.forEach(r=>{const key=r.nisn||("~"+r.nama);(sis[key]=sis[key]||{nama:r.nama,nisn:r.nisn,kelas:r.kelas,n:{}}).n[r.ujian]=r.nilai});
   const list=Object.values(sis).sort((a,b)=>a.kelas.localeCompare(b.kelas)||a.nama.localeCompare(b.nama));
   box.innerHTML=`<table class="rekap" data-beku="1"><tr><th class="beku">Nama</th><th>NISN</th><th>Kelas</th>${uj.map(u=>`<th>${esc(u)}</th>`).join("")}<th>Rata-rata</th></tr>${list.map(x=>{const v=uj.map(u=>x.n[u]);const ada=v.filter(y=>y!==undefined);return `<tr><td class="beku">${esc(x.nama)}</td><td>${esc(x.nisn||"–")}</td><td>${esc(x.kelas)}</td>${v.map(y=>`<td class="n">${y===undefined?"–":y}</td>`).join("")}<td class="n"><b>${ada.length?Math.round(ada.reduce((a,b)=>a+b,0)/ada.length):"–"}</b></td></tr>`}).join("")}</table>`;bekukan(box.querySelector("table"))}catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+/* ================= SESI UJIAN (guru membuka/menutup, pengawas memantau) =================
+   Paket = bank soal. Guru memilih paket + kelas + lama pengerjaan → server membuat kode akses 6 angka.
+   Daftar dan pantauan diperbarui otomatis tiap 20 detik selama layar ini terbuka. */
+let SESI=[],SE_PANTAU=null,SE_PANTAU_HTML="",SE_FILTER="",SE_TIMER=null,SE_PAKET="",SE_ED=null;
+const jam=t=>new Date(t).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}).replace(":",".");
+const tglJam=t=>{const d=new Date(t);return (d.toDateString()===new Date().toDateString()?"hari ini":d.toLocaleDateString("id-ID",{weekday:"short",day:"numeric",month:"short"}))+" "+jam(t)};
+const kodeTampil=k=>String(k||"").replace(/^(\d{3})(\d{3})$/,"$1 $2");
+const ringkasPeserta=p=>TKA_PESERTA.ringkas(p).replace(/^Kelas: /,"Kelas ");
+async function bukaSesi(o){o=o||{};show("v-sesi");$("btn-se-baru").classList.toggle("hidden",PERAN==="pengawas");await muatSesi();
+  clearInterval(SE_TIMER);SE_TIMER=setInterval(()=>{if($("v-sesi").classList.contains("hidden")){clearInterval(SE_TIMER);return}muatSesi(true)},20000);
+  if(o.paket&&PERAN!=="pengawas")bukaFormSesi(o.paket)}
+async function muatSesi(diam){if(!diam)$("se-info").textContent="Memuat…";
+  try{const j=await rpc("tka_sesi_daftar",{p_pin:PIN});SESI=j.sesi||[];renderSesi();if(SE_PANTAU)muatPantau(SE_PANTAU,true);$("se-info").textContent="Diperbarui "+jam(new Date())}
+  catch(e){$("se-info").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+function kartuSesi(s){const m=s.milik,a=[];
+  const st=s.buka?`<span class="pk-pill st-aktif"><span class="titik t-aktif"></span>Dibuka s.d. ${jam(s.sampai)}</span>`:`<span class="pk-pill st-selesai"><span class="titik t-selesai"></span>Ditutup ${jam(s.sampai)}</span>`;
+  if(m&&s.buka)a.push('<button class="ghost" data-a="tambah" data-m="15">+15 menit</button>','<button class="ghost" data-a="tambah" data-m="30">+30 menit</button>','<button class="danger" data-a="tutup">Tutup sekarang</button>');
+  if(m&&!s.buka)a.push('<button class="ghost" data-a="tambah" data-m="15">Buka lagi 15 menit</button>');
+  if(m)a.push(`<label class="se-sak" title="Siswa yang sudah mengumpulkan boleh melihat kunci dan pembahasan"><span class="saklar"><input type="checkbox" role="switch" data-a="pemb" ${s.atur&&s.atur.pembahasan?"checked":""}><i></i></span>Pembahasan</label>`);
+  a.push(`<button class="soft" data-a="pantau">${SE_PANTAU===s.id?"Tutup pantauan":"Pantau siswa"}</button>`,'<button class="ghost" data-a="hasil">Hasil</button>');
+  if(m&&!s.n_masuk&&!s.n_selesai)a.push('<button class="ghost" data-a="hapus">Hapus</button>');
+  return `<div class="card se-kartu${s.buka?" buka":""}" data-sesi="${s.id}"><div class="se-kepala"><div><span class="lbl">${esc(s.mapel||"Tanpa mapel")}</span><h3>${esc(s.judul)}</h3>`+
+    `<div class="m"><span class="kode">${esc(s.ujian)}</span> · ${esc(ringkasPeserta(s.peserta))} · ${s.durasi} menit · dibuka ${esc(s.oleh_nama||s.oleh)}, ${esc(tglJam(s.mulai))}</div></div>${st}</div>`+
+    (s.buka?`<div class="se-kode"><span>Kode akses</span><b>${kodeTampil(s.kode)}</b><button class="soft" data-a="layar">Tampilkan besar</button></div>`:"")+
+    `<div class="se-angka"><span><b>${s.n_peserta}</b> peserta</span><span><b>${s.n_masuk}</b> sudah masuk</span><span><b>${s.n_aktif}</b> sedang mengerjakan</span><span><b>${s.n_selesai}</b> selesai</span>${s.atur&&s.atur.tamu?"<span>tamu diizinkan</span>":""}</div>`+
+    `<div class="row se-aksi">${a.join("")}</div><div class="se-pantau hidden" data-pantau></div></div>`}
+function renderSesi(){const el=$("se-daftar");
+  if(SE_PANTAU&&!SESI.some(s=>s.id===SE_PANTAU))SE_PANTAU=null;
+  if(!SESI.length){el.innerHTML=`<div class="card"><p class="muted" style="margin:0">Belum ada sesi yang terbuka atau ditutup dalam 12 jam terakhir.${PERAN!=="pengawas"?" Tekan <b>Buka sesi baru</b> untuk memulai.":""}</p></div>`;return}
+  const buka=SESI.filter(s=>s.buka),tutup=SESI.filter(s=>!s.buka);
+  el.innerHTML=(buka.length?`<h3>Sedang dibuka (${buka.length})</h3>`+buka.map(kartuSesi).join(""):"")+(tutup.length?`<h3>Ditutup dalam 12 jam terakhir</h3>`+tutup.map(kartuSesi).join(""):"");
+  if(SE_PANTAU&&SE_PANTAU_HTML){const box=el.querySelector(`[data-sesi="${SE_PANTAU}"] [data-pantau]`);if(box){box.innerHTML=SE_PANTAU_HTML;box.classList.remove("hidden")}}}
+async function muatPantau(id,diam){const box=document.querySelector(`[data-sesi="${id}"] [data-pantau]`);if(!box)return;box.classList.remove("hidden");if(!diam)box.innerHTML='<p class="muted small">Memuat…</p>';
+  try{const j=await rpc("tka_sesi_pantau",{p_pin:PIN,p_id:id});const kini=new Date(j.sekarang);
+    const rows=(j.siswa||[]).map(x=>{const h=x.hasil,m=x.masuk;let st,c;
+      if(h&&!h.sesi_lain){st="Selesai";c="st-selesai2"}else if(h){st="Sudah (sesi lain)";c="st-belum"}
+      else if(m&&!m.selesai){const hidup=m.aktif_pada&&kini-new Date(m.aktif_pada)<180000;st=hidup?"Mengerjakan":"Tidak aktif";c=hidup?"st-kerja":"st-diam"}
+      else if(m){st="Selesai";c="st-selesai2"}else{st="Belum masuk";c="st-belum"}
+      return {...x,st,c}});
+    const n=s=>rows.filter(r=>r.st===s).length,F=SE_FILTER;
+    const chips=[["","Semua",rows.length],["Belum masuk","Belum masuk",n("Belum masuk")],["Mengerjakan","Mengerjakan",n("Mengerjakan")],["Tidak aktif","Tidak aktif",n("Tidak aktif")],["Selesai","Selesai",n("Selesai")],["Sudah (sesi lain)","Sudah di sesi lain",n("Sudah (sesi lain)")]].filter(([k,,v])=>k===""||v||F===k);
+    const tampil=rows.filter(r=>!F||r.st===F);
+    box.innerHTML=`<div class="chips">${chips.map(([k,l,v])=>`<button type="button" class="chip${F===k?" on":""}" data-f="${esc(k)}">${l} (${v})</button>`).join("")}</div>`+
+      `<div class="tbl-wrap"><table class="rekap" data-beku="2"><tr><th>#</th><th>Nama</th><th>Kelas</th><th>Status</th><th>Nilai</th><th>Masuk</th><th>Keluar hal.</th><th></th></tr>`+
+      (tampil.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.nama)}${r.tamu?' <span class="pill warn">tamu</span>':""}</td><td>${esc(r.kelas)}</td><td><span class="pk-pill ${r.c}">${r.st}</span></td>`+
+        `<td class="n">${r.hasil?`<span class="nilai ${r.hasil.nilai>=75?"t":r.hasil.nilai>=60?"s":"r"}">${r.hasil.nilai}</span>`:"–"}</td><td>${r.masuk?jam(r.masuk.mulai):"–"}</td><td class="n">${r.hasil?(r.hasil.keluar||0)+"×":"–"}</td>`+
+        `<td>${r.nisn&&r.masuk&&!r.masuk.selesai&&!r.hasil?`<button class="ghost mini" data-lepas="${esc(r.nisn)}" title="Siswa ini boleh masuk lagi dari perangkat lain">Lepas</button>`:""}</td></tr>`).join("")||'<tr><td colspan="8" class="muted">Tidak ada.</td></tr>')+`</table></div>`+
+      `<p class="ds-catatan"><b>Tidak aktif</b> = HP tidak memberi kabar lebih dari 3 menit (layar mati, sinyal hilang, atau pindah perangkat). <b>Lepas</b> membuat siswa itu bisa masuk lagi dari perangkat lain; jawaban di perangkat lama tidak ikut pindah.</p>`;
+    SE_PANTAU_HTML=box.innerHTML}
+  catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+function tampilLayar(s){$("sl-judul").textContent=s.judul;$("sl-kode").textContent=kodeTampil(s.kode);
+  $("sl-ket").textContent=`Buka ${location.host}${location.pathname.replace(/index\.html$/,"")} · masuk dengan NISN dan kode ini · sesi tertutup pukul ${jam(s.sampai)}`;$("se-layar").classList.remove("hidden")}
+async function aksiSesi(id,a,el){const s=SESI.find(x=>x.id===id);if(!s)return;
+  try{
+    if(a==="tambah"){await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"perpanjang",p_menit:+el.dataset.m});toast(s.buka?`Sesi diperpanjang ${el.dataset.m} menit`:"Sesi dibuka lagi");await muatSesi(true)}
+    else if(a==="tutup"){if(!confirm(`Tutup sesi "${s.judul}" sekarang?\n\nSiswa tidak bisa masuk lagi. Siswa yang sedang mengerjakan akan mengumpulkan jawabannya otomatis dalam sekitar satu menit.`))return;
+      await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"tutup"});toast("Sesi ditutup");await muatSesi(true)}
+    else if(a==="pemb"){await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"pembahasan",p_nilai:el.checked});toast(el.checked?"Pembahasan dibuka untuk siswa sesi ini":"Pembahasan ditutup");await muatSesi(true)}
+    else if(a==="pantau"){SE_PANTAU=SE_PANTAU===id?null:id;SE_FILTER="";SE_PANTAU_HTML="";renderSesi();if(SE_PANTAU)muatPantau(id)}
+    else if(a==="layar")tampilLayar(s);
+    else if(a==="hasil"){G_SESI_AWAL=String(id);try{localStorage.setItem("tka_dasbor_ujian",s.ujian)}catch(e){}show("v-guru");
+      if($("g-main").classList.contains("hidden"))loginGuru();else{$("g-ujian").value=s.ujian;ujRenderKini();loadGuru()}}
+    else if(a==="hapus"){if(!confirm("Hapus sesi ini? (Belum ada siswa yang masuk.)"))return;await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"hapus"});toast("Sesi dihapus");await muatSesi(true)}
+  }catch(e){toast("Gagal: "+e.message);if(a==="pemb")el.checked=!el.checked}}
+/* ---------- Form buka sesi ---------- */
+async function bukaFormSesi(kode){$("se-form").classList.remove("hidden");$("se-form-msg").textContent="";
+  try{if(!PAKETS.length)PAKETS=await rpc("tka_list_paket",{p_pin:PIN})}catch(e){$("se-form-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}
+  const at=GURU.atur||{};$("se-maks").value=at.maks_keluar??5;$("se-tol").value=at.toleransi_keluar??10;$("se-buka").value=at.kode_buka||"";$("se-tamu").checked=!!at.tamu;$("se-tambah").value=at.menit_tambah??10;
+  $("se-cari").value="";SE_PAKET=kode||"";$("se-durasi").value="";renderPaketSesi();pilihPaketSesi(SE_PAKET);
+  $("se-form").scrollIntoView({behavior:"smooth"});
+  if(!SISWA){$("se-peserta").textContent="Memuat data siswa…";try{SISWA=await rpc("tka_list_siswa",{p_pin:PIN})}catch(e){$("se-peserta").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}}
+  $("se-peserta").classList.remove("muted");SE_ED=TKA_PESERTA.buat($("se-peserta"),{siswa:SISWA,nilai:{mode:"kelas",kelas:[]},kelasSaya:GURU.kelas_saya||[]})}
+function renderPaketSesi(){const q=$("se-cari").value.trim().toLowerCase(),el=$("se-paket");
+  const cocok=PAKETS.filter(p=>!p.arsip&&(!q||[p.judul,p.kode,p.mapel,p.materi,(p.info||{}).penyusun,p.pemilik_nama].join(" ").toLowerCase().includes(q)));
+  if(!cocok.length){el.innerHTML=`<p class="muted small" style="margin:10px 12px">${PAKETS.length?"Tidak ada paket yang cocok.":"Bank soal masih kosong. Unggah soal dari Halaman admin."}</p>`;return}
+  const g=new Map();cocok.forEach(p=>{const k=String(p.mapel||"").trim()||"Tanpa mapel";if(!g.has(k))g.set(k,[]);g.get(k).push(p)});
+  el.innerHTML=[...g.entries()].sort((a,b)=>a[0].localeCompare(b[0],"id")).map(([k,v])=>`<div class="se-grup">${esc(k)}</div>`+v.sort((a,b)=>String(b.diubah).localeCompare(String(a.diubah))).map(p=>
+    `<button type="button" class="se-pk${p.kode===SE_PAKET?" on":""}" data-kode="${esc(p.kode)}" role="option"><span><span class="j">${esc(p.judul)}${(p.info||{}).jenis?`<span class="tag">${esc(p.info.jenis)}</span>`:""}</span>`+
+    `<span class="m"><span class="kode">${esc(p.kode)}</span> · ${p.n_soal} soal · ${p.durasi} menit${p.pemilik_nama||(p.info||{}).penyusun?" · "+esc(p.pemilik_nama||p.info.penyusun):""}${p.n_sesi_buka?" · sedang dibuka":""}</span></span></button>`).join("")).join("")}
+function pilihPaketSesi(kode){SE_PAKET=kode||"";const p=PAKETS.find(x=>x.kode===SE_PAKET);
+  $("se-paket").querySelectorAll(".se-pk").forEach(b=>b.classList.toggle("on",b.dataset.kode===SE_PAKET));
+  $("se-paket-info").innerHTML=p?`Dipilih: <b>${esc(p.judul)}</b> <span class="kode">${esc(p.kode)}</span> · ${p.n_soal} soal · durasi paket ${p.durasi} menit`:'<span class="muted">Pilih satu paket di atas.</span>';
+  if(p)$("se-durasi").value=p.durasi;hitungSampai()}
+function hitungSampai(){const d=+$("se-durasi").value||0,t=+$("se-tambah").value||0;$("se-sampai").textContent=d?jam(Date.now()+(d+t)*60000):"–"}
+async function kirimSesi(){const p=PAKETS.find(x=>x.kode===SE_PAKET),msg=$("se-form-msg");
+  if(!p){msg.innerHTML='<span class="pill bad">Pilih paket soal dulu</span>';return}if(!SE_ED){msg.innerHTML='<span class="pill bad">Data siswa belum termuat</span>';return}
+  const ps=SE_ED.get();if((ps.mode==="kelas"&&!ps.kelas.length)||(ps.mode==="siswa"&&!ps.nisn.length)){msg.innerHTML='<span class="pill bad">Pilih kelas atau siswa peserta</span>';return}
+  const d=parseInt($("se-durasi").value,10)||0,t=Math.max(0,parseInt($("se-tambah").value||"0",10));
+  const atur={tamu:$("se-tamu").checked,maks_keluar:Math.max(0,parseInt($("se-maks").value||"0",10)),toleransi_keluar:Math.max(0,parseInt($("se-tol").value||"0",10)),kode_buka:$("se-buka").value.trim().toUpperCase()};
+  $("btn-se-buka").disabled=true;msg.textContent="Membuka sesi…";
+  try{const s=await rpc("tka_sesi_buka",{p_pin:PIN,p_ujian:p.kode,p_peserta:ps,p_durasi:d,p_menit:d+t,p_atur:atur});
+    GURU.atur={...atur,menit_tambah:t};p.aktif=true;$("se-form").classList.add("hidden");msg.textContent="";toast("Sesi dibuka — kode "+kodeTampil(s.kode));await muatSesi(true);tampilLayar(s)}
+  catch(e){msg.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}finally{$("btn-se-buka").disabled=false}}
+function pasangSesi(){
+  $("btn-se-back").onclick=bukaMenu;$("btn-se-muat").onclick=()=>muatSesi();$("btn-se-baru").onclick=()=>bukaFormSesi("");$("btn-se-batal").onclick=()=>$("se-form").classList.add("hidden");
+  $("btn-se-buka").onclick=kirimSesi;$("se-cari").oninput=renderPaketSesi;["se-durasi","se-tambah"].forEach(id=>$(id).oninput=hitungSampai);
+  $("se-paket").onclick=e=>{const b=e.target.closest("[data-kode]");if(b)pilihPaketSesi(b.dataset.kode)};
+  $("btn-sl-tutup").onclick=()=>$("se-layar").classList.add("hidden");
+  const d=$("se-daftar");
+  d.addEventListener("click",e=>{const k=e.target.closest("[data-sesi]");if(!k)return;const id=+k.dataset.sesi;
+    const f=e.target.closest("[data-f]");if(f){SE_FILTER=f.dataset.f;muatPantau(id,true);return}
+    const l=e.target.closest("[data-lepas]");if(l){if(!confirm("Lepas siswa ini? Ia bisa masuk lagi dari perangkat lain dengan NISN dan kode akses yang sama."))return;
+      rpc("tka_sesi_lepas",{p_pin:PIN,p_id:id,p_nisn:l.dataset.lepas}).then(()=>{toast("Dilepas — siswa bisa masuk lagi");muatPantau(id,true)}).catch(er=>toast("Gagal: "+er.message));return}
+    const b=e.target.closest("button[data-a]");if(b)aksiSesi(id,b.dataset.a,b)});
+  d.addEventListener("change",e=>{const c=e.target.closest("input[data-a]");if(!c)return;const k=c.closest("[data-sesi]");if(k)aksiSesi(+k.dataset.sesi,c.dataset.a,c)})}
+
 /* ================= UNDUH EXCEL (.xlsx) =================
    Rekap dasbor guru sebagai buku kerja Excel berformat (ExcelJS, dimuat hanya saat diperlukan — sama seperti Data Induk).
    Empat lembar: Rekap · Jawaban per Soal · Analisis Butir · Sub-materi & Level.
@@ -944,26 +1123,28 @@ window.addEventListener("DOMContentLoaded",()=>{
   if(prev&&prev.pk){S=prev;if(!prev.submitted&&prev.deadline>Date.now()){$("resume-box").classList.remove("hidden");$("resume-nama").textContent=prev.nama}
     else if(prev.submitted){$("resume-box").classList.remove("hidden");$("resume-nama").textContent=prev.nama+(prev.saved?" (sudah selesai – lihat hasil)":" (belum terkirim – kirim ulang)")}
     else S=null}
-  const k=qs.get("ujian");if(k){$("kode").value=k.toUpperCase();if(SB)muatPaket(k)}
-  $("btn-muat").onclick=()=>muatPaket($("kode").value);$("kode").addEventListener("keydown",e=>{if(e.key==="Enter")muatPaket($("kode").value)});
-  $("btn-resume").onclick=()=>{PK=S.pk;$("hd-t").textContent=PK.judul;if(S.submitted){show("v-result");$("r-kode").value=b64e(S.payload);if(S.saved&&S.result)renderResult();else kirim()}else{show("v-exam");renderQ();startTimer();if(S.terkunci)tampilPeringatan(0)}};
+  $("btn-resume").onclick=()=>{PK=S.pk;$("hd-t").textContent=PK.judul;if(S.submitted){show("v-result");$("r-kode").value=b64e(S.payload);if(S.saved&&S.result)renderResult();else kirim()}else{show("v-exam");renderQ();startTimer();mulaiDenyut();if(S.terkunci)tampilPeringatan(0)}};
   $("btn-discard").onclick=()=>{if(confirm("Hapus pengerjaan sebelumnya di perangkat ini?")){localStorage.removeItem(CFG.lsKey);S=null;$("resume-box").classList.add("hidden")}};
-  $("btn-start").onclick=async()=>{if(!PK){toast("Muat kode ujian dahulu");return}const akses=$("akses").value.trim();
-    if(S&&!S.submitted&&S.deadline>Date.now()&&!confirm("Ada pengerjaan yang belum selesai. Mulai baru akan menghapusnya. Lanjutkan?"))return;
-    $("btn-start").disabled=true;let ident;
+  // Masuk dua langkah: (1) server memeriksa NISN + kode dan menampilkan nama, kelas, ujian tanpa mencatat apa pun;
+  // (2) siswa mengonfirmasi, baru token pengerjaan dibuat. NISN yang salah ketik tidak mengunci NISN teman.
+  $("btn-start").onclick=async()=>{if(!SB){galatMasuk("Server belum diatur. Hubungi admin.");return}
+    if(S&&!S.submitted&&S.deadline>Date.now()&&!confirm("Ada pengerjaan yang belum selesai di perangkat ini. Mulai baru akan menghapusnya. Lanjutkan?"))return;
+    const kode=kodeAkses();if(kode.length!==6){galatMasuk("Isi kode akses 6 angka yang diumumkan guru atau pengawas.");$("akses").focus();return}
+    $("btn-start").disabled=true;
     try{
-      if(MODE==="siswa"){const nisn=$("nisn").value.trim(),tgl=$("tgl").value;if(!nisn||!tgl){toast("Isi NISN dan tanggal lahir");return}
-        ident=await rpc("tka_login_siswa",{p_kode:PK.kode,p_nisn:nisn,p_tgl_lahir:tgl,p_kode_akses:akses})}
-      else{const n=$("nama").value.trim(),kl=$("kelas").value.trim();if(n.length<3||!kl){toast("Isi nama dan kelas dahulu");return}
-        ident=await rpc("tka_login_tamu",{p_kode:PK.kode,p_nama:n,p_kelas:kl,p_kode_akses:akses})}
-    }catch(e){toast(e.message);return}finally{$("btn-start").disabled=false}
-    if(MODE==="siswa"){ // konfirmasi identitas dulu
-      PENDING=ident;const box=$("login-info");box.classList.remove("hidden");
-      box.innerHTML=`<b>Apakah ini kamu?</b><div style="margin:8px 0;font-size:16px"><b>${esc(ident.nama)}</b><br>Kelas <b>${esc(ident.kelas)}</b> · NISN ${esc(ident.nisn)}</div><div class="row"><button id="btn-ya" class="grow">Ya, benar — mulai mengerjakan</button><button id="btn-bukan" class="ghost">Bukan saya</button></div>`;
-      $("btn-ya").onclick=()=>mulaiUjian(PENDING);$("btn-bukan").onclick=()=>{PENDING=null;box.classList.add("hidden");$("nisn").value="";$("tgl").value="";$("nisn").focus();toast("Periksa kembali NISN dan tanggal lahir, atau hubungi guru")};
-      box.scrollIntoView({behavior:"smooth"});return}
-    mulaiUjian(ident)};
-  function mulaiUjian(ident){$("login-info").classList.add("hidden");newSession(ident.nama,ident.kelas,ident);mintaLayarPenuh();$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer()}
+      if(MODE==="siswa"){const nisn=$("nisn").value.replace(/\D/g,"");if(!nisn){galatMasuk("Isi NISN dahulu.");$("nisn").focus();return}
+        const c=await rpc("tka_cek_masuk",{p_nisn:nisn,p_kode_akses:kode});PENDING={nisn,kode};
+        const box=$("login-info");box.classList.remove("hidden");box.style.background="var(--good-soft)";box.style.color="var(--good)";
+        box.innerHTML=`<b>Apakah ini kamu?</b><div class="konfirm"><span class="nm">${esc(c.nama)}</span><span>Kelas <b>${esc(c.kelas)}</b> · NISN ${esc(c.nisn)}</span>`+
+          `<div class="uj"><b>${esc(c.ujian.judul)}</b><br>${[c.ujian.mapel,c.ujian.n_soal+" soal","waktu "+c.ujian.menit+" menit"].filter(Boolean).map(esc).join(" · ")}</div></div>`+
+          `<div class="row"><button id="btn-ya" class="grow">Ya, benar — mulai mengerjakan</button><button id="btn-bukan" class="ghost">Bukan saya</button></div>`;
+        $("btn-ya").onclick=async()=>{const b=$("btn-ya");b.disabled=true;try{mulaiUjian(await rpc("tka_masuk",{p_nisn:PENDING.nisn,p_kode_akses:PENDING.kode}))}catch(e){galatMasuk(e.message)}finally{b.disabled=false}};
+        $("btn-bukan").onclick=()=>{PENDING=null;box.classList.add("hidden");$("nisn").value="";$("nisn").focus();toast("Periksa kembali NISN-mu, atau minta bantuan guru")};
+        box.scrollIntoView({behavior:"smooth"})}
+      else{const n=$("nama").value.trim(),kl=$("kelas").value.trim();if(n.length<3||!kl){galatMasuk("Isi nama lengkap dan kelas dahulu.");return}
+        mulaiUjian(await rpc("tka_masuk_tamu",{p_nama:n,p_kelas:kl,p_kode_akses:kode}))}
+    }catch(e){galatMasuk(e.message)}finally{$("btn-start").disabled=false}};
+  ["nisn","akses","kelas"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")$("btn-start").click()}));
   $("lnk-tamu").onclick=e=>{e.preventDefault();MODE="tamu";aturForm()};$("lnk-siswa").onclick=e=>{e.preventDefault();MODE="siswa";aturForm()};
   $("btn-prev").onclick=()=>{if(S.cur>0){S.cur--;save();renderQ()}};$("btn-next").onclick=()=>{if(S.cur<S.order.length-1){S.cur++;save();renderQ()}else $("grid").scrollIntoView({behavior:"smooth"})};
   $("btn-submit").onclick=()=>submit(false);$("btn-resend").onclick=kirim;
@@ -976,25 +1157,20 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("mi-siswa").onclick=()=>bukaSiswa(false);$("btn-s-back").onclick=bukaMenu;$("btn-s-refresh").onclick=()=>bukaSiswa(true);
   $("s-cari").addEventListener("input",renderSiswa);$("s-ujian").onchange=async()=>{await muatStatusSiswa();renderSiswa()};
   $("mi-dasbor").onclick=()=>{show("v-guru");if($("g-main").classList.contains("hidden"))loginGuru()};
-  $("mi-ujicoba").onclick=()=>{$("v-ujicoba").classList.remove("hidden");$("uc-kode").value=$("kode").value||qs.get("ujian")||"";$("v-ujicoba").scrollIntoView({behavior:"smooth"});$("uc-kode").focus()};
+  $("mi-sesi").onclick=()=>bukaSesi();pasangSesi();
+  $("mi-ujicoba").onclick=()=>{$("v-ujicoba").classList.remove("hidden");$("uc-kode").value=$("uc-kode").value||qs.get("ujian")||"";$("v-ujicoba").scrollIntoView({behavior:"smooth"});$("uc-kode").focus()};
   $("btn-uc-batal").onclick=()=>$("v-ujicoba").classList.add("hidden");
   $("btn-uc").onclick=async()=>{const kode=$("uc-kode").value.trim().toUpperCase(),pin=PIN;if(!kode){toast("Isi kode ujian");return}
     try{const j=await rpc("tka_login_guru",{p_pin:pin,p_kode:kode});PK=j.paket;KUNCI=j.kunci;
-      newSession(j.nama,j.kelas,{token:j.token,tamu:true});S.ujicoba=true;S.kunci=true;S.kunciData=j.kunci;save();$("hd-t").textContent=PK.judul+" (UJI COBA)";$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer()}
+      newSession(j.nama,j.kelas,{token:j.token,tamu:true});S.ujicoba=true;S.kunci=true;S.kunciData=j.kunci;save();$("hd-t").textContent=PK.judul+" (UJI COBA)";$("data-umum").innerHTML=PK.meta.data_umum?safeHtml(PK.meta.data_umum):"";show("v-exam");renderQ();startTimer();
+      if(!j.kunci)toast("Kunci & pembahasan hanya untuk penyusun paket ini; hasil tetap dinilai")}
     catch(e){toast(e.message)}};$("btn-guru-back").onclick=bukaMenu;$("btn-pin").onclick=()=>{PIN=$("pin").value.trim();loginGuru()};
   $("btn-guru-out").onclick=bukaMenu;
-  if(qs.get("guru")!==null)bukaMenu();
-  $("btn-peserta").onclick=async()=>{const el=$("g-peserta-box");$("g-peserta-panel").classList.remove("hidden");$("g-peserta-status").textContent="";if(!SISWA){el.textContent="Memuat data siswa…";try{SISWA=await rpc("tka_list_siswa",{p_pin:PIN})}catch(e){el.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}}GPES_ED=TKA_PESERTA.buat(el,{siswa:SISWA,nilai:GPES||{mode:"semua"}})};
-  $("btn-peserta-batal").onclick=()=>$("g-peserta-panel").classList.add("hidden");
-  $("btn-peserta-simpan").onclick=async()=>{if(!GPES_ED)return;try{GPES=await rpc("tka_set_peserta",{p_pin:PIN,p_ujian:$("g-ujian").value,p_peserta:GPES_ED.get()});$("g-peserta-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(TKA_PESERTA.ringkas(GPES))} · ${GPES.n_peserta} siswa</span>`;$("g-peserta-ringkas").textContent=TKA_PESERTA.ringkas(GPES);renderInfo();$("g-belum-peserta").textContent=`(${TKA_PESERTA.ringkas(GPES)}, ${GPES.n_peserta} peserta)`;ujSetel({n_peserta:GPES.n_peserta});if(!$("g-belum").classList.contains("hidden"))renderBelum()}catch(e){$("g-peserta-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}};
-  $("btn-refresh").onclick=loadGuru;["g-aktif","g-pemb","g-tamu"].forEach(id=>$(id).addEventListener("change",()=>setTimeout(ringkasAtur,0)));["btn-akses","btn-antikeluar"].forEach(id=>$(id).addEventListener("click",ringkasAtur));try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
-  $("g-pemb").onchange=async e=>{try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"pembahasan",p_value:e.target.checked,p_ujian:$("g-ujian").value});toast(e.target.checked?"Pembahasan ditampilkan ke siswa":"Pembahasan disembunyikan")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
-  $("g-aktif").onchange=async e=>{try{await rpc("tka_set_aktif",{p_pin:PIN,p_kode:$("g-ujian").value,p_aktif:e.target.checked});ujSetel({aktif:e.target.checked});toast(e.target.checked?"Ujian diaktifkan":"Ujian dinonaktifkan")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
+  if(qs.get("guru")!==null||SESI_URL)bukaMenu();
+  $("btn-refresh").onclick=loadGuru;try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=$("g-sesi").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
+  $("btn-g-sesi-baru").onclick=()=>bukaSesi({paket:$("g-ujian").value});
   document.querySelectorAll(".ds-hasil .tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".ds-hasil .tabs button").forEach(x=>x.classList.toggle("on",x===b));["rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});
   $("btn-cari").onclick=renderRiwayat;$("g-cari").addEventListener("keydown",e=>{if(e.key==="Enter")renderRiwayat()});
-  $("g-tamu").onchange=async e=>{try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"tamu",p_value:e.target.checked,p_ujian:$("g-ujian").value});toast(e.target.checked?"Jalur tamu dibuka":"Jalur tamu ditutup")}catch(err){toast("Gagal: "+err.message);e.target.checked=!e.target.checked}};
-  $("btn-antikeluar").onclick=async()=>{const m=Math.max(0,parseInt($("g-maks").value||"0",10)),tol=Math.max(0,parseInt($("g-tol").value||"0",10)),kb=$("g-buka").value.trim().toUpperCase();try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"maks_keluar",p_value:m,p_ujian:$("g-ujian").value});await rpc("tka_set_setting",{p_pin:PIN,p_key:"toleransi_keluar",p_value:tol,p_ujian:$("g-ujian").value});await rpc("tka_set_setting",{p_pin:PIN,p_key:"kode_buka",p_value:kb,p_ujian:$("g-ujian").value});toast(m?`Batas keluar ${m} kali`:"Tanpa batas keluar")}catch(err){toast("Gagal: "+err.message)}};
-  $("btn-akses").onclick=async()=>{const v=$("g-akses").value.trim().toUpperCase();try{await rpc("tka_set_setting",{p_pin:PIN,p_key:"kode_akses",p_value:v,p_ujian:$("g-ujian").value});toast(v?"Kode akses "+v+" aktif":"Kode akses dinonaktifkan")}catch(err){toast("Gagal: "+err.message)}};
 });
 </script>
 <script>
