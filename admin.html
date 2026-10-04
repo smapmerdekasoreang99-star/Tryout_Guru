@@ -137,6 +137,17 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 #kartu-lihat{position:fixed;inset:0;z-index:60;background:rgba(21,35,43,.85);display:flex;align-items:center;justify-content:center;padding:16px}
 #kartu-lihat .kl-in{background:#fff;border-radius:14px;padding:14px;max-width:440px;width:100%;max-height:96vh;overflow:auto;display:grid;gap:10px}
 #kartu-lihat img,#kartu-lihat #kl-isi>canvas{width:100%;height:auto;display:block;border-radius:8px;border:1px solid var(--garis)}
+/* Ubah PIN guru: dialog berlapis (alasan, ketik ID guru, PIN operator lagi) */
+#ubah-pin{position:fixed;inset:0;z-index:60;background:rgba(21,35,43,.85);display:flex;align-items:center;justify-content:center;padding:16px}
+#ubah-pin .kl-in{background:#fff;border-radius:14px;padding:16px;max-width:480px;width:100%;max-height:96vh;overflow:auto;display:grid;gap:12px}
+#ubah-pin .up-kotak{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;gap:4px}
+#ubah-pin .up-awas{color:var(--warn);font-weight:600}
+#ubah-pin .up-saran{background:var(--good-soft);border-radius:10px;padding:10px 12px;display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+#ubah-pin .up-langkah{display:grid;gap:6px;border:0;margin:0;padding:0;font-size:14px;min-width:0}
+#ubah-pin .up-langkah>span,#ubah-pin legend{font-weight:700;font-size:13.5px;padding:0;margin-bottom:6px}
+#ubah-pin fieldset label{display:flex;gap:8px;align-items:flex-start;font-weight:400;margin:2px 0}
+#ubah-pin input[type=text],#ubah-pin input[type=password],#ubah-pin select{width:100%;box-sizing:border-box}
+#g-list .g-ganti{display:block;font-size:11.5px;color:var(--warn);margin-top:2px}
 /* Kartu versi HTML: cadangan bila peramban memblokir pembuatan gambar (bisa difoto layar) */
 .kh{border:1px solid var(--garis);border-radius:10px;overflow:hidden;background:#FAF7F0;font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif}
 .kh-kop{display:flex;gap:12px;align-items:center;background:#1D2A3A;border-bottom:4px solid #C29433;padding:14px 16px;color:#fff}
@@ -355,6 +366,20 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   <div id="kartu-lihat" class="hidden" role="dialog" aria-label="Kartu PIN"><div class="kl-in"><div class="row" style="justify-content:space-between"><b id="kl-nama"></b><button class="ghost mini" id="kl-tutup">Tutup</button></div>
     <p id="kl-pesan" class="small hidden" style="margin:0;color:var(--warn)"></p><div id="kl-isi"></div><div class="row" id="kl-aksi"></div>
     <p class="muted small" style="margin:0">Bila tombol tidak bekerja: klik kanan gambar → <i>Salin gambar</i> / <i>Simpan gambar</i> (laptop), atau tekan lama gambar (HP).</p></div></div>
+  <div id="ubah-pin" class="hidden" role="dialog" aria-label="Ubah PIN guru"><div class="kl-in">
+    <div class="row" style="justify-content:space-between"><b id="up-judul">Ubah PIN</b><button class="ghost mini" id="up-tutup">Batal</button></div>
+    <div id="up-riwayat" class="up-kotak small"></div>
+    <div class="up-saran small" id="up-saran"><span><b>Guru lupa PIN?</b> Tidak perlu diganti — kirim ulang kartunya.</span><button class="good mini" id="up-kartu">Kirim ulang kartu</button></div>
+    <fieldset class="up-langkah"><legend>1. Yang dilakukan</legend>
+      <label><input type="radio" name="up-aksi" value="ulang"> <span><b>Buat PIN baru</b> — PIN lama langsung tidak berlaku</span></label>
+      <label><input type="radio" name="up-aksi" value="hapus"> <span><b>Hapus PIN</b> — guru tidak bisa masuk sampai dibuatkan lagi</span></label></fieldset>
+    <label class="up-langkah"><span>2. Alasan</span><select id="up-alasan"><option value="">— pilih alasan —</option><option>PIN diketahui orang lain (siswa/rekan)</option><option>Guru meminta PIN baru</option><option>Guru tidak mengajar lagi / pindah</option><option value="lain">Lainnya…</option></select>
+      <input type="text" id="up-alasan-lain" class="hidden" maxlength="200" placeholder="Tuliskan alasannya (paling sedikit 5 huruf)"></label>
+    <label class="up-langkah"><span>3. Ketik ID guru <b id="up-id-contoh"></b> untuk memastikan gurunya benar</span><input type="text" id="up-id" autocomplete="off" spellcheck="false"></label>
+    <label class="up-langkah"><span>4. Masukkan lagi PIN operator Anda</span><input type="password" id="up-pin" autocomplete="off"></label>
+    <p id="up-pesan" class="small hidden" style="margin:0;color:var(--bad);font-weight:600"></p>
+    <p class="muted small" style="margin:0">Setiap penggantian dan penghapusan dicatat beserta alasannya dan siapa yang melakukannya.</p>
+    <div class="row" style="justify-content:flex-end"><button class="danger" id="up-ok" disabled>Ubah PIN</button></div></div></div>
 </section>
 
 <section id="tab-impor" class="hidden">
@@ -1663,13 +1688,12 @@ function renderGuru(){if(!GDATA)return;const q=$("g-cari").value.trim().toLowerC
     rows.map(g=>{const ok=g.pin&&g.aktif,d=esc(g.id);
       return `<tr style="${g.aktif?"":"opacity:.5"}"><td>${ok?`<input type="checkbox" data-pilih="${d}" ${G_PILIH.has(g.id)?"checked":""} aria-label="Pilih ${esc(g.nama)}">`:""}</td>`+
         `<td class="g-nama"><b>${esc(g.nama)}</b><span>${d}${g.aktif?"":" · nonaktif"}</span></td><td class="small">${esc((g.kelas||[]).join(", ")||"–")}</td><td class="small">${esc((g.kelompok||[]).join(", ")||"–")}</td>`+
-        `<td><span class="pin-sel">${g.pin?`<span class="lencana ${G_BARU.has(g.id)?"baru":"baik"}">${G_BARU.has(g.id)?"PIN baru":"PIN pribadi"}</span><b class="pin-teks">${esc(g.pin)}</b>`:'<span class="lencana emas">Belum punya PIN</span>'}</span></td>`+
+        `<td><span class="pin-sel">${g.pin?`<span class="lencana ${G_BARU.has(g.id)?"baru":"baik"}">${G_BARU.has(g.id)?"PIN baru":"PIN pribadi"}</span><b class="pin-teks">${esc(g.pin)}</b>`:'<span class="lencana emas">Belum punya PIN</span>'}</span>${g.n_ganti_90?`<span class="g-ganti">diganti/dihapus ${g.n_ganti_90}× dalam 90 hari</span>`:""}</td>`+
         `<td class="gk-aksi">${ok?`<span class="gk-baris"><button class="ghost" data-k="lihat" data-id="${d}">Kartu</button>${bagi?`<button class="good" data-k="bagi" data-id="${d}">Bagikan</button>`:""}<button class="ghost" data-k="unduh" data-id="${d}">Unduh</button></span>`:'<span class="muted small">buat PIN dulu</span>'}</td>`+
-        `<td class="gk-aksi">${g.aktif?`<span class="gk-baris"><button class="soft" data-acak="${d}">${g.pin?"Buat ulang":"Buat PIN"}</button>`:""}${g.pin?`<button class="ghost" data-hapus="${d}">Hapus PIN</button>`:""}</span></td></tr>`}).join("")||'<tr><td colspan="7" class="muted">Belum ada data guru. Tekan <b>Tarik guru dari Data Induk</b>.</td></tr>';
+        `<td class="gk-aksi">${g.pin?`<button class="ghost" data-ubah="${d}" title="Buat PIN baru atau hapus PIN (dengan alasan dan konfirmasi)">Ubah PIN…</button>`:g.aktif?`<button class="soft" data-acak="${d}">Buat PIN</button>`:""}</td></tr>`}).join("")||'<tr><td colspan="7" class="muted">Belum ada data guru. Tekan <b>Tarik guru dari Data Induk</b>.</td></tr>';
   const L=$("g-list");
-  L.querySelectorAll("[data-acak]").forEach(b=>b.onclick=()=>{const g=semua.find(x=>x.id===b.dataset.acak);if(g.pin&&!confirm(`Buat PIN baru untuk ${g.nama}? PIN lamanya tidak berlaku lagi.`))return;buatPin([g.id])});
-  L.querySelectorAll("[data-hapus]").forEach(b=>b.onclick=async()=>{const g=semua.find(x=>x.id===b.dataset.hapus);if(!confirm(`Hapus PIN pribadi ${g.nama}? Ia tidak bisa masuk sampai dibuatkan PIN baru.`))return;
-    try{await rpc("mtd_admin_hapus_pin",{p_pin:PIN(),p_guru:g.id});toast("PIN dihapus");muatGuru()}catch(e){toast("Gagal: "+e.message)}});
+  L.querySelectorAll("[data-acak]").forEach(b=>b.onclick=()=>buatPin([b.dataset.acak]));
+  L.querySelectorAll("[data-ubah]").forEach(b=>b.onclick=()=>bukaUbahPin(semua.find(x=>x.id===b.dataset.ubah)));
   L.querySelectorAll("[data-pilih]").forEach(c=>c.onchange=()=>{c.checked?G_PILIH.add(c.dataset.pilih):G_PILIH.delete(c.dataset.pilih);tombolPilihan()});
   // tombol langsung berubah saat diklik, supaya selalu terlihat ada reaksi
   L.querySelectorAll("[data-k]").forEach(b=>b.onclick=async()=>{const g=semua.find(x=>x.id===b.dataset.id);if(!g)return;const t=b.textContent;b.disabled=true;b.textContent="Menyiapkan…";
@@ -1741,6 +1765,35 @@ function unduhXlsxPin(ev){if(!GDATA){toast("Muat daftar guru dulu");return}const
       baris:rows.map((g,i)=>[i+1,g.nama,g.id,g.pin,(g.kelas||[]).join(", "),(g.kelompok||[]).join(", ")]),
       info:[["Isi",pilih.length?`${rows.length} guru terpilih`:`semua guru ber-PIN pribadi (${rows.length})`],["Berlaku untuk","Asesmen Merdeka (Tryout) dan Matematika Dasar"]],
       ubin:[["Guru",rows.length]]}]});return nama})}
+/* Ubah PIN pribadi guru — berlapis, karena guru yang PIN-nya sering berganti jadi enggan memakai aplikasi:
+   tawarkan kirim ulang kartu dulu, tampilkan riwayatnya, lalu wajib alasan + ketik ID guru + PIN operator lagi.
+   Server (mtd_admin_ubah_pin) memeriksa ulang semuanya dan mencatatnya. */
+let UP_G=null;
+const tglUp=s=>new Date(s).toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+const hariSejak=s=>Math.floor((Date.now()-new Date(s))/864e5);
+function riwayatPin(g){const n=g.n_ganti_90||0,t=g.ganti_terakhir,baru=g.pin_sejak&&hariSejak(g.pin_sejak)<7;
+  return `<div>PIN sekarang ${g.pin_sejak?`dipakai sejak <b>${esc(tglUp(g.pin_sejak))}</b> (${hariSejak(g.pin_sejak)} hari)`:"dibuat sebelum riwayat PIN dicatat"}.</div>`+
+    `<div>Diganti/dihapus <b>${n}×</b> dalam 90 hari terakhir${t?` · terakhir ${esc(tglUp(t.waktu))}, ${t.aksi==="hapus"?"dihapus":"diganti"} oleh ${esc(t.oleh||"?")}: “${esc(t.alasan||"")}”`:""}.</div>`+
+    (n>=2||baru?`<div class="up-awas">${n>=2?"PIN guru ini sudah sering diganti. ":""}${baru?"PIN ini baru dibuat; mungkin gurunya belum membaca kartunya. ":""}Ganti hanya bila benar-benar perlu.</div>`:"")}
+function bukaUbahPin(g){if(!g)return;UP_G=g;const D=$("ubah-pin");
+  $("up-judul").textContent="Ubah PIN · "+g.nama;$("up-id-contoh").textContent=g.id;$("up-riwayat").innerHTML=riwayatPin(g);
+  D.querySelectorAll("[name=up-aksi]").forEach(r=>r.checked=false);$("up-alasan").value="";$("up-alasan-lain").value="";
+  $("up-id").value="";$("up-pin").value="";$("up-pesan").classList.add("hidden");$("up-saran").classList.toggle("hidden",!g.aktif);
+  cekUbahPin();D.classList.remove("hidden")}
+const aksiUp=()=>($("ubah-pin").querySelector("[name=up-aksi]:checked")||{}).value;
+const alasanUp=()=>$("up-alasan").value==="lain"?$("up-alasan-lain").value.trim():$("up-alasan").value;
+function cekUbahPin(){const a=aksiUp(),b=$("up-ok");$("up-alasan-lain").classList.toggle("hidden",$("up-alasan").value!=="lain");
+  b.textContent=a==="hapus"?"Hapus PIN":a==="ulang"?"Buat PIN baru":"Ubah PIN";
+  b.disabled=!(UP_G&&a&&alasanUp().length>=5&&$("up-id").value.trim().toUpperCase()===UP_G.id.toUpperCase()&&$("up-pin").value.trim())}
+async function kirimUbahPin(){const g=UP_G,a=aksiUp(),b=$("up-ok"),t=b.textContent;if(!g||!a)return;
+  b.disabled=true;b.textContent="Memproses…";$("up-pesan").classList.add("hidden");
+  try{const r=await rpc("mtd_admin_ubah_pin",{p_pin:PIN(),p_guru:g.id,p_aksi:a,p_alasan:alasanUp(),p_id_ketik:$("up-id").value.trim(),p_pin_ulang:$("up-pin").value.trim()});
+    $("ubah-pin").classList.add("hidden");UP_G=null;
+    if(a==="ulang"){G_BARU.clear();G_PILIH.clear();G_BARU.add(g.id);G_PILIH.add(g.id)}
+    await muatGuru();const baru=GDATA&&GDATA.guru.find(x=>x.id===g.id);
+    if(a==="ulang"&&baru&&baru.pin)lihatKartu(baru,`PIN baru ${r.pin} sudah berlaku; PIN lama tidak bisa dipakai lagi. Kirim kartu ini ke chat pribadi ${g.nama}.`);
+    else toast(`PIN pribadi ${g.nama} dihapus`)}
+  catch(e){$("up-pesan").textContent=e.message;$("up-pesan").classList.remove("hidden");b.textContent=t;cekUbahPin()}}
 async function buatPin(ids){const st=$("g-status");
   if(!ids){const n=GDATA?GDATA.guru.filter(g=>g.aktif&&!g.pin).length:0;if(!n){toast("Semua guru aktif sudah punya PIN pribadi");return}if(!confirm(`Buat PIN pribadi untuk ${n} guru yang belum punya?`))return}
   try{const j=await rpc("mtd_admin_acak",{p_pin:PIN(),p_guru:ids});G_BARU.clear();G_PILIH.clear();j.guru.forEach(g=>{G_BARU.add(g.id);G_PILIH.add(g.id)});
@@ -1956,6 +2009,9 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-i-tarik").onclick=tarikInduk;
   $("btn-g-tarik").onclick=tarikGuru;$("btn-g-acak").onclick=()=>buatPin(null);$("btn-g-muat").onclick=muatGuru;$("g-cari").addEventListener("input",renderGuru);
   $("btn-g-bagi").onclick=bagiTerpilih;$("btn-g-png").onclick=unduhKartuTerpilih;$("btn-g-xlsx").onclick=unduhXlsxPin;
+  $("up-tutup").onclick=()=>{$("ubah-pin").classList.add("hidden");UP_G=null};$("up-ok").onclick=kirimUbahPin;
+  $("ubah-pin").querySelectorAll("input,select").forEach(i=>i.oninput=i.onchange=cekUbahPin);
+  $("up-kartu").onclick=()=>{const g=UP_G;$("ubah-pin").classList.add("hidden");UP_G=null;if(g)lihatKartu(g,`PIN tidak diganti. Kirim ulang kartu ini ke chat pribadi ${g.nama}.`)};
   $("kl-tutup").onclick=()=>$("kartu-lihat").classList.add("hidden");$("kartu-lihat").onclick=e=>{if(e.target.id==="kartu-lihat")e.target.classList.add("hidden")};
   $("btn-c-unduh").onclick=unduhCadangan;$("c-file").onchange=e=>{if(e.target.files[0])bacaCadangan(e.target.files[0])};$("btn-c-pulihkan").onclick=pulihkanCadangan;
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
