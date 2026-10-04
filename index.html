@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <script>window.TKA_SUPABASE = { url: "", key: "" };</script>
 <script src="config.js"></script>
-<script src="assets/simpan.js?v=3"></script><!-- Cara yang disarankan: buat berkas config.js (sekali saja) berisi  window.TKA_SUPABASE = { url: "https://xxxx.supabase.co", key: "eyJ..." };  di folder yang sama. Berkas ini tidak ikut ditimpa saat index.html/admin.html diperbarui. Alternatif: isi baris ke-2 di atas, atau tautan ?sb=URL&key=ANON. -->
+<script src="assets/simpan.js?v=3"></script>
+<script src="assets/kepala-excel.js?v=1"></script><!-- Cara yang disarankan: buat berkas config.js (sekali saja) berisi  window.TKA_SUPABASE = { url: "https://xxxx.supabase.co", key: "eyJ..." };  di folder yang sama. Berkas ini tidak ikut ditimpa saat index.html/admin.html diperbarui. Alternatif: isi baris ke-2 di atas, atau tautan ?sb=URL&key=ANON. -->
 <html lang="id">
 <head>
 <meta charset="utf-8">
@@ -1038,7 +1039,8 @@ function bukuHasil({ExcelJS,paket,rows,kelas,logoBase64,sekolah,waktu}){
     ws.getRow(6).height=8;return 7}
   function catatanKaki(ws,r,kolomAkhir,teks){ws.getRow(r).height=6;ws.mergeCells(r+1,1,r+1,kolomAkhir);
     sel(ws,r+1,1,teks||`Diunduh ${tglIndo(waktuUnduh)} dari dasbor guru Asesmen Merdeka · ${sekolah}`,{size:8,italic:true,warna:XL.tinta2});return r+2}
-  function kepala(ws,r,labels,o={}){labels.forEach((t,i)=>sel(ws,r,i+1,t,{bold:true,size:o.size||10,warna:XL.putih,fill:XL.gelap,rata:"center",bungkus:true,tepi:{top:garis(XL.gelap),left:garis(XL.gelap2),right:garis(XL.gelap2),bottom:{style:"medium",color:{argb:XL.emas}}}}));ws.getRow(r).height=o.tinggi||30}
+  function kepala(ws,r,labels,o={}){labels.forEach((t,i)=>sel(ws,r,i+1,t,{bold:true,size:o.size||10,warna:XL.putih,fill:XL.gelap,rata:"center",bungkus:true,tepi:{top:garis(XL.gelap),left:garis(XL.gelap2),right:garis(XL.gelap2),bottom:{style:"medium",color:{argb:XL.emas}}}}));ws.getRow(r).height=o.tinggi||30;
+    pasKepalaExcel(ws,r,r,{kolomAkhir:labels.length})} // Kepala tabel: kata tidak terpotong di tengah (pasKepalaExcel, 4 Oktober 2026).
   function badan(ws,r,nilai,zebra,o={}){nilai.forEach((v,i)=>{const s=(o.gaya&&o.gaya[i])||{};sel(ws,r,i+1,v,{...s,fill:s.fill||(zebra?XL.kertas:XL.putih),tepi:tepi()})});ws.getRow(r).height=o.tinggi||18}
   function cetak(ws,barisJudul){ws.views=[{state:"frozen",xSplit:2,ySplit:barisJudul,showGridLines:false}];
     ws.pageSetup={paperSize:9,orientation:"landscape",fitToPage:true,fitToWidth:1,fitToHeight:0,printTitlesRow:`${barisJudul}:${barisJudul}`,margins:{left:0.4,right:0.4,top:0.5,bottom:0.5,header:0.2,footer:0.2},horizontalCentered:true};
