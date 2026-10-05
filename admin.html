@@ -239,7 +239,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       <select id="pk-kelas" aria-label="Kelas"><option value="">Semua kelas</option><option value="10">Kelas 10</option><option value="11">Kelas 11</option><option value="12">Kelas 12</option></select>
       <select id="pk-jenis" aria-label="Jenis"></select>
       <select id="pk-semester" aria-label="Semester"></select>
-      <select id="pk-grup" aria-label="Kelompokkan"><option value="kelas">Kelompok: kelas</option><option value="jenis">Kelompok: jenis</option><option value="guru">Kelompok: guru</option><option value="semester">Kelompok: semester</option><option value="">Tanpa kelompok</option></select>
+      <select id="pk-grup" aria-label="Kelompokkan"><option value="kelas">Kelompok: kelas</option><option value="mapel">Kelompok: mata pelajaran</option><option value="jenis">Kelompok: jenis</option><option value="guru">Kelompok: guru</option><option value="semester">Kelompok: semester</option><option value="">Tanpa kelompok</option></select>
       <select id="pk-urut" aria-label="Urutkan"><option value="diubah">Urut: terakhir diubah</option><option value="dibuat">Urut: terbaru dibuat</option><option value="judul">Urut: judul A–Z</option><option value="kode">Urut: kode</option><option value="mapel">Urut: mapel</option></select>
     </div>
     <div class="chips" id="pk-status"></div>
@@ -1887,6 +1887,7 @@ function pkPilihan(sel,semua,daftar,nilai){if(nilai&&!daftar.includes(nilai))daf
   sel.innerHTML=`<option value="">${semua}</option>`+daftar.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");sel.value=nilai||""}
 function pkKelompok(o){const g=PKF.grup;
   if(g==="kelas"){const t=pkTingkat(o);return t.length===1?["1"+t[0],"Kelas "+t[0]]:t.length?["2","Lintas tingkat"]:["3","Kelas belum diisi"]}
+  if(g==="mapel"){const m=String(o.mapel||"").trim().replace(/s+/g," ");return m?["0"+pkKunciMapel(m),m]:["1","Mata pelajaran belum diisi"]}
   if(g==="jenis"){const j=o.info.jenis,i=TKA.info.JENIS.indexOf(j);return j?[(i<0?"1":"0"+i)+j,j]:["2","Jenis belum diisi"]}
   if(g==="guru"){const p=o.info.penyusun;return p?["0"+p.toLowerCase(),p]:["1","Guru penyusun belum diisi"]}
   if(g==="semester"){const s=pkSemester(o);return [String(100000-pkNilaiSemester(s)).padStart(6,"0")+s,s]}
@@ -1921,7 +1922,7 @@ function renderPustaka(){const I=TKA.info;
   if(!hasil.length){el.innerHTML='<p class="muted">Tidak ada paket yang cocok. Hapus kata pencarian, pilih <b>Semua</b>, atau ganti saringan di atas.</p>';PK_BUKA=null;return}
   if(PK_BUKA&&!hasil.some(o=>o.kode===PK_BUKA))PK_BUKA=null;
   const g=new Map();hasil.forEach(o=>{const [k,l]=pkKelompok(o);if(!g.has(k))g.set(k,{l,isi:[]});g.get(k).isi.push(o)});
-  const lg={kelas:"Tingkat peserta",jenis:"Jenis",guru:"Guru penyusun",semester:"Semester"}[PKF.grup];
+  const lg={kelas:"Tingkat peserta",mapel:"Mata pelajaran",jenis:"Jenis",guru:"Guru penyusun",semester:"Semester"}[PKF.grup];
   el.innerHTML=[...g.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>`<section class="pk-grup">${v.l?`<header class="pk-grup-k"><div><span class="lbl">${lg}</span><h3>${esc(v.l)}</h3></div><span class="jml">${v.isi.length} paket</span></header>`:""}${v.isi.map(pkBaris).join("")}</section>`).join("");
   if(PK_BUKA)pkKartuKe(PK_BUKA)}
 
@@ -1936,7 +1937,7 @@ function pkAksiUtama(o){if(o.arsip)return '<button class="ghost mini tulis-only"
   if(o.tahap==="aktif")return `<button class="mini" data-a="sesi">${o.paket.n_sesi_buka>1?o.paket.n_sesi_buka+" sesi berjalan":"Sesi berjalan"}</button>`;
   return '<button class="ghost mini" data-a="hasil">Lihat hasil</button>'}
 function pkBaris(o){const I=TKA.info,tk=pkTingkat(o),i=o.info,b=PK_BUKA===o.kode,g=PKF.grup;
-  const meta=[`<span class="kode">${esc(o.kode)}</span>`,PKF.mapel?"":esc(o.mapel),g==="kelas"&&tk.length===1?"":tk.length?"kelas "+I.fmtTingkat(tk):"",(i.cakupan||[]).length?"materi kelas "+I.fmtTingkat(i.cakupan):"",
+  const meta=[`<span class="kode">${esc(o.kode)}</span>`,PKF.mapel||g==="mapel"?"":esc(o.mapel),g==="kelas"&&tk.length===1?"":tk.length?"kelas "+I.fmtTingkat(tk):"",(i.cakupan||[]).length?"materi kelas "+I.fmtTingkat(i.cakupan):"",
     o.n_soal?o.n_soal+" soal":"",o.n_varian>1?o.n_varian+" varian":"",g==="guru"?"":esc(i.penyusun||""),g==="semester"&&!o.arsip?"":o.arsip?esc(pkSemester(o)):""].filter(Boolean).join(" · ");
   return `<div class="pk${b?" buka":""}${o.arsip?" arsip":""}" data-k="${esc(o.kode)}"><div class="pk-baris" role="button" tabindex="0" aria-expanded="${b}">
     <div class="pk-id"><div><span class="j">${esc(o.judul)}</span>${i.jenis&&g!=="jenis"?`<span class="tag">${esc(i.jenis)}</span>`:""}${o.darurat?'<span class="tag bad">Darurat</span>':""}</div><div class="m">${meta}</div></div>
