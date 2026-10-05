@@ -255,6 +255,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <p class="muted" style="margin-top:0">Kode tidak berubah, jadi tautan, QR, dan hasil siswa tetap. Keterangan dipakai untuk mencari dan mengelompokkan paket.</p>
     <div class="info-grid">
       <label class="small">Judul<input type="text" id="di-judul" maxlength="150"></label>
+      <label class="small">Mata pelajaran <span class="muted">(daftar dari Data Induk)</span><select id="di-mapel"></select></label>
       <label class="small">Jenis<input type="text" id="di-jenis" list="di-jenis-list" placeholder="pilih atau ketik"></label>
       <label class="small">Semester<input type="text" id="di-semester" list="di-semester-list"></label>
       <label class="small">Guru penyusun<input type="text" id="di-penyusun" placeholder="mis. Rina Marlina, Dedi Kurniawan"></label>
@@ -1467,8 +1468,9 @@ async function unduhKisi(k){const bytes=await TKA_DOC.buatKisiDocx(k,JSZip);undu
 async function unduhNaskah(p,kunci){if(!p)return;if(!p.kunci){toast("Naskah hanya bisa diunduh dengan PIN guru/operator");return}try{const bytes=await TKA_DOC.buatNaskahSoal(p,JSZip,{kunci});unduhBiner(`${kunci?"Soal_Pembahasan":"Naskah_Siswa"}_${p.kode}.docx`,bytes,"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}catch(e){toast("Gagal membuat dokumen: "+e.message)}}
 async function unduhTemplate(k){const bytes=await TKA_DOC.buatTemplateSoal(k,JSZip);unduhBiner(`Template_Soal_${k.kode}.docx`,bytes,"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
 async function simpanKisi(){if(!KISI)return;if(!PIN()){toast("Isi PIN dahulu");return}const k=KISI;$("k-simpan-status").innerHTML='<span class="pill">Menyimpan…</span>';
-  try{const j=await rpc("tka_simpan_kisi",{p_pin:PIN(),p_kode:k.kode,p_judul:k.judul,p_mapel:k.mapel,p_kelas:k.kelas,p_materi:k.materi,p_durasi:k.durasi,p_n_soal:k.n_soal,p_n_varian:k.n_varian,p_meta:k.meta});
+  try{const j=await rpc("tka_simpan_kisi",{p_pin:PIN(),p_kode:k.kode,p_judul:k.judul,p_mapel:mapelBaku(k.mapel),p_kelas:k.kelas,p_materi:k.materi,p_durasi:k.durasi,p_n_soal:k.n_soal,p_n_varian:k.n_varian,p_meta:k.meta});
     let cat="";if(j.judul&&j.judul!==k.judul){cat=` <span class="pill warn">Judul tetap "${esc(j.judul)}"</span> Judul di file Word diabaikan; ganti judul lewat Pustaka paket (buka paket → Ubah judul &amp; keterangan).`;k.judul=j.judul}
+    cat+=mapelCatatan(k.mapel);
     // Keterangan yang sudah tersimpan menang atas isian Word (semester tidak dibandingkan: kosong di Word diisi otomatis)
     const kw=k.meta.info||{},sv=j.info||{};if(Object.keys(kw).some(x=>x!=="semester"&&JSON.stringify(kw[x])!==JSON.stringify(sv[x])))cat+=` <span class="pill warn">Keterangan tersimpan dipertahankan</span> Isian keterangan di file Word yang berbeda diabaikan; ubah lewat Pustaka paket (buka paket → Ubah judul &amp; keterangan).`;
     if(j.info)k.meta.info=sv;
@@ -1487,18 +1489,38 @@ function infoRingkas(r){const I=TKA.info,i=r.info||{},p=[];if(i.jenis)p.push(esc
 let INFO_KODE=null;
 function chipTingkat(el,pilih){el.innerHTML=["10","11","12"].map(t=>`<button type="button" class="chip${pilih.includes(t)?" on":""}" data-t="${t}">Kelas ${t}</button>`).join("");el.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>b.classList.toggle("on"))}
 const chipDipilih=el=>[...el.querySelectorAll(".chip.on")].map(b=>b.dataset.t);
+/* Daftar mapel = salinan tabel mapel Data Induk (tka_mapel), disinkron otomatis saat operator masuk.
+   Penulisan mapel dari berkas Word disamakan dengan daftar ini ("kimia" → "Kimia"). */
+let MAPEL=[];
+async function muatMapel(){try{MAPEL=(await rpc("tka_mapel_daftar",{p_pin:PIN()})).mapel||[]}catch(e){MAPEL=[]}}
+const mapelBaku=m=>{m=String(m||"").trim().replace(/s+/g," ");const x=MAPEL.find(o=>o.nama.toLowerCase()===m.toLowerCase());return x?x.nama:m};
+const mapelCatatan=m=>!MAPEL.length||mapelDikenal(m)?"":` <span class="pill warn">Mata pelajaran "${esc(String(m||"").trim()||"kosong")}" tidak ada di daftar Data Induk</span> Pilih yang benar lewat Pustaka paket → buka paket → Ubah judul &amp; keterangan.`;
+const mapelDikenal=m=>MAPEL.some(o=>o.nama.toLowerCase()===String(m||"").trim().toLowerCase());
+function isiPilihMapel(sel,kini){kini=mapelBaku(kini);const rumpun=new Map();
+  MAPEL.forEach(o=>{const r=o.rumpun||"Lainnya";if(!rumpun.has(r))rumpun.set(r,[]);rumpun.get(r).push(o.nama)});
+  // tanpa daftar Data Induk: pakai mapel yang sudah dipakai paket lain
+  if(!MAPEL.length)rumpun.set("Dipakai paket lain",[...new Set(PK.map(o=>mapelBaku(o.mapel)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"id")));
+  const asing=kini&&![...rumpun.values()].flat().includes(kini);
+  sel.innerHTML=(kini?"":'<option value="">— pilih mata pelajaran —</option>')+(asing?`<option value="${esc(kini)}">${esc(kini)} (tidak ada di Data Induk)</option>`:"")+
+    [...rumpun.entries()].map(([r,a])=>`<optgroup label="${esc(r)}">${a.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("")}</optgroup>`).join("");
+  sel.value=kini||""}
+async function sinkronMapel(){if(PERAN!=="operator"||!INDUK||!INDUK.url||!INDUK.key)return;
+  try{const r=await fetch(`${INDUK.url}/rest/v1/mapel?select=nama_mapel,rumpun_mapel&order=nama_mapel`,{headers:{apikey:INDUK.key,Authorization:"Bearer "+INDUK.key}});
+    const j=await r.json();if(r.ok&&Array.isArray(j)&&j.length)await rpc("tka_mapel_sinkron",{p_pin:PIN(),p_rows:j})}catch(e){/* daftar lama tetap dipakai */}
+  await muatMapel()}
 function bukaKeterangan(r){if(!r)return;if(!PIN()){toast("Isi PIN dahulu");return}const I=TKA.info,i=r.info||{};INFO_KODE=r.kode;
-  $("di-kode").textContent=r.kode;$("di-judul").value=r.judul||"";$("di-jenis").value=i.jenis||"";$("di-semester").value=i.semester||I.semesterDari(r.dibuat);$("di-penyusun").value=i.penyusun||"";
+  $("di-kode").textContent=r.kode;$("di-judul").value=r.judul||"";isiPilihMapel($("di-mapel"),r.mapel);$("di-jenis").value=i.jenis||"";$("di-semester").value=i.semester||I.semesterDari(r.dibuat);$("di-penyusun").value=i.penyusun||"";
   $("di-jenis-list").innerHTML=I.JENIS.map(j=>`<option value="${esc(j)}">`).join("");
   const y=new Date().getFullYear();$("di-semester-list").innerHTML=[y-1,y,y+1].flatMap(t=>[`Ganjil ${t}/${t+1}`,`Genap ${t}/${t+1}`]).map(v=>`<option value="${v}">`).join("");
   chipTingkat($("di-tingkat"),(i.tingkat||[]).length?i.tingkat:I.parseTingkat(r.kelas));chipTingkat($("di-cakupan"),i.cakupan||[]);
   $("di-status").textContent="";const c=$("daftar-info-card");c.classList.remove("hidden");c.scrollIntoView({behavior:"smooth"});$("di-judul").focus()}
 async function simpanKeterangan(){if(!INFO_KODE)return;const I=TKA.info,judul=$("di-judul").value.trim();
   if(!judul){$("di-status").innerHTML='<span class="pill bad">Judul tidak boleh kosong</span>';return}
+  if(!$("di-mapel").value){$("di-status").innerHTML='<span class="pill bad">Pilih mata pelajaran</span>';return}
   const tingkat=chipDipilih($("di-tingkat"));let cakupan=chipDipilih($("di-cakupan"));if(cakupan.join()===tingkat.join())cakupan=[];
   const info=I.infoBersih({jenis:I.normJenis($("di-jenis").value),semester:$("di-semester").value,penyusun:$("di-penyusun").value,tingkat,cakupan});
   $("btn-di-simpan").disabled=true;
-  try{const j=await rpc("tka_ubah_keterangan",{p_pin:PIN(),p_kode:INFO_KODE,p_judul:judul,p_info:info});$("di-status").innerHTML=`<span class="pill good">Tersimpan</span> ${esc(j.kode)}`;muatDaftarKisi();muatDaftar()}
+  try{const j=await rpc("tka_ubah_keterangan",{p_pin:PIN(),p_kode:INFO_KODE,p_judul:judul,p_info:info,p_mapel:$("di-mapel").value||null});$("di-status").innerHTML=`<span class="pill good">Tersimpan</span> ${esc(j.kode)}`;muatDaftarKisi();muatDaftar()}
   catch(e){$("di-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}finally{$("btn-di-simpan").disabled=false}}
 /* ---------- jalur darurat ---------- */
 let DPAKET=null;
@@ -1538,6 +1560,7 @@ function tebakKolom(h){const l=h.map(x=>String(x||"").toLowerCase().trim());cons
 let SUMBER="",INDUK=null;
 // Pengaturan sumber data induk yang tersimpan di server (hanya operator); kunci & PIN tidak ditampilkan
 async function muatInduk(){if(PERAN!=="operator")return;try{INDUK=await rpc("tka_induk_ambil",{p_pin:PIN()})}catch(e){INDUK=null;return}
+  sinkronMapel();
   if(INDUK.url)$("i-url").value=INDUK.url;
   if(INDUK.key){$("i-key").value="";$("i-key").placeholder="tersimpan di server"}if(INDUK.pin){$("i-pin").value="";$("i-pin").placeholder="tersimpan di server"}
   $("i-cfg").innerHTML=INDUK.url&&INDUK.key&&INDUK.pin?'<span class="pill good">Pengaturan sumber tersimpan di server</span> cukup tekan <b>Tarik &amp; pratinjau</b>.':'<span class="pill warn">Pengaturan sumber belum lengkap di server</span> isi kolom yang kosong lalu tarik (centang "simpan isian ini di server").'}
@@ -2024,7 +2047,7 @@ window.addEventListener("DOMContentLoaded",()=>{
         (j.bersama?' <span class="pill warn">PIN guru bersama</span> Paket yang diunggah dengan PIN ini tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator.':"")+
         (j.peran==="operator"&&j.guru_tanpa_pin?` <span class="pill warn">${j.guru_tanpa_pin} guru belum punya PIN pribadi</span> — menu <b>Admin → PIN Guru</b>.`:"");
       $("pin-status").insertAdjacentHTML("beforeend",' <a href="#" id="pin-ganti" class="small">Ganti PIN</a>');$("pin-ganti").onclick=ev=>{ev.preventDefault();$("pin-baris").classList.remove("hidden");$("pin-card").classList.remove("masuk");$("pin").focus()};
-      muatDaftarKisi();muatDaftar();muatSinkron();muatInduk();const tb=document.querySelector("#tabs button.on");if(tb)bukaTab(tb.dataset.tab)}catch(e){document.documentElement.classList.remove("pin-otomatis");try{sessionStorage.removeItem("tka_v2_pin")}catch(er){}setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span> Ketik PIN lalu tekan Cek PIN.`;$("sinkron-info").innerHTML=""}};
+      muatDaftarKisi();muatDaftar();muatSinkron();muatMapel();muatInduk();const tb=document.querySelector("#tabs button.on");if(tb)bukaTab(tb.dataset.tab)}catch(e){document.documentElement.classList.remove("pin-otomatis");try{sessionStorage.removeItem("tka_v2_pin")}catch(er){}setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span> Ketik PIN lalu tekan Cek PIN.`;$("sinkron-info").innerHTML=""}};
   document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>bukaTab(b.dataset.tab));
   window.bukaTab=t=>{const b=document.querySelector(`#tabs button[data-tab="${t}"]`);if(!b)return;document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","siswa","guru","impor","cadangan","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));document.body.classList.toggle("lebar",b.dataset.tab==="guru");if(b.dataset.tab==="siswa"&&PIN())muatSiswa();if(b.dataset.tab==="guru"&&PIN())muatGuru();if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}};pasangMenu();
   $("file").onchange=e=>{if(e.target.files[0])bacaFile(e.target.files[0])};
@@ -2050,8 +2073,8 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-d-docx-kunci").onclick=()=>unduhNaskah(DPAKET,true);$("btn-d-docx-siswa").onclick=()=>unduhNaskah(DPAKET,false);
   $("btn-terbit").onclick=async()=>{if(!PAKET)return;if(!PIN()){toast("Isi PIN dahulu");return}
     const p=PAKET;$("terbit-status").innerHTML='<span class="pill">Mengirim…</span>';$("btn-terbit").disabled=true;
-    try{const j=await rpc("tka_terbitkan",{p_pin:PIN(),p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:false});
-      $("terbit-status").innerHTML=`<span class="pill good">Terbit ke bank soal: ${esc(j.kode)}</span> Paket belum bisa dikerjakan siswa sampai sesi ujiannya dibuka.`;const d=$("tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr1");gambarQr("qr1",j.kode);
+    try{const j=await rpc("tka_terbitkan",{p_pin:PIN(),p_kode:p.kode,p_judul:p.judul,p_mapel:mapelBaku(p.mapel),p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:false});
+      $("terbit-status").innerHTML=`<span class="pill good">Terbit ke bank soal: ${esc(j.kode)}</span> Paket belum bisa dikerjakan siswa sampai sesi ujiannya dibuka.${mapelCatatan(p.mapel)}`;const d=$("tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr1");gambarQr("qr1",j.kode);
     }catch(e){$("terbit-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}finally{$("btn-terbit").disabled=false}};
   $("btn-impor").onclick=async()=>{const lines=$("kode-hasil").value.split(/\s+/).filter(Boolean);const out=[];
     for(const l of lines){try{const o=JSON.parse(decodeURIComponent(escape(atob(l))));if(!o.kode||!o.jawaban)throw new Error("format kode salah");const j=await rpc("tka_submit2",{p:o});out.push(`✔ ${esc(o.nama)} (${esc(o.kelas)}) — ${o.kode}: nilai ${j.nilai}`)}catch(e){out.push(`✘ ${esc(l.slice(0,24))}… : ${esc(e.message)}`)}}
