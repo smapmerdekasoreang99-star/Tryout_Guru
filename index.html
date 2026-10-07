@@ -921,7 +921,7 @@ async function muatSesi(diam){if(!diam)$("se-info").textContent="Memuat…";
 function kartuSesi(s){const m=s.milik,a=[];
   const st=s.buka?`<span class="pk-pill st-aktif"><span class="titik t-aktif"></span>Dibuka s.d. ${jam(s.sampai)}</span>`:`<span class="pk-pill st-selesai"><span class="titik t-selesai"></span>Ditutup ${jam(s.sampai)}</span>`;
   if(m&&s.buka)a.push('<button class="ghost" data-a="tambah" data-m="15">+15 menit</button>','<button class="ghost" data-a="tambah" data-m="30">+30 menit</button>','<button class="danger" data-a="tutup">Tutup sekarang</button>');
-  if(m&&!s.buka)a.push('<button class="ghost" data-a="tambah" data-m="15">Buka lagi 15 menit</button>');
+  if(m&&!s.buka)a.push('<button class="ghost" data-a="tambah" data-m="15" title="Untuk siswa yang belum ikut. Siswa yang sudah mengumpulkan tidak bisa mengerjakan ulang.">Buka kembali 15 menit</button>');
   if(m)a.push(`<label class="se-sak" title="Siswa yang sudah mengumpulkan boleh melihat kunci dan pembahasan"><span class="saklar"><input type="checkbox" role="switch" data-a="pemb" ${s.atur&&s.atur.pembahasan?"checked":""}><i></i></span>Pembahasan</label>`);
   a.push(`<button class="soft" data-a="pantau">${SE_PANTAU===s.id?"Tutup pantauan":"Pantau siswa"}</button>`,'<button class="ghost" data-a="hasil">Hasil</button>');
   const adaHasil=s.n_masuk||s.n_selesai;if(m&&!adaHasil)a.push('<button class="ghost" data-a="hapus">Hapus sesi</button>');
@@ -982,7 +982,7 @@ async function tampilLayar(s){const L=$("se-layar"),qr=$("sl-qr"),dasar=alamatSi
 function tutupLayar(){$("se-layar").classList.add("hidden");if(document.fullscreenElement===$("se-layar"))document.exitFullscreen().catch(()=>{})}
 async function aksiSesi(id,a,el){const s=SESI.find(x=>x.id===id);if(!s)return;
   try{
-    if(a==="tambah"){await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"perpanjang",p_menit:+el.dataset.m});toast(s.buka?`Sesi diperpanjang ${el.dataset.m} menit`:"Sesi dibuka lagi");await muatSesi(true)}
+    if(a==="tambah"){await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"perpanjang",p_menit:+el.dataset.m});toast(s.buka?`Sesi diperpanjang ${el.dataset.m} menit`:"Sesi dibuka kembali 15 menit");await muatSesi(true)}
     else if(a==="tutup"){if(!confirm(`Tutup sesi "${s.judul}" sekarang?\n\nSiswa tidak bisa masuk lagi. Siswa yang sedang mengerjakan akan mengumpulkan jawabannya otomatis dalam sekitar satu menit.`))return;
       await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"tutup"});toast("Sesi ditutup");await muatSesi(true)}
     else if(a==="pemb"){await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"pembahasan",p_nilai:el.checked});toast(el.checked?"Pembahasan dibuka untuk siswa sesi ini":"Pembahasan ditutup");await muatSesi(true)}
