@@ -107,8 +107,27 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .pk-seg{display:flex;align-items:center;gap:3px;font-size:11.5px;color:var(--tinta-3)}.pk-seg i{display:block;width:14px;height:4px;border-radius:2px;background:var(--garis-2)}
 .pk-seg i.ok{background:var(--hadir)}.pk-seg i.kini{background:var(--emas)}.pk-seg span{margin-left:6px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .pk-aksi{display:flex;justify-content:flex-end}
-.pk-rinci{border-top:1px dashed var(--garis-2);padding:12px 16px 16px;display:grid;gap:10px}
-.pk-rinci .grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.pk-rinci .grp>b{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);min-width:72px}
+.pk-rinci{border-top:1px dashed var(--garis-2);padding:14px 16px 16px;display:grid;gap:12px}
+.pk-rinci svg{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pk-ringkas{display:flex;justify-content:space-between;align-items:center;gap:12px 20px;flex-wrap:wrap;background:#fff;border:1px solid var(--garis-2);border-radius:10px;padding:10px 14px}
+.pk-fakta{font-size:13px;font-weight:600;color:var(--ink);line-height:1.5;min-width:0}.pk-fakta .small{font-weight:400;margin-top:2px}
+.pk-pny{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--tinta-2);padding-left:16px;border-left:1px solid var(--line)}.pk-pny>svg{width:16px;height:16px;color:var(--tinta-3)}.pk-pny b{color:var(--ink)}
+.pk-darurat{font-size:13px;background:var(--bad-soft);border-radius:10px;padding:8px 12px}
+.pk-panel3{display:flex;gap:12px;align-items:stretch}
+.pk-pn{flex:1 1 0;min-width:0;display:flex;flex-direction:column;background:#fff;border:1px solid var(--garis-2);border-radius:12px;box-shadow:var(--bayang-1);overflow:hidden}
+.pk-pn>header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--kertas-3);border-bottom:1px solid var(--garis-2)}
+.pk-pn>header .ik{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--gelap);color:var(--emas);flex:none}.pk-pn>header .ik svg{width:16px;height:16px}
+.pk-pn>header div{display:grid;min-width:0}.pk-pn>header div>b{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gelap)}
+.pk-pn>header span{font-size:12px;color:var(--tinta-2)}.pk-pn>header span b{color:var(--hadir);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pk-tb{display:grid;gap:6px;padding:12px;flex:1;align-content:start}
+.pk-tb button{display:flex;align-items:center;gap:10px;width:100%;min-height:38px;padding:8px 12px;font-size:13px;font-weight:600;text-align:left;border-radius:9px;background:#fff;color:var(--ink);border:1px solid var(--garis-2);transition:background .15s,border-color .15s}
+.pk-tb button svg{width:16px;height:16px;color:var(--tinta-2)}.pk-tb button:hover{background:var(--kertas-3);border-color:var(--gelap)}
+.pk-tb button.utama{background:var(--gelap);color:#fff;border-color:var(--gelap)}.pk-tb button.utama svg{color:var(--emas)}.pk-tb button.utama:hover{opacity:.92}
+.pk-tb button:focus-visible{outline:2px solid var(--kuning);outline-offset:1px}
+.pk-bahaya{display:grid;gap:6px;margin-top:6px;padding-top:12px;border-top:1px dashed var(--garis-2)}
+.pk-tb button.bahaya{color:var(--bad);border-color:var(--bad-soft)}.pk-tb button.bahaya svg{color:var(--bad)}.pk-tb button.bahaya:hover{background:var(--bad-soft);border-color:var(--bad)}
+.pk-kosong{margin:0;padding:12px 14px;font-size:12.5px;line-height:1.5;color:var(--tinta-2);flex:1}
+@media (max-width:980px){.pk-panel3{flex-direction:column}.pk-pn{flex:none}.pk-tb{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}.pk-bahaya{grid-column:1/-1;grid-template-columns:inherit}.pk-pny{padding-left:0;border-left:0}}
 .pk-slot>.card{margin:4px 0 0}
 @media (max-width:760px){.pk-isi{grid-template-columns:1fr}.pk-mapel{position:static;flex-direction:row;overflow-x:auto;padding:0 0 8px;border-bottom:1px solid var(--line)}.pk-mapel .lbl{display:none}.pk-mapel button{flex:none}.pk-baris{grid-template-columns:1fr auto;gap:10px}.pk-st{grid-column:1}.pk-aksi{grid-column:2;grid-row:1/span 2;align-self:center}}.pe-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff}.pe-row{display:block;padding:4px 8px;border-bottom:1px solid var(--line);font-size:14px}.pe-row:last-child{border-bottom:0}
 .peran-guru .op-only,.peran-pengawas .op-only{display:none!important}.peran-pengawas .tulis-only{display:none!important}
@@ -1965,17 +1984,32 @@ function pkBaris(o){const I=TKA.info,tk=pkTingkat(o),i=o.info,b=PK_BUKA===o.kode
   return `<div class="pk${b?" buka":""}${o.arsip?" arsip":""}" data-k="${esc(o.kode)}"><div class="pk-baris" role="button" tabindex="0" aria-expanded="${b}">
     <div class="pk-id"><div><span class="j">${esc(o.judul)}</span>${i.jenis&&g!=="jenis"?`<span class="tag">${esc(i.jenis)}</span>`:""}${o.darurat?'<span class="tag bad">Darurat</span>':""}</div><div class="m">${meta}</div></div>
     ${pkStatus(o)}<div class="pk-aksi">${pkAksiUtama(o)}</div></div>${b?pkRinci(o):""}</div>`}
+/* Rincian paket terbuka: pita ringkasan + tiga panel sejajar (Ujian · Soal · Kelola), tombol seragam berikon */
+const PK_IK={sesi:'<path d="M7 4.5v15l12-7.5z"/>',tautan:'<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5zM14 20h2M20 14v2"/>',hasil:'<path d="M3 21h18M6 17v-5M11 17V7M16 17v-8M21 17V4"/>',
+  coba:'<path d="m9 11 3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>',lihat:'<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  tpl:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 11v6M9 14l3 3 3-3"/>',kisi:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/>',
+  json:'<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5a2 2 0 0 0 2 2h1M16 3h1a2 2 0 0 1 2 2v5a2 2 0 0 0 2 2 2 2 0 0 0-2 2v5a2 2 0 0 1-2 2h-1"/>',
+  ket:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',arsip1:'<path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/>',arsip0:'<path d="M3 4h18v4H3zM5 8v12h14V8M12 18v-6M9 14l3-3 3 3"/>',
+  hapus:'<path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6"/>',pemilik:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/>',
+  p_ujian:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/>',p_soal:'<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/>',p_kelola:'<path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/>'};
+const pkIk=a=>`<svg viewBox="0 0 24 24" aria-hidden="true">${PK_IK[a]||""}</svg>`;
+// tombol: [aksi, label, gaya ("utama"|"bahaya"|""), hanya penulis?]; tombol penulis tidak dibuat untuk pengawas supaya panel tidak kosong
+function pkTombol(d){return d.filter(x=>x&&!(x[3]&&PERAN==="pengawas")).map(([a,l,c,t])=>`<button type="button" class="${c||""}${t?" tulis-only":""}" data-a="${a}">${pkIk(a==="hapuskisi"?"hapus":a)}<span>${l}</span></button>`).join("")}
+function pkPanel(ik,judul,sub,isi,kosong){return `<section class="pk-pn"><header><span class="ik">${pkIk(ik)}</span><div><b>${judul}</b><span>${sub}</span></div></header>${isi?`<div class="pk-tb">${isi}</div>`:`<p class="pk-kosong">${kosong}</p>`}</section>`}
 function pkRinci(o){const p=o.paket,k=o.kisi;
   const fakta=[o.mapel?esc(o.mapel):"Mapel belum diisi",o.kelas?"Kelas "+esc(o.kelas):"",o.materi?esc(o.materi):"",o.durasi?o.durasi+" menit":"",o.n_soal+" soal · "+o.n_varian+" varian",p?p.n_hasil+" hasil":""].filter(Boolean).join(" · ");
-  let h=`<div class="pk-rinci"><div class="small">${fakta}${infoRingkas(o)}</div>`;
-  if(o.darurat)h+='<div class="small"><span class="pill bad">Darurat</span> Unduh kisi-kisi, periksa/lengkapi di Word, lalu unggah di Langkah 1 dengan kode yang sama untuk mengesahkan.</div>';
-  const pny=o.pemilik_nama?"Penyusun: <b>"+esc(o.pemilik_nama)+"</b>":"Penyusun belum ditetapkan (semua guru boleh mengelola)";
-  h+=`<div class="small">${pny}${PERAN==="operator"?' <button class="ghost mini" data-a="pemilik">Atur penyusun</button>':""}</div>`;
-  if(p)h+=`<div class="grp"><b>Ujian</b><span class="small muted">${p.n_sesi_buka?`<b>${p.n_sesi_buka} sesi sedang dibuka</b> · `:""}${p.n_sesi} sesi${p.n_sesi?" · peserta "+esc(TKA_PESERTA.ringkas(p.peserta))+" · "+p.n_peserta+" siswa":""}</span><button class="soft mini tulis-only" data-a="sesi">Buka sesi</button><button class="ghost mini" data-a="tautan">Alamat siswa &amp; QR</button><button class="ghost mini" data-a="hasil">Lihat hasil</button></div>`;
-  else h+='<div class="grp"><b>Ujian</b><span class="small muted">Soal belum diunggah. Isi template soal, lalu unggah di Langkah 2.</span></div>';
-  h+=`<div class="grp"><b>Soal</b>${p?'<button class="soft mini" data-a="coba">Coba soal</button>':""}${p&&o.milik?'<button class="ghost mini tulis-only" data-a="lihat">Lihat soal</button>':""}${k?'<button class="ghost mini tulis-only" data-a="tpl">Template soal .docx</button><button class="ghost mini tulis-only" data-a="kisi">Kisi-kisi .docx</button>':""}${p?'<button class="ghost mini" data-a="json">JSON</button>':""}</div>`;
-  h+=o.milik?`<div class="grp tulis-only"><b>Kelola</b><button class="ghost mini" data-a="ket">Ubah judul &amp; keterangan</button><button class="ghost mini" data-a="${o.arsip?"arsip0":"arsip1"}">${o.arsip?"Kembalikan dari arsip":"Arsipkan"}</button>${p?'<button class="danger mini" data-a="hapus">Hapus paket</button>':""}${k?'<button class="danger mini" data-a="hapuskisi">Hapus kisi-kisi</button>':""}</div>`
-    :`<div class="grp"><b>Kelola</b><span class="small muted">Soal, kunci, dan pengelolaan paket ini hanya untuk ${esc(o.pemilik_nama||"penyusunnya")} dan operator. Anda tetap bisa membuka sesi dan mencobanya lewat tombol Coba soal.</span></div>`;
+  const pny=o.pemilik_nama?"Penyusun <b>"+esc(o.pemilik_nama)+"</b>":'Penyusun belum ditetapkan <span class="muted">(semua guru boleh mengelola)</span>';
+  let h=`<div class="pk-rinci"><div class="pk-ringkas"><div class="pk-fakta"><div>${fakta}</div>${infoRingkas(o)}</div><div class="pk-pny">${pkIk("pemilik")}<span>${pny}</span>${PERAN==="operator"?'<button type="button" class="ghost mini" data-a="pemilik">Atur</button>':""}</div></div>`;
+  if(o.darurat)h+='<div class="pk-darurat"><span class="pill bad">Darurat</span> Unduh kisi-kisi, periksa/lengkapi di Word, lalu unggah di Langkah 1 dengan kode yang sama untuk mengesahkan.</div>';
+  const subU=p?(p.n_sesi_buka?`<b>${p.n_sesi_buka} sesi dibuka</b> · `:"")+p.n_sesi+" sesi"+(p.n_sesi?" · "+p.n_peserta+" siswa":""):"Belum bisa dibuka";
+  const ujian=p?pkTombol([["sesi","Buka sesi","utama",1],["tautan","Alamat siswa &amp; QR"],["hasil","Lihat hasil"]]):"";
+  const soal=pkTombol([p&&["coba","Coba soal","utama"],p&&o.milik&&["lihat","Lihat soal &amp; kunci","",1],k&&["tpl","Template soal .docx","",1],k&&["kisi","Kisi-kisi .docx","",1],p&&["json","Unduh JSON"]]);
+  const kelola=o.milik?pkTombol([["ket","Ubah judul &amp; keterangan","",1],[o.arsip?"arsip0":"arsip1",o.arsip?"Kembalikan dari arsip":"Arsipkan","",1]]):"",
+    bahaya=o.milik?pkTombol([p&&["hapus","Hapus paket","bahaya",1],k&&["hapuskisi","Hapus kisi-kisi","bahaya",1]]):"";
+  h+='<div class="pk-panel3">'+pkPanel("p_ujian","Ujian",subU,ujian,"Soal belum diunggah. Isi template soal, lalu unggah di Langkah 2.")
+    +pkPanel("p_soal","Soal",o.n_soal+" soal · "+o.n_varian+" varian",soal,"Belum ada berkas soal untuk paket ini.")
+    +pkPanel("p_kelola","Kelola",o.milik?"Judul, arsip, penghapusan":"Penyusun &amp; operator",kelola+(bahaya?`<div class="pk-bahaya">${bahaya}</div>`:""),
+      o.milik?"Pengawas tidak dapat mengubah paket.":`Soal, kunci, dan pengelolaan paket ini hanya untuk ${esc(o.pemilik_nama||"penyusunnya")} dan operator. Anda tetap bisa membuka sesi dan mencobanya lewat tombol Coba soal.`)+'</div>';
   return h+'<div class="pk-slot"></div></div>'}
 
 function pkKartuPulang(){const h=$("pk-kartu");PK_KARTU.forEach(id=>h.appendChild($(id)))}
