@@ -263,7 +263,7 @@ input.kode-akses::placeholder{font-size:16px;font-weight:400;letter-spacing:0}
 .se-kode b{font-size:34px;letter-spacing:.18em;font-variant-numeric:tabular-nums;line-height:1}
 .se-kode button{margin-left:auto;padding:8px 12px;font-size:13px}
 .se-angka{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.se-angka span{background:var(--kertas-3);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;color:var(--muted)}.se-angka b{color:var(--ink);font-variant-numeric:tabular-nums}
-.se-aksi{margin-top:6px}.se-cat{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--tinta-3)}.se-aksi button,.se-aksi label.se-sak{padding:8px 12px;font-size:13px}
+.se-aksi{margin-top:6px}.se-menit{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--tinta-2)}.se-menit input{width:64px;padding:7px 8px;font-size:13px;text-align:center}.se-cat{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--tinta-3)}.se-aksi button,.se-aksi label.se-sak{padding:8px 12px;font-size:13px}
 label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;background:#fff;font-weight:600;cursor:pointer}
 .se-pantau{margin-top:12px;border-top:1px dashed var(--garis-2);padding-top:10px}
 .st-belum{background:var(--netral-muda);color:var(--tinta-2)}.st-kerja{background:var(--emas-muda);color:var(--emas-teks)}.st-diam{background:var(--bad-soft);color:var(--bad)}.st-selesai2{background:var(--good-soft);color:var(--good)}
@@ -907,7 +907,7 @@ async function mulaiUjiCoba(kode){
 /* ================= SESI UJIAN (guru membuka/menutup, pengawas memantau) =================
    Paket = bank soal. Guru memilih paket + kelas + lama pengerjaan → server membuat kode akses 6 angka.
    Daftar dan pantauan diperbarui otomatis tiap 20 detik selama layar ini terbuka. */
-let SESI=[],SE_PANTAU=null,SE_PANTAU_HTML="",SE_FILTER="",SE_TIMER=null,SE_PAKET="",SE_ED=null;
+let SESI=[],SE_MENIT={},SE_PANTAU=null,SE_PANTAU_HTML="",SE_FILTER="",SE_TIMER=null,SE_PAKET="",SE_ED=null;
 const jam=t=>new Date(t).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}).replace(":",".");
 const tglJam=t=>{const d=new Date(t);return (d.toDateString()===new Date().toDateString()?"hari ini":d.toLocaleDateString("id-ID",{weekday:"short",day:"numeric",month:"short"}))+" "+jam(t)};
 const kodeTampil=k=>String(k||"").replace(/^(\d{3})(\d{3})$/,"$1 $2");
@@ -916,12 +916,15 @@ async function bukaSesi(o){o=o||{};show("v-sesi");$("btn-se-baru").classList.tog
   clearInterval(SE_TIMER);SE_TIMER=setInterval(()=>{if($("v-sesi").classList.contains("hidden")){clearInterval(SE_TIMER);return}muatSesi(true)},20000);
   if(o.paket&&PERAN!=="pengawas")bukaFormSesi(o.paket)}
 async function muatSesi(diam){if(!diam)$("se-info").textContent="Memuat…";
-  try{const j=await rpc("tka_sesi_daftar",{p_pin:PIN});SESI=j.sesi||[];renderSesi();if(SE_PANTAU)muatPantau(SE_PANTAU,true);$("se-info").textContent="Diperbarui "+jam(new Date())}
+  try{const j=await rpc("tka_sesi_daftar",{p_pin:PIN});SESI=j.sesi||[];
+    if(!(diam&&document.activeElement&&document.activeElement.matches("#se-daftar [data-menit]")))renderSesi();if(SE_PANTAU)muatPantau(SE_PANTAU,true);$("se-info").textContent="Diperbarui "+jam(new Date())}
   catch(e){$("se-info").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 function kartuSesi(s){const m=s.milik,a=[];
   const st=s.buka?`<span class="pk-pill st-aktif"><span class="titik t-aktif"></span>Dibuka s.d. ${jam(s.sampai)}</span>`:`<span class="pk-pill st-selesai"><span class="titik t-selesai"></span>Ditutup ${jam(s.sampai)}</span>`;
-  if(m&&s.buka)a.push('<button class="ghost" data-a="tambah" data-m="15">+15 menit</button>','<button class="ghost" data-a="tambah" data-m="30">+30 menit</button>','<button class="danger" data-a="tutup">Tutup sekarang</button>');
-  if(m&&!s.buka)a.push('<button class="ghost" data-a="tambah" data-m="15" title="Untuk siswa yang belum ikut. Siswa yang sudah mengumpulkan tidak bisa mengerjakan ulang.">Buka kembali 15 menit</button>');
+  // Tambah (sesi terbuka) / Buka kembali (sesi ditutup): guru mengetik sendiri menitnya, 1–300
+  const menit=`<input type="number" data-menit min="1" max="300" step="1" inputmode="numeric" value="${esc(SE_MENIT[s.id]||15)}" aria-label="Jumlah menit">menit`;
+  if(m&&s.buka)a.push(`<span class="se-menit"><button class="ghost" data-a="tambah" title="Memperpanjang batas waktu sesi ini">Tambah +</button>${menit}</span>`,'<button class="danger" data-a="tutup">Tutup sekarang</button>');
+  if(m&&!s.buka)a.push(`<span class="se-menit"><button class="ghost" data-a="tambah" title="Untuk siswa yang belum ikut. Siswa yang sudah mengumpulkan tidak bisa mengerjakan ulang.">Buka kembali +</button>${menit}</span>`);
   if(m)a.push(`<label class="se-sak" title="Siswa yang sudah mengumpulkan boleh melihat kunci dan pembahasan"><span class="saklar"><input type="checkbox" role="switch" data-a="pemb" ${s.atur&&s.atur.pembahasan?"checked":""}><i></i></span>Pembahasan</label>`);
   a.push(`<button class="soft" data-a="pantau">${SE_PANTAU===s.id?"Tutup pantauan":"Pantau siswa"}</button>`,'<button class="ghost" data-a="hasil">Hasil</button>');
   const adaHasil=s.n_masuk||s.n_selesai;if(m&&!adaHasil)a.push('<button class="ghost" data-a="hapus">Hapus sesi</button>');
@@ -982,7 +985,9 @@ async function tampilLayar(s){const L=$("se-layar"),qr=$("sl-qr"),dasar=alamatSi
 function tutupLayar(){$("se-layar").classList.add("hidden");if(document.fullscreenElement===$("se-layar"))document.exitFullscreen().catch(()=>{})}
 async function aksiSesi(id,a,el){const s=SESI.find(x=>x.id===id);if(!s)return;
   try{
-    if(a==="tambah"){await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"perpanjang",p_menit:+el.dataset.m});toast(s.buka?`Sesi diperpanjang ${el.dataset.m} menit`:"Sesi dibuka kembali 15 menit");await muatSesi(true)}
+    if(a==="tambah"){const i=el.closest(".se-menit").querySelector("[data-menit]"),mn=+i.value;
+      if(!Number.isInteger(mn)||mn<1||mn>300){toast("Isi jumlah menit 1–300");i.focus();return}
+      SE_MENIT[id]=mn;await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"perpanjang",p_menit:mn});toast(s.buka?`Sesi diperpanjang ${mn} menit`:`Sesi dibuka kembali ${mn} menit`);await muatSesi(true)}
     else if(a==="tutup"){if(!confirm(`Tutup sesi "${s.judul}" sekarang?\n\nSiswa tidak bisa masuk lagi. Siswa yang sedang mengerjakan akan mengumpulkan jawabannya otomatis dalam sekitar satu menit.`))return;
       await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"tutup"});toast("Sesi ditutup");await muatSesi(true)}
     else if(a==="pemb"){await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"pembahasan",p_nilai:el.checked});toast(el.checked?"Pembahasan dibuka untuk siswa sesi ini":"Pembahasan ditutup");await muatSesi(true)}
@@ -1035,6 +1040,8 @@ function pasangSesi(){
     const l=e.target.closest("[data-lepas]");if(l){if(!confirm("Lepas siswa ini? Ia bisa masuk lagi dari perangkat lain dengan NISN dan kode akses yang sama."))return;
       rpc("tka_sesi_lepas",{p_pin:PIN,p_id:id,p_nisn:l.dataset.lepas}).then(()=>{toast("Dilepas — siswa bisa masuk lagi");muatPantau(id,true)}).catch(er=>toast("Gagal: "+er.message));return}
     const b=e.target.closest("button[data-a]");if(b)aksiSesi(id,b.dataset.a,b)});
+  d.addEventListener("input",e=>{const i=e.target.closest("[data-menit]"),k=i&&i.closest("[data-sesi]");if(k)SE_MENIT[+k.dataset.sesi]=i.value});
+  d.addEventListener("keydown",e=>{const i=e.target.closest("[data-menit]");if(i&&e.key==="Enter"){e.preventDefault();i.closest(".se-menit").querySelector("button").click()}});
   d.addEventListener("change",e=>{const c=e.target.closest("input[data-a]");if(!c)return;const k=c.closest("[data-sesi]");if(k)aksiSesi(+k.dataset.sesi,c.dataset.a,c)})}
 
 /* ================= UNDUH EXCEL (.xlsx) =================
