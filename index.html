@@ -268,10 +268,21 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 .se-pantau{margin-top:12px;border-top:1px dashed var(--garis-2);padding-top:10px}
 .st-belum{background:var(--netral-muda);color:var(--tinta-2)}.st-kerja{background:var(--emas-muda);color:var(--emas-teks)}.st-diam{background:var(--bad-soft);color:var(--bad)}.st-selesai2{background:var(--good-soft);color:var(--good)}
 #se-layar{position:fixed;inset:0;background:var(--gelap);color:#fff;z-index:var(--lapis-tirai);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
-#se-layar .in{display:grid;gap:12px;justify-items:center}#se-layar .j{font-family:"Fraunces",Georgia,serif;font-size:clamp(20px,4vw,34px);max-width:900px}
-#se-layar .lbl{font-size:14px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--kuning)}
-#se-layar .kd{font-size:clamp(64px,18vw,200px);font-weight:800;letter-spacing:.12em;line-height:1;font-variant-numeric:tabular-nums}
-#se-layar .ket{font-size:clamp(14px,2.4vw,22px);color:var(--tinta-terang-2)}
+#se-layar .in{display:grid;gap:clamp(12px,2.4vh,24px);justify-items:center;max-width:100%}#se-layar .j{font-family:"Fraunces",Georgia,serif;font-size:clamp(20px,3.4vw,40px);font-weight:700;color:var(--kuning);max-width:min(1400px,94vw)}
+/* Layar kode akses (seperti Matematika Dasar): layar penuh, QR besar berisi alamat + kode untuk dipindai dari 8–10 m, kode di sampingnya */
+#se-layar .sl-dua{display:flex;align-items:center;justify-content:center;gap:clamp(24px,5vw,80px);flex-wrap:wrap}
+#se-layar .sl-kol{display:grid;justify-items:center;gap:clamp(6px,1.4vh,14px)}
+#se-layar .lbl{font-size:clamp(14px,1.8vw,22px);font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--kuning)}
+#se-layar .kd{font-size:clamp(64px,10vw,190px);font-weight:800;letter-spacing:.08em;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap}
+#sl-qr.hidden+.sl-kol .kd{font-size:clamp(72px,18vw,260px)}
+#se-layar .ket{font-size:clamp(14px,2vw,24px);color:var(--tinta-terang-2)}
+#sl-qr{background:#fff;padding:clamp(10px,1.6vw,18px);border-radius:12px;line-height:0;cursor:zoom-in}
+#sl-qr img,#sl-qr canvas{width:min(62vh,46vw)!important;height:auto!important;image-rendering:pixelated}
+#se-layar .sl-url{font-size:clamp(12px,1.4vw,18px);color:var(--tinta-terang-2);word-break:break-all}
+#se-layar .sl-pet{font-size:clamp(12px,1.3vw,15px);color:var(--tinta-3)}
+#se-layar #btn-sl-tutup{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4)}
+#se-layar.qr-saja .sl-kol,#se-layar.qr-saja .j,#se-layar.qr-saja .sl-url,#se-layar.qr-saja #btn-sl-tutup{display:none}
+#se-layar.qr-saja #sl-qr{cursor:zoom-out}#se-layar.qr-saja #sl-qr img,#se-layar.qr-saja #sl-qr canvas{width:min(88vh,92vw)!important}
 .ds-sesi{display:grid;gap:0;margin-top:6px}.ds-sesi-baris{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .ds-sesi-baris>div{display:grid;gap:1px;flex:1;min-width:0}.ds-sesi-baris>div span{font-size:12.5px;color:var(--muted)}.ds-sesi-baris .n{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
 </style>
@@ -291,7 +302,7 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
       <label class="f" for="nama">Nama lengkap</label><input type="text" id="nama" autocomplete="name" placeholder="Nama sesuai absen">
       <label class="f" for="kelas">Kelas</label><input type="text" id="kelas" placeholder="Contoh: XI-1" autocomplete="off">
     </div>
-    <label class="f" for="akses">Kode akses (dari guru atau pengawas)</label><input type="text" id="akses" class="kode-akses" inputmode="numeric" autocomplete="off" maxlength="7" placeholder="6 angka">
+    <label class="f" for="akses">Kode akses (dari guru atau pengawas)</label><input type="text" id="akses" class="kode-akses" inputmode="numeric" autocomplete="off" maxlength="7" placeholder="6 angka"><div class="hidden" id="akses-qr" style="color:var(--good);margin-top:4px;font-size:13px;font-weight:600">✓ Kode akses dari QR sudah terisi. Tinggal ketik NISN-mu.</div>
     <p class="muted small"><a href="#" id="lnk-tamu" style="color:var(--muted)">Belum terdaftar? Masuk sebagai tamu</a><a href="#" id="lnk-siswa" class="hidden" style="color:var(--muted)">Kembali masuk dengan NISN</a></p>
     <div id="login-info" class="notice hidden" style="background:var(--good-soft);color:var(--good)"></div>
     <h3>Petunjuk</h3>
@@ -371,7 +382,10 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
   </div>
   <div id="se-daftar"></div>
 </section>
-<div id="se-layar" class="hidden" role="dialog" aria-label="Kode akses"><div class="in"><div class="j" id="sl-judul"></div><div class="lbl">Kode akses</div><div class="kd" id="sl-kode"></div><div class="ket" id="sl-ket"></div><button class="soft" id="btn-sl-tutup">Tutup</button></div></div>
+<div id="se-layar" class="hidden" role="dialog" aria-modal="true" aria-label="Kode akses"><div class="in"><div class="j" id="sl-judul"></div>
+  <div class="sl-dua"><div id="sl-qr" class="hidden" aria-label="QR halaman ujian beserta kode akses"></div>
+    <div class="sl-kol"><div class="lbl">Kode akses</div><div class="kd" id="sl-kode"></div><div class="ket" id="sl-ket"></div></div></div>
+  <div class="sl-url" id="sl-url"></div><div class="sl-pet" id="sl-pet"></div><button id="btn-sl-tutup">Tutup tampilan</button></div></div>
 
 <section id="v-exam" class="hidden">
   <div class="card" id="q-card"></div>
@@ -940,8 +954,28 @@ async function muatPantau(id,diam){const box=document.querySelector(`[data-sesi=
       `<p class="ds-catatan"><b>Tidak aktif</b> = HP tidak memberi kabar lebih dari 3 menit (layar mati, sinyal hilang, atau pindah perangkat). <b>Lepas</b> membuat siswa itu bisa masuk lagi dari perangkat lain; jawaban di perangkat lama tidak ikut pindah.</p>`;
     SE_PANTAU_HTML=box.innerHTML}
   catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
-function tampilLayar(s){$("sl-judul").textContent=s.judul;$("sl-kode").textContent=kodeTampil(s.kode);
-  $("sl-ket").textContent=`Buka ${location.host}${location.pathname.replace(/index\.html$/,"")} · masuk dengan NISN dan kode ini · sesi tertutup pukul ${jam(s.sampai)}`;$("se-layar").classList.remove("hidden")}
+/* Layar kode akses: layar penuh + QR (alamat siswa#kode=…) sehingga kode langsung terisi setelah dipindai.
+   Pustaka QR dimuat saat pertama dipakai; bila gagal, layar tetap menampilkan kode saja. Ketuk QR = QR saja (lebih besar). */
+let _qrPustaka;
+const muatQR=()=>_qrPustaka||(_qrPustaka=new Promise((ok,gagal)=>{if(window.QRCode)return ok();
+  const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+  sc.onload=()=>ok();sc.onerror=()=>{_qrPustaka=null;gagal()};document.head.appendChild(sc)}));
+// alamat halaman siswa (folder ini); ?sb=&key= ikut bila server dipasang lewat tautan, bukan config.js
+const alamatSiswa=()=>{const u=new URL("./",location.href),p=new URLSearchParams();["sb","key"].forEach(k=>{if(qs.get(k))p.set(k,qs.get(k))});return u.href+(p.toString()?"?"+p:"")};
+async function tampilLayar(s){const L=$("se-layar"),qr=$("sl-qr"),dasar=alamatSiswa();
+  $("sl-judul").textContent=s.judul;$("sl-kode").textContent=kodeTampil(s.kode);
+  $("sl-ket").textContent=`Masuk dengan NISN dan kode ini · sesi tertutup pukul ${jam(s.sampai)}`;
+  $("sl-url").textContent=dasar.replace(/\?.*$/,"").replace(/\/$/,"");$("sl-pet").textContent="";
+  qr.innerHTML="";qr.classList.add("hidden");L.classList.remove("qr-saja");L.classList.remove("hidden");$("btn-sl-tutup").focus();
+  // harus dipanggil sebelum menunggu apa pun, supaya masih dianggap bagian dari tekanan tombol
+  if(L.requestFullscreen&&!document.fullscreenElement)L.requestFullscreen().catch(()=>{});
+  try{await muatQR();
+    // koreksi L + kotak 1024: QR renggang dan besar, terbaca dari 8–10 m di layar proyektor/TV
+    new QRCode(qr,{text:`${dasar}#kode=${encodeURIComponent(s.kode)}`,width:1024,height:1024,correctLevel:QRCode.CorrectLevel.L});
+    qr.removeAttribute("title");   // qrcodejs memasang title berisi tautan lengkap (dengan kode)
+    $("sl-pet").textContent="Pindai QR: kode akses langsung terisi · ketuk QR untuk memperbesar";qr.classList.remove("hidden")}
+  catch(e){/* tanpa QR: kode saja */}}
+function tutupLayar(){$("se-layar").classList.add("hidden");if(document.fullscreenElement===$("se-layar"))document.exitFullscreen().catch(()=>{})}
 async function aksiSesi(id,a,el){const s=SESI.find(x=>x.id===id);if(!s)return;
   try{
     if(a==="tambah"){await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"perpanjang",p_menit:+el.dataset.m});toast(s.buka?`Sesi diperpanjang ${el.dataset.m} menit`:"Sesi dibuka lagi");await muatSesi(true)}
@@ -987,7 +1021,10 @@ function pasangSesi(){
   $("btn-se-back").onclick=bukaMenu;$("btn-se-muat").onclick=()=>muatSesi();$("btn-se-baru").onclick=()=>bukaFormSesi("");$("btn-se-batal").onclick=()=>$("se-form").classList.add("hidden");
   $("btn-se-buka").onclick=kirimSesi;$("se-cari").oninput=renderPaketSesi;["se-durasi","se-tambah"].forEach(id=>$(id).oninput=hitungSampai);
   $("se-paket").onclick=e=>{const b=e.target.closest("[data-kode]");if(b)pilihPaketSesi(b.dataset.kode)};
-  $("btn-sl-tutup").onclick=()=>$("se-layar").classList.add("hidden");
+  $("btn-sl-tutup").onclick=tutupLayar;$("sl-qr").onclick=()=>$("se-layar").classList.toggle("qr-saja");
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("se-layar").classList.contains("hidden"))tutupLayar()});
+  // keluar layar penuh (Esc / F11 / gestur) sekaligus menutup tampilan kode
+  document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&!$("se-layar").classList.contains("hidden"))$("se-layar").classList.add("hidden")});
   const d=$("se-daftar");
   d.addEventListener("click",e=>{const k=e.target.closest("[data-sesi]");if(!k)return;const id=+k.dataset.sesi;
     const f=e.target.closest("[data-f]");if(f){SE_FILTER=f.dataset.f;muatPantau(id,true);return}
@@ -1203,6 +1240,9 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-uc").onclick=()=>{const kode=$("uc-kode").value.trim().toUpperCase();if(!kode){toast("Isi kode ujian");return}mulaiUjiCoba(kode)};
   $("btn-guru-back").onclick=bukaMenu;$("btn-pin").onclick=()=>{PIN=$("pin").value.trim();loginGuru()};
   $("btn-guru-out").onclick=bukaMenu;
+  // Dari QR guru: index.html#kode=123456 → kode akses terisi, siswa tinggal mengetik NISN. Kode dihapus dari alamat supaya tidak ikut tersimpan/terbagi.
+  const dariQR=location.hash.match(/kode=(d{6})/);
+  if(dariQR){history.replaceState(null,"",location.pathname+location.search);$("akses").value=kodeTampil(dariQR[1]);$("akses-qr").classList.remove("hidden");$("nisn").focus()}
   if(qs.get("guru")!==null||SESI_URL||DASBOR_URL||UJI_URL)bukaMenu();
   $("btn-refresh").onclick=loadGuru;try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=$("g-sesi").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
   $("btn-g-sesi-baru").onclick=()=>bukaSesi({paket:$("g-ujian").value});
