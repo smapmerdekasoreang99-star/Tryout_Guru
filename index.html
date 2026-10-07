@@ -263,7 +263,7 @@ input.kode-akses::placeholder{font-size:16px;font-weight:400;letter-spacing:0}
 .se-kode b{font-size:34px;letter-spacing:.18em;font-variant-numeric:tabular-nums;line-height:1}
 .se-kode button{margin-left:auto;padding:8px 12px;font-size:13px}
 .se-angka{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.se-angka span{background:var(--kertas-3);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;color:var(--muted)}.se-angka b{color:var(--ink);font-variant-numeric:tabular-nums}
-.se-aksi{margin-top:6px}.se-aksi button,.se-aksi label.se-sak{padding:8px 12px;font-size:13px}
+.se-aksi{margin-top:6px}.se-cat{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--tinta-3)}.se-aksi button,.se-aksi label.se-sak{padding:8px 12px;font-size:13px}
 label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;background:#fff;font-weight:600;cursor:pointer}
 .se-pantau{margin-top:12px;border-top:1px dashed var(--garis-2);padding-top:10px}
 .st-belum{background:var(--netral-muda);color:var(--tinta-2)}.st-kerja{background:var(--emas-muda);color:var(--emas-teks)}.st-diam{background:var(--bad-soft);color:var(--bad)}.st-selesai2{background:var(--good-soft);color:var(--good)}
@@ -924,12 +924,16 @@ function kartuSesi(s){const m=s.milik,a=[];
   if(m&&!s.buka)a.push('<button class="ghost" data-a="tambah" data-m="15">Buka lagi 15 menit</button>');
   if(m)a.push(`<label class="se-sak" title="Siswa yang sudah mengumpulkan boleh melihat kunci dan pembahasan"><span class="saklar"><input type="checkbox" role="switch" data-a="pemb" ${s.atur&&s.atur.pembahasan?"checked":""}><i></i></span>Pembahasan</label>`);
   a.push(`<button class="soft" data-a="pantau">${SE_PANTAU===s.id?"Tutup pantauan":"Pantau siswa"}</button>`,'<button class="ghost" data-a="hasil">Hasil</button>');
-  if(m&&!s.n_masuk&&!s.n_selesai)a.push('<button class="ghost" data-a="hapus">Hapus</button>');
+  const adaHasil=s.n_masuk||s.n_selesai;if(m&&!adaHasil)a.push('<button class="ghost" data-a="hapus">Hapus sesi</button>');
+  // sesi berisi hasil tidak bisa dihapus (hasil siswa tercatat per sesi); beri tahu pemiliknya supaya tidak mencari tombolnya
+  const hilang=jam(new Date(s.sampai).getTime()+12*3600e3);
+  const catHapus=m&&adaHasil?`<p class="se-cat">Sesi ini tidak bisa dihapus karena sudah ada siswa yang masuk (hasilnya tercatat per sesi). `+
+    (s.buka?"Setelah ditutup, sesi hilang sendiri dari daftar 12 jam kemudian":`Sesi hilang sendiri dari daftar sekitar pukul ${hilang}`)+"; hasil tetap tersimpan di Dasbor Hasil.</p>":"";
   return `<div class="card se-kartu${s.buka?" buka":""}" data-sesi="${s.id}"><div class="se-kepala"><div><span class="lbl">${esc(s.mapel||"Tanpa mapel")}</span><h3>${esc(s.judul)}</h3>`+
     `<div class="m"><span class="kode">${esc(s.ujian)}</span> · ${esc(ringkasPeserta(s.peserta))} · ${s.durasi} menit · dibuka ${esc(s.oleh_nama||s.oleh)}, ${esc(tglJam(s.mulai))}</div></div>${st}</div>`+
     (s.buka?`<div class="se-kode"><span>Kode akses</span><b>${kodeTampil(s.kode)}</b><button class="soft" data-a="layar">Tampilkan besar</button></div>`:"")+
     `<div class="se-angka"><span><b>${s.n_peserta}</b> peserta</span><span><b>${s.n_masuk}</b> sudah masuk</span><span><b>${s.n_aktif}</b> sedang mengerjakan</span><span><b>${s.n_selesai}</b> selesai</span>${s.atur&&s.atur.tamu?"<span>tamu diizinkan</span>":""}</div>`+
-    `<div class="row se-aksi">${a.join("")}</div><div class="se-pantau hidden" data-pantau></div></div>`}
+    `<div class="row se-aksi">${a.join("")}</div>${catHapus}<div class="se-pantau hidden" data-pantau></div></div>`}
 function renderSesi(){const el=$("se-daftar");
   if(SE_PANTAU&&!SESI.some(s=>s.id===SE_PANTAU))SE_PANTAU=null;
   if(!SESI.length){el.innerHTML=`<div class="card"><p class="muted" style="margin:0">Belum ada sesi yang terbuka atau ditutup dalam 12 jam terakhir.${PERAN!=="pengawas"?" Tekan <b>Buka sesi baru</b> untuk memulai.":""}</p></div>`;return}
