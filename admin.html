@@ -1574,6 +1574,11 @@ function parseTgl(v){if(v===null||v===undefined||v==="")return null;
   if((m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})$/)))return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;
   if((m=s.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})$/))){const b=BULAN[m[2].toLowerCase()];if(b)return `${m[3]}-${String(b).padStart(2,"0")}-${m[1].padStart(2,"0")}`}
   return null}
+/* Sumber Data Induk: nama kolomnya pasti (siswa_ekspor), jadi pemetaan dipasang
+   menurut nama dan dikunci — pilihan yang bergeser (dipulihkan peramban atau
+   tersentuh) pernah membuat kolom Kelompok MD berisi NIS. Unggahan berkas tetap bebas. */
+const PETA_INDUK={nisn:"nisn",nis:"nis",nama:"nama",kelas:"kelas",tgl:"tanggal_lahir",kelompok:"kelompok_md"};
+function kunciPetaInduk(){const induk=SUMBER==="induk";Object.entries(PETA_INDUK).forEach(([k,kol])=>{const sel=$("m-"+k);if(induk)sel.value=String(SHDR.indexOf(kol));sel.disabled=induk;sel.title=induk?"Dipetakan otomatis dari Data Induk":""})}
 function tebakKolom(h){const l=h.map(x=>String(x||"").toLowerCase().trim());const f=re=>l.findIndex(x=>re.test(x));
   return {nisn:f(/^nisn$|\bnisn\b/),nis:f(/^nis$|^nipd$|nomor induk(?! siswa nasional)/),nama:l.findIndex(x=>/^nama([ _](siswa|peserta_?didik|peserta didik|lengkap))?$/.test(x)),kelas:f(/rombel|^kelas|kelas saat ini/),tgl:f(/tanggal lahir|tgl[ _.]?lahir|tanggal_lahir|birth/),kelompok:f(/kelompok|matdas|^md$/)}}
 let SUMBER="",INDUK=null;
@@ -1601,6 +1606,7 @@ async function tarikInduk(){const url=$("i-url").value.trim().replace(/\/+$/,"")
     // Tarikan berhasil → isian yang baru diketik disimpan ke server (sekali saja), salinan lama di perangkat dibuang
     if($("i-ingat").checked&&(url&&url!==INDUK?.url||key||pin)){try{await rpc("tka_induk_simpan",{p_pin:PIN(),p_url:url,p_key:key,p_pin_ekspor:pin});try{localStorage.removeItem("tka_induk_cfg")}catch(e){}await muatInduk()}catch(e){toast("Pengaturan sumber gagal disimpan ke server: "+e.message)}}
     const g=tebakKolom(SHDR);["nisn","nis","nama","kelas","tgl","kelompok"].forEach(k=>{const sel=$("m-"+k);sel.innerHTML=`<option value="-1">—</option>`+SHDR.map((h,i)=>`<option value="${i}" ${g[k]===i?"selected":""}>${esc(h)}</option>`).join("");sel.onchange=pratinjauSiswa});
+    kunciPetaInduk();
     $("s-nonaktif").checked=true;$("s-status").innerHTML="";delete $("s-status").dataset.sheet;
     st.innerHTML=`<span class="pill good">Tertarik ${j.length} siswa</span> dari data induk (kolom: ${SHDR.map(esc).join(", ")}). ${g.tgl<0?'<span class="pill warn">Kolom tanggal lahir tidak ditemukan — terapkan migrasi siswa_ekspor terbaru di project utama atau pilih manual</span> ':""}Periksa pemetaan &amp; pratinjau di bawah, lalu <b>Simpan ke server</b>.`;
     $("s-map").classList.remove("hidden");pratinjauSiswa();$("s-map").scrollIntoView({behavior:"smooth"})}
@@ -1617,7 +1623,7 @@ async function bacaSiswa(f){$("s-status").innerHTML=`<span class="pill">Membaca 
     // cari baris header: baris pertama yang memuat 'nisn' atau 'nama'
     let hi=aoa.findIndex(r=>r.some(c=>/nisn|nama/i.test(String(c))));if(hi<0)hi=0;SHDR=aoa[hi].map(x=>String(x));SROWS=aoa.slice(hi+1).filter(r=>r.some(c=>String(c).trim()!==""));
     const g=tebakKolom(SHDR);["nisn","nis","nama","kelas","tgl","kelompok"].forEach(k=>{const sel=$("m-"+k);sel.innerHTML=`<option value="-1">—</option>`+SHDR.map((h,i)=>`<option value="${i}" ${g[k]===i?"selected":""}>${esc(h||("kolom "+(i+1)))}</option>`).join("");sel.onchange=pratinjauSiswa});
-    $("s-status").innerHTML=`<span class="pill good">Terbaca</span> ${esc(f.name)} — ${SROWS.length} baris data, ${SHDR.length} kolom${$("s-status").dataset.sheet?` dari ${$("s-status").dataset.sheet} sheet`:""}`;SUMBER="file";$("s-nonaktif").checked=false;$("i-status").innerHTML="";$("s-map").classList.remove("hidden");pratinjauSiswa();
+    $("s-status").innerHTML=`<span class="pill good">Terbaca</span> ${esc(f.name)} — ${SROWS.length} baris data, ${SHDR.length} kolom${$("s-status").dataset.sheet?` dari ${$("s-status").dataset.sheet} sheet`:""}`;SUMBER="file";kunciPetaInduk();$("s-nonaktif").checked=false;$("i-status").innerHTML="";$("s-map").classList.remove("hidden");pratinjauSiswa();
   }catch(e){$("s-status").innerHTML=`<span class="pill bad">Gagal membaca</span> ${esc(e.message)}`;console.error(e)}}
 function petakan(){const c=k=>+$("m-"+k).value;const ix={nisn:c("nisn"),nis:c("nis"),nama:c("nama"),kelas:c("kelas"),tgl:c("tgl"),kelompok:c("kelompok")};const out=[],galat=[];
   SROWS.forEach((r,i)=>{let nisn=ix.nisn>=0?String(r[ix.nisn]??"").replace(/\D/g,""):"";if(nisn&&nisn.length>=7&&nisn.length<10)nisn=nisn.padStart(10,"0");const nama=ix.nama>=0?String(r[ix.nama]??"").trim():"";const kelas=ix.kelas>=0?String(r[ix.kelas]??"").trim():"";const tgl=ix.tgl>=0?parseTgl(r[ix.tgl]):null;const nis=ix.nis>=0?String(r[ix.nis]??"").trim():"";
