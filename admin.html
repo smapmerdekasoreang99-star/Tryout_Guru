@@ -2174,7 +2174,7 @@ window.addEventListener("DOMContentLoaded",()=>{
       $("terbit-status").innerHTML=`<span class="pill good">Terbit ke bank soal: ${esc(j.kode)}</span> Paket belum bisa dikerjakan siswa sampai sesi ujiannya dibuka.${mapelCatatan(p.mapel)}`;const d=$("tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr1");gambarQr("qr1",j.kode);
     }catch(e){$("terbit-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}finally{$("btn-terbit").disabled=false}};
   $("btn-impor").onclick=async()=>{const lines=$("kode-hasil").value.split(/\s+/).filter(Boolean);const out=[];
-    for(const l of lines){try{const o=JSON.parse(decodeURIComponent(escape(atob(l))));if(!o.kode||!o.jawaban)throw new Error("format kode salah");const j=await rpc("tka_submit2",{p:o});out.push(`✔ ${esc(o.nama)} (${esc(o.kelas)}) — ${o.kode}: nilai ${j.nilai}`)}catch(e){out.push(`✘ ${esc(l.slice(0,24))}… : ${esc(e.message)}`)}}
+    for(const l of lines){try{const o=JSON.parse(decodeURIComponent(escape(atob(l))));if(!o.kode||!o.jawaban)throw new Error("format kode salah");const j=await rpc("tka_submit2",{p:{...o,asal:"impor"}});out.push(`✔ ${esc(o.nama)} (${esc(o.kelas)}) — ${o.kode}: nilai ${j.nilai}`)}catch(e){out.push(`✘ ${esc(l.slice(0,24))}… : ${esc(e.message)}`)}}
     $("impor-status").innerHTML=out.join("<br>")||"Tidak ada kode.";$("kode-hasil").value=""};
 });
 </script>

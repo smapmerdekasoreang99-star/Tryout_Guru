@@ -392,6 +392,7 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
   <div class="card" id="q-card"></div>
   <div class="card">
     <div class="row" style="justify-content:space-between"><b>Navigasi soal</b><span class="muted small" id="prog"></span></div>
+    <div class="muted small" id="simpan-st" style="margin:-2px 0 6px"></div>
     <div class="grid" id="grid"></div>
     <div class="muted small" id="data-umum"></div>
     <button class="danger" id="btn-submit" style="width:100%;margin-top:8px">Kumpulkan jawaban</button>
@@ -576,7 +577,8 @@ const batasLokal=(batas,sekarang)=>Date.now()+Math.max(0,new Date(batas)-new Dat
 function galatMasuk(m){const b=$("login-info");b.classList.remove("hidden");b.style.background="var(--bad-soft)";b.style.color="var(--bad)";b.textContent=m;b.scrollIntoView({behavior:"smooth",block:"nearest"})}
 function newSession(nama,kelas,ident){
   const seed=(Date.now()^Math.floor(Math.random()*1e9))>>>0,rnd=mulberry32(seed);const soal=PK.publik.soal,n=soal.length;
-  const varian=soal.map(s=>{const vs=Object.keys(s.varian).sort();return vs[Math.floor(rnd()*vs.length)]});
+  const pre=(ident&&ident.jawaban)||{};   // jawaban sementara dari server (masuk lagi setelah dilepas)
+  const varian=soal.map(s=>{const vs=Object.keys(s.varian).sort(),acak=vs[Math.floor(rnd()*vs.length)],j=pre[String(s.no)];return j&&s.varian[j.v]?j.v:acak});
   // urutan: soal yang memakai teks bacaan yang sama tetap berkelompok
   const groups={},gorder=[];soal.forEach((s,i)=>{const g=s.teks?"T:"+s.teks:"S:"+i;if(!groups[g]){groups[g]=[];gorder.push(g)}groups[g].push(i)});
   const order=shuffle(gorder,rnd).flatMap(g=>shuffle(groups[g],rnd));
@@ -585,24 +587,30 @@ function newSession(nama,kelas,ident){
     else if(q.bentuk==="JODOH")perm[i]={kiri:shuffle([...q.kiri.keys()],rnd),kanan:shuffle([...q.kanan.keys()],rnd)};else perm[i]=null});
   const now=Date.now(),id=ident||{};
   S={kode:PK.kode,pk:PK,nama,kelas,nisn:id.nisn||null,token:id.token||null,tamu:!!id.tamu,sesi:id.sesi_id||null,seed,varian,order,perm,answers:{},cur:0,startAt:now,
-    deadline:id.batas?batasLokal(id.batas,id.sekarang):now+PK.durasi*60000,submitted:false,result:null,payload:null,saved:false,keluar:0,logKeluar:[],terkunci:false};save();
+    deadline:id.batas?batasLokal(id.batas,id.sekarang):now+PK.durasi*60000,submitted:false,result:null,payload:null,saved:false,keluar:0,logKeluar:[],terkunci:false,ubahKe:0,tersimpanKe:0,disimpanServer:id.disimpan_pada?new Date(id.disimpan_pada).getTime():0};
+  soal.forEach((s,i)=>{const j=pre[String(s.no)];if(j&&j.v===varian[i]&&j.a!==null&&j.a!==undefined)S.answers[i]=j.a});save();
 }
 function mulaiUjian(ident){PK=ident.paket;$("login-info").classList.add("hidden");PENDING=null;
   $("hd-t").textContent=PK.judul;$("hd-s").textContent=[PK.mapel,PK.materi].filter(Boolean).join(" · ")||"SMA Plus Merdeka Soreang";
-  newSession(ident.nama,ident.kelas,ident);mintaLayarPenuh();
+  newSession(ident.nama,ident.kelas,ident);mintaLayarPenuh();{const n=Object.keys(S.answers).length;if(n)toast("Jawaban dari perangkat sebelumnya dipulihkan ("+n+" soal)")}
   $("data-umum").innerHTML=[PK.meta.petunjuk,PK.meta.data_umum].filter(Boolean).map(safeHtml).join("<br>");show("v-exam");renderQ();startTimer();mulaiDenyut()}
-/* Denyut tiap menit selama mengerjakan: guru bisa memperpanjang atau menutup sesi, pengawas melihat siapa yang
-   sedang mengerjakan. Sinyal hilang tidak mengganggu; dicoba lagi menit berikutnya. */
+/* Denyut selama mengerjakan: guru bisa memperpanjang atau menutup sesi, pengawas melihat siapa yang sedang
+   mengerjakan. Sejak 11 Okt 2026 tiap 30 detik jawaban sementara dikirim bila ada perubahan (tka_simpan_jawaban,
+   sekaligus denyut); tanpa perubahan cukup denyut tiap ±1 menit. Sinyal hilang tidak mengganggu; dicoba lagi. */
 let DENYUT=null;
-function mulaiDenyut(){clearInterval(DENYUT);if(!S||!S.sesi||S.ujicoba||S.submitted)return;DENYUT=setInterval(denyut,60000);denyut()}
-async function denyut(){if(!S||S.submitted||!S.sesi){clearInterval(DENYUT);return}
-  try{const r=await rpc("tka_status",{p_token:S.token});if(!r||!r.ada||S.submitted)return;
+function mulaiDenyut(){clearInterval(DENYUT);if(!S||!S.sesi||S.ujicoba||S.submitted)return;DENYUT=setInterval(denyut,30000);denyut(true)}
+async function denyut(paksa){if(!S||S.submitted||!S.sesi){clearInterval(DENYUT);return}
+  const ke=S.ubahKe||0,kirimJwb=ke!==(S.tersimpanKe||0);if(!kirimJwb&&!paksa&&Date.now()-(S.kabarTerakhir||0)<55000)return;
+  try{const r=kirimJwb?await rpc("tka_simpan_jawaban",{p_token:S.token,p_jawaban:buildPayload().jawaban}):await rpc("tka_status",{p_token:S.token});if(!r||!r.ada||S.submitted)return;
+    S.kabarTerakhir=Date.now();if(kirimJwb&&r.disimpan){S.tersimpanKe=ke;S.disimpanServer=Date.now();save()}tandaSimpan();
     if(r.batas){const d=batasLokal(r.batas,r.sekarang);if(Math.abs(d-S.deadline)>5000){const lebih=d>S.deadline;S.deadline=d;save();if(lebih)toast("Waktu ujian diperpanjang oleh guru")}}
     // Batas keluar halaman & detik yang diabaikan bisa diubah guru saat sesi berjalan (7 Oktober 2026)
     const st=S.pk&&S.pk.settings;if(st&&r.maks_keluar!==undefined&&(st.maks_keluar!==r.maks_keluar||st.toleransi_keluar!==r.toleransi_keluar)){st.maks_keluar=r.maks_keluar;st.toleransi_keluar=r.toleransi_keluar;save()}
     if(r.buka===false){clearInterval(DENYUT);submit(true,"Sesi ujian ditutup guru — jawaban dikunci, mengirim dalam beberapa detik…")}}
   catch(e){}}
 const save=()=>lsSet(CFG.lsKey,S);
+function tandaSimpan(){const el=$("simpan-st");if(!el||!S||!S.sesi||S.ujicoba)return;const t=S.disimpanServer,blm=(S.ubahKe||0)!==(S.tersimpanKe||0);
+  el.textContent=t?`☁️ Jawaban tersimpan di server ${new Date(t).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}${blm?" · perubahan terbaru menyusul":""}`:(blm?"☁️ Jawaban akan tersimpan otomatis ke server":"")}
 const Q=i=>S.pk.publik.soal[i].varian[S.varian[i]];
 const BP=i=>(S.pk.meta.blueprint||[])[i]||{};
 
@@ -627,7 +635,7 @@ function collect(i){const q=Q(i),c=$("q-card");
   else if(q.bentuk==="KATEGORI"){const o={};let any=false;q.baris.forEach((_,ri)=>{const e=c.querySelector(`input[name=r${ri}]:checked`);if(e){o[ri]=+e.value;any=true}});S.answers[i]=any?o:undefined}
   else if(q.bentuk==="JODOH"){const o={};let any=false;c.querySelectorAll("select").forEach(s=>{if(s.value!==""){o[+s.dataset.li]=+s.value;any=true}});S.answers[i]=any?o:undefined}
   else if(q.bentuk==="ISIAN"){const v=c.querySelector("#isian").value.trim();S.answers[i]=v||undefined}
-  save();renderGrid()}
+  S.ubahKe=(S.ubahKe||0)+1;save();renderGrid();tandaSimpan()}
 function complete(i){const q=Q(i),a=S.answers[i];if(a===undefined)return false;if(q.bentuk==="KATEGORI")return Object.keys(a).length===q.baris.length;if(q.bentuk==="JODOH")return Object.keys(a).length===q.kiri.length;return true}
 function renderGrid(){const g=$("grid");g.innerHTML=S.order.map((i,pos)=>`<button class="${complete(i)?"ans":""} ${pos===S.cur?"cur":""}" data-pos="${pos}">${pos+1}</button>`).join("");g.querySelectorAll("button").forEach(b=>b.onclick=()=>{S.cur=+b.dataset.pos;save();renderQ()});$("prog").textContent=`${S.order.filter(complete).length} dari ${S.order.length} terjawab lengkap`}
 let tick=null;function startTimer(){clearInterval(tick);const f=()=>{const s=(S.deadline-Date.now())/1000;$("timer").textContent=fmtT(s);$("timer").classList.toggle("warn",s<=300);if(s<=0){clearInterval(tick);submit(true)}};f();tick=setInterval(f,1000)}
@@ -870,6 +878,11 @@ function ringkasAtur(){const b=GSESI.filter(s=>s.buka).length;
 function renderSesiDasbor(){const el=$("g-sesi-daftar"),lama=ROWS.filter(r=>!r.sesi_id).length;
   el.innerHTML=(GSESI.length?GSESI.map(s=>`<div class="ds-sesi-baris"><span class="titik ${s.buka?"t-aktif":"t-selesai"}"></span><div><b>${esc(TKA_PESERTA.ringkas(s.peserta).replace(/^Kelas: /,"Kelas "))}</b><span>${esc(tglJam(s.mulai))}–${esc(jam(s.sampai))} · ${s.durasi} menit · ${esc(s.oleh_nama||s.oleh)}${s.buka?` · <b>kode ${esc(kodeTampil(s.kode))}</b>`:""}${s.atur&&s.atur.pembahasan?" · pembahasan dibuka":""}</span></div><span class="n">${s.n_selesai}/${s.n_peserta} hasil</span></div>`).join("")
     :'<p class="muted small" style="margin:6px 0">Belum ada sesi untuk paket ini.</p>')+(lama?`<p class="ds-catatan">${lama} hasil berasal dari sebelum ada sesi ujian (pilih <b>Sebelum ada sesi</b> pada saringan Sesi).</p>`:"")}
+/* Tanda hasil (11 Okt 2026): terlambat = jawaban akhir sampai > 2 menit setelah waktu habis (tetap dinilai dari HP);
+   dari simpanan = HP tidak mengirim, dinilai dari simpanan otomatis; impor = dari kode hasil oleh operator */
+function tandaHasil(h){if(!h)return "";const m=h.terlambat?Math.max(1,Math.round(h.terlambat/60)):0;
+  return (m?` <span class="pill bad" title="Jawaban akhir sampai di server ${m} menit setelah waktu habis; tetap dinilai dari jawaban di HP">terlambat ${m} mnt</span>`:"")+
+    (h.asal==="server"?' <span class="pill warn" title="HP tidak mengirim jawaban akhir; dinilai dari jawaban terakhir yang tersimpan otomatis">dari simpanan</span>':h.asal==="impor"?' <span class="pill" title="Dimasukkan operator dari kode hasil">impor</span>':"")}
 const filtered=()=>{const k=$("g-kelas").value,s=$("g-sesi").value;return ROWS.filter(r=>(!k||r.kelas===k)&&(!s||(s==="lama"?!r.sesi_id:String(r.sesi_id)===s)))};
 // Kolom berkelas .beku dibuat sticky berurutan: left = jumlah lebar kolom beku di kirinya
 function bekukan(t){if(!t)return;t.querySelectorAll("tr").forEach(tr=>{const cs=[...tr.children].filter(c=>c.classList.contains("beku"));let left=0;cs.forEach((c,i)=>{c.style.left=left+"px";left+=c.offsetWidth;c.classList.toggle("beku-akhir",i===cs.length-1)})})}
@@ -880,7 +893,7 @@ function renderRekap(){const rows=filtered().sort((a,b)=>(a.kelas||"").localeCom
   const mn=Math.min(...rows.map(r=>r.nilai)),mx=Math.max(...rows.map(r=>r.nilai));$("g-stat").innerHTML=stat(rows.length,"siswa mengerjakan")+stat(avg,"rata-rata nilai",kl(avg))+stat(`${pt}%`,`tuntas ≥ 75 (${tuntas} siswa)`,pt>=75?"good":pt>=50?"warn":"bad",pt)+stat(mn,"nilai terendah",kl(mn))+stat(mx,"nilai tertinggi",kl(mx))+stat(kel5,"keluar halaman ≥ 5×",kel5?"bad":"good");
   const levels=[...new Set(GPK.meta.blueprint.map(b=>b.level).filter(Boolean))].sort(lsort);
   t.innerHTML=`<tr><th class="beku">#</th><th class="beku">Nama</th><th>NISN</th><th>Kelas</th><th>Nilai</th><th>Benar</th>${levels.map(L=>`<th>${L}</th>`).join("")}<th>Terlemah</th><th>Waktu</th><th>Keluar</th><th></th></tr>`+rows.map((r,k)=>{const it=rowItems(r),ls=levelSummary(it);const subs=[...new Set(it.map(x=>x.sub).filter(Boolean))].map(sb=>{const s=it.filter(x=>x.sub===sb);return [sb,pct(s.reduce((a,x)=>a+x.benar,0),s.length)]}).sort((a,b)=>a[1]-b[1]);
-    return `<tr><td class="beku">${k+1}</td><td class="beku">${esc(r.nama)}${r.tamu?' <span class="pill warn">tamu</span>':""}</td><td>${esc(r.nisn||"–")}</td><td>${esc(r.kelas)}</td><td class="n"><span class="nilai ${r.nilai>=75?"t":r.nilai>=60?"s":"r"}">${r.nilai}</span></td><td class="n">${r.benar}</td>${levels.map(L=>`<td class="n" style="white-space:nowrap"><span class="lv"><i style="width:${ls[L]??0}%"></i></span>${ls[L]??"–"}%</td>`).join("")}<td>${esc(subs[0]?subs[0][0]:"")}</td><td>${fmtT(r.durasi)}</td><td class="n">${(r.keluar||(r.log_keluar||[]).length)?`<span class="pill ${r.keluar>=5?"bad":r.keluar?"warn":""}" title="${esc((r.log_keluar||[]).map(x=>`${new Date(x.t).toLocaleTimeString("id-ID")} ${x.d} dtk${x.hitung===false?" (sekejap)":""}`).join("\n"))}">${r.keluar||0}× <span class="muted">/${(r.log_keluar||[]).length}</span></span>`:"–"}</td><td>${r.nisn?`<button class="soft kelola-only" style="padding:3px 8px;font-size:12px" data-reset="${esc(r.nisn)}" title="Hapus hasil agar siswa bisa mengulang">reset</button> `:""}<button class="danger kelola-only" style="padding:3px 8px;font-size:12px" data-del="${esc(r.id)}">hapus</button></td></tr>`}).join("");bekukan(t);
+    return `<tr><td class="beku">${k+1}</td><td class="beku">${esc(r.nama)}${r.tamu?' <span class="pill warn">tamu</span>':""}${tandaHasil(r)}</td><td>${esc(r.nisn||"–")}</td><td>${esc(r.kelas)}</td><td class="n"><span class="nilai ${r.nilai>=75?"t":r.nilai>=60?"s":"r"}">${r.nilai}</span></td><td class="n">${r.benar}</td>${levels.map(L=>`<td class="n" style="white-space:nowrap"><span class="lv"><i style="width:${ls[L]??0}%"></i></span>${ls[L]??"–"}%</td>`).join("")}<td>${esc(subs[0]?subs[0][0]:"")}</td><td>${fmtT(r.durasi)}</td><td class="n">${(r.keluar||(r.log_keluar||[]).length)?`<span class="pill ${r.keluar>=5?"bad":r.keluar?"warn":""}" title="${esc((r.log_keluar||[]).map(x=>`${new Date(x.t).toLocaleTimeString("id-ID")} ${x.d} dtk${x.hitung===false?" (sekejap)":""}`).join("\n"))}">${r.keluar||0}× <span class="muted">/${(r.log_keluar||[]).length}</span></span>`:"–"}</td><td>${r.nisn?`<button class="soft kelola-only" style="padding:3px 8px;font-size:12px" data-reset="${esc(r.nisn)}" title="Hapus hasil agar siswa bisa mengulang">reset</button> `:""}<button class="danger kelola-only" style="padding:3px 8px;font-size:12px" data-del="${esc(r.id)}">hapus</button></td></tr>`}).join("");bekukan(t);
   t.querySelectorAll("[data-reset]").forEach(b=>b.onclick=async()=>{if(!confirm("Reset: hasil siswa ini dihapus dan ia boleh mengerjakan ulang. Lanjutkan?"))return;try{await rpc("tka_reset_siswa",{p_pin:PIN,p_ujian:$("g-ujian").value,p_nisn:b.dataset.reset});toast("Direset");loadGuru()}catch(e){toast("Gagal: "+e.message)}});
   t.querySelectorAll("[data-del]").forEach(b=>b.onclick=async()=>{if(!confirm("Hapus hasil ini?"))return;try{await rpc("tka_delete",{p_pin:PIN,p_id:b.dataset.del});toast("Dihapus");loadGuru()}catch(e){toast("Gagal: "+e.message)}})}
 function renderButir(){const rows=filtered(),t=$("g-butir-tabel");if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada data.</td></tr>";return}
@@ -965,15 +978,16 @@ async function muatPantau(id,diam){const box=document.querySelector(`[data-sesi=
       else if(m&&!m.selesai){const hidup=m.aktif_pada&&kini-new Date(m.aktif_pada)<180000;st=hidup?"Mengerjakan":"Tidak aktif";c=hidup?"st-kerja":"st-diam"}
       else if(m){st="Selesai";c="st-selesai2"}else{st="Belum masuk";c="st-belum"}
       return {...x,st,c}});
+    const nKumpul=rows.filter(r=>!r.hasil&&r.disimpan_pada&&r.st!=="Mengerjakan").length;
     const n=s=>rows.filter(r=>r.st===s).length,F=SE_FILTER;
     const chips=[["","Semua",rows.length],["Belum masuk","Belum masuk",n("Belum masuk")],["Mengerjakan","Mengerjakan",n("Mengerjakan")],["Tidak aktif","Tidak aktif",n("Tidak aktif")],["Selesai","Selesai",n("Selesai")],["Sudah (sesi lain)","Sudah di sesi lain",n("Sudah (sesi lain)")]].filter(([k,,v])=>k===""||v||F===k);
     const tampil=rows.filter(r=>!F||r.st===F);
-    box.innerHTML=`<div class="chips">${chips.map(([k,l,v])=>`<button type="button" class="chip${F===k?" on":""}" data-f="${esc(k)}">${l} (${v})</button>`).join("")}</div>`+
+    box.innerHTML=(nKumpul?`<p class="ds-catatan"><button type="button" class="mini" data-kumpul="1">Kumpulkan jawaban tersimpan (${nKumpul})</button> Untuk siswa yang belum mengirim (HP mati/sinyal hilang): dinilai dari jawaban terakhir yang tersimpan otomatis, setelah waktunya habis.</p>`:"")+`<div class="chips">${chips.map(([k,l,v])=>`<button type="button" class="chip${F===k?" on":""}" data-f="${esc(k)}">${l} (${v})</button>`).join("")}</div>`+
       `<div class="tbl-wrap"><table class="rekap" data-beku="2"><tr><th>#</th><th>Nama</th><th>Kelas</th><th>Status</th><th>Nilai</th><th>Masuk</th><th>Keluar hal.</th><th></th></tr>`+
-      (tampil.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.nama)}${r.tamu?' <span class="pill warn">tamu</span>':""}</td><td>${esc(r.kelas)}</td><td><span class="pk-pill ${r.c}">${r.st}</span></td>`+
-        `<td class="n">${r.hasil?`<span class="nilai ${r.hasil.nilai>=75?"t":r.hasil.nilai>=60?"s":"r"}">${r.hasil.nilai}</span>`:"–"}</td><td>${r.masuk?jam(r.masuk.mulai):"–"}</td><td class="n">${r.hasil?(r.hasil.keluar||0)+"×":"–"}</td>`+
+      (tampil.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.nama)}${r.tamu?' <span class="pill warn">tamu</span>':""}</td><td>${esc(r.kelas)}</td><td><span class="pk-pill ${r.c}">${r.st}</span>${!r.hasil&&r.disimpan_pada?`<div class="muted small">tersimpan ${jam(r.disimpan_pada)}</div>`:""}</td>`+
+        `<td class="n">${r.hasil?`<span class="nilai ${r.hasil.nilai>=75?"t":r.hasil.nilai>=60?"s":"r"}">${r.hasil.nilai}</span>${tandaHasil(r.hasil)}`:"–"}</td><td>${r.masuk?jam(r.masuk.mulai):"–"}</td><td class="n">${r.hasil?(r.hasil.keluar||0)+"×":"–"}</td>`+
         `<td>${r.nisn&&r.masuk&&!r.masuk.selesai&&!r.hasil?`<button class="ghost mini" data-lepas="${esc(r.nisn)}" title="Siswa ini boleh masuk lagi dari perangkat lain">Lepas</button>`:""}</td></tr>`).join("")||'<tr><td colspan="8" class="muted">Tidak ada.</td></tr>')+`</table></div>`+
-      `<p class="ds-catatan"><b>Tidak aktif</b> = HP tidak memberi kabar lebih dari 3 menit (layar mati, sinyal hilang, atau pindah perangkat). <b>Lepas</b> membuat siswa itu bisa masuk lagi dari perangkat lain; jawaban di perangkat lama tidak ikut pindah.</p>`;
+      `<p class="ds-catatan"><b>Tidak aktif</b> = HP tidak memberi kabar lebih dari 3 menit (layar mati, sinyal hilang, atau pindah perangkat). <b>Lepas</b> membuat siswa itu bisa masuk lagi dari perangkat lain; jawaban yang sudah tersimpan otomatis ikut pindah, dan waktunya tetap dihitung sejak pertama masuk (tambahan waktu lewat <b>Perpanjang</b>).</p>`;
     SE_PANTAU_HTML=box.innerHTML}
   catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 /* Layar kode akses: layar penuh + QR (alamat siswa#kode=…) sehingga kode langsung terisi setelah dipindai.
@@ -1061,6 +1075,8 @@ function pasangSesi(){
     const f=e.target.closest("[data-f]");if(f){SE_FILTER=f.dataset.f;muatPantau(id,true);return}
     const l=e.target.closest("[data-lepas]");if(l){if(!confirm("Lepas siswa ini? Ia bisa masuk lagi dari perangkat lain dengan NISN dan kode akses yang sama."))return;
       rpc("tka_sesi_lepas",{p_pin:PIN,p_id:id,p_nisn:l.dataset.lepas}).then(()=>{toast("Dilepas — siswa bisa masuk lagi");muatPantau(id,true)}).catch(er=>toast("Gagal: "+er.message));return}
+    const kp=e.target.closest("[data-kumpul]");if(kp){if(!confirm("Nilai siswa yang belum mengirim jawaban dari simpanan otomatis terakhir? Hanya siswa yang waktunya sudah habis."))return;kp.disabled=true;
+      rpc("tka_kumpulkan_simpanan",{p_pin:PIN,p_id:id}).then(r=>{toast(`${r.dikumpulkan} dikumpulkan${r.belum_habis?`, ${r.belum_habis} belum habis waktunya`:""}${r.gagal?`, ${r.gagal} gagal`:""}`);muatPantau(id,true)}).catch(er=>{kp.disabled=false;toast("Gagal: "+er.message)});return}
     const b=e.target.closest("button[data-a]");if(b)aksiSesi(id,b.dataset.a,b)});
   d.addEventListener("input",e=>{const w=e.target.closest("[data-aw]");if(w)SE_AWAS_DRAFT[w.dataset.aw]=w.value});
   d.addEventListener("input",e=>{const i=e.target.closest("[data-menit]"),k=i&&i.closest("[data-sesi]");if(k)SE_MENIT[+k.dataset.sesi]=i.value});
@@ -1141,7 +1157,7 @@ function bukuHasil({ExcelJS,paket,rows,kelas,logoBase64,sekolah,waktu}){
     kepala(ws,r,judulKolom);const barisJudul=r;r++;const awalData=r;
     if(!data.length){ws.mergeCells(r,1,r,K);sel(ws,r,1,"Belum ada data.",{italic:true,warna:XL.tinta2,rata:"center"});r++}
     data.forEach((x,k)=>{const ls=ringkasLevel(x.it);const lemah=subs.map(sb=>{const s=x.it.filter(y=>y.sub===sb);return [sb,s.length?pct(s.reduce((a,y)=>a+y.benar,0),s.length):101]}).sort((a,b)=>a[1]-b[1])[0];
-      const v=[k+1,x.nama,x.nisn||"–",x.kelas,x.nilai,x.benar,...levels.map(L=>ls[L]??"–"),lemah&&lemah[1]<=100?lemah[0]:"–",Math.round(x.durasi||0)/86400,x.keluar||0,varianRingkas(x),lokal(x.selesai)||"–",[x.tamu?"Tamu":"",x.nilai>=75?"Tuntas":"Belum tuntas"].filter(Boolean).join(", ")];
+      const v=[k+1,x.nama,x.nisn||"–",x.kelas,x.nilai,x.benar,...levels.map(L=>ls[L]??"–"),lemah&&lemah[1]<=100?lemah[0]:"–",Math.round(x.durasi||0)/86400,x.keluar||0,varianRingkas(x),lokal(x.selesai)||"–",[x.tamu?"Tamu":"",x.nilai>=75?"Tuntas":"Belum tuntas",x.terlambat?"Terlambat "+Math.max(1,Math.round(x.terlambat/60))+" mnt":"",x.asal==="server"?"Dari simpanan":x.asal==="impor"?"Impor":""].filter(Boolean).join(", ")];
       const g={0:{rata:"center",warna:XL.tinta2},1:{bold:true},2:{rata:"center"},3:{rata:"center"},4:{rata:"center",bold:true},5:{rata:"center"}};
       levels.forEach((_,i)=>g[6+i]={rata:"center",fmt:'0"%"'});const b=6+levels.length;g[b]={bungkus:true,size:9};g[b+1]={rata:"center",fmt:"[mm]:ss"};g[b+2]={rata:"center",warna:(x.keluar||0)>=5?XL.merah:XL.tinta,bold:(x.keluar||0)>=5};g[b+3]={rata:"center"};g[b+4]={rata:"center",fmt:"dd/mm/yyyy hh:mm",size:9};g[b+5]={size:9,warna:x.nilai>=75?XL.hijau:XL.merah};
       badan(ws,r,v,k%2===1,{gaya:g});r++});
