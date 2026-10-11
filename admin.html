@@ -30,6 +30,7 @@
 <script src="assets/simpan.js?v=3"></script>
 <script src="assets/kepala-excel.js?v=1"></script>
 <script src="assets/excel.js?v=4"></script>
+<script src="assets/arsip.js?v=2"></script>
 <link rel="stylesheet" href="assets/dasar.css?v=3">
 <style>
 :root{--bg:var(--kertas);--card:#fff;--ink:var(--tinta);--muted:var(--tinta-2);--line:var(--garis);--acc:var(--gelap);--acc-soft:var(--emas-muda);--kuning:var(--emas);--warn:var(--emas-teks);--warn-soft:var(--emas-muda);--bad:var(--absen);--bad-soft:var(--absen-muda);--good:var(--hadir);--good-soft:var(--hadir-muda);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
@@ -129,6 +130,11 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .pk-kosong{margin:0;padding:12px 14px;font-size:12.5px;line-height:1.5;color:var(--tinta-2);flex:1}
 @media (max-width:980px){.pk-panel3{flex-direction:column}.pk-pn{flex:none}.pk-tb{grid-template-columns:repeat(auto-fill,minmax(190px,1fr))}.pk-bahaya{grid-column:1/-1;grid-template-columns:inherit}.pk-pny{padding-left:0;border-left:0}}
 .pk-slot>.card{margin:4px 0 0}
+/* Arsip semester (11 Okt 2026) */
+.ars-batang{height:10px;background:var(--line);border-radius:99px;overflow:hidden;max-width:420px;flex:1 1 220px}.ars-batang>i{display:block;height:100%;background:#2f7d4f;border-radius:99px}
+.ars-kerja{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-top:12px;display:grid;gap:10px}
+.ars-kerja ol{margin:0;padding-left:1.3em;display:grid;gap:14px}.ars-kerja li{display:grid;gap:6px}.ars-kerja li.mati{opacity:.5}
+.ars-kerja input[type=text],.ars-kerja input[type=password]{max-width:380px}
 @media (max-width:760px){.pk-isi{grid-template-columns:1fr}.pk-mapel{position:static;flex-direction:row;overflow-x:auto;padding:0 0 8px;border-bottom:1px solid var(--line)}.pk-mapel .lbl{display:none}.pk-mapel button{flex:none}.pk-baris{grid-template-columns:1fr auto;gap:10px}.pk-st{grid-column:1}.pk-aksi{grid-column:2;grid-row:1/span 2;align-self:center}}.pe-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff}.pe-row{display:block;padding:4px 8px;border-bottom:1px solid var(--line);font-size:14px}.pe-row:last-child{border-bottom:0}
 .peran-guru .op-only,.peran-pengawas .op-only{display:none!important}.peran-pengawas .tulis-only{display:none!important}
 .notice.op-note{background:var(--emas-muda);color:var(--emas-teks);border-color:var(--emas)}
@@ -422,6 +428,12 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <p class="muted">Pilih berkas <code>.json</code> hasil unduhan di atas. <b>Gabung</b>: baris yang sama ditimpa, baris lain dibiarkan (aman untuk mengembalikan sebagian data). <b>Timpa</b>: tabel yang ada di cadangan dikosongkan dulu lalu diisi dari cadangan (untuk memulihkan ke keadaan persis saat cadangan dibuat). Hasil siswa yang masuk setelah cadangan dibuat akan hilang pada mode timpa.</p>
     <div class="row"><input type="file" id="c-file" accept=".json,application/json"><label class="small"><input type="radio" name="c-mode" value="gabung" checked> gabung</label><label class="small"><input type="radio" name="c-mode" value="timpa"> timpa</label><button id="btn-c-pulihkan" class="danger" disabled>Pulihkan</button></div>
     <div id="c-info" class="small" style="margin-top:8px"></div>
+  </div>
+  <div class="card op-only"><h2>Ukuran database &amp; arsip semester</h2>
+    <p class="muted">Isi jawaban per soal dari hasil ujian semester yang sudah berakhir disimpan sebagai berkas arsip (SQLite), lalu dikosongkan dari database supaya tetap muat di paket gratis Supabase. <b>Nilai, benar, durasi, skor per level, dan benar/salah per soal tetap.</b> Sesi ujian siswa semester itu dihapus. Berkas memuat naskah soal tanpa kunci; buka dengan <a id="ars-buka" href="#" target="_blank" rel="noopener"><b>Buka Arsip</b></a>. Semester ganjil 1 Jul–31 Des, genap 1 Jan–30 Jun.</p>
+    <div class="row"><button id="btn-ars-muat" class="soft">Tampilkan ukuran &amp; semester</button></div>
+    <div id="ars-isi" class="small" style="margin-top:8px"></div>
+    <div id="ars-kerja"></div>
   </div>
 </section>
 
@@ -1864,6 +1876,51 @@ async function tarikGuru(){const st=$("g-status");
 
 /* ---------- cadangan ---------- */
 let CDATA=null;
+/* ---- Arsip semester (11 Okt 2026, RENCANA_MASA_SIMPAN.md): rincian jawaban → berkas SQLite → dikosongkan bertahap ---- */
+let ARS=null;
+const mbT=b=>(Number(b||0)/1048576).toLocaleString("id-ID",{maximumFractionDigits:1})+" MB",angT=n=>Number(n||0).toLocaleString("id-ID");
+const arsJalan=p=>ARS&&ARS.arsip.find(a=>a.periode===p&&["unduh","hapus"].includes(a.status));
+async function muatArsipSemester(){if(!PIN()){toast("Isi PIN operator dahulu");return}const el=$("ars-isi");el.innerHTML='<span class="pill">Memuat…</span>';
+  try{ARS=await rpc("tka_arsip_daftar",{p_pin:PIN()})}catch(e){el.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}gambarArsipSemester()}
+function gambarArsipSemester(){const A=ARS,waspada=A.ukuran>=A.peringatan,selesai=A.arsip.filter(a=>a.status==="selesai");
+  $("ars-isi").innerHTML=`<p><b>Ukuran database: ${mbT(A.ukuran)} dari ${mbT(A.batas)}</b> — dipakai bersama Matematika Dasar dan English Reading. ${waspada?'<span class="pill bad">Sudah melewati 350 MB: arsipkan semester yang sudah berakhir, atau pertimbangkan Supabase Pro.</span>':"Peringatan muncul pada 350 MB."}</p>
+    <div class="row"><div class="ars-batang"><i style="width:${Math.min(100,100*A.ukuran/A.batas)}%;${waspada?"background:#b23b2e":""}"></i></div><span class="muted">Hasil ujian ${mbT((A.tabel||{}).tka_hasil)} · sesi ${mbT((A.tabel||{}).tka_sesi)}</span></div>
+    <table class="t" style="margin-top:8px"><thead><tr><th>Semester</th><th>Hasil dengan rincian jawaban</th><th>Sesi ujian</th><th>Keadaan</th><th></th></tr></thead><tbody>
+    ${A.periode.length?A.periode.map(p=>{const b=arsJalan(p.periode),sudah=!b&&!Number(p.n_hasil)&&A.arsip.some(a=>a.periode===p.periode&&a.status==="selesai");
+      return `<tr><td><b>${esc(p.nama)}</b></td><td>${angT(p.n_hasil)}</td><td>${angT(p.n_sesi)}</td>
+        <td>${b?`<span class="pill warn">Arsip belum selesai: ${b.status==="hapus"?"menunggu penghapusan":"menunggu unduhan"}</span>`:sudah?'<span class="pill good">Sudah diarsipkan</span>':p.berakhir?'<span class="pill">Sudah berakhir</span>':'<span class="pill">Sedang berjalan</span>'}</td>
+        <td>${p.berakhir&&!sudah?`<button class="${b?"good":"soft"} mini" data-ars="${esc(p.periode)}">${b?"Lanjutkan arsip…":"Arsipkan…"}</button>`:""}</td></tr>`}).join(""):'<tr><td colspan="5" class="muted">Belum ada hasil ujian.</td></tr>'}</tbody></table>
+    ${selesai.length?`<p class="muted">Sudah diarsipkan: ${selesai.map(a=>`${esc(a.nama)} (${angT(a.n_hasil)} hasil, berkas <code>${esc(a.berkas||"")}</code>)`).join("; ")}</p>`:""}`;
+  document.querySelectorAll("[data-ars]").forEach(b=>b.onclick=()=>bukaArsipSemester(b.dataset.ars))}
+function bukaArsipSemester(periode){const w=$("ars-kerja"),p=ARS.periode.find(x=>x.periode===periode);let A=arsJalan(periode)||null;const kata=`ARSIPKAN ${p.nama.toUpperCase()}`;
+  w.innerHTML=`<div class="ars-kerja"><div class="row" style="justify-content:space-between"><b>Arsip semester ${esc(p.nama)}</b><button class="ghost mini" id="ars-tutup">Tutup</button></div><ol>
+    <li><b>Unduh berkas arsip</b><span class="muted">Seluruh hasil ujian semester ini beserta isi jawaban per soal, sesi ujian, dan naskah soal (tanpa kunci) diunduh ke satu berkas SQLite. Jumlahnya dicocokkan dengan server.</span>
+      <div class="row"><button class="good" id="ars-unduh">${A&&A.status==="hapus"?"Unduh ulang berkas":"Unduh berkas arsip"}</button></div><div id="ars-t1" class="small">${A&&A.status==="hapus"?`<span class="pill good">Sudah diunduh</span> ${esc(A.berkas||"")}`:""}</div></li>
+    <li id="ars-l2" class="${A&&A.status==="hapus"?"":"mati"}"><b>Kosongkan rincian dari database</b><span class="muted">Hanya sesudah berkas tersimpan di tempat aman. Nilai siswa tetap.</span>
+      <label class="small"><input type="checkbox" id="ars-aman"> Berkas arsip sudah saya simpan di tempat aman (mis. Google Drive sekolah, dua salinan)</label>
+      <input type="text" id="ars-ketik" autocomplete="off" spellcheck="false" placeholder="Ketik ${esc(kata)}"><input type="password" id="ars-pin" autocomplete="off" placeholder="PIN operator">
+      <div class="row"><button class="danger" id="ars-hapus" disabled>Kosongkan rincian semester ini</button>${A?'<button class="ghost" id="ars-batal">Batalkan arsip</button>':""}</div><div id="ars-t2" class="small"></div></li></ol></div>`;
+  const l2=()=>{const siap=A&&A.status==="hapus";$("ars-l2").classList.toggle("mati",!siap);$("ars-hapus").disabled=!(siap&&$("ars-aman").checked&&$("ars-ketik").value.trim().replace(/\s+/g," ").toUpperCase()===kata&&$("ars-pin").value.trim())};
+  ["ars-aman","ars-ketik","ars-pin"].forEach(id=>{$(id).addEventListener("input",l2);$(id).addEventListener("change",l2)});
+  $("ars-tutup").onclick=()=>{w.innerHTML=""};
+  $("ars-unduh").onclick=async ev=>{const t=ev.currentTarget;t.disabled=true;const st=$("ars-t1");
+    try{A=await rpc("tka_arsip_buat",{p_pin:PIN(),p_periode:periode});
+      const h=await buatBerkasArsip("tryout",{rpcFn:rpc,pin:PIN(),arsip:A,sekolah:typeof SEKOLAH==="string"?SEKOLAH:"",lapor:(x,pr)=>{st.innerHTML=`<span class="pill">${Math.round(pr)}%</span> ${esc(x)}`}});
+      await simpanBerkas(h.bytes,h.nama,"application/vnd.sqlite3");
+      A=await rpc("tka_arsip_tandai",{p_pin:PIN(),p_arsip:A.id,p_n_hasil:h.jumlah.n_hasil,p_n_sesi:h.jumlah.n_sesi,p_berkas:h.nama});
+      st.innerHTML=`<span class="pill good">Berkas diunduh</span> ${esc(h.nama)} (${mbT(h.bytes.length)}) — ${angT(h.jumlah.n_hasil)} hasil, ${angT(h.jumlah.n_sesi)} sesi. Jumlahnya cocok dengan server. Lihat folder Unduhan.`;
+      t.textContent="Unduh ulang berkas";l2();muatArsipSemester()}
+    catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span> Tekan tombol lagi untuk melanjutkan.`}finally{t.disabled=false}};
+  $("ars-hapus").onclick=async ev=>{const t=ev.currentTarget,st=$("ars-t2");
+    if(!confirm(`Kosongkan isi jawaban per soal dan hapus sesi ujian semester ${p.nama}?\n\nPastikan berkas ${A.berkas} sudah tersimpan. Nilai siswa tetap.`))return;
+    t.disabled=true;let n=0;const total=Number(A.n_hasil)+Number(A.n_sesi);
+    try{do{A=await rpc("tka_arsip_hapus",{p_pin:$("ars-pin").value.trim(),p_arsip:A.id,p_konfirmasi:$("ars-ketik").value});n+=A.dihapus||0;
+        st.innerHTML=`<span class="pill">${Math.round(100*n/Math.max(1,total))}%</span> Mengosongkan rincian: ${angT(n)} dari ${angT(total)}…`}while(A.status!=="selesai");
+      st.innerHTML=`<span class="pill good">Selesai</span> Rincian semester ${esc(p.nama)} sudah diarsipkan (${angT(n)} baris).`;toast(`Arsip ${p.nama} selesai`);muatArsipSemester()}
+    catch(e){st.innerHTML=`<span class="pill bad">${esc(e.message)}</span> Tekan tombol lagi untuk melanjutkan.`;t.disabled=false}};
+  if($("ars-batal"))$("ars-batal").onclick=async()=>{if(!A||!confirm(`Batalkan arsip ${p.nama}? Rincian tetap di database.`))return;
+    try{await rpc("tka_arsip_batal",{p_pin:PIN(),p_arsip:A.id});toast("Arsip dibatalkan");w.innerHTML="";muatArsipSemester()}catch(e){toast(e.message)}};
+  l2()}
 async function unduhCadangan(){if(!PIN()){toast("Isi PIN dahulu");return}const st=$("c-status");st.innerHTML='<span class="pill">Menyusun cadangan…</span>';$("btn-c-unduh").disabled=true;
   try{const j=await rpc("tka_backup",{p_pin:PIN(),p_dengan_hasil:$("c-hasil").checked,p_dengan_pin:$("c-pin").checked});const r=j.ringkasan||{};
     const d=new Date(),pad=n=>String(n).padStart(2,"0"),nama=`cadangan_asesmen_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
@@ -2078,7 +2135,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("ubah-pin").querySelectorAll("input,select").forEach(i=>i.oninput=i.onchange=cekUbahPin);
   $("up-kartu").onclick=()=>{const g=UP_G;$("ubah-pin").classList.add("hidden");UP_G=null;if(g)lihatKartu(g,`PIN tidak diganti. Kirim ulang kartu ini ke chat pribadi ${g.nama}.`)};
   $("kl-tutup").onclick=()=>$("kartu-lihat").classList.add("hidden");$("kartu-lihat").onclick=e=>{if(e.target.id==="kartu-lihat")e.target.classList.add("hidden")};
-  $("btn-c-unduh").onclick=unduhCadangan;$("c-file").onchange=e=>{if(e.target.files[0])bacaCadangan(e.target.files[0])};$("btn-c-pulihkan").onclick=pulihkanCadangan;
+  $("btn-c-unduh").onclick=unduhCadangan;$("btn-ars-muat").onclick=muatArsipSemester;$("ars-buka").href=new URL("../matematika_dasar/arsip.html",location.href).href;$("c-file").onchange=e=>{if(e.target.files[0])bacaCadangan(e.target.files[0])};$("btn-c-pulihkan").onclick=pulihkanCadangan;
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
     try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});document.documentElement.classList.remove("pin-otomatis");MASUK=j;setPeran(j.peran);cekHakMenu(j.peran);
       try{sessionStorage.setItem("tka_v2_pin",JSON.stringify({pin:PIN(),peran:j.peran}))}catch(e){}

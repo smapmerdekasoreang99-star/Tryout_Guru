@@ -139,7 +139,21 @@ Pustaka paket (tab admin): satu baris per kode ujian dengan jalur Kisi-kisi → 
 
 Keterangan paket (baris di tabel INFORMASI UJIAN; template kosong: tombol *Unduh template kisi-kisi kosong* di Langkah 1): **Jenis** (Latihan / Ulangan Harian / Tengah Semester / Akhir Semester / Tryout TKA / Tryout UTBK), **Tingkat peserta** (kelas yang mengerjakan, mis. 12 atau 10–12; kosong = ditebak dari isian Kelas), **Cakupan materi** (hanya bila berbeda dari tingkat peserta, mis. tryout TKA kelas 12 dengan materi 10–12), **Semester** (kosong = otomatis dari tanggal), **Guru penyusun**. Keterangan hanya untuk mencari & mengelompokkan paket; siapa yang boleh mengerjakan tetap diatur di Peruntukan. **Mata pelajaran** mengikuti daftar mapel Data Induk (tabel `tka_mapel`, disinkron otomatis saat operator masuk dengan pengaturan sumber Data Induk yang sudah tersimpan): penulisan dari Word disamakan ("kimia" → "Kimia"), mapel yang tidak ada di daftar diberi peringatan saat diunggah, dan bisa dipilih ulang dari daftar di **Ubah judul & keterangan**. Isi Mata pelajaran dengan nama mapelnya saja (Kimia), sedangkan TKA ditandai di baris Jenis. Revisi kisi-kisi: unggah ulang di Langkah 1 → unduh Template Soal baru → isi ulang bagian yang berubah → Langkah 2.
 
-## E. Catatan
+## E. Arsip semester (11 Okt 2026)
+
+- **Admin → Cadangan → Ukuran database & arsip semester** (hanya PIN operator/kurikulum): ukuran database
+  (peringatan 350 MB dari batas paket gratis 500 MB) dan daftar semester (ganjil 1 Jul–31 Des, genap 1 Jan–30 Jun).
+- **Arsipkan…** untuk semester yang sudah berakhir: 1) *Unduh berkas arsip* — semua hasil ujian semester itu beserta
+  isi jawaban per soal, sesi ujian, dan naskah soal paket (bagian publik, **tanpa kunci**) ke `arsip_tryout_<periode>.sqlite`;
+  jumlahnya dicocokkan dengan server. 2) Centang, ketik `ARSIPKAN 2026/2027 GANJIL`, PIN operator → isi jawaban per soal
+  dan log keluar halaman dikosongkan bertahap, sesi ujian siswa semester itu dihapus.
+- **Tetap di database**: nilai, benar, durasi, skor per level, dan `items` (benar/salah per soal — analisis butir tetap jalan).
+- Buka berkas dengan **Buka Arsip** (`../matematika_dasar/arsip.html`, mengenali berkas Tryout, Matdas, English Reading).
+  `assets/arsip.js` + `assets/vendor/sql-asm-1.10.3.js` (sql.js, MIT) sama dengan Matematika Dasar. Pemulihan ke database:
+  `./db.sh pulihkan <berkas>` di `database_tryout`. Rencana: `RENCANA_MASA_SIMPAN.md` di folder utama.
+- Berbeda dengan **arsip paket** (tombol arsip di Pustaka paket), yang hanya menyembunyikan paket lama.
+
+## F. Catatan
 
 - Kunci tidak pernah dikirim ke HP siswa; penilaian di server. PIN: pribadi guru, operator, pengawas, darurat (dan guru bersama selama peralihan).
 - Proyek gratis Supabase dijeda bila 7 hari tanpa aktivitas → *Restore* sehari sebelum ujian.
