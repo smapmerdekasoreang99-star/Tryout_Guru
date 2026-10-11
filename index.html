@@ -691,8 +691,9 @@ function buildPayload(){const jaw={};S.pk.publik.soal.forEach((s,i)=>{jaw[String
 async function submit(auto,pesan){if(S.submitted)return;const kurang=S.order.filter(i=>!complete(i)).length;
   if(!auto&&!confirm(kurang?`Masih ada ${kurang} soal yang belum lengkap. Tetap kumpulkan?`:"Kumpulkan jawaban sekarang?"))return;
   clearInterval(tick);clearInterval(DENYUT);$("kunci").classList.add("hidden");S.submitted=true;S.payload=buildPayload();save();show("v-result");$("r-kode").value=b64e(S.payload);
-  // pengumpulan otomatis serentak (waktu habis / sesi ditutup) disebar dalam 30 detik agar server tidak dibanjiri
-  if(auto){const tunda=Math.floor(Math.random()*30000);$("r-save").innerHTML=`<span class="pill warn">${esc(pesan||"Waktu habis — jawaban dikunci, mengirim dalam beberapa detik…")}</span>`;await new Promise(r=>setTimeout(r,tunda))}
+  // pengumpulan otomatis serentak (waktu habis / sesi ditutup) disebar dalam 60 detik agar server tidak dibanjiri
+  // (uji beban 11 Okt 2026: 226 siswa dalam 30 detik membuat server tersendat; 60 detik + percobaan ulang tetap < kelonggaran 2 menit)
+  if(auto){const tunda=Math.floor(Math.random()*60000);$("r-save").innerHTML=`<span class="pill warn">${esc(pesan||"Waktu habis — jawaban dikunci, mengirim dalam beberapa detik…")}</span>`;await new Promise(r=>setTimeout(r,tunda))}
   await kirim()}
 let KIRIM_ON=false;
 async function kirim(){if(KIRIM_ON)return;KIRIM_ON=true;try{await kirim_()}finally{KIRIM_ON=false}}
