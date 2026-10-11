@@ -1327,7 +1327,7 @@ const $=id=>document.getElementById(id);
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 async function rpc(fn,args){if(!SB)throw new Error("Supabase belum diatur (buat config.js atau isi baris ke-2 admin.html)");
-  const r=await fetch(`${SB.url}/rest/v1/rpc/${fn}`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SB.key,"Authorization":"Bearer "+SB.key},body:JSON.stringify(args||{})});
+  const r=await fetch(`${SB.url}/rest/v1/rpc/${fn}`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SB.key,.../^eyJ[\w-]*\.[\w-]+\.[\w-]*$/.test(SB.key)?{"Authorization":"Bearer "+SB.key}:{}},body:JSON.stringify(args||{})});
   let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw new Error((j&&(j.message||j.hint||j.error))||("HTTP "+r.status));return j}
 const PIN=()=>$("pin").value.trim();
 function safeHtml(html){const ALLOW={B:1,I:1,U:1,SUB:1,SUP:1,BR:1,P:1,TABLE:1,TR:1,TD:1,TH:1,IMG:1,SPAN:1,DIV:1};const d=new DOMParser().parseFromString("<div>"+(html||"")+"</div>","text/html");
@@ -1536,7 +1536,7 @@ function isiPilihMapel(sel,kini){kini=mapelBaku(kini);const rumpun=new Map();
     [...rumpun.entries()].map(([r,a])=>`<optgroup label="${esc(r)}">${a.map(n=>`<option value="${esc(n)}">${esc(n)}</option>`).join("")}</optgroup>`).join("");
   sel.value=kini||""}
 async function sinkronMapel(){if(PERAN!=="operator"||!INDUK||!INDUK.url||!INDUK.key)return;
-  try{const r=await fetch(`${INDUK.url}/rest/v1/mapel?select=nama_mapel,rumpun_mapel&order=nama_mapel`,{headers:{apikey:INDUK.key,Authorization:"Bearer "+INDUK.key}});
+  try{const r=await fetch(`${INDUK.url}/rest/v1/mapel?select=nama_mapel,rumpun_mapel&order=nama_mapel`,{headers:{apikey:INDUK.key,...(/^eyJ[\w-]*\.[\w-]+\.[\w-]*$/.test(INDUK.key)?{Authorization:"Bearer "+INDUK.key}:{})}});
     const j=await r.json();if(r.ok&&Array.isArray(j)&&j.length)await rpc("tka_mapel_sinkron",{p_pin:PIN(),p_rows:j})}catch(e){/* daftar lama tetap dipakai */}
   await muatMapel()}
 function bukaKeterangan(r){if(!r)return;if(!PIN()){toast("Isi PIN dahulu");return}const I=TKA.info,i=r.info||{};INFO_KODE=r.kode;
@@ -1610,7 +1610,7 @@ async function muatSinkron(){const el=$("sinkron-info");try{const j=await rpc("t
 async function tarikInduk(){const url=$("i-url").value.trim().replace(/\/+$/,""),key=$("i-key").value.trim(),pin=$("i-pin").value.trim();
   const U=url||INDUK?.url||"",K=key||INDUK?.key||"",P=pin||INDUK?.pin||"";if(!U||!K||!P){toast("Isi URL, kunci anon, dan PIN ekspor");return}
   const st=$("i-status");st.innerHTML='<span class="pill">Menarik data dari sumber…</span>';$("btn-i-tarik").disabled=true;
-  try{const r=await fetch(`${U}/rest/v1/rpc/siswa_ekspor`,{method:"POST",headers:{"Content-Type":"application/json",apikey:K,Authorization:"Bearer "+K},body:JSON.stringify({p_pin:P})});
+  try{const r=await fetch(`${U}/rest/v1/rpc/siswa_ekspor`,{method:"POST",headers:{"Content-Type":"application/json",apikey:K,...(/^eyJ[\w-]*\.[\w-]+\.[\w-]*$/.test(K)?{Authorization:"Bearer "+K}:{})},body:JSON.stringify({p_pin:P})});
     const txt=await r.text();let j;try{j=JSON.parse(txt)}catch(e){throw new Error("Balasan bukan JSON: "+txt.slice(0,80))}
     if(!r.ok)throw new Error(j.message||j.hint||txt.slice(0,120));
     if(!Array.isArray(j)||!j.length)throw new Error("Sumber mengembalikan 0 baris — periksa view v_siswa_aktif di proyek sumber");
@@ -1866,7 +1866,7 @@ async function tarikGuru(){const st=$("g-status");
   const U=INDUK?.url||"",K=INDUK?.key||"",P=INDUK?.pin||"";
   if(!U||!K||!P){st.innerHTML='<span class="pill warn">Pengaturan sumber Data Induk belum lengkap</span> — isi sekali di tab <b>Data siswa</b> → Tarik dari data induk.';return}
   st.innerHTML='<span class="pill">Menarik guru dari Data Induk…</span>';$("btn-g-tarik").disabled=true;
-  try{const r=await fetch(`${U}/rest/v1/rpc/guru_ekspor`,{method:"POST",headers:{"Content-Type":"application/json",apikey:K,Authorization:"Bearer "+K},body:JSON.stringify({p_pin:P})});
+  try{const r=await fetch(`${U}/rest/v1/rpc/guru_ekspor`,{method:"POST",headers:{"Content-Type":"application/json",apikey:K,...(/^eyJ[\w-]*\.[\w-]+\.[\w-]*$/.test(K)?{Authorization:"Bearer "+K}:{})},body:JSON.stringify({p_pin:P})});
     const txt=await r.text();let j;try{j=JSON.parse(txt)}catch(e){throw new Error("Balasan bukan JSON: "+txt.slice(0,80))}
     if(!r.ok)throw new Error(/guru_ekspor/.test(j.message||"")?"Fungsi guru_ekspor belum ada di Data Induk. Terapkan migrasinya dulu.":(j.message||j.hint||txt.slice(0,120)));
     if(!Array.isArray(j)||!j.length)throw new Error("Data Induk mengembalikan 0 guru");
