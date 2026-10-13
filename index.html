@@ -263,7 +263,18 @@ input.kode-akses::placeholder{font-size:16px;font-weight:400;letter-spacing:0}
 .se-kode b{font-size:34px;letter-spacing:.18em;font-variant-numeric:tabular-nums;line-height:1}
 .se-kode button{margin-left:auto;padding:8px 12px;font-size:13px}
 .se-angka{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.se-angka span{background:var(--kertas-3);border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:13px;color:var(--muted)}.se-angka b{color:var(--ink);font-variant-numeric:tabular-nums}
-.se-aksi{margin-top:6px}.se-menit{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--tinta-2)}.se-menit input{width:64px;padding:7px 8px;font-size:13px;text-align:center}.se-cat{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--tinta-3)}.se-aksi button,.se-aksi label.se-sak{padding:8px 12px;font-size:13px}
+.se-aksi{margin-top:6px}
+/* Ubah waktu sesi yang sedang berjalan (13 Okt 2026): − Kurangi | N menit | + Tambah */
+.ubah-waktu{display:inline-grid;grid-template-columns:auto auto auto;align-items:stretch;border:1.5px solid var(--gelap);border-radius:10px;overflow:hidden;background:#fff}
+.ubah-waktu:focus-within{box-shadow:0 0 0 4px rgba(194,148,51,.18)}
+.ubah-waktu button{border:0;border-radius:0;margin:0;padding:8px 14px;display:inline-flex;align-items:center;gap:7px;font-weight:700;white-space:nowrap}
+.ubah-waktu button b{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font-size:15px;line-height:1;color:#fff}
+.ubah-waktu .uw-kurang{background:var(--bad-soft);color:var(--bad)}.ubah-waktu .uw-kurang b{background:var(--bad)}
+.ubah-waktu .uw-tambah{background:#E4EFE7;color:#2B4B37}.ubah-waktu .uw-tambah b{background:var(--hadir)}
+.ubah-waktu button:hover:not(:disabled){filter:brightness(.96)}
+.uw-isi{display:flex;align-items:center;gap:4px;padding:0 10px;border-left:1.5px solid var(--gelap);border-right:1.5px solid var(--gelap);font-size:13px;color:var(--tinta-2);cursor:text}
+.uw-isi input{width:52px;border:0;padding:6px 0;font-size:16px;font-weight:800;text-align:center;background:transparent;box-shadow:none}
+.uw-isi input:focus{outline:none;box-shadow:none}.se-menit{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--tinta-2)}.se-menit input{width:64px;padding:7px 8px;font-size:13px;text-align:center}.se-cat{margin:10px 0 0;font-size:12.5px;line-height:1.5;color:var(--tinta-3)}.se-aksi button,.se-aksi label.se-sak{padding:8px 12px;font-size:13px}
 label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:9px;background:#fff;font-weight:600;cursor:pointer}
 .se-pantau{margin-top:12px;border-top:1px dashed var(--garis-2);padding-top:10px}
 .se-awas{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px 12px;background:#fff}.se-awas .row{margin-top:10px}
@@ -940,7 +951,7 @@ function kartuSesi(s){const m=s.milik,a=[];
   const st=s.buka?`<span class="pk-pill st-aktif"><span class="titik t-aktif"></span>Dibuka s.d. ${jam(s.sampai)}</span>`:`<span class="pk-pill st-selesai"><span class="titik t-selesai"></span>Ditutup ${jam(s.sampai)}</span>`;
   // Tambah (sesi terbuka) / Buka kembali (sesi ditutup): guru mengetik sendiri menitnya, 1–300
   const menit=`<input type="number" data-menit min="1" max="300" step="1" inputmode="numeric" value="${esc(SE_MENIT[s.id]||15)}" aria-label="Jumlah menit">menit`;
-  if(m&&s.buka)a.push(`<span class="se-menit"><button class="ghost" data-a="tambah" title="Memperpanjang batas waktu sesi ini">Tambah +</button>${menit}</span>`,'<button class="danger" data-a="tutup">Tutup sekarang</button>');
+  if(m&&s.buka)a.push(`<span class="ubah-waktu" role="group" aria-label="Ubah waktu sesi"><button class="uw-kurang" data-a="kurangi" title="Mempersingkat sesi dan waktu mengerjakan siswa yang sedang ujian"><b aria-hidden="true">−</b>Kurangi</button><label class="uw-isi"><input type="number" data-menit min="1" max="300" step="1" inputmode="numeric" value="${esc(SE_MENIT[s.id]||15)}" aria-label="Jumlah menit">menit</label><button class="uw-tambah" data-a="tambah" title="Menambah waktu sesi dan waktu mengerjakan siswa yang sedang ujian"><b aria-hidden="true">+</b>Tambah</button></span>`,'<button class="danger" data-a="tutup">Tutup sekarang</button>');
   if(m&&!s.buka)a.push(`<span class="se-menit"><button class="ghost" data-a="tambah" title="Untuk siswa yang belum ikut. Siswa yang sudah mengumpulkan tidak bisa mengerjakan ulang.">Buka kembali +</button>${menit}</span>`);
   if(m)a.push(`<button class="ghost" data-a="awas">${SE_AWAS===s.id?"Tutup pengawasan":"Pengawasan"}</button>`);
   if(m)a.push(`<label class="se-sak" title="Siswa yang sudah mengumpulkan boleh melihat kunci dan pembahasan"><span class="saklar"><input type="checkbox" role="switch" data-a="pemb" ${s.atur&&s.atur.pembahasan?"checked":""}><i></i></span>Pembahasan</label>`);
@@ -1015,9 +1026,20 @@ async function tampilLayar(s){const L=$("se-layar"),qr=$("sl-qr"),dasar=alamatSi
 function tutupLayar(){$("se-layar").classList.add("hidden");if(document.fullscreenElement===$("se-layar"))document.exitFullscreen().catch(()=>{})}
 async function aksiSesi(id,a,el){const s=SESI.find(x=>x.id===id);if(!s)return;
   try{
-    if(a==="tambah"){const i=el.closest(".se-menit").querySelector("[data-menit]"),mn=+i.value;
+    if(a==="tambah"||a==="kurangi"){const i=el.closest(".se-menit,.ubah-waktu").querySelector("[data-menit]"),mn=+i.value;
       if(!Number.isInteger(mn)||mn<1||mn>300){toast("Isi jumlah menit 1–300");i.focus();return}
-      SE_MENIT[id]=mn;await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"perpanjang",p_menit:mn});toast(s.buka?`Sesi diperpanjang ${mn} menit`:`Sesi dibuka kembali ${mn} menit`);await muatSesi(true)}
+      SE_MENIT[id]=mn;
+      if(!s.buka){await rpc("tka_sesi_ubah",{p_pin:PIN,p_id:id,p_aksi:"perpanjang",p_menit:mn});toast(`Sesi dibuka kembali ${mn} menit`);await muatSesi(true);return}
+      // Sesi berjalan (13 Okt 2026): batas sesi DAN waktu mengerjakan siswa ikut bergeser; HP siswa menyesuaikan lewat denyut ±1 menit
+      const akhir=new Date(s.sampai).getTime(),sisa=(akhir-Date.now())/1000;
+      if(a==="kurangi"){const maks=Math.floor((sisa-60)/60);
+        if(mn>maks){toast(maks>0?`Sisa waktu sesi tinggal ${Math.ceil(sisa/60)} menit, jadi paling banyak dikurangi ${maks} menit.`:"Sisa waktu kurang dari 2 menit. Untuk mengakhiri, pakai Tutup sekarang.");i.focus();return}
+        if(!confirm(`Kurangi waktu sesi "${s.judul}" ${mn} menit?\n\nSesi berakhir pukul ${jam(akhir-mn*6e4)} (sebelumnya ${jam(akhir)}). Waktu mengerjakan siswa yang sedang ujian ikut berkurang ${mn} menit; HP siswa menyesuaikan dalam ±1 menit.`))return}
+      el.disabled=true;
+      try{const r=await rpc("tka_sesi_waktu",{p_pin:PIN,p_id:id,p_menit:a==="kurangi"?-mn:mn});
+        toast(`Waktu ${a==="kurangi"?"dikurangi":"ditambah"} ${mn} menit · sesi sampai pukul ${jam(r.sampai)}; HP siswa menyesuaikan dalam ±1 menit`)}
+      finally{el.disabled=false}
+      await muatSesi(true)}
     else if(a==="awas"){SE_AWAS=SE_AWAS===id?null:id;SE_AWAS_DRAFT={};renderSesi()}
     else if(a==="awas-simpan"){const p=el.closest(".se-awas"),v=k=>p.querySelector(`[data-aw="${k}"]`),mk=+v("maks_keluar").value,tl=+v("toleransi_keluar").value,kb=v("kode_buka").value.replace(/\s/g,"").toUpperCase();
       if(v("maks_keluar").value===""||!Number.isInteger(mk)||mk<0||mk>20){toast("Batas keluar halaman 0–20 kali");v("maks_keluar").focus();return}
@@ -1081,7 +1103,7 @@ function pasangSesi(){
     const b=e.target.closest("button[data-a]");if(b)aksiSesi(id,b.dataset.a,b)});
   d.addEventListener("input",e=>{const w=e.target.closest("[data-aw]");if(w)SE_AWAS_DRAFT[w.dataset.aw]=w.value});
   d.addEventListener("input",e=>{const i=e.target.closest("[data-menit]"),k=i&&i.closest("[data-sesi]");if(k)SE_MENIT[+k.dataset.sesi]=i.value});
-  d.addEventListener("keydown",e=>{const i=e.target.closest("[data-menit]");if(i&&e.key==="Enter"){e.preventDefault();i.closest(".se-menit").querySelector("button").click()}});
+  d.addEventListener("keydown",e=>{const i=e.target.closest("[data-menit]");if(i&&e.key==="Enter"){e.preventDefault();const w=i.closest(".se-menit");if(w)w.querySelector("button").click()}});
   d.addEventListener("change",e=>{const c=e.target.closest("input[data-a]");if(!c)return;const k=c.closest("[data-sesi]");if(k)aksiSesi(+k.dataset.sesi,c.dataset.a,c)})}
 
 /* ================= UNDUH EXCEL (.xlsx) =================
