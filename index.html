@@ -334,7 +334,7 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 <section id="v-menu" class="hidden">
   <div class="card m-cek hidden" id="m-cek"><i aria-hidden="true"></i>Memeriksa PIN…</div>
   <div class="card form" id="m-login"><h2>Menu guru / pengawas</h2><p class="muted small">Masukkan PIN sekali; berlaku selama peramban ini terbuka. <b>PIN pribadi guru</b> (sama dengan PIN Matematika Dasar): membuka sesi ujian untuk kelas Anda dan mengelola paket buatan Anda. <b>PIN pengawas</b>: melihat sesi, membantu siswa masuk, membuka kunci. <b>PIN operator</b>: semuanya termasuk data siswa dan PIN guru.</p>
-    <label class="f" for="m-pin">PIN</label><input type="text" id="m-pin" autocomplete="off">
+    <label class="f" for="m-pin">PIN</label><input type="password" id="m-pin" autocomplete="one-time-code" placeholder="Ketik PIN" spellcheck="false">
     <div class="row" style="margin-top:10px"><button id="btn-m-masuk">Masuk</button><button class="ghost" id="btn-m-back">Kembali</button></div><div id="m-msg" class="small" style="margin-top:6px"></div></div>
   <div id="m-main" class="hidden">
     <div class="m-sambut"><div><span class="lbl">Menu guru · Asesmen Merdeka</span><h2 id="m-halo">Selamat datang</h2><div id="m-info" class="small"></div></div>
@@ -420,7 +420,7 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 
 <section id="v-guru" class="hidden">
   <div class="card m-cek hidden" id="g-muat"><i aria-hidden="true"></i>Memuat dasbor…</div>
-  <div class="card form" id="g-login"><h2>Dasbor guru</h2><p class="muted small">Rekap hasil, analisis butir, sub-materi, riwayat siswa, dan pengaturan ujian.</p><label class="f" for="pin">PIN guru</label><input type="text" id="pin" autocomplete="off"><div class="row" style="margin-top:10px"><button id="btn-pin">Masuk</button><button class="ghost" id="btn-guru-back">Kembali</button></div><div id="g-login-msg" class="small" style="margin-top:6px"></div></div>
+  <div class="card form" id="g-login"><h2>Dasbor guru</h2><p class="muted small">Rekap hasil, analisis butir, sub-materi, riwayat siswa, dan pengaturan ujian.</p><label class="f" for="pin">PIN guru</label><input type="password" id="pin" autocomplete="one-time-code" placeholder="Ketik PIN" spellcheck="false"><div class="row" style="margin-top:10px"><button id="btn-pin">Masuk</button><button class="ghost" id="btn-guru-back">Kembali</button></div><div id="g-login-msg" class="small" style="margin-top:6px"></div></div>
   <div id="g-main" class="hidden">
     <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Dasbor guru</h2><button class="ghost" id="btn-guru-out" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
       <input type="hidden" id="g-ujian">
