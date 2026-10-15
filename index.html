@@ -99,6 +99,15 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .m-sambut:before{content:"";position:absolute;right:-50px;bottom:-70px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(220,192,110,.25),rgba(220,192,110,0) 70%)}
 .m-sambut .lbl{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--emas);font-weight:700}
 .m-sambut h2{color:#fff;margin:4px 0 4px;font-family:"Fraunces",Georgia,serif;font-size:23px}.m-sambut .small{color:var(--tinta-terang-2)}.m-sambut .small b{color:#fff}
+/* Tombol Panduan (15 Okt 2026, seperti Matdas & English Reading): PDF untuk dibuka, Word untuk dicetak/disunting */
+.panduan{position:relative}.panduan>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap}
+.panduan>summary::-webkit-details-marker{display:none}.panduan>summary:hover,.panduan[open]>summary{border-color:var(--emas);background:rgba(255,255,255,.12)}
+.panduan-menu{position:absolute;right:0;top:calc(100% + 8px);width:min(300px,calc(100vw - 32px));background:#fff;color:var(--tinta);border:1px solid var(--garis);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.18);padding:6px;z-index:60;text-align:left;white-space:normal}
+.panduan-menu a{display:block;padding:10px 12px;border-radius:8px;color:var(--gelap);font-weight:700;font-size:14px;text-decoration:none}.panduan-menu a:hover{background:var(--kertas-3)}
+.panduan-menu small{display:block;font-weight:400;color:var(--tinta-2);font-size:12px;margin-top:2px}.panduan-menu p{margin:4px 12px 6px;font-size:12px;color:var(--tinta-2)}
+/* kotak sambutan memotong isinya: longgarkan selama menu terbuka */
+.m-sambut:has(.panduan[open]){overflow:visible}
+@media (max-width:560px){.panduan>summary .p-teks{display:none}.panduan-menu{position:fixed;left:16px;right:16px;top:86px;width:auto}}
 .m-kanan{display:flex;gap:8px;align-items:center;position:relative}.m-kanan .pill{background:rgba(255,255,255,.12);color:var(--emas)}
 .m-kanan button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6);padding:8px 14px;font-size:13px}
 .bukan-op .op-only{display:none!important}
@@ -344,7 +353,10 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
     <div class="row" style="margin-top:10px"><button id="btn-m-masuk">Masuk</button><button class="ghost" id="btn-m-back">Kembali</button></div><div id="m-msg" class="small" style="margin-top:6px"></div></div>
   <div id="m-main" class="hidden">
     <div class="m-sambut"><div><span class="lbl">Menu guru · Asesmen Merdeka</span><h2 id="m-halo">Selamat datang</h2><div id="m-info" class="small"></div></div>
-      <div class="m-kanan"><span class="pill" id="m-peran"></span><button id="btn-m-out">Keluar</button></div></div>
+      <div class="m-kanan"><details class="panduan" id="panduan"><summary title="Panduan guru Asesmen Merdeka"><span aria-hidden="true">📘</span><span class="p-teks">Panduan</span></summary>
+    <div class="panduan-menu"><p>Menyusun paket soal, membuka sesi ujian, Publish/Unpublish, dan membaca hasil.</p>
+      <a href="Panduan_Guru_Asesmen_Merdeka.pdf" target="_blank" rel="noopener">Buka panduan (PDF)<small>Langsung terbuka di browser, cocok untuk HP</small></a>
+      <a href="Panduan_Guru_Asesmen_Merdeka.docx" download>Unduh versi Word (.docx)<small>Untuk dicetak atau disunting</small></a></div></details><span class="pill" id="m-peran"></span><button id="btn-m-out">Keluar</button></div></div>
     <div class="menu">
       <button class="mi" id="mi-sesi"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg></span><span class="mi-tx"><b>Sesi Ujian</b><span>Buka ujian untuk kelas, tampilkan kode akses, pantau siswa yang sedang mengerjakan</span></span></button>
       <button class="mi" id="mi-dasbor"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="mi-tx"><b>Dasbor Hasil</b><span>Rekap nilai, analisis butir, belum mengerjakan, riwayat siswa, unduh Excel</span></span></button>
@@ -1310,6 +1322,9 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-home").onclick=()=>{location.href=location.pathname};
   $("lnk-guru").onclick=e=>{e.preventDefault();bukaMenu()};
   $("btn-m-masuk").onclick=()=>masukMenu($("m-pin").value.trim());$("m-pin").addEventListener("keydown",e=>{if(e.key==="Enter")masukMenu($("m-pin").value.trim())});
+  // Panduan: tutup menu saat mengetuk di luar atau menekan Esc
+  document.addEventListener("click",e=>{const p=document.getElementById("panduan");if(p&&p.open&&!p.contains(e.target))p.open=false});
+  document.addEventListener("keydown",e=>{const p=document.getElementById("panduan");if(p&&e.key==="Escape")p.open=false});
   $("btn-m-back").onclick=()=>show("v-start");$("btn-m-out").onclick=keluarMenu;
   $("mi-siswa").onclick=()=>bukaSiswa(false);$("btn-s-back").onclick=bukaMenu;$("btn-s-refresh").onclick=()=>bukaSiswa(true);
   $("s-cari").addEventListener("input",renderSiswa);$("s-ujian").onchange=async()=>{await muatStatusSiswa();renderSiswa()};

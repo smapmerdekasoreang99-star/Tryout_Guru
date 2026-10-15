@@ -1,5 +1,7 @@
 # Asesmen Merdeka (Tryout) v7 — Panduan (kisi-kisi → template soal → bank soal → sesi ujian; data siswa; PIN pribadi guru)
 
+**Panduan guru** (15 Okt 2026): `Panduan_Guru_Asesmen_Merdeka.pdf` dan `.docx`, dibuka lewat tombol 📘 Panduan di Menu guru dan di kepala halaman admin. Isinya ditulis di `alat/buat-panduan.js` (mesin sama dengan Petualangan TKA SD); bila tampilan atau aturan berubah, ubah ISI di sana lalu jalankan `npm i --no-save --no-package-lock docx@9` (sekali) dan `node alat/buat-panduan.js`.
+
 ## Alur kerja
 
 ```
