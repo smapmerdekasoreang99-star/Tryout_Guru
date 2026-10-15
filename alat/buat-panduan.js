@@ -79,7 +79,7 @@ const ISI = [
     ["**Tingkat peserta**", "Kelas yang mengerjakan, mis. 12 atau 10–12. Kosong = ditebak dari isian Kelas."],
     ["**Cakupan materi**", "Hanya bila materinya dari kelas lain, mis. tryout TKA kelas 12 dengan materi 10–12. Kosongkan bila sama."],
     ["**Semester**", "Mis. Ganjil 2026/2027. Kosong = otomatis dari tanggal (Juli–Desember Ganjil, Januari–Juni Genap)."],
-    ["**Guru penyusun**", "Nama penyusun (untuk mencari dan mengelompokkan paket)."],
+    ["**Guru penyusun**", "Boleh dikosongkan. Begitu paket punya penyusun (guru yang mengunggah dengan PIN pribadinya, atau yang ditetapkan operator), isian ini otomatis diganti nama guru tersebut."],
     ["**Durasi (menit)**", "Wajib, angka lebih dari 0. Menjadi lama pengerjaan bawaan saat membuka sesi."],
     ["**Jumlah varian**", "1–4. Kosong = 1."],
     ["Data/rumus umum, Petunjuk umum", "Boleh kosong. Ditampilkan kepada siswa."],
@@ -166,7 +166,7 @@ const ISI = [
     ["", "Lihat soal & kunci", "Pratinjau seluruh soal dengan kunci, plus unduh soal & pembahasan / naskah siswa. Hanya penyusun dan operator."],
     ["", "Template soal .docx · Kisi-kisi .docx", "Mengunduh ulang template soal atau kisi-kisi."],
     ["", "Unduh JSON", "Cadangan paket."],
-    ["**Kelola**", "Ubah judul & keterangan", "Judul, mata pelajaran (dari daftar Data Induk), jenis, semester, penyusun, tingkat peserta, cakupan materi. Kode tidak bisa diubah."],
+    ["**Kelola**", "Ubah judul & keterangan", "Judul, mata pelajaran (dari daftar Data Induk), jenis, semester, tingkat peserta, cakupan materi. Guru penyusun tampil tetapi tidak bisa diketik: ia mengikuti penyusun paket (lihat 3.6). Kode tidak bisa diubah."],
     ["", "Arsipkan / Kembalikan dari arsip", "Sesi yang masih terbuka ikut ditutup, paket disembunyikan, hasil tetap. Mengunggah ulang soal dengan kode yang sama juga mengeluarkannya dari arsip."],
     ["", "Hapus paket · Hapus kisi-kisi", "Bila paket punya hasil, Anda ditanya apakah hasilnya ikut dihapus (Batal = hasil tetap disimpan)."],
   ], [1, 2, 3.5]),
@@ -183,6 +183,8 @@ const ISI = [
     "Publish paket yang memang dipakai bersama (mis. PAS satu angkatan, tryout yang dibuka beberapa guru). Biarkan Belum publish untuk ulangan harian kelas Anda sendiri atau paket yang masih disusun, supaya soalnya tidak dicoba guru lain sebelum waktunya."),
   H2("Penyusun paket (operator)"),
   P("Operator menekan **Atur** di samping nama penyusun untuk menetapkan atau mengganti penyusun paket, lalu **Simpan penyusun**. Pilihan *— tanpa penyusun —* membuat paket boleh dikelola semua guru."),
+  KOTAK("info", "Keterangan Guru penyusun mengikuti Atur",
+    "Teks **Guru penyusun** pada keterangan paket dan kisi-kisi selalu sama dengan penyusun yang dipilih di **Atur**. Mengganti penyusun otomatis mengganti teks itu; isian di **Ubah judul & keterangan** tidak bisa diketik."),
 
   /* ============================ 4 ============================ */
   H1("Sesi Ujian"),
