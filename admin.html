@@ -1980,7 +1980,9 @@ async function muatPustaka(){const el=$("pk-daftar");if(!PK.length)el.innerHTML=
       // unggah ulang soal (Langkah 2) menghapus tanda arsip paket; tanda pada kisi-kisi saja tidak menahan
       arsip:!!(p?p.arsip:k.arsip),darurat:!!((p&&p.darurat)||(k&&k.darurat)),n_hasil:p?p.n_hasil:0,
       // milik = boleh melihat kunci, mengubah, mengarsipkan, menghapus (penyusun atau operator; paket lama tanpa penyusun: semua guru)
-      milik:p?!!p.milik:!!(k&&k.milik),pemilik:(p&&p.pemilik)||(k&&k.pemilik)||null,pemilik_nama:(p&&p.pemilik_nama)||(k&&k.pemilik_nama)||""}});
+      milik:p?!!p.milik:!!(k&&k.milik),pemilik:(p&&p.pemilik)||(k&&k.pemilik)||null,pemilik_nama:(p&&p.pemilik_nama)||(k&&k.pemilik_nama)||"",
+      // Publish: paket berpenyusun hanya terlihat guru lain bila dibagikan (paket tanpa penyusun selalu terlihat)
+      dibagikan:!!(p&&p.dibagikan)}});
   renderPustaka()}
 
 function pkCocokDasar(o){
@@ -2050,7 +2052,7 @@ function pkBaris(o){const I=TKA.info,tk=pkTingkat(o),i=o.info,b=PK_BUKA===o.kode
   const meta=[`<span class="kode">${esc(o.kode)}</span>`,PKF.mapel||g==="mapel"?"":esc(o.mapel),g==="kelas"&&tk.length===1?"":tk.length?"kelas "+I.fmtTingkat(tk):"",(i.cakupan||[]).length?"materi kelas "+I.fmtTingkat(i.cakupan):"",
     o.n_soal?o.n_soal+" soal":"",o.n_varian>1?o.n_varian+" varian":"",g==="guru"?"":esc(i.penyusun||""),g==="semester"&&!o.arsip?"":o.arsip?esc(pkSemester(o)):""].filter(Boolean).join(" · ");
   return `<div class="pk${b?" buka":""}${o.arsip?" arsip":""}" data-k="${esc(o.kode)}"><div class="pk-baris" role="button" tabindex="0" aria-expanded="${b}">
-    <div class="pk-id"><div><span class="j">${esc(o.judul)}</span>${i.jenis&&g!=="jenis"?`<span class="tag">${esc(i.jenis)}</span>`:""}${o.darurat?'<span class="tag bad">Darurat</span>':""}</div><div class="m">${meta}</div></div>
+    <div class="pk-id"><div><span class="j">${esc(o.judul)}</span>${i.jenis&&g!=="jenis"?`<span class="tag">${esc(i.jenis)}</span>`:""}${o.darurat?'<span class="tag bad">Darurat</span>':""}${o.paket&&o.pemilik&&!o.dibagikan?'<span class="tag" title="Hanya penyusun dan operator yang melihat paket ini">Belum publish</span>':""}</div><div class="m">${meta}</div></div>
     ${pkStatus(o)}<div class="pk-aksi">${pkAksiUtama(o)}</div></div>${b?pkRinci(o):""}</div>`}
 /* Rincian paket terbuka: pita ringkasan + tiga panel sejajar (Ujian · Soal · Kelola), tombol seragam berikon */
 const PK_IK={sesi:'<path d="M7 4.5v15l12-7.5z"/>',tautan:'<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2.5v2.5H14zM17.5 17.5H20V20h-2.5zM14 20h2M20 14v2"/>',hasil:'<path d="M3 21h18M6 17v-5M11 17V7M16 17v-8M21 17V4"/>',
@@ -2064,10 +2066,15 @@ const pkIk=a=>`<svg viewBox="0 0 24 24" aria-hidden="true">${PK_IK[a]||""}</svg>
 // tombol: [aksi, label, gaya ("utama"|"bahaya"|""), hanya penulis?]; tombol penulis tidak dibuat untuk pengawas supaya panel tidak kosong
 function pkTombol(d){return d.filter(x=>x&&!(x[3]&&PERAN==="pengawas")).map(([a,l,c,t])=>`<button type="button" class="${c||""}${t?" tulis-only":""}" data-a="${a}">${pkIk(a==="hapuskisi"?"hapus":a)}<span>${l}</span></button>`).join("")}
 function pkPanel(ik,judul,sub,isi,kosong){return `<section class="pk-pn"><header><span class="ik">${pkIk(ik)}</span><div><b>${judul}</b><span>${sub}</span></div></header>${isi?`<div class="pk-tb">${isi}</div>`:`<p class="pk-kosong">${kosong}</p>`}</section>`}
+// Publish / Unpublish: paket berpenyusun hanya terlihat oleh penyusun & operator sampai penyusun menekan Publish
+function pkPublish(o){if(!o.paket)return "";
+  if(!o.pemilik)return `<div class="pk-pny">${pkIk("tautan")}<span class="muted">Terlihat oleh semua guru (penyusun belum ditetapkan)</span></div>`;
+  const t=o.dibagikan?"<b>Publish</b> · terlihat oleh semua guru":"<b>Belum publish</b> · hanya "+esc(o.pemilik_nama||"penyusun")+" dan operator yang melihat";
+  return `<div class="pk-pny">${pkIk("lihat")}<span>${t}</span>${o.milik&&PERAN!=="pengawas"?`<button type="button" class="ghost mini tulis-only" data-a="${o.dibagikan?"publish0":"publish1"}">${o.dibagikan?"Unpublish":"Publish"}</button>`:""}</div>`}
 function pkRinci(o){const p=o.paket,k=o.kisi;
   const fakta=[o.mapel?esc(o.mapel):"Mapel belum diisi",o.kelas?"Kelas "+esc(o.kelas):"",o.materi?esc(o.materi):"",o.durasi?o.durasi+" menit":"",o.n_soal+" soal · "+o.n_varian+" varian",p?p.n_hasil+" hasil":""].filter(Boolean).join(" · ");
   const pny=o.pemilik_nama?"Penyusun <b>"+esc(o.pemilik_nama)+"</b>":'Penyusun belum ditetapkan <span class="muted">(semua guru boleh mengelola)</span>';
-  let h=`<div class="pk-rinci"><div class="pk-ringkas"><div class="pk-fakta"><div>${fakta}</div>${infoRingkas(o)}</div><div class="pk-pny">${pkIk("pemilik")}<span>${pny}</span>${PERAN==="operator"?'<button type="button" class="ghost mini" data-a="pemilik">Atur</button>':""}</div></div>`;
+  let h=`<div class="pk-rinci"><div class="pk-ringkas"><div class="pk-fakta"><div>${fakta}</div>${infoRingkas(o)}</div><div class="pk-pny">${pkIk("pemilik")}<span>${pny}</span>${PERAN==="operator"?'<button type="button" class="ghost mini" data-a="pemilik">Atur</button>':""}</div>${pkPublish(o)}</div>`;
   if(o.darurat)h+='<div class="pk-darurat"><span class="pill bad">Darurat</span> Unduh kisi-kisi, periksa/lengkapi di Word, lalu unggah di Langkah 1 dengan kode yang sama untuk mengesahkan.</div>';
   const subU=p?(p.n_sesi_buka?`<b>${p.n_sesi_buka} sesi dibuka</b> · `:"")+p.n_sesi+" sesi"+(p.n_sesi?" · "+p.n_peserta+" siswa":""):"Belum bisa dibuka";
   const ujian=p?pkTombol([["sesi","Buka sesi","utama",1],["tautan","Alamat siswa &amp; QR"],["hasil","Lihat hasil"]]):"";
@@ -2096,6 +2103,9 @@ async function pkAksi(o,a){const k=o.kode;
       const g=await rpc("mtd_admin_guru",{p_pin:PIN()});
       $("dp-guru").innerHTML='<option value="">— tanpa penyusun (semua guru boleh mengelola) —</option>'+g.guru.filter(x=>x.aktif||x.id===o.pemilik).map(x=>`<option value="${esc(x.id)}">${esc(x.nama)} (${esc(x.id)})</option>`).join("");$("dp-guru").value=o.pemilik||"";
       $("btn-dp-simpan").onclick=async()=>{try{const r=await rpc("tka_set_pemilik",{p_pin:PIN(),p_kode:k,p_guru:$("dp-guru").value||null});$("dp-status").innerHTML=`<span class="pill good">Tersimpan: ${esc(r.pemilik_nama||"tanpa penyusun")}</span>`;muatDaftar()}catch(e){$("dp-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}}
+    else if(a==="publish1"||a==="publish0"){const on=a==="publish1";
+      if(!on&&!confirm(`Unpublish ${k}?\n\nGuru lain tidak lagi melihat paket ini. Guru yang pernah membuka sesi dengan paket ini tetap bisa melihat sesi dan hasilnya.`))return;
+      await rpc("tka_set_dibagikan",{p_pin:PIN(),p_kode:k,p_bagikan:on});toast(on?`${k} dipublish — terlihat oleh semua guru`:`${k} tidak lagi dipublish`);muatDaftar()}
     else if(a==="ket"){pkTampilKartu(k,"daftar-info-card");bukaKeterangan(o)}
     else if(a==="lihat")await pkLihatSoal(k);
     else if(a==="hasil")location.href=`index.html?guru&dasbor=${encodeURIComponent(k)}`;
