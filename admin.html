@@ -78,7 +78,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 .tbl-wrap{overflow-x:auto}
 .drop{border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;background:var(--emas-kabut)}
 .prev{border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0}
-.prev img{max-width:100%;height:auto}.rumus-lebar{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:2px 0 6px}.katex-display{overflow-x:auto;overflow-y:hidden}.prev table{border-collapse:collapse;margin:8px 0;font-size:13px}.prev td,.prev th{border:1px solid var(--line);padding:4px 8px}
+.prev img{max-width:100%;height:auto}.pec{display:inline-flex;flex-direction:column;align-items:stretch;vertical-align:middle;text-align:center;font-size:.92em;line-height:1.2;margin:0 .12em}.pec>span{padding:0 .2em}.pec>span:first-child{border-bottom:1.5px solid currentColor}.rumus-lebar{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:2px 0 6px}.katex-display{overflow-x:auto;overflow-y:hidden}.prev table{border-collapse:collapse;margin:8px 0;font-size:13px}.prev td,.prev th{border:1px solid var(--line);padding:4px 8px}
 .teks-prev{background:var(--kertas-3);border:1px solid var(--garis-2);border-radius:8px;padding:8px 12px;margin:8px 0}.teks-prev summary{cursor:pointer;font-weight:600;font-size:13px}.teks-prev .stim{font-size:13px;margin-top:6px}
 .opt{padding:8px 12px;border:1px solid var(--line);border-radius:8px;margin:4px 0}.opt.key{border-color:var(--good);background:var(--good-soft)}
 .pemb{background:var(--emas-kabut);border-left:3px solid var(--gelap);padding:8px 12px;margin:8px 0;font-size:13px}
@@ -1626,8 +1626,21 @@ const studentBase=()=>location.href.replace(/[#?].*$/,"").replace(/[^\/]*$/,"")+
 
 
 /* ---------- rumus: KaTeX (Word Equation → \( … \)) + pangkat otomatis pada teks biasa (x^2, 3^(-2)) ---------- */
-function autoSup(el){const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const nodes=[];let n;while((n=w.nextNode()))if(/\^/.test(n.nodeValue)&&!(n.parentElement&&n.parentElement.closest(".katex,script,style")))nodes.push(n);
-  const sup=t=>esc(t).replace(/\^\(([^()]{1,24})\)/g,"<sup>$1</sup>").replace(/\^(-?[0-9A-Za-z°]{1,6})/g,"<sup>$1</sup>");
+/* Pecahan bersusun otomatis pada teks biasa (20 Okt 2026): 3/4, −8/3, 2,5/4, x/2, (2x+3)/(x−1), (a+b)/2, 1/(x+1).
+   Tidak diubah: tanggal & nomor (19/10/2026, 3/2024), satuan & singkatan huruf/huruf (km/jam, m/s, s/d), pecahan di dalam
+   pangkat ^(2/3) (tetap kecil sebaris), dan isi rumus \( … \). Masukan sudah di-escape HTML. */
+function pecahan(h){const pc=(a,b)=>'<span class="pec"><span>'+a+'</span><span>'+b+'</span></span>';
+  const G="\\(([^()]{1,40})\\)",lewat=(s,o)=>s[o-1]==="^"||s.slice(o-2,o)==="^(";
+  h=h.replace(new RegExp(G+"\\/"+G,"g"),(m,a,b,o,s)=>lewat(s,o)?m:pc(a,b));
+  h=h.replace(new RegExp(G+"\\/(\\d+(?:[.,]\\d+)?|[A-Za-z])(?![\\w/]|[.,]\\d)","g"),(m,a,b,o,s)=>lewat(s,o)?m:pc(a,b));
+  h=h.replace(new RegExp("(^|[^\\w/.,)^])(\\d+(?:[.,]\\d+)?|[A-Za-z])\\/"+G,"g"),(m,p,a,b,o,s)=>lewat(s,o+p.length)?m:p+pc(a,b));
+  return h.replace(/(^|[^\w/.,])(\d+(?:[.,]\d+)?|[A-Za-z])\/(\d+(?:[.,]\d+)?|[A-Za-z])(?![\w/]|[.,]\d)/g,(m,p,a,b,o,s)=>{
+    if(/[A-Za-z]/.test(a)&&/[A-Za-z]/.test(b))return m;                 // km/jam, s/d, m/s
+    if(/^(1[89]|20)\d\d$/.test(b))return m;                              // nomor/tahun 3/2024
+    if(p==="("&&s[o-1]==="^")return m;                                    // di dalam pangkat ^(2/3)
+    return p+pc(a,b)})}
+function autoSup(el){const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const nodes=[];let n;while((n=w.nextNode()))if(/[\^\/]/.test(n.nodeValue)&&!(n.parentElement&&n.parentElement.closest(".katex,script,style")))nodes.push(n);
+  const sup=t=>pecahan(esc(t)).replace(/\^\(([^()]{1,24})\)/g,"<sup>$1</sup>").replace(/\^(-?[0-9A-Za-z°]{1,6})/g,"<sup>$1</sup>");
   for(const t of nodes){const html=t.nodeValue.split(/(\\\(.*?\\\)|\$\$.*?\$\$|\\\[.*?\\\])/s).map((seg,i)=>i%2?esc(seg):sup(seg)).join("");if(html!==esc(t.nodeValue)){const s=document.createElement("span");s.innerHTML=html;t.replaceWith(s)}}}
 /* Rumus yang lebih lebar dari wadahnya (mis. persamaan reaksi panjang di layar HP) tidak terpotong (20 Okt 2026): diperkecil sampai pas (paling kecil ±65%); bila masih terlalu panjang, dijadikan baris sendiri yang bisa digeser ke samping. */
 function rumusLebar(el){el.querySelectorAll(".katex").forEach(k=>{if(k.closest(".katex-display"))return;k.style.fontSize="";k.classList.remove("rumus-lebar");const w=k.parentElement&&k.parentElement.closest(".stim,.q,.opt>span:last-child,td,li,.k,div");if(!w)return;const r=k.getBoundingClientRect(),ada=w.getBoundingClientRect().right-r.left;if(ada<=0||r.width<=ada+1)return;const p=ada/r.width;if(p>=0.65)k.style.fontSize=(1.21*p*0.97).toFixed(3)+"em";else{k.style.fontSize="0.8em";k.classList.add("rumus-lebar")}})}
