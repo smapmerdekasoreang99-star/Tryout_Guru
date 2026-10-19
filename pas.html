@@ -66,7 +66,28 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
 .tirai{position:fixed;inset:0;background:rgba(20,24,30,.5);z-index:200;display:grid;place-items:center;padding:16px}
 .tirai .card{max-width:520px;width:100%;margin:0}
 .sibuk{opacity:.6;pointer-events:none}
-@media (max-width:640px){.tabs button span{display:none}}
+/* Dasbor Pantau (Tahap 3d) */
+.st{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:2px 9px;border-radius:999px;white-space:nowrap;background:var(--netral-muda);color:var(--tinta-2)}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st-kerja{background:var(--good-soft);color:var(--good)}.st-selesai,.st-tunggu,.st-kirim{background:var(--info-soft);color:var(--info)}.st-terkunci,.st-ditutup{background:var(--bad-soft);color:var(--bad)}.st-keluar{background:var(--warn-soft);color:var(--warn)}.st-diam{background:#e9e5dc;color:#5E5548}
+.lini-sesi{display:flex;gap:8px;flex-wrap:wrap}.lini-sesi button{background:#fff;color:var(--ink);border:1px solid var(--line);font-weight:600;text-align:left;display:flex;flex-direction:column;gap:2px;min-width:150px}
+.lini-sesi button.on{border-color:var(--good);box-shadow:0 0 0 3px var(--good-soft)}.lini-sesi small{font-weight:500;color:var(--muted)}
+.ubin{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.ubin div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.ubin b{display:block;font-family:"Fraunces",Georgia,serif;font-size:26px;line-height:1.1}.ubin span{font-size:12px;color:var(--muted)}.ubin .merah{border-color:var(--bad);background:var(--bad-soft)}.ubin .merah b{color:var(--bad)}
+.batang{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--netral-muda);gap:2px}.batang i{display:block;height:100%}
+.dua{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:14px;align-items:start}
+.kisi-ruang{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.kr{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left;color:inherit;font-weight:400;position:relative;overflow:hidden}
+.kr::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:transparent}.kr.merah::before{background:var(--bad)}.kr.kuning::before{background:var(--emas)}
+.kr .h{display:flex;justify-content:space-between;align-items:baseline}.kr .h b{font-family:"Fraunces",Georgia,serif;font-size:18px}
+.kr .mp{display:flex;flex-wrap:wrap;gap:3px}.kr .mp span{font-size:11px;font-weight:600;background:var(--kertas-3);border-radius:6px;padding:1px 6px}
+.tanda{display:flex;gap:4px;flex-wrap:wrap;min-height:18px}.tanda span{font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px}
+.t-kunci{background:var(--bad-soft);color:var(--bad)}.t-diam{background:#e9e5dc;color:#5E5548}.t-keluar{background:var(--warn-soft);color:var(--warn)}.t-belum{background:var(--info-soft);color:var(--info)}
+.umpan{max-height:640px;overflow:auto;padding:0}.umpan .bt{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px}.umpan .bt b{font-size:14px}
+.laci{position:fixed;inset:0;background:rgba(20,24,30,.45);z-index:150;display:flex;justify-content:flex-end}
+.laci>div{background:var(--kertas);width:min(1000px,100%);height:100%;overflow:auto;padding:16px 18px 40px;display:flex;flex-direction:column;gap:12px}
+@media (max-width:1000px){.dua{grid-template-columns:minmax(0,1fr)}.ubin{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:640px){.tabs button span{display:none}.ubin{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
 <body>
@@ -97,6 +118,7 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
     <button data-tab="peserta"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Peserta &amp; Ruang</span></button>
     <button data-tab="jadwal"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Jadwal</span></button>
     <button data-tab="soal"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Folder Soal</span></button>
+    <button data-tab="pantau" id="tab-btn-pantau"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Pantau</span></button>
     <button data-tab="cetak"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></svg><span>Cetak</span></button>
   </nav>
 
@@ -167,6 +189,27 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
         <span class="pill" id="s-progres"></span></div>
       <div class="gulir naskah"><table><thead><tr><th>Mapel</th><th>Kelas</th><th>Dipakai</th><th>Penyusun <span class="small muted" style="font-weight:400">(otomatis: pengunggah paket)</span></th><th>Paket soal</th><th>Status</th></tr></thead><tbody id="t-naskah"></tbody></table></div>
     </div>
+  </div>
+
+  <!-- Pantau (Tahap 3d) -->
+  <div id="tab-pantau" class="hidden">
+    <div class="card kolom">
+      <div class="kepala"><div><div class="alis" id="pt-hari"></div><h3 id="pt-judul">Dasbor pantau</h3></div>
+        <div class="row"><select id="pt-sesi"></select><span class="small muted" id="pt-segar"></span></div></div>
+      <div class="lini-sesi" id="pt-lini"></div>
+      <div class="row" id="pt-aksi-sesi"></div>
+    </div>
+    <div class="ubin" id="pt-ubin"></div>
+    <div class="card kolom"><div class="batang" id="pt-batang"></div><div class="row small muted" id="pt-legenda"></div></div>
+    <div class="dua">
+      <div class="kisi-ruang" id="pt-ruang"></div>
+      <div class="card umpan"><div class="bt" style="position:sticky;top:0;background:#fff;display:flex;justify-content:space-between"><b>Perlu tindakan</b><span class="pill bad" id="pt-n-umpan">0</span></div><div id="pt-umpan"></div></div>
+    </div>
+    <div class="card kolom">
+      <div class="kepala"><h3>Susulan</h3><button class="ghost mini" id="btn-susulan-muat">Muat daftar belum mengerjakan</button></div>
+      <div id="pt-susulan"><p class="small muted">Siswa dari sesi yang sudah lewat dan belum punya hasil (tidak hadir, HP rusak, dll.). Pilih siswa, lalu buat sesi susulan di satu ruang — kode baru dibuat, naskahnya sama dengan jadwal aslinya.</p></div>
+    </div>
+    <div class="card kolom"><h3>Jejak perubahan</h3><div class="gulir"><table><thead><tr><th>Waktu</th><th>Oleh</th><th>Tindakan</th><th>Rincian</th></tr></thead><tbody id="pt-jejak"></tbody></table></div></div>
   </div>
 
   <!-- Cetak -->
@@ -254,8 +297,10 @@ function gambar(){
     $("btn-hapus").onclick=async()=>{if(!await tanya("Hapus asesmen?",`<b>${esc(a.nama)}</b> beserta peserta, jadwal, dan laci naskahnya dihapus. Paket soal di bank soal tidak ikut terhapus.`,"Hapus"))return;
       try{await rpc("asm_hapus",{p_pin:PIN,p_id:a.id});A=null;muatDaftar()}catch(e){toast(e.message)}}}
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===TAB));
-  ["ringkas","peserta","jadwal","soal","cetak"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
-  ({ringkas:gRingkas,peserta:gPeserta,jadwal:gJadwal,soal:gSoal,cetak:gCetak})[TAB]();
+  $("tab-btn-pantau").classList.toggle("hidden",draf());if(TAB==="pantau"&&draf())TAB="ringkas";
+  ["ringkas","peserta","jadwal","soal","pantau","cetak"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
+  clearInterval(PT_T);if(TAB!=="pantau")PT_SESI=null;
+  ({ringkas:gRingkas,peserta:gPeserta,jadwal:gJadwal,soal:gSoal,pantau:gPantau,cetak:gCetak})[TAB]();
 }
 
 /* ---------------- Ringkasan & Terbit ---------------- */
@@ -416,6 +461,108 @@ async function gSoal(){
   document.querySelectorAll("[data-paket]").forEach(s=>s.onchange=()=>ubah(s.dataset.paket,{paket:s.value},s));
   document.querySelectorAll("[data-st]").forEach(s=>s.onchange=()=>ubah(s.dataset.st,{status:s.value},s));
 }
+
+/* ---------------- Dasbor Pantau (Tahap 3d) ---------------- */
+let PT=null,PT_T=null,PT_SESI=null,PT_RUANG=null,PT_OFF=0;
+const STS={belum:"Belum masuk",tunggu:"Menunggu mulai",kerja:"Mengerjakan",keluar:"Keluar halaman",terkunci:"Terkunci",diam:"Tidak aktif",kirim:"Waktu habis",selesai:"Selesai",ditutup:"Ditutup",tidak_hadir:"Tidak hadir"};
+const WARNA_ST={kerja:"var(--hadir)",keluar:"var(--emas)",terkunci:"var(--absen)",diam:"#8B8173",tunggu:"var(--sakit-muda)",kirim:"var(--sakit)",selesai:"var(--sakit)",ditutup:"var(--absen-tua)",belum:"var(--garis-2)",tidak_hadir:"var(--netral-muda)"};
+const URUT_ST=["kerja","keluar","terkunci","diam","tunggu","kirim","selesai","ditutup","belum","tidak_hadir"];
+const durasiTeks=ms=>{let s=Math.max(0,Math.round(ms/1000));const h=Math.floor(s/3600),m=Math.floor(s%3600/60);s%=60;return(h?h+":"+String(m).padStart(2,"0"):m)+":"+String(s).padStart(2,"0")};
+const laluTeks=iso=>{if(!iso)return"—";const d=(Date.now()+PT_OFF-Date.parse(iso))/1000;return d<60?Math.max(0,Math.round(d))+" dtk":Math.round(d/60)+" mnt"};
+async function gPantau(){await muatPantau();clearInterval(PT_T);PT_T=setInterval(()=>{if(TAB==="pantau"&&!document.hidden)muatPantau()},15000)}
+async function muatPantau(){try{PT=await rpc("asm_pantau",{p_pin:PIN,p_asesmen:A.asesmen.id,p_sesi:PT_SESI});PT_OFF=Date.parse(PT.sekarang)-Date.now();gambarPantau();if(PT_RUANG)gambarLaci()}
+  catch(e){$("pt-segar").textContent="Gagal memuat: "+e.message}}
+function hitung(L){const h={};L.forEach(x=>h[x.status]=(h[x.status]||0)+1);return h}
+function gambarPantau(){const P=PT,s=P.sesi,kini=Date.now()+PT_OFF;$("pt-segar").textContent="diperbarui "+new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  $("pt-sesi").innerHTML=P.semua_sesi.map(x=>`<option value="${x.id}" ${s&&x.id===s.id?"selected":""}>${tglPendek(x.hari)} · Sesi ${x.ke} · ${jam(x.mulai)}${x.jenis!=="jadwal"?" · "+x.jenis:""}${x.batal?" (batal)":""}</option>`).join("");
+  $("pt-sesi").onchange=()=>{PT_SESI=+$("pt-sesi").value;PT_RUANG=null;muatPantau()};
+  if(!s){$("pt-judul").textContent="Belum ada sesi";return}
+  const akhir=Date.parse(s.akhir),mulai=Date.parse(s.mulai),tahap=s.batal?"Dibatalkan":kini<Date.parse(s.pintu)?"Belum dibuka":kini<mulai?"Pintu dibuka":kini<akhir?"Berjalan":"Selesai";
+  $("pt-hari").textContent=tglPanjang(s.hari);$("pt-judul").textContent=`Sesi ${s.ke} · ${jam(s.mulai)}–${jam(s.akhir)} · ${tahap}`+(kini>=mulai&&kini<akhir?` · sisa ${durasiTeks(akhir-kini)}`:kini<mulai?` · soal terbuka dalam ${durasiTeks(mulai-kini)}`:"");
+  $("pt-lini").innerHTML=P.hari_ini.map(x=>{const ak=Date.parse(x.akhir),mu=Date.parse(x.mulai);const st=x.batal?"batal":kini<mu?"terjadwal":kini<ak?"berjalan":"selesai";
+    return`<button class="${x.id===s.id?"on":""}" data-s="${x.id}">Sesi ${x.ke}${x.jenis!=="jadwal"?" · "+x.jenis:""}<small>${jam(x.mulai)}–${jam(x.akhir)} · ${st}</small></button>`}).join("");
+  document.querySelectorAll("#pt-lini button").forEach(b=>b.onclick=()=>{PT_SESI=+b.dataset.s;PT_RUANG=null;muatPantau()});
+  $("pt-aksi-sesi").innerHTML=s.batal?'<button class="ghost mini" data-sa="aktifkan">Aktifkan lagi</button>':
+    `<button class="ghost mini" data-sa="geser">Geser jam…</button><button class="ghost mini" data-sa="perpanjang">Perpanjang semua ruang…</button>
+     <button class="ghost mini" data-sa="pesan">Pesan ke semua layar…</button><button class="ghost mini" data-sa="kumpulkan">Kumpulkan simpanan HP</button>
+     <button class="ghost mini" data-sa="tutup">Tutup sekarang</button><button class="ghost mini" data-sa="batal">Batalkan sesi</button>`;
+  document.querySelectorAll("#pt-aksi-sesi [data-sa]").forEach(b=>b.onclick=()=>aksiSesi(b.dataset.sa));
+  const L=P.siswa,h=hitung(L),masalah=(h.terkunci||0)+(h.diam||0);
+  const pgw=P.ruang.filter(r=>r.pengawas_kabar&&kini-Date.parse(r.pengawas_kabar)<180000).length;
+  $("pt-ubin").innerHTML=[[L.length,"terjadwal",""],[(h.kerja||0)+(h.keluar||0)+(h.terkunci||0)+(h.diam||0),"mengerjakan",""],[(h.selesai||0)+(h.ditutup||0)+(h.kirim||0),"selesai",""],
+    [(h.belum||0)+(h.tunggu||0),"belum mulai",""],[masalah,"terkunci / tidak aktif",masalah?"merah":""],[`${pgw}/${P.ruang.length}`,"pengawas terhubung",""]].map(([v,l,k])=>`<div class="${k}"><b>${v}</b><span>${l}</span></div>`).join("")+(h.tidak_hadir?"":"");
+  $("pt-batang").innerHTML=URUT_ST.filter(k=>h[k]).map(k=>`<i title="${STS[k]}: ${h[k]}" style="flex:${h[k]};background:${WARNA_ST[k]}"></i>`).join("");
+  $("pt-legenda").innerHTML=URUT_ST.filter(k=>h[k]).map(k=>`<span><i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${WARNA_ST[k]}"></i> ${STS[k]} <b>${h[k]}</b></span>`).join(" · ");
+  const per={};L.forEach(x=>(per[x.ruang]=per[x.ruang]||[]).push(x));
+  $("pt-ruang").innerHTML=P.ruang.map(r=>{const LS=per[r.ruang]||[],hr=hitung(LS),mp={};LS.forEach(x=>mp[x.mapel]=(mp[x.mapel]||0)+1);
+    const pgOk=r.pengawas_kabar&&kini-Date.parse(r.pengawas_kabar)<180000;const kls=hr.terkunci?"merah":(hr.diam||hr.keluar||(!pgOk&&kini>=Date.parse(s.pintu)&&kini<akhir))?"kuning":"";
+    return`<button class="kr ${kls}" data-r="${esc(r.ruang)}"><span class="h"><b>${esc(r.ruang)}</b><span class="small muted">${esc(r.nama||"")} · ${LS.length}</span></span>
+      <span class="mp">${Object.entries(mp).map(([m,n])=>`<span>${esc(m)} ${n}</span>`).join("")}</span>
+      <span class="batang" style="height:7px;gap:1px">${URUT_ST.filter(k=>hr[k]).map(k=>`<i style="flex:${hr[k]};background:${WARNA_ST[k]}"></i>`).join("")}</span>
+      <span class="tanda">${hr.terkunci?`<span class="t-kunci">${hr.terkunci} terkunci</span>`:""}${hr.diam?`<span class="t-diam">${hr.diam} tidak aktif</span>`:""}${hr.keluar?`<span class="t-keluar">${hr.keluar} keluar</span>`:""}${hr.belum?`<span class="t-belum">${hr.belum} belum</span>`:""}${r.jeda?'<span class="t-kunci">DIJEDA</span>':""}${r.tambah?`<span class="t-belum">+${r.tambah} mnt</span>`:""}</span>
+      <span class="small muted">kode <b class="kode">${esc(r.kode)}</b> · ${pgOk?"pengawas terhubung":r.pengawas_kabar?"pengawas terakhir "+laluTeks(r.pengawas_kabar):"layar pengawas belum dibuka"}</span></button>`}).join("")||'<p class="muted">Tidak ada ruang di sesi ini.</p>';
+  document.querySelectorAll("#pt-ruang .kr").forEach(b=>b.onclick=()=>{PT_RUANG=b.dataset.r;gambarLaci()});
+  // umpan masalah
+  const u=[];L.forEach(x=>{if(x.status==="terkunci")u.push([0,`<b>${esc(x.nama)} terkunci</b><br>${esc(x.ruang)} · ${esc(x.kelas)} · ${esc(x.mapel)} — keluar halaman ${x.keluar}×`,x]);
+    if(x.status==="diam")u.push([1,`<b>${esc(x.nama)} tidak aktif ${laluTeks(x.kabar)}</b><br>${esc(x.ruang)} · terjawab ${x.terjawab}/${x.n_soal??"?"}; jawaban aman di server`,x])});
+  P.ruang.forEach(r=>{const pgOk=r.pengawas_kabar&&kini-Date.parse(r.pengawas_kabar)<180000;if(!pgOk&&kini>=Date.parse(s.pintu)&&kini<akhir)u.push([1,`<b>Layar pengawas ${esc(r.ruang)} ${r.pengawas_kabar?"terputus "+laluTeks(r.pengawas_kabar):"belum dibuka"}</b><br>Siswa tetap bisa mengerjakan; hubungi pengawasnya.`,null]);
+    const blm=(per[r.ruang]||[]).filter(x=>x.status==="belum").length;if(blm&&kini>Date.parse(s.tutup_pintu)&&kini<akhir)u.push([2,`<b>${esc(r.ruang)}: ${blm} siswa belum masuk</b><br>Pintu sudah ditutup. Pengawas: tandai tidak hadir atau Izinkan masuk.`,null])});
+  u.sort((a,b)=>a[0]-b[0]);$("pt-n-umpan").textContent=u.length;
+  $("pt-umpan").innerHTML=u.map(([,t,x])=>`<div class="bt">${t}${x?`<div class="row" style="margin-top:4px">${x.status==="terkunci"?`<button class="mini" data-pa="buka_kunci" data-n="${x.nisn}" data-r="${esc(x.ruang)}">Buka kunci</button>`:`<button class="ghost mini" data-pa="lepas" data-n="${x.nisn}" data-r="${esc(x.ruang)}">Lepas</button>`}<button class="ghost mini" data-lr="${esc(x.ruang)}">Lihat ruang</button></div>`:""}</div>`).join("")||'<div class="bt muted">Tidak ada yang perlu ditangani.</div>';
+  document.querySelectorAll("#pt-umpan [data-pa]").forEach(b=>b.onclick=()=>aksiSiswa(b.dataset.pa,b.dataset.n,b.dataset.r));
+  document.querySelectorAll("#pt-umpan [data-lr]").forEach(b=>b.onclick=()=>{PT_RUANG=b.dataset.lr;gambarLaci()});
+  $("pt-jejak").innerHTML=P.jejak.map(j=>`<tr><td style="white-space:nowrap">${waktuPendek(j.waktu)}</td><td>${esc(j.oleh)}</td><td>${esc(j.aksi)}</td><td class="small muted">${esc(ringkasRinci(j.rinci))}</td></tr>`).join("")||'<tr><td colspan="4" class="muted">Belum ada.</td></tr>';
+}
+const JUDUL_AKSI={buka_kunci:"Buka kunci",lepas:"Lepas",tambah:"Tambah waktu",izin:"Izinkan masuk",tidak_hadir:"Tidak hadir",hadir:"Batalkan tidak hadir",tutup:"Tutup ujian siswa"};
+async function aksiSiswa(a,nisn,ruang,menit){const x=PT.siswa.find(s=>s.nisn===nisn);
+  if(["lepas","tutup","tidak_hadir"].includes(a)&&!await tanya(JUDUL_AKSI[a]+" — "+(x?x.nama:nisn)+"?",a==="tutup"?"Ujian siswa ini diakhiri; jawaban tersimpan dinilai.":a==="lepas"?"Siswa bisa masuk lagi dari HP lain; jawaban tersimpan ikut pindah.":"Siswa masuk daftar susulan.",JUDUL_AKSI[a]))return;
+  try{await rpc("asm_aksi",{p_pin:PIN,p_sesi:PT.sesi.id,p_ruang:ruang,p_aksi:a,p_nisn:nisn,p_menit:menit||null,p_teks:null});toast(JUDUL_AKSI[a]+": "+(x?x.nama:nisn));muatPantau()}catch(e){toast(e.message,6000)}}
+async function aksiRuang(a,ruang,menit,teks){try{await rpc("asm_aksi",{p_pin:PIN,p_sesi:PT.sesi.id,p_ruang:ruang,p_aksi:a,p_nisn:null,p_menit:menit||null,p_teks:teks||null});toast("Tersimpan");muatPantau()}catch(e){toast(e.message,6000)}}
+async function aksiSesi(a){const s=PT.sesi;let menit=null;
+  if(a==="geser"||a==="perpanjang"){const v=prompt(a==="geser"?"Geser jam sesi berapa menit? (negatif = lebih awal)":"Tambah waktu semua ruang berapa menit?",a==="geser"?"15":"10");if(v===null)return;menit=parseInt(v,10);if(!menit)return toast("Isi angka menit")}
+  if(a==="pesan"){const t=prompt("Pesan ke semua layar siswa di sesi ini:");if(!t)return;try{await rpc("asm_aksi",{p_pin:PIN,p_sesi:s.id,p_ruang:null,p_aksi:"pesan",p_nisn:null,p_menit:null,p_teks:t});toast("Pesan terkirim");muatPantau()}catch(e){toast(e.message)}return}
+  const TJ={tutup:["Tutup sesi sekarang?","Waktu semua siswa di semua ruang berakhir sekarang; jawaban tersimpan dikirim otomatis."],batal:["Batalkan sesi?","Hanya bisa bila belum ada siswa yang masuk. Siswanya bisa dijadwalkan di sesi susulan."],kumpulkan:["Kumpulkan simpanan HP?","Jawaban tersimpan milik siswa yang waktunya sudah habis tetapi belum terkirim dinilai dari server."]};
+  if(TJ[a]&&!await tanya(TJ[a][0],TJ[a][1],"Lanjut"))return;
+  try{const r=await rpc("asm_sesi_ubah",{p_pin:PIN,p_sesi:s.id,p_aksi:a,p_menit:menit});toast(a==="kumpulkan"?`${r.n} simpanan dikumpulkan`:"Tersimpan");muatPantau()}catch(e){toast(e.message,6000)}}
+function gambarLaci(){let el=$("laci-ruang");if(!el){el=document.createElement("div");el.id="laci-ruang";el.className="laci";document.body.appendChild(el);el.onclick=e=>{if(e.target===el){PT_RUANG=null;el.remove()}}}
+  const r=PT.ruang.find(x=>x.ruang===PT_RUANG);if(!r){el.remove();return}const kini=Date.now()+PT_OFF;
+  const LS=PT.siswa.filter(x=>x.ruang===PT_RUANG).sort((a,b)=>String(a.no).localeCompare(String(b.no),"id",{numeric:true}));const lain=A.ruang.map(x=>x.kode).filter(k=>k!==PT_RUANG);
+  el.innerHTML=`<div><div class="kepala"><div><div class="alis">Sesi ${PT.sesi.ke} · ${jam(PT.sesi.mulai)}–${jam(r.akhir)}</div><h2>Ruang ${esc(r.ruang)}${r.nama?" · "+esc(r.nama):""}</h2></div><button class="ghost" id="laci-tutup">Tutup</button></div>
+    <div class="row"><span>Kode <b class="kode">${esc(r.kode)}</b></span>${r.jeda?'<span class="pill bad">DIJEDA</span>':""}${r.tambah?`<span class="pill info">+${r.tambah} mnt</span>`:""}<span class="small muted">${r.pengawas_kabar?"pengawas terakhir "+laluTeks(r.pengawas_kabar):"layar pengawas belum dibuka"}</span></div>
+    <div class="row"><button class="ghost mini" id="lr-jeda">${r.jeda?"Lanjutkan ruang":"Jeda ruang"}</button><button class="ghost mini" id="lr-5">Perpanjang ruang +5</button><button class="ghost mini" id="lr-10">+10</button>
+      <input type="text" id="lr-pesan" placeholder="Pesan ke layar ruang ini" style="flex:1;min-width:180px"><button class="ghost mini" id="lr-kirim">Kirim</button><a class="small" href="ruang.html?a=${A.asesmen.id}&ruang=${encodeURIComponent(r.ruang)}" target="_blank">Buka layar ruang ↗</a></div>
+    <div class="gulir"><table><thead><tr><th>No</th><th>Siswa</th><th>Mapel</th><th>Status</th><th>Terjawab</th><th>Sisa</th><th>Keluar</th><th>Kabar</th><th>Aksi</th><th>Pindah ruang</th></tr></thead><tbody>
+    ${LS.map(x=>{const ak=[];if(x.status==="terkunci")ak.push(`<button class="mini" data-la="buka_kunci" data-n="${x.nisn}">Buka kunci</button>`);
+      if(["kerja","keluar","terkunci","diam","tunggu"].includes(x.status))ak.push(`<button class="ghost mini" data-la="lepas" data-n="${x.nisn}">Lepas</button>`,`<button class="ghost mini" data-la="tambah" data-n="${x.nisn}">+5</button>`,`<button class="ghost mini" data-la="tutup" data-n="${x.nisn}">Tutup</button>`);
+      if(x.status==="belum"){ak.push(`<button class="ghost mini" data-la="izin" data-n="${x.nisn}">Izinkan</button>`,`<button class="ghost mini" data-la="tidak_hadir" data-n="${x.nisn}">Tidak hadir</button>`)}
+      if(x.status==="tidak_hadir")ak.push(`<button class="ghost mini" data-la="hadir" data-n="${x.nisn}">Batalkan</button>`);
+      const sisa=x.batas&&!["selesai","ditutup","belum","tidak_hadir"].includes(x.status)?durasiTeks(Date.parse(x.batas)-kini):"—";
+      return`<tr><td>${esc(x.no||"")}</td><td><b>${esc(x.nama)}</b><div class="small muted">${esc(x.kelas||"")}${x.tambah?" · +"+x.tambah+" mnt":""}</div></td><td>${esc(x.mapel)}</td><td><span class="st st-${x.status}">${STS[x.status]||x.status}</span></td>
+        <td>${["belum","tidak_hadir"].includes(x.status)?"—":x.terjawab+"/"+(x.n_soal??"?")}</td><td>${sisa}</td><td>${x.keluar||0}</td><td class="small">${["belum","tidak_hadir"].includes(x.status)?"—":x.status==="selesai"?jam(x.selesai_pada):laluTeks(x.kabar)}</td>
+        <td><div class="row" style="gap:4px">${ak.join("")}</div></td>
+        <td>${x.status==="belum"||x.status==="tidak_hadir"?`<select data-pr="${x.nisn}"><option value="">—</option>${lain.map(k=>`<option>${esc(k)}</option>`).join("")}</select>`:'<span class="small muted">sudah masuk</span>'}</td></tr>`}).join("")}
+    </tbody></table></div></div>`;
+  $("laci-tutup").onclick=()=>{PT_RUANG=null;el.remove()};
+  $("lr-jeda").onclick=()=>aksiRuang(r.jeda?"lanjut":"jeda",r.ruang);$("lr-5").onclick=()=>aksiRuang("perpanjang_ruang",r.ruang,5);$("lr-10").onclick=()=>aksiRuang("perpanjang_ruang",r.ruang,10);
+  $("lr-kirim").onclick=()=>{const t=$("lr-pesan").value.trim();if(t)aksiRuang("pesan",r.ruang,null,t)};
+  el.querySelectorAll("[data-la]").forEach(b=>b.onclick=()=>aksiSiswa(b.dataset.la,b.dataset.n,r.ruang,b.dataset.la==="tambah"?5:null));
+  el.querySelectorAll("[data-pr]").forEach(sl=>sl.onchange=async()=>{if(!sl.value)return;try{const j=await rpc("asm_pindah_ruang",{p_pin:PIN,p_sesi:PT.sesi.id,p_nisn:sl.dataset.pr,p_ruang:sl.value});toast(`Dipindah ke ${sl.value} (kode ${j.kode})`);muatPantau()}catch(e){toast(e.message,6000);sl.value=""}});
+}
+$("btn-susulan-muat").onclick=async()=>{try{const L=await rpc("asm_belum",{p_pin:PIN,p_asesmen:A.asesmen.id});
+  if(!L.length){$("pt-susulan").innerHTML='<p class="small muted">Tidak ada siswa yang perlu susulan.</p>';return}
+  const besok=new Date(Date.now()+864e5).toLocaleDateString("sv-SE",{timeZone:"Asia/Jakarta"});
+  $("pt-susulan").innerHTML=`<div class="gulir" style="max-height:360px;overflow:auto"><table><thead><tr><th><input type="checkbox" id="sl-semua"></th><th>Siswa</th><th>Kelas</th><th>Mapel</th><th>Sesi asal</th><th>Keterangan</th></tr></thead><tbody>
+    ${L.map((x,i)=>`<tr><td><input type="checkbox" data-i="${i}"></td><td>${esc(x.nama)}</td><td>${esc(x.kelas)}</td><td>${esc(x.mapel)} ${esc(x.tingkat)}</td><td>${tglPendek(x.hari)} S${x.ke} · ${esc(x.ruang)}</td><td>${x.hadir==="tidak"?"tidak hadir":"tidak ada hasil"}</td></tr>`).join("")}</tbody></table></div>
+    <div class="row" style="align-items:flex-end"><label class="f">Tanggal<input type="text" id="sl-hari" value="${besok}" style="width:120px"></label><label class="f">Jam mulai<input type="text" id="sl-jam" value="07:30" style="width:80px"></label>
+      <label class="f">Durasi (menit)<input type="number" id="sl-dur" value="90" style="width:90px"></label><label class="f">Ruang<select id="sl-ruang">${A.ruang.map(r=>`<option>${esc(r.kode)}</option>`).join("")}</select></label>
+      <button id="btn-sl-buat">Buat sesi susulan</button></div>
+    <p class="small muted">Satu sesi susulan boleh berisi mapel berbeda (setiap siswa mengerjakan naskah jadwal aslinya). Bila durasi mapel berbeda, buat sesi terpisah.</p>`;
+  $("sl-semua").onchange=e=>document.querySelectorAll("#pt-susulan [data-i]").forEach(c=>c.checked=e.target.checked);
+  $("btn-sl-buat").onclick=async()=>{const pilih=[...document.querySelectorAll("#pt-susulan [data-i]:checked")].map(c=>L[+c.dataset.i]);if(!pilih.length)return toast("Pilih siswa dulu");
+    const dobel=pilih.map(x=>x.nisn).filter((n,i,a)=>a.indexOf(n)!==i);if(dobel.length)return toast("Satu siswa hanya boleh satu mapel per sesi susulan; buat sesi terpisah untuk mapel lainnya.",6000);
+    try{const r=await rpc("asm_sesi_tambah",{p_pin:PIN,p_asesmen:A.asesmen.id,p_hari:$("sl-hari").value.trim(),p_mulai:$("sl-jam").value.trim().replace(".",":"),p_durasi:+$("sl-dur").value,p_ruang:$("sl-ruang").value,p_tugas:pilih.map(x=>({nisn:x.nisn,naskah:x.naskah})),p_jenis:"susulan"});
+      toast(`Sesi susulan dibuat: ${r.siswa} siswa, kode ${r.kode}`,6000);await muatUlang();TAB="pantau";PT_SESI=r.sesi;gambar()}catch(e){toast(e.message,6000)}}
+}catch(e){toast(e.message)}};
 
 /* ---------------- Cetak ---------------- */
 function gCetak(){

@@ -78,6 +78,10 @@ table.rekap{width:100%;border-collapse:collapse;font-size:13px}table.rekap th,ta
 code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break:break-all}
 #kunci{position:fixed;inset:0;background:rgba(21,35,43,.96);color:#fff;z-index:var(--lapis-tirai);display:flex;align-items:center;justify-content:center;padding:20px}
 #kunci .box{max-width:420px;background:#fff;color:var(--ink);border-radius:14px;padding:20px;text-align:center}
+/* PAS (20 Okt 2026): layar menunggu, jeda, pesan pengawas */
+#jeda{position:fixed;inset:0;background:rgba(29,42,58,.94);color:#fff;z-index:var(--lapis-tirai);display:flex;align-items:center;justify-content:center;padding:20px}#jeda .box{max-width:420px;background:#fff;color:var(--ink);border-radius:14px;padding:20px;text-align:center}
+#pesan-pas{position:fixed;left:8px;right:8px;top:8px;z-index:calc(var(--lapis-tirai) - 1);background:var(--emas-muda);color:var(--tinta);border:2px solid var(--emas);border-radius:12px;padding:10px 40px 10px 14px;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.18)}#pesan-pas button{position:absolute;right:6px;top:6px;background:transparent;color:var(--tinta);border:0;font-size:20px;padding:2px 10px}
+.tunggu{text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;padding:28px 16px}.tg-hitung{font-family:ui-monospace,Consolas,monospace;font-size:clamp(44px,14vw,84px);font-weight:700;color:var(--gelap);letter-spacing:.04em;line-height:1}
 /* hero halaman awal */
 .hero{background:linear-gradient(160deg,var(--gelap-2) 0%,var(--gelap) 55%,var(--gelap-2) 100%);color:#fff;border-radius:16px;padding:28px 20px 24px;margin:12px 0 16px;text-align:center;position:relative;overflow:hidden}
 .hero:before{content:"";position:absolute;inset:auto -40px -60px auto;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(220,192,110,.28),rgba(220,192,110,0) 70%)}
@@ -116,7 +120,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .hd-aksi{display:flex;gap:8px;align-items:center;margin-left:auto}.hd-aksi>button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.55);border-radius:8px;padding:8px 12px;font-size:13px;font-weight:600;white-space:nowrap}.hd-aksi>button:hover{border-color:var(--emas);background:rgba(255,255,255,.12)}
 .m-kanan{display:flex;gap:8px;align-items:center;position:relative}.m-kanan .pill{background:rgba(255,255,255,.12);color:var(--emas)}
 .m-kanan button{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.6);padding:8px 14px;font-size:13px}
-.bukan-op .op-only{display:none!important}
+.bukan-op .op-only{display:none!important}.peran-guru .awas-only{display:none!important}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.chip{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px}.chip.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 .srow{border-bottom:1px solid var(--line);padding:8px 2px}.srow.off{opacity:.55}.sr-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.sr-bot{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:5px}
 .nisn{font-size:17px;letter-spacing:.06em;color:var(--acc);font-weight:700}.mini{padding:4px 8px;font-size:12px}.tgl{font-weight:600;color:var(--warn)}
@@ -366,6 +370,7 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
     <div class="menu">
       <!-- PAS / Ujian bersama (20 Okt 2026): operator mengelola di pas.html; layar ruang pengawas menyusul (Tahap 3) -->
       <a class="mi op-only" id="mi-pas" href="pas.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11M15 9v11"/></svg></span><span class="mi-tx"><b>PAS · Ujian Bersama</b><span>Peserta per ruang, jadwal, folder soal, terbitkan, cetak kartu &amp; daftar hadir</span></span></a>
+      <a class="mi awas-only" id="mi-ruang" href="ruang.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h7"/></svg></span><span class="mi-tx"><b>PAS · Layar Ruang</b><span>Untuk pengawas: kode akses ruang, siswa yang terkunci/tidak aktif, buka kunci, jeda, pesan ke layar</span></span></a>
       <button class="mi" id="mi-sesi"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg></span><span class="mi-tx"><b>Sesi Ujian</b><span>Buka ujian untuk kelas, tampilkan kode akses, pantau siswa yang sedang mengerjakan</span></span></button>
       <button class="mi" id="mi-dasbor"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="mi-tx"><b>Dasbor Hasil</b><span>Rekap nilai, analisis butir, belum mengerjakan, riwayat siswa, unduh Excel</span></span></button>
       <a class="mi kelola-only" id="mi-soal" href="admin.html?menu=soal"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg></span><span class="mi-tx"><b>Upload Soal</b><span>Kisi-kisi, template soal, terbit ke bank soal, jalur darurat</span></span></a>
@@ -425,6 +430,14 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
     <div class="sl-kol"><div class="lbl">Kode akses</div><div class="kd" id="sl-kode"></div><div class="ket" id="sl-ket"></div></div></div>
   <div class="sl-url" id="sl-url"></div><div class="sl-pet" id="sl-pet"></div><button id="btn-sl-tutup">Tutup tampilan</button></div></div>
 
+<section id="v-tunggu" class="hidden"><div class="card tunggu">
+  <span class="pill">PAS · menunggu soal dibuka</span>
+  <h2 id="tg-nama"></h2><div class="small muted" id="tg-info"></div>
+  <div class="tg-hitung" id="tg-hitung">--:--</div>
+  <div class="small" id="tg-jam"></div>
+  <p class="small muted">Jangan tutup halaman ini. Soal muncul sendiri saat waktunya tiba. Waktu mengerjakan berakhir bersamaan untuk semua peserta.</p>
+  <div id="tg-pesan" class="notice hidden"></div>
+</div></section>
 <section id="v-exam" class="hidden">
   <div class="card" id="q-card"></div>
   <div class="card">
@@ -500,6 +513,8 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
   </div>
 </section>
 </div>
+<div id="jeda" class="hidden" role="alert"><div class="box"><h2>Ujian dijeda pengawas</h2><p class="small">Waktu berhenti dan jawabanmu aman. Tetap di halaman ini — ujian berlanjut sendiri saat pengawas melanjutkan.</p></div></div>
+<div id="pesan-pas" class="hidden" role="status"><b>Pesan pengawas:</b> <span id="pesan-pas-isi"></span><button type="button" id="pesan-pas-tutup" aria-label="Tutup pesan">×</button></div>
 <div id="kunci" class="hidden"><div class="box"><h2 id="k-judul">Kamu meninggalkan halaman ujian</h2><p id="k-isi" class="small"></p><div id="k-aksi"></div></div></div>
 <div class="toast" id="toast"></div>
 <script>/* tka_peserta.js — editor peruntukan ujian (semua siswa / kelas tertentu / siswa tertentu). Dipakai admin.html & index.html.
@@ -609,7 +624,7 @@ function mathRender(el){if(!el)return;try{autoSup(el)}catch(e){}if(window.render
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
 const V_GURU=["v-menu","v-siswa","v-sesi","v-guru"];let V_KINI="";
 function aksiHd(){$("hd-aksi").classList.toggle("hidden",!(PIN&&PERAN&&V_GURU.includes(V_KINI)))}
-function show(id){V_KINI=id;aksiHd();["v-start","v-exam","v-result","v-guru","v-menu","v-siswa","v-sesi"].forEach(v=>$(v).classList.toggle("hidden",v!==id));document.body.classList.toggle("mode-dasbor",id==="v-guru");document.body.classList.toggle("mode-sesi",id==="v-sesi");$("nav").classList.toggle("hidden",id!=="v-exam");$("timer").classList.toggle("hidden",id!=="v-exam");window.scrollTo(0,0)}
+function show(id){V_KINI=id;aksiHd();["v-start","v-tunggu","v-exam","v-result","v-guru","v-menu","v-siswa","v-sesi"].forEach(v=>$(v).classList.toggle("hidden",v!==id));document.body.classList.toggle("mode-dasbor",id==="v-guru");document.body.classList.toggle("mode-sesi",id==="v-sesi");$("nav").classList.toggle("hidden",id!=="v-exam");$("timer").classList.toggle("hidden",id!=="v-exam");window.scrollTo(0,0)}
 const b64e=o=>btoa(unescape(encodeURIComponent(JSON.stringify(o))));
 function fmtT(s){s=Math.max(0,Math.round(s));return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
 const pct=(a,b)=>b?Math.round(a/b*100):0;
@@ -640,11 +655,11 @@ function newSession(nama,kelas,ident){
     if(q.bentuk==="PG"||q.bentuk==="PGK")perm[i]=shuffle([...q.opsi.keys()],rnd);else if(q.bentuk==="KATEGORI")perm[i]=shuffle([...q.baris.keys()],rnd);
     else if(q.bentuk==="JODOH")perm[i]={kiri:shuffle([...q.kiri.keys()],rnd),kanan:shuffle([...q.kanan.keys()],rnd)};else perm[i]=null});
   const now=Date.now(),id=ident||{};
-  S={kode:PK.kode,pk:PK,nama,kelas,nisn:id.nisn||null,token:id.token||null,tamu:!!id.tamu,sesi:id.sesi_id||null,seed,varian,order,perm,answers:{},cur:0,startAt:now,
+  S={kode:PK.kode,pk:PK,nama,kelas,nisn:id.nisn||null,token:id.token||null,tamu:!!id.tamu,sesi:id.sesi_id||null,pas:id.pas||null,seed,varian,order,perm,answers:{},cur:0,startAt:now,
     deadline:id.batas?batasLokal(id.batas,id.sekarang):now+PK.durasi*60000,submitted:false,result:null,payload:null,saved:false,keluar:0,logKeluar:[],terkunci:false,ubahKe:0,tersimpanKe:0,disimpanServer:id.disimpan_pada?new Date(id.disimpan_pada).getTime():0};
   soal.forEach((s,i)=>{const j=pre[String(s.no)];if(j&&j.v===varian[i]&&j.a!==null&&j.a!==undefined)S.answers[i]=j.a});save();
 }
-function mulaiUjian(ident){PK=ident.paket;$("login-info").classList.add("hidden");PENDING=null;
+function mulaiUjian(ident){if(ident.pas&&ident.paket&&!ident.paket.publik)return tungguSoal(ident);berhentiTunggu();PK=ident.paket;$("login-info").classList.add("hidden");PENDING=null;
   $("hd-t").textContent=PK.judul;$("hd-s").textContent=[PK.mapel,PK.materi].filter(Boolean).join(" · ")||"SMA Plus Merdeka Soreang";
   newSession(ident.nama,ident.kelas,ident);mintaLayarPenuh();{const n=Object.keys(S.answers).length;if(n)toast("Jawaban dari perangkat sebelumnya dipulihkan ("+n+" soal)")}
   $("data-umum").innerHTML=[PK.meta.petunjuk,PK.meta.data_umum].filter(Boolean).map(safeHtml).join("<br>");show("v-exam");renderQ();startTimer();mulaiDenyut()}
@@ -655,14 +670,36 @@ let DENYUT=null;
 function mulaiDenyut(){clearInterval(DENYUT);if(!S||!S.sesi||S.ujicoba||S.submitted)return;DENYUT=setInterval(denyut,30000);denyut(true)}
 async function denyut(paksa){if(!S||S.submitted||!S.sesi){clearInterval(DENYUT);return}
   const ke=S.ubahKe||0,kirimJwb=ke!==(S.tersimpanKe||0);if(!kirimJwb&&!paksa&&Date.now()-(S.kabarTerakhir||0)<55000)return;
-  try{const r=kirimJwb?await rpc("tka_simpan_jawaban",{p_token:S.token,p_jawaban:buildPayload().jawaban}):await rpc("tka_status",{p_token:S.token});if(!r||!r.ada||S.submitted)return;
+  try{const r=kirimJwb?await rpc("tka_simpan_jawaban",{p_token:S.token,p_jawaban:buildPayload().jawaban,p_keluar:S.keluar||0,p_terkunci:!!S.terkunci}):await rpc("tka_status",{p_token:S.token});if(!r||!r.ada||S.submitted)return;
     S.kabarTerakhir=Date.now();if(kirimJwb&&r.disimpan){S.tersimpanKe=ke;S.disimpanServer=Date.now();save()}tandaSimpan();
     if(r.batas){const d=batasLokal(r.batas,r.sekarang);if(Math.abs(d-S.deadline)>5000){const lebih=d>S.deadline;S.deadline=d;save();if(lebih)toast("Waktu ujian diperpanjang oleh guru")}}
     // Batas keluar halaman & detik yang diabaikan bisa diubah guru saat sesi berjalan (7 Oktober 2026)
     const st=S.pk&&S.pk.settings;if(st&&r.maks_keluar!==undefined&&(st.maks_keluar!==r.maks_keluar||st.toleransi_keluar!==r.toleransi_keluar)){st.maks_keluar=r.maks_keluar;st.toleransi_keluar=r.toleransi_keluar;save()}
-    if(r.buka===false){clearInterval(DENYUT);submit(true,"Sesi ujian ditutup guru — jawaban dikunci, mengirim dalam beberapa detik…")}}
+    if(S.pas)terapkanPas(r);
+    if(r.buka===false){clearInterval(DENYUT);$("jeda").classList.add("hidden");submit(true,r.ditutup?"Ujianmu ditutup pengawas — jawaban yang tersimpan dikirim…":S.pas?"Waktu habis — jawaban dikunci, mengirim dalam beberapa detik…":"Sesi ujian ditutup guru — jawaban dikunci, mengirim dalam beberapa detik…")}}
   catch(e){}}
 const save=()=>lsSet(CFG.lsKey,S);
+/* ---------- PAS (20 Okt 2026): jeda, pesan pengawas, buka kunci dari jauh; layar menunggu soal ---------- */
+const jamWIB=iso=>new Date(iso).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",timeZone:"Asia/Jakarta"}).replace(":",".");
+function terapkanPas(r){const off=r.sekarang?Date.parse(r.sekarang)-Date.now():0;
+  const jeda=!!r.jeda;if(jeda!==!!S.jeda){S.jeda=jeda;save();$("jeda").classList.toggle("hidden",!jeda);clearInterval(DENYUT);DENYUT=setInterval(denyut,jeda?10000:30000);if(!jeda)toast("Ujian dilanjutkan — waktu jeda sudah ditambahkan")}
+  if(r.pesan&&r.pesan_pada&&r.pesan_pada!==S.pesanPada){S.pesanPada=r.pesan_pada;save();tampilPesanPas(r.pesan)}
+  if(S.terkunci&&r.buka_kunci_pada&&Date.parse(r.buka_kunci_pada)-off>(S.terkunciSejak||0)-2000){S.terkunci=false;S.bukaPada=S.keluar;S.ubahKe=(S.ubahKe||0)+1;save();$("kunci").classList.add("hidden");hentiAlarm();toast("Kunci dibuka oleh pengawas — lanjutkan")}}
+function tampilPesanPas(t){$("pesan-pas-isi").textContent=t;$("pesan-pas").classList.remove("hidden");toast("Pesan pengawas: "+t)}
+const KUNCI_TUNGGU=CFG.lsKey+"_tunggu";let TUNGGU_T=null;
+const fmtJ=s=>{s=Math.max(0,Math.ceil(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),d=s%60;return(h?h+":"+String(m).padStart(2,"0"):String(m).padStart(2,"0"))+":"+String(d).padStart(2,"0")};
+function berhentiTunggu(){clearInterval(TUNGGU_T);TUNGGU_T=null;try{localStorage.removeItem(KUNCI_TUNGGU)}catch(e){}}
+// Masuk sebelum jam soal: hitung mundur (jam server); soal diambil sendiri, disebar ±6 dtk agar tidak serentak
+function tungguSoal(ident){lsSet(KUNCI_TUNGGU,{token:ident.token});$("login-info").classList.add("hidden");PENDING=null;
+  const p=ident.pas;let off=Date.parse(ident.sekarang)-Date.now(),mulai=Date.parse(p.mulai_soal),ambil=false,n=0;const sebar=Math.random()*6000;
+  $("tg-nama").textContent=ident.nama;$("tg-info").innerHTML=`Kelas ${esc(ident.kelas)} · Ruang <b>${esc(p.ruang)}</b> · Sesi ${esc(p.sesi)} · <b>${esc(p.mapel||(ident.paket&&ident.paket.mapel)||"")}</b>`;
+  show("v-tunggu");mintaLayarPenuh();clearInterval(TUNGGU_T);
+  const f=async()=>{const sisa=(mulai-(Date.now()+off))/1000;$("tg-hitung").textContent=sisa>0?fmtJ(sisa):"Membuka soal…";$("tg-jam").textContent="Soal terbuka pukul "+jamWIB(mulai)+" WIB";
+    if(++n%15===0){try{const r=await rpc("tka_status",{p_token:ident.token});if(r&&r.ada){off=Date.parse(r.sekarang)-Date.now();if(r.mulai_soal)mulai=Date.parse(r.mulai_soal);
+      if(r.pesan){$("tg-pesan").classList.remove("hidden");$("tg-pesan").textContent="Pesan pengawas: "+r.pesan}
+      if(r.dilepas||r.buka===false){berhentiTunggu();show("v-start");galatMasuk(r.dilepas?"Kamu dilepas pengawas. Masuk lagi dengan NISN dan kode akses.":"Sesi ini sudah ditutup.")}}}catch(e){}}
+    if(sisa<=0&&!ambil&&Date.now()+off>=mulai+sebar){ambil=true;try{const j=await rpc("tka_lanjut_siswa",{p_token:ident.token});if(j.paket&&j.paket.publik)mulaiUjian(j);else{ambil=false;if(j.pas&&j.pas.mulai_soal)mulai=Date.parse(j.pas.mulai_soal)}}catch(e){ambil=false}}};
+  f();TUNGGU_T=setInterval(f,1000)}
 function tandaSimpan(){const el=$("simpan-st");if(!el||!S||!S.sesi||S.ujicoba)return;const t=S.disimpanServer,blm=(S.ubahKe||0)!==(S.tersimpanKe||0);
   el.textContent=t?`☁️ Jawaban tersimpan di server ${new Date(t).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"})}${blm?" · perubahan terbaru menyusul":""}`:(blm?"☁️ Jawaban akan tersimpan otomatis ke server":"")}
 const Q=i=>S.pk.publik.soal[i].varian[S.varian[i]];
@@ -692,7 +729,7 @@ function collect(i){const q=Q(i),c=$("q-card");
   S.ubahKe=(S.ubahKe||0)+1;save();renderGrid();tandaSimpan()}
 function complete(i){const q=Q(i),a=S.answers[i];if(a===undefined)return false;if(q.bentuk==="KATEGORI")return Object.keys(a).length===q.baris.length;if(q.bentuk==="JODOH")return Object.keys(a).length===q.kiri.length;return true}
 function renderGrid(){const g=$("grid");g.innerHTML=S.order.map((i,pos)=>`<button class="${complete(i)?"ans":""} ${pos===S.cur?"cur":""}" data-pos="${pos}">${pos+1}</button>`).join("");g.querySelectorAll("button").forEach(b=>b.onclick=()=>{S.cur=+b.dataset.pos;save();renderQ()});$("prog").textContent=`${S.order.filter(complete).length} dari ${S.order.length} terjawab lengkap`}
-let tick=null;function startTimer(){clearInterval(tick);const f=()=>{const s=(S.deadline-Date.now())/1000;$("timer").textContent=fmtT(s);$("timer").classList.toggle("warn",s<=300);if(s<=0){clearInterval(tick);submit(true)}};f();tick=setInterval(f,1000)}
+let tick=null;function startTimer(){clearInterval(tick);const f=()=>{if(S.jeda){$("timer").textContent="Dijeda";return}const s=(S.deadline-Date.now())/1000;$("timer").textContent=fmtT(s);$("timer").classList.toggle("warn",s<=300);if(s<=0){clearInterval(tick);submit(true)}};f();tick=setInterval(f,1000)}
 
 /* ================= PANTAU KELUAR HALAMAN ================= */
 let KELUAR_T=null;
@@ -717,7 +754,7 @@ function pantauKeluar(){
   const kembali=()=>{if(!aktif()||!KELUAR_T)return;const d=Math.round((Date.now()-KELUAR_T)/1000);KELUAR_T=null;
     const tol=toleransiKeluar();(S.logKeluar=S.logKeluar||[]).push({t:new Date().toISOString(),d,hitung:d>=tol});
     if(d<tol){save();tampilPeringatan(d,true);return}
-    S.keluar=(S.keluar||0)+1;save();bunyiAlarm();tampilPeringatan(d)};
+    S.keluar=(S.keluar||0)+1;S.ubahKe=(S.ubahKe||0)+1;save();bunyiAlarm();tampilPeringatan(d)};
   ["pointerdown","keydown","touchstart"].forEach(ev=>document.addEventListener(ev,siapAlarm,{passive:true}));
   document.addEventListener("visibilitychange",()=>{document.hidden?pergi():kembali()});
   window.addEventListener("blur",pergi);window.addEventListener("focus",kembali);
@@ -729,10 +766,10 @@ function tampilPeringatan(d,sekejap){const b=batasKeluar(),n=S.keluar,sejak=n-(S
   if(sekejap&&!S.terkunci){$("k-judul").textContent=PESAN_KELUAR;
     $("k-isi").innerHTML=`Kamu keluar ${d} detik — kali ini <b>tidak dihitung</b>. Keluar lebih lama akan dicatat dan dihitung.`;
     $("k-aksi").innerHTML=`<button id="k-lanjut" class="grow">Saya mengerti, lanjutkan</button>`;$("k-lanjut").onclick=()=>k.classList.add("hidden");return}
-  if(b>0&&sejak>=b){S.terkunci=true;save();$("k-judul").textContent="Ujian dikunci";
+  if(b>0&&sejak>=b){if(!S.terkunci){S.terkunciSejak=Date.now();S.ubahKe=(S.ubahKe||0)+1;setTimeout(()=>denyut(true),800)}S.terkunci=true;save();$("k-judul").textContent="Ujian dikunci";
     $("k-isi").innerHTML=`<b>${PESAN_KELUAR}</b><br>Kamu meninggalkan halaman ujian <b>${n} kali</b> (batas ${b}). Panggil pengawas untuk membuka kunci, atau kumpulkan jawaban sekarang.`;
     $("k-aksi").innerHTML=`<input type="text" id="k-kode" placeholder="Kode buka dari pengawas" autocomplete="off" style="text-transform:uppercase;margin:8px 0"><div class="row"><button id="k-buka" class="grow">Buka kunci</button><button id="k-kumpul" class="danger">Kumpulkan jawaban</button></div>`;
-    $("k-buka").onclick=async()=>{try{await rpc("tka_buka_kunci",{p_kode:S.kode,p_token:S.token,p_kode_buka:$("k-kode").value.trim()});S.terkunci=false;S.bukaPada=S.keluar;save();k.classList.add("hidden");toast("Kunci dibuka oleh pengawas — lanjutkan")}catch(e){toast(e.message)}};
+    $("k-buka").onclick=async()=>{try{await rpc("tka_buka_kunci",{p_kode:S.kode,p_token:S.token,p_kode_buka:$("k-kode").value.trim()});S.terkunci=false;S.bukaPada=S.keluar;S.ubahKe=(S.ubahKe||0)+1;save();k.classList.add("hidden");toast("Kunci dibuka oleh pengawas — lanjutkan")}catch(e){toast(e.message)}};
     $("k-kumpul").onclick=()=>{k.classList.add("hidden");submit(true)};
   }else{$("k-judul").textContent=PESAN_KELUAR;
     $("k-isi").innerHTML=`Tercatat <b>${n} kali</b>${d?` (terakhir ${d} detik)`:""}${b>0?` — batas <b>${b}</b>${S.bukaPada?" sejak dibuka pengawas":""}. Pada batas itu ujian akan dikunci dan pengawas diberi tahu.`:"."} Tetap di halaman ini sampai selesai.`;
@@ -790,7 +827,7 @@ function renderDetail(i,pos){const q=Q(i),a=S.answers[i],ok=S.result.detail[i].b
 let ROWS=[],PIN="",PERAN="",PAKETS=[],GPK=null,GPES=null,GSESI=[],G_SESI_AWAL="";
 let GURU={};   // identitas dari PIN: {id, nama, bersama, kelas_saya, atur}
 /* ---------- Menu guru / pengawas ---------- */
-function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);document.body.classList.toggle("bukan-op",PERAN!=="operator");$("m-peran").textContent=PERAN==="operator"?"Operator · akses penuh":PERAN==="guru"?"Guru · kelola":"Pengawas · lihat"}
+function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);document.body.classList.toggle("bukan-op",PERAN!=="operator");document.body.classList.toggle("peran-guru",PERAN==="guru");$("m-peran").textContent=PERAN==="operator"?"Operator · akses penuh":PERAN==="guru"?"Guru · kelola":"Pengawas · lihat"}
 let SESI_URL=qs.get("sesi");   // admin.html → index.html?guru&sesi=KODE: langsung ke form buka sesi untuk paket itu
 let DASBOR_URL=qs.get("dasbor"),UJI_URL=qs.get("ujicoba"),G_DASBOR="";   // Pustaka paket → Hasil / Coba soal
 async function masukMenu(pin){$("m-msg").textContent="Memeriksa…";
@@ -1318,6 +1355,8 @@ window.addEventListener("DOMContentLoaded",()=>{
     else if(prev.submitted){$("resume-box").classList.remove("hidden");$("resume-nama").textContent=prev.nama+(prev.saved?" (sudah selesai – lihat hasil)":" (belum terkirim – kirim ulang)")}
     else S=null}
   $("btn-resume").onclick=()=>{PK=S.pk;$("hd-t").textContent=PK.judul;if(S.submitted){show("v-result");$("r-kode").value=b64e(S.payload);if(S.saved&&S.result)renderResult();else kirim()}else{show("v-exam");renderQ();startTimer();mulaiDenyut();if(S.terkunci)tampilPeringatan(0)}};
+  {const tg=lsGet(KUNCI_TUNGGU,null);if(tg&&tg.token&&!(S&&!S.submitted&&S.deadline>Date.now()))rpc("tka_lanjut_siswa",{p_token:tg.token}).then(mulaiUjian).catch(()=>berhentiTunggu())}
+  $("pesan-pas-tutup").onclick=()=>$("pesan-pas").classList.add("hidden");
   $("btn-discard").onclick=()=>{if(confirm("Hapus pengerjaan sebelumnya di perangkat ini?")){localStorage.removeItem(CFG.lsKey);S=null;$("resume-box").classList.add("hidden")}};
   // Masuk dua langkah: (1) server memeriksa NISN + kode dan menampilkan nama, kelas, ujian tanpa mencatat apa pun;
   // (2) siswa mengonfirmasi, baru token pengerjaan dibuat. NISN yang salah ketik tidak mengunci NISN teman.
@@ -1330,7 +1369,7 @@ window.addEventListener("DOMContentLoaded",()=>{
         const c=await rpc("tka_cek_masuk",{p_nisn:nisn,p_kode_akses:kode});PENDING={nisn,kode};
         const box=$("login-info");box.classList.remove("hidden");box.style.background="var(--good-soft)";box.style.color="var(--good)";
         box.innerHTML=`<b>Apakah ini kamu?</b><div class="konfirm"><span class="nm">${esc(c.nama)}</span><span>Kelas <b>${esc(c.kelas)}</b> · NISN ${esc(c.nisn)}</span>`+
-          `<div class="uj"><b>${esc(c.ujian.judul)}</b><br>${[c.ujian.mapel,c.ujian.n_soal+" soal","waktu "+c.ujian.menit+" menit"].filter(Boolean).map(esc).join(" · ")}</div></div>`+
+          `<div class="uj"><b>${esc(c.ujian.judul)}</b><br>${[c.ujian.mapel,c.ujian.n_soal+" soal","waktu "+c.ujian.menit+" menit"].filter(Boolean).map(esc).join(" · ")}${c.pas?`<br>Ruang <b>${esc(c.pas.ruang)}</b> · Sesi ${esc(c.pas.sesi)} · ${esc(c.pas.mapel||"")} · soal terbuka pukul <b>${jamWIB(c.pas.mulai_soal)}</b> WIB`:""}</div></div>`+
           `<div class="row"><button id="btn-ya" class="grow">Ya, benar — mulai mengerjakan</button><button id="btn-bukan" class="ghost">Bukan saya</button></div>`;
         $("btn-ya").onclick=async()=>{const b=$("btn-ya");b.disabled=true;try{mulaiUjian(await rpc("tka_masuk",{p_nisn:PENDING.nisn,p_kode_akses:PENDING.kode}))}catch(e){galatMasuk(e.message)}finally{b.disabled=false}};
         $("btn-bukan").onclick=()=>{PENDING=null;box.classList.add("hidden");$("nisn").value="";$("nisn").focus();toast("Periksa kembali NISN-mu, atau minta bantuan guru")};
