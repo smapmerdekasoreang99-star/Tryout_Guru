@@ -163,9 +163,9 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
   <!-- Folder Soal -->
   <div id="tab-soal" class="hidden">
     <div class="card kolom">
-      <div class="kepala"><div><h3>Folder Soal PAS</h3><p class="small muted">Satu laci per mapel × tingkat. Pasang <b>paket</b> dari bank soal, tunjuk <b>penyusun</b>, lalu ubah status menjadi <b>Terkunci</b> setelah ditinjau. Sesi ujian untuk laci baru dibuat saat paketnya dipasang (boleh sesudah terbit).</p></div>
+      <div class="kepala"><div><h3>Folder Soal PAS</h3><p class="small muted">Satu laci per mapel × tingkat. Pasang <b>paket</b> dari bank soal — <b>penyusun</b> otomatis diisi guru yang mengunggah paket itu (bisa diganti), lalu ubah status menjadi <b>Terkunci</b> setelah ditinjau. Sesi ujian untuk laci baru dibuat saat paketnya dipasang (boleh sesudah terbit).</p></div>
         <span class="pill" id="s-progres"></span></div>
-      <div class="gulir naskah"><table><thead><tr><th>Mapel</th><th>Kelas</th><th>Dipakai</th><th>Penyusun</th><th>Paket soal</th><th>Status</th></tr></thead><tbody id="t-naskah"></tbody></table></div>
+      <div class="gulir naskah"><table><thead><tr><th>Mapel</th><th>Kelas</th><th>Dipakai</th><th>Penyusun <span class="small muted" style="font-weight:400">(otomatis: pengunggah paket)</span></th><th>Paket soal</th><th>Status</th></tr></thead><tbody id="t-naskah"></tbody></table></div>
     </div>
   </div>
 
@@ -405,13 +405,13 @@ async function gSoal(){
   const opsiGuru=sel=>`<option value="">— belum —</option>`+(GURU||[]).map(g=>`<option value="${esc(g.id)}" ${g.id===sel?"selected":""}>${esc(g.nama)}</option>`).join("");
   const opsiPaket=(n)=>{const cocok=p=>(p.mapel||"").toLowerCase().includes(n.mapel.toLowerCase().split(" ")[0])||(p.judul||"").toLowerCase().includes(n.mapel.toLowerCase());
     const L=(PAKET||[]).filter(p=>!p.arsip).sort((a,b)=>(cocok(b)-cocok(a))||String(b.diubah).localeCompare(String(a.diubah)));
-    return`<option value="">— belum —</option>`+L.map(p=>`<option value="${esc(p.kode)}" ${p.kode===n.paket?"selected":""}>${esc(p.kode)} · ${esc(p.judul)} (${p.n_soal} soal)</option>`).join("")};
+    return`<option value="">— belum —</option>`+L.map(p=>`<option value="${esc(p.kode)}" ${p.kode===n.paket?"selected":""}>${esc(p.kode)} · ${esc(p.judul)} (${p.n_soal} soal${p.pemilik_nama?", oleh "+esc(p.pemilik_nama):""})</option>`).join("")};
   $("t-naskah").innerHTML=ns.map(n=>`<tr><td><b>${esc(n.mapel)}</b></td><td>${esc(n.tingkat)}</td>
     <td class="small">${n.dipakai.map(d=>`${tglPendek(d.hari)} S${d.ke} (${esc(d.kelompok)})`).join("<br>")||'<span class="muted">tidak dipakai</span>'}</td>
     <td><select data-guru="${n.id}">${opsiGuru(n.penyusun)}</select></td>
     <td><select data-paket="${n.id}">${opsiPaket(n)}</select>${n.paket&&n.paket_judul?`<div class="small muted">${n.n_soal} soal</div>`:""}</td>
     <td><select data-st="${n.id}">${Object.entries(ST_NASKAH).map(([k,[l]])=>`<option value="${k}" ${k===n.status?"selected":""}>${l}</option>`).join("")}</select> <span class="pill ${ST_NASKAH[n.status][1]}">${ST_NASKAH[n.status][0]}</span></td></tr>`).join("")||'<tr><td colspan="6" class="muted">Laci naskah muncul setelah jadwal diunggah.</td></tr>';
-  const ubah=async(id,nilai,el)=>{el.disabled=true;try{const r=await rpc("asm_naskah_atur",{p_pin:PIN,p_naskah:+id,p_nilai:nilai});toast(r.sesi_ujian_baru?`Tersimpan · ${r.sesi_ujian_baru} sesi ujian disiapkan`:"Tersimpan");await muatUlang()}catch(e){toast(e.message,6000);el.disabled=false}};
+  const ubah=async(id,nilai,el)=>{el.disabled=true;try{const r=await rpc("asm_naskah_atur",{p_pin:PIN,p_naskah:+id,p_nilai:nilai});{const gn=(GURU||[]).find(x=>x.id===r.penyusun);toast(["Tersimpan",nilai.paket!==undefined&&gn?"penyusun: "+gn.nama:"",r.sesi_ujian_baru?r.sesi_ujian_baru+" sesi ujian disiapkan":""].filter(Boolean).join(" · "))};await muatUlang()}catch(e){toast(e.message,6000);el.disabled=false}};
   document.querySelectorAll("[data-guru]").forEach(s=>s.onchange=()=>ubah(s.dataset.guru,{penyusun:s.value},s));
   document.querySelectorAll("[data-paket]").forEach(s=>s.onchange=()=>ubah(s.dataset.paket,{paket:s.value},s));
   document.querySelectorAll("[data-st]").forEach(s=>s.onchange=()=>ubah(s.dataset.st,{status:s.value},s));
