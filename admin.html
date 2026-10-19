@@ -347,7 +347,11 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
         <h4>Sesudah terbit</h4>
         <p>Paket bertanda <b>Darurat</b>. Untuk mengesahkannya: <i>Pustaka Paket → buka paket → Kisi-kisi .docx</i>, periksa/lengkapi, lalu unggah di <b>Langkah 1</b> dengan kode yang sama.</p>
       </div></details>
-    <label class="small">PIN darurat<input type="password" id="pin-d" autocomplete="off"></label>
+    <div class="row" style="align-items:flex-end;gap:12px">
+      <label class="small">PIN darurat<input type="password" id="pin-d" autocomplete="off"></label>
+      <label class="small grow">Guru penyusun <b style="color:var(--bad)">*</b><select id="d-penyusun" style="width:100%"><option value="">— isi PIN darurat dulu —</option></select></label>
+    </div>
+    <p class="small muted" id="d-penyusun-ket" style="margin:4px 0 0">Paket tercatat atas nama guru penyusun (wajib, 20 Okt 2026). Masuk dengan PIN pribadi guru di atas → otomatis atas nama Anda.</p>
     <div class="drop" id="drop-d" style="margin-top:10px"><p><b>Seret file soal ke sini</b> atau <label style="color:var(--acc);text-decoration:underline;cursor:pointer">pilih file<input type="file" id="file-d" accept=".docx" class="hidden"></label></p></div>
     <div id="d-status" class="small" style="margin-top:8px"></div>
   </div>
@@ -1872,11 +1876,22 @@ async function bacaDarurat(f){$("d-status").innerHTML=`<span class="pill">Membac
     PREV_TEKS=p.kunci.teks||{};$("d-prev").innerHTML=(Object.keys(PREV_TEKS).length?`<details><summary>Teks bacaan (${Object.keys(PREV_TEKS).length})</summary>${Object.entries(PREV_TEKS).map(([k,t])=>`<div class="prev"><b>${esc(k)} — ${esc(t.judul)}</b><div class="stim">${safeHtml(t.isi)}</div></div>`).join("")}</details>`:"")+p.kunci.soal.map((s,i)=>`<details><summary>No. ${s.no} — ${esc((bp[i]||{}).sub||"")} (${Object.keys(s.varian).join("/")})</summary>${Object.entries(s.varian).map(([v,q])=>prevSoal(s.no,v,q,bp[i]||{})).join("")}</details>`).join("");mathRender($("d-prev"));
     $("d-tautan").classList.add("hidden");$("d-terbit-status").textContent="";
   }catch(e){$("d-status").innerHTML=`<span class="pill bad">Gagal membaca</span> ${esc(e.message)}`;console.error(e)}}
+/* Penyusun paket darurat (20 Okt 2026): daftar guru dari tka_daftar_penyusun (PIN masuk atau PIN darurat);
+   guru yang masuk dengan PIN pribadinya otomatis menjadi penyusun dan tidak bisa memilih guru lain. */
+let D_GURU_DIMUAT="";
+async function muatPenyusunDarurat(){const sel=$("d-penyusun");const diri=MASUK&&MASUK.peran==="guru"&&!MASUK.bersama?MASUK:null;
+  const pin=PIN()||$("pin-d").value.trim();if(!pin){sel.innerHTML='<option value="">— isi PIN darurat dulu —</option>';return}
+  if(D_GURU_DIMUAT===pin+"|"+(diri?diri.id:""))return;
+  try{const L=await rpc("tka_daftar_penyusun",{p_pin:pin});D_GURU_DIMUAT=pin+"|"+(diri?diri.id:"");
+    sel.innerHTML='<option value="">— pilih guru penyusun —</option>'+L.map(g=>`<option value="${esc(g.id)}">${esc(g.nama)}</option>`).join("");
+    if(diri&&L.some(g=>g.id===diri.id)){sel.value=diri.id;sel.disabled=true;$("d-penyusun-ket").innerHTML=`Paket tercatat atas nama Anda (<b>${esc(diri.nama)}</b>), karena masuk dengan PIN pribadi.`}else sel.disabled=false;
+  }catch(e){sel.innerHTML='<option value="">— PIN belum benar —</option>'}}
 async function terbitDarurat(){if(!DPAKET)return;const pd=$("pin-d").value.trim();if(!pd){toast("Isi PIN darurat");return}const p=DPAKET;
+  await muatPenyusunDarurat();const penyusun=$("d-penyusun").value;if(!penyusun){toast("Pilih guru penyusun paket ini");$("d-penyusun").focus();return}
   if(!confirm(`Terbitkan ${p.kode} lewat jalur darurat (tanpa kisi-kisi resmi)? Paket akan ditandai "darurat".`))return;
   $("d-terbit-status").innerHTML='<span class="pill">Mengirim…</span>';
-  try{const j=await rpc("tka_terbitkan_darurat",{p_pin_darurat:pd,p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:false});
-    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit ke bank soal (darurat): ${esc(j.kode)}</span> <button class="btn-unduh" data-fmt="docx" id="btn-d-kisi">Unduh kisi-kisi otomatis untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
+  try{const j=await rpc("tka_terbitkan_darurat",{p_pin_darurat:pd,p_kode:p.kode,p_judul:p.judul,p_mapel:p.mapel,p_kelas:p.kelas,p_materi:p.materi,p_durasi:p.durasi,p_n_soal:p.n_soal,p_n_varian:p.n_varian,p_meta:p.meta,p_publik:p.publik,p_kunci:p.kunci,p_aktif:false,p_penyusun:penyusun});
+    $("d-terbit-status").innerHTML=`<span class="pill good">Terbit ke bank soal (darurat): ${esc(j.kode)}</span>${j.penyusun_nama?` <span class="pill">penyusun: ${esc(j.penyusun_nama)}</span>`:""} <button class="btn-unduh" data-fmt="docx" id="btn-d-kisi">Unduh kisi-kisi otomatis untuk disahkan</button>`;$("btn-d-kisi").onclick=async()=>{try{const k=await rpc("tka_get_kisi",{p_pin:PIN()||"",p_kode:j.kode});await unduhKisi(k)}catch(e){toast("Isi PIN guru di bagian atas untuk mengunduh kisi-kisi ("+e.message+")")}};const d=$("d-tautan");d.classList.remove("hidden");d.innerHTML=tautanHtml(j.kode,"qr3");gambarQr("qr3",j.kode);
   }catch(e){$("d-terbit-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}}
 
 
@@ -2467,7 +2482,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   const dk=$("drop-k");dk.ondragover=e=>{e.preventDefault();dk.style.borderColor="var(--acc)"};dk.ondragleave=()=>dk.style.borderColor="";dk.ondrop=e=>{e.preventDefault();dk.style.borderColor="";if(e.dataTransfer.files[0])bacaKisi(e.dataTransfer.files[0])};
   $("file-d").onchange=e=>{if(e.target.files[0])bacaDarurat(e.target.files[0])};
   const dd=$("drop-d");dd.ondragover=e=>{e.preventDefault();dd.style.borderColor="var(--bad)"};dd.ondragleave=()=>dd.style.borderColor="";dd.ondrop=e=>{e.preventDefault();dd.style.borderColor="";if(e.dataTransfer.files[0])bacaDarurat(e.dataTransfer.files[0])};
-  $("btn-d-terbit").onclick=terbitDarurat;
+  $("btn-d-terbit").onclick=terbitDarurat;$("pin-d").addEventListener("change",muatPenyusunDarurat);$("pin-d").addEventListener("blur",muatPenyusunDarurat);document.querySelector('#tabs button[data-tab="darurat"]').addEventListener("click",()=>setTimeout(muatPenyusunDarurat,0));
   $("file-s").onchange=e=>{if(e.target.files[0])bacaSiswa(e.target.files[0])};
   const ds=$("drop-s");ds.ondragover=e=>{e.preventDefault();ds.style.borderColor="var(--acc)"};ds.ondragleave=()=>ds.style.borderColor="";ds.ondrop=e=>{e.preventDefault();ds.style.borderColor="";if(e.dataTransfer.files[0])bacaSiswa(e.dataTransfer.files[0])};
   pasangPustaka();$("btn-dp-batal").onclick=()=>$("daftar-pemilik-card").classList.add("hidden");$("btn-di-batal").onclick=()=>$("daftar-info-card").classList.add("hidden");$("btn-di-simpan").onclick=simpanKeterangan;
