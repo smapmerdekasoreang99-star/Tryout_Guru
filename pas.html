@@ -447,7 +447,7 @@ $("btn-kartu").onclick=()=>{
     <div class="kecil">Masuk ujian: NISN + kode akses dari pengawas ruang. Datang 10 menit sebelum jam mulai.</div></div>`);
   let isi="";for(let i=0;i<kartu.length;i+=8)isi+=`<div class="halaman grid">${kartu.slice(i,i+8).join("")}</div>`;
   bukaCetak("Kartu peserta"+(r?" "+r:""),isi,`.grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.kartu{border:1.5px dashed #8B8173;border-radius:4px;padding:3mm;height:64mm;overflow:hidden;display:flex;flex-direction:column;gap:2mm;break-inside:avoid}
-    .kk{display:flex;gap:6px;align-items:center;border-bottom:1.5px solid #C29433;padding-bottom:2px}.kk img{height:26px}.kartu td{border:0;padding:0 4px 0 0;font-size:9pt}.kartu table.jd td{border-bottom:1px dotted #D6CCB6;font-size:8pt}.mono{font-family:Consolas,monospace}`)};
+    .kk{display:flex;gap:6px;align-items:center;border-bottom:1.5px solid #C29433;padding-bottom:2px}.kk img{height:26px}.kartu td{border:0;padding:0 4px 0 0;font-size:9pt}.kartu table.id{width:auto}.kartu table.id td:first-child{width:22mm;color:#5E5548}.kartu table.jd td{border-bottom:1px dotted #D6CCB6;font-size:8pt}.mono{font-family:Consolas,monospace}`)};
 $("btn-hadir").onclick=()=>{
   const r=$("c-ruang").value,h=$("c-hari").value;const R=r?[r]:A.ruang.map(x=>x.kode);const S=sesiAktif().filter(s=>!h||s.hari===h);
   let isi="";R.forEach(rk=>S.forEach(s=>{const P=A.peserta.filter(p=>p.ruang===rk&&s.jadwal[p.kelompok]).sort((a,b)=>a.no.localeCompare(b.no,"id",{numeric:true}));if(!P.length)return;
