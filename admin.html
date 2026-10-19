@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/mhchem.min.js"></script><!-- rumus kimia mhchem, mis. \ce{H2SO4} (20 Okt 2026) -->
 <title>Asesmen Merdeka · Admin — SMA Plus Merdeka Soreang</title>
 <!-- Pratinjau tautan (WhatsApp dll.): judul seragam "Aplikasi · Halaman — Sekolah" -->
 <meta name="description" content="Ujian daring: masuk dengan NISN, kerjakan soal, hasil langsung tersimpan.">
@@ -77,7 +78,7 @@ table.t{width:100%;border-collapse:collapse;font-size:13px}table.t th,table.t td
 .tbl-wrap{overflow-x:auto}
 .drop{border:2px dashed var(--line);border-radius:12px;padding:24px;text-align:center;background:var(--emas-kabut)}
 .prev{border:1px solid var(--line);border-radius:10px;padding:12px;margin:8px 0}
-.prev .stim img{max-width:100%;height:auto}.prev table{border-collapse:collapse;margin:8px 0;font-size:13px}.prev td,.prev th{border:1px solid var(--line);padding:4px 8px}
+.prev img{max-width:100%;height:auto}.rumus-lebar{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:2px 0 6px}.katex-display{overflow-x:auto;overflow-y:hidden}.prev table{border-collapse:collapse;margin:8px 0;font-size:13px}.prev td,.prev th{border:1px solid var(--line);padding:4px 8px}
 .teks-prev{background:var(--kertas-3);border:1px solid var(--garis-2);border-radius:8px;padding:8px 12px;margin:8px 0}.teks-prev summary{cursor:pointer;font-weight:600;font-size:13px}.teks-prev .stim{font-size:13px;margin-top:6px}
 .opt{padding:8px 12px;border:1px solid var(--line);border-radius:8px;margin:4px 0}.opt.key{border-color:var(--good);background:var(--good-soft)}
 .pemb{background:var(--emas-kabut);border-left:3px solid var(--gelap);padding:8px 12px;margin:8px 0;font-size:13px}
@@ -485,8 +486,224 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   const NS_R = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
   const NS_M = 'http://schemas.openxmlformats.org/officeDocument/2006/math';
   const NS_V = 'urn:schemas-microsoft-com:vml';
+  const NS_C = 'http://schemas.openxmlformats.org/drawingml/2006/chart';
   const MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', bmp: 'image/bmp', webp: 'image/webp', emf: null, wmf: null, svg: 'image/svg+xml' };
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  /* ---- Gambar dirapikan di peramban saat unggah (20 Okt 2026) ----
+     BMP/WEBP/SVG → PNG (ikut terekspor ke naskah Word, BMP jauh lebih kecil); gambar > 450 KB atau lebih lebar
+     dari 1600 px diperkecil (PNG atau JPEG, mana yang lebih kecil) supaya ringan dimuat ±800 HP serentak.
+     Di luar peramban (uji Node) gambar dibiarkan apa adanya. */
+  const GAMBAR_LEBAR_MAKS = 1600, GAMBAR_BYTE_MAKS = 450 * 1024;
+  const bisaKanvas = () => typeof document !== 'undefined' && typeof Image !== 'undefined';
+  const ukuranData = d => Math.round((d.length - d.indexOf(',') - 1) * 0.75);
+  const muatGambar = src => new Promise((ok, gagal) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => gagal(new Error('gambar tidak terbaca')); im.src = src; });
+  async function gambarKeKanvas(src, lebarMaks, skala, latarPutih) {
+    const im = await muatGambar(src);
+    let w = im.naturalWidth || im.width, h = im.naturalHeight || im.height;
+    if (!w || !h) throw new Error('ukuran gambar 0');
+    const k = Math.min(skala || 1, lebarMaks / w); w = Math.max(1, Math.round(w * k)); h = Math.max(1, Math.round(h * k));
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d'); if (latarPutih) { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); } g.drawImage(im, 0, 0, w, h);
+    return { c, w0: im.naturalWidth || im.width };
+  }
+  async function rapikanGambar(dataUrl, mime) {
+    if (!bisaKanvas()) return { src: dataUrl };
+    const biasa = /^image\/(png|jpeg|gif)$/.test(mime);
+    try {
+      const lebarAsli = (await muatGambar(dataUrl)).naturalWidth || 0;
+      // PNG/JPG/GIF yang tidak terlalu besar dan tidak terlalu lebar dipakai apa adanya
+      if (biasa && ukuranData(dataUrl) <= GAMBAR_BYTE_MAKS && lebarAsli <= GAMBAR_LEBAR_MAKS) return { src: dataUrl };
+      const calon = biasa && lebarAsli <= GAMBAR_LEBAR_MAKS ? [dataUrl] : [];
+      const png = (await gambarKeKanvas(dataUrl, GAMBAR_LEBAR_MAKS, 1, false)).c.toDataURL('image/png'); calon.push(png);
+      if (ukuranData(png) > GAMBAR_BYTE_MAKS) calon.push((await gambarKeKanvas(dataUrl, GAMBAR_LEBAR_MAKS, 1, true)).c.toDataURL('image/jpeg', 0.85));
+      const pilih = calon.sort((a, b) => ukuranData(a) - ukuranData(b))[0];
+      return { src: pilih, ubah: pilih !== dataUrl };
+    } catch (e) { return { src: dataUrl, gagal: true }; }
+  }
+  async function svgKeGambar(svg) {
+    const asli = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svg)));
+    if (!bisaKanvas()) return asli;
+    try { return (await gambarKeKanvas(asli, 1440, 2, true)).c.toDataURL('image/png'); } catch (e) { return asli; }
+  }
+
+  /* ---- Rumus kimia yang ditulis dengan Equation Word ditampilkan tegak (20 Okt 2026) ----
+     Word menulis huruf di persamaan miring (gaya matematika); untuk kimia yang baku tegak (H₂SO₄, 2NH₃(g), kJ).
+     Persamaan dianggap kimia bila SEMUA kata hurufnya lambang unsur (Na, MnO, NaOH → Na·O·H), wujud zat
+     (g, l, s, aq), atau satuan, dan ada tanda kimia: panah reaksi, wujud zat, atau rumus ≥ 2 unsur. Satu
+     huruf kecil seperti x, y, c sudah cukup membuatnya tetap dianggap matematika. */
+  const UNSUR = new Set('H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Sc Ti V Cr Mn Fe Co Ni Cu Zn Ga Ge As Se Br Kr Rb Sr Y Zr Nb Mo Tc Ru Rh Pd Ag Cd In Sn Sb Te I Xe Cs Ba La Ce Pr Nd Pm Sm Eu Gd Tb Dy Ho Er Tm Yb Lu Hf Ta W Re Os Ir Pt Au Hg Tl Pb Bi Po At Rn Fr Ra Ac Th Pa U Np Pu Am Cm Bk Cf Es Fm Md No Lr'.split(' '));
+  const KATA_KIMIA = new Set(['g', 'l', 's', 'aq', 'e', 'n', 'p', 'kJ', 'J', 'mol', 'kal', 'kkal', 'atm', 'Pa', 'kPa', 'mL', 'pH', 'pOH', 'M', 'L', 'K']);
+  function rumusKimia(t) {
+    const kata = String(t).match(/[A-Za-z]+/g); if (!kata) return false;
+    // panah reaksi · wujud zat · indeks di antara unsur (H2O, C6H12O6) · muatan ion di akhir (Fe3+, SO42−)
+    let tanda = /[→⇌⟶⇄↔⟷⇆←]/.test(t) || /\((g|l|s|aq)\)/.test(t) || /[A-Z][a-z]?\d+\s*[A-Z(\[]/.test(t) || /[A-Z][a-z]?\d*[+−-]\s*$/.test(t);
+    for (const k of kata) {
+      if (KATA_KIMIA.has(k)) continue;
+      const u = k.match(/[A-Z][a-z]?/g); if (!u || u.join('') !== k || !u.every(x => UNSUR.has(x))) return false;
+      if (u.length >= 2) tanda = true;
+    }
+    return tanda;
+  }
+
+  /* ---- Grafik Word (Sisipkan → Bagan) → gambar (20 Okt 2026) ----
+     Grafik Word bukan gambar: isinya data (word/charts/chartN.xml) yang digambar Word sendiri. Data cache-nya dibaca
+     lalu digambar ulang sebagai SVG → PNG: batang (tegak/mendatar, berkelompok/bertumpuk/100%), garis, area, lingkaran,
+     donat, sebar, dan gabungan batang + garis. Judul, judul sumbu, label nilai, warna seri/titik ikut. */
+  const WARNA_GRAFIK = ['#4472C4', '#ED7D31', '#A5A5A5', '#FFC000', '#5B9BD5', '#70AD47', '#264478', '#9E480E', '#636363', '#997300'];
+  const JENIS_GRAFIK = ['barChart', 'bar3DChart', 'lineChart', 'line3DChart', 'areaChart', 'area3DChart', 'pieChart', 'pie3DChart', 'doughnutChart', 'ofPieChart', 'scatterChart', 'bubbleChart', 'radarChart'];
+  function grafikSvg(cd) {
+    const semua = (el, nm) => el ? Array.from(el.getElementsByTagNameNS(NS_C, nm)) : [];
+    const anak = (el, nm) => el ? Array.from(el.childNodes).filter(n => n.nodeType === 1 && n.namespaceURI === NS_C && n.localName === nm) : [];
+    const a1 = (el, nm) => anak(el, nm)[0];
+    const nilaiAt = (el, nm) => { const e = a1(el, nm); return e ? e.getAttribute('val') : null; };
+    const teksA = el => el ? Array.from(el.getElementsByTagNameNS(NS_A, 't')).map(x => x.textContent).join('') : '';
+    const sx = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const titik = el => {           // numCache / strCache / numLit / strLit / multiLvlStrCache → array per idx
+      if (!el) return [];
+      const lv = semua(el, 'lvl'); const sumber = lv.length ? lv[0] : el;
+      const n = parseInt((semua(el, 'ptCount')[0] || { getAttribute: () => '0' }).getAttribute('val') || '0', 10);
+      const o = Array(n).fill('');
+      anak(sumber, 'pt').concat(lv.length ? [] : semua(el, 'pt')).forEach(p => { const i = +p.getAttribute('idx'); const v = a1(p, 'v'); if (i >= 0) o[i] = v ? v.textContent : ''; });
+      return o;
+    };
+    const warnaDari = spPr => { if (!spPr) return null; const f = Array.from(spPr.childNodes).find(n => n.nodeType === 1 && n.localName === 'solidFill'); const c = f && f.getElementsByTagNameNS(NS_A, 'srgbClr')[0]; return c ? '#' + c.getAttribute('val') : null; };
+    const chartEl = semua(cd, 'chart')[0]; if (!chartEl) return null;
+    const plot = a1(chartEl, 'plotArea'); if (!plot) return null;
+    const grup = Array.from(plot.childNodes).filter(n => n.nodeType === 1 && n.namespaceURI === NS_C && JENIS_GRAFIK.includes(n.localName));
+    if (!grup.length || grup.some(g => ['bubbleChart', 'radarChart', 'ofPieChart'].includes(g.localName))) return null;
+    let wi = 0;
+    const G = grup.map(g => {
+      const jenis = g.localName.replace('3D', '');
+      const seri = anak(g, 'ser').map(s => {
+        const isiTx = a1(s, 'tx');
+        const nama = isiTx ? (semua(isiTx, 'v')[0] || { textContent: teksA(isiTx) }).textContent : '';
+        const kat = titik(a1(s, 'cat') || a1(s, 'xVal')); const nil = titik(a1(s, 'val') || a1(s, 'yVal')).map(v => v === '' ? null : parseFloat(v));
+        const warna = warnaDari(a1(s, 'spPr')) || WARNA_GRAFIK[wi++ % WARNA_GRAFIK.length];
+        const warnaTitik = {}; anak(s, 'dPt').forEach(d => { const w = warnaDari(a1(d, 'spPr')); if (w) warnaTitik[nilaiAt(d, 'idx')] = w; });
+        const lbl = a1(s, 'dLbls') || a1(g, 'dLbls');
+        return { nama, kat, nil, warna, warnaTitik, labelNilai: nilaiAt(lbl, 'showVal') === '1', labelPersen: nilaiAt(lbl, 'showPercent') === '1' };
+      });
+      return { jenis, arah: nilaiAt(g, 'barDir') || 'col', susun: nilaiAt(g, 'grouping') || 'clustered', seri };
+    });
+    const seriSemua = G.flatMap(g => g.seri); if (!seriSemua.length) return null;
+    const judulEl = a1(chartEl, 'title');
+    let judul = judulEl ? teksA(judulEl) : '';
+    if (!judulEl && nilaiAt(chartEl, 'autoTitleDeleted') !== '1' && seriSemua.length === 1) judul = seriSemua[0].nama;
+    const judulSumbu = nm => { const ax = a1(plot, nm); return ax ? teksA(a1(ax, 'title')) : ''; };
+    const fmt = v => (Math.round(v * 100) / 100).toLocaleString('id-ID');
+    const W = 720, Hh = 440, F = 'font-family="Arial, Helvetica, sans-serif"';
+    let s = '';
+    const teks = (x, y, t, o = {}) => `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}" ${F} font-size="${o.uk || 16}" fill="${o.w || '#333'}" text-anchor="${o.jangkar || 'middle'}"${o.tebal ? ' font-weight="bold"' : ''}${o.putar ? ` transform="rotate(${o.putar} ${x.toFixed(1)} ${y.toFixed(1)})"` : ''}>${sx(t)}</text>`;
+    let atas = 16; if (judul) { s += teks(W / 2, 32, judul, { uk: 21, tebal: true, w: '#222' }); atas = 54; }
+    // legenda di bawah
+    const lingkaran = G.length === 1 && (G[0].jenis === 'pieChart' || G[0].jenis === 'doughnutChart');
+    const legenda = lingkaran ? G[0].seri[0].kat.map((k, i) => [k, G[0].seri[0].warnaTitik[i] || WARNA_GRAFIK[i % WARNA_GRAFIK.length]]) : seriSemua.length > 1 ? seriSemua.map(x => [x.nama, x.warna]) : [];
+    let bawah = Hh - 12;
+    if (legenda.length) {
+      const lebarL = legenda.map(([k]) => 30 + Math.min(String(k).length, 28) * 8.6); let baris = [[]], lb = 0;
+      lebarL.forEach((w, i) => { if (lb + w > W - 40 && baris[baris.length - 1].length) { baris.push([]); lb = 0; } baris[baris.length - 1].push(i); lb += w; });
+      bawah = Hh - 10 - baris.length * 24;
+      baris.forEach((b, r) => { const tot = b.reduce((a, i) => a + lebarL[i], 0); let x = (W - tot) / 2; const y = bawah + 18 + r * 24;
+        b.forEach(i => { s += `<rect x="${x.toFixed(1)}" y="${y - 10}" width="14" height="14" fill="${legenda[i][1]}"/>` + teks(x + 19, y, String(legenda[i][0]).slice(0, 28), { jangkar: 'start', uk: 15 }); x += lebarL[i]; }); });
+    }
+    if (lingkaran) {
+      const sr = G[0].seri[0], val = sr.nil.map(v => Math.max(0, v || 0)), tot = val.reduce((a, b) => a + b, 0) || 1;
+      const cx = W / 2, cy = (atas + bawah) / 2, r = Math.min(W / 2 - 40, (bawah - atas) / 2 - 18), dalam = G[0].jenis === 'doughnutChart' ? r * 0.5 : 0;
+      let sudut = -Math.PI / 2;
+      val.forEach((v, i) => {
+        const a = v / tot * Math.PI * 2, b = sudut + a, besar = a > Math.PI ? 1 : 0, warna = sr.warnaTitik[i] || WARNA_GRAFIK[i % WARNA_GRAFIK.length];
+        const P = (rr, t) => `${(cx + rr * Math.cos(t)).toFixed(2)} ${(cy + rr * Math.sin(t)).toFixed(2)}`;
+        if (v > 0) s += a >= Math.PI * 2 - 1e-9 ? `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${warna}"/>` + (dalam ? `<circle cx="${cx}" cy="${cy}" r="${dalam}" fill="#fff"/>` : '')
+          : `<path d="M ${dalam ? P(dalam, sudut) : cx + ' ' + cy} L ${P(r, sudut)} A ${r} ${r} 0 ${besar} 1 ${P(r, b)} ${dalam ? `L ${P(dalam, b)} A ${dalam} ${dalam} 0 ${besar} 0 ${P(dalam, sudut)}` : ''} Z" fill="${warna}" stroke="#fff" stroke-width="1.5"/>`;
+        if (v > 0 && a > 0.12) { const t = sudut + a / 2, rr = dalam ? (r + dalam) / 2 : r * 0.68; const isi = sr.labelNilai && !sr.labelPersen ? fmt(v) : fmt(v / tot * 100) + '%';
+          s += teks(cx + rr * Math.cos(t), cy + rr * Math.sin(t) + 5, isi, { w: '#fff', tebal: true, uk: 16 }); }
+        sudut = b;
+      });
+    } else {
+      // sumbu nilai bersama untuk semua grup (batang, garis, area, sebar)
+      const sebar = G.every(g => g.jenis === 'scatterChart');
+      const mendatar = G.some(g => g.jenis === 'barChart' && g.arah === 'bar');
+      const kat = (seriSemua.find(x => x.kat.length) || { kat: [] }).kat; const nKat = Math.max(kat.length, ...seriSemua.map(x => x.nil.length));
+      const kategori = Array.from({ length: nKat }, (_, i) => kat[i] ?? String(i + 1));
+      let lo = 0, hi = 0;
+      G.forEach(g => {
+        if (g.susun === 'percentStacked') { hi = Math.max(hi, 100); return; }
+        if (g.susun === 'stacked' && g.jenis !== 'scatterChart') { for (let i = 0; i < nKat; i++) { let p = 0, n = 0; g.seri.forEach(x => { const v = x.nil[i] || 0; if (v >= 0) p += v; else n += v; }); hi = Math.max(hi, p); lo = Math.min(lo, n); } }
+        else g.seri.forEach(x => x.nil.forEach(v => { if (v != null) { hi = Math.max(hi, v); lo = Math.min(lo, v); } }));
+      });
+      const ax = a1(plot, 'valAx'); const skal = ax ? a1(ax, 'scaling') : null;
+      const minT = skal ? nilaiAt(skal, 'min') : null, maxT = skal ? nilaiAt(skal, 'max') : null;
+      if (sebar) { const ys = seriSemua.flatMap(x => x.nil).filter(v => v != null); lo = Math.min(...ys); hi = Math.max(...ys); if (lo > 0 && lo < hi * 0.6) lo = 0; }
+      if (hi === lo) hi = lo + 1;
+      const kasar = (hi - lo) / 5, p10 = Math.pow(10, Math.floor(Math.log10(kasar))), f = kasar / p10;
+      const langkah = (f <= 1 ? 1 : f <= 2 ? 2 : f <= 2.5 ? 2.5 : f <= 5 ? 5 : 10) * p10;
+      lo = minT != null ? +minT : Math.floor(lo / langkah) * langkah; hi = maxT != null ? +maxT : Math.ceil(hi / langkah) * langkah;
+      const tJudulY = judulSumbu('valAx'), tJudulX = judulSumbu(sebar ? 'valAx' : 'catAx');
+      const panjangLabel = Math.max(...kategori.map(k => String(k).length), 1);
+      const ki = 72 + (tJudulY && !mendatar ? 18 : 0) + (mendatar ? Math.min(panjangLabel, 18) * 8 : 0), ka = W - 24;
+      let pb = bawah - 28 - ((mendatar ? tJudulY : tJudulX) ? 22 : 0);
+      const lebarPita = (mendatar ? (pb - atas) : (ka - ki)) / nKat;
+      const miring = !mendatar && !sebar && panjangLabel * 8.5 > lebarPita;
+      if (miring) pb -= Math.min(panjangLabel, 18) * 6;
+      const pa = atas + 6;
+      const skalaNilai = v => mendatar ? ki + (v - lo) / (hi - lo) * (ka - ki) : pb - (v - lo) / (hi - lo) * (pb - pa);
+      // garis bantu + label nilai
+      for (let v = lo; v <= hi + langkah * 1e-6; v += langkah) {
+        const p = skalaNilai(v);
+        s += mendatar ? `<line x1="${p.toFixed(1)}" y1="${pa}" x2="${p.toFixed(1)}" y2="${pb}" stroke="#d9d9d9"/>` + teks(p, pb + 18, fmt(v), { uk: 15, w: '#555' })
+          : `<line x1="${ki}" y1="${p.toFixed(1)}" x2="${ka}" y2="${p.toFixed(1)}" stroke="#d9d9d9"/>` + teks(ki - 8, p + 4, fmt(v), { jangkar: 'end', uk: 15, w: '#555' });
+      }
+      const nol = skalaNilai(Math.max(lo, Math.min(0, hi)));
+      s += mendatar ? `<line x1="${nol.toFixed(1)}" y1="${pa}" x2="${nol.toFixed(1)}" y2="${pb}" stroke="#888"/>` : `<line x1="${ki}" y1="${nol.toFixed(1)}" x2="${ka}" y2="${nol.toFixed(1)}" stroke="#888"/>`;
+      if (tJudulY) s += mendatar ? teks((ki + ka) / 2, pb + 38, tJudulY, { uk: 16, tebal: true }) : teks(18, (pa + pb) / 2, tJudulY, { uk: 16, tebal: true, putar: -90 });
+      if (tJudulX && !mendatar) s += teks((ki + ka) / 2, bawah - 4, tJudulX, { uk: 16, tebal: true });
+      if (tJudulX && mendatar && !sebar) s += teks(16, (pa + pb) / 2, tJudulX, { uk: 16, tebal: true, putar: -90 });
+      const tengahPita = i => (mendatar ? pb - (i + 0.5) * lebarPita : ki + (i + 0.5) * lebarPita);
+      if (sebar) {
+        const xs = seriSemua.flatMap(x => x.kat.map(parseFloat)).filter(v => !isNaN(v)); let xl = Math.min(...xs), xh = Math.max(...xs); if (xl === xh) xh = xl + 1;
+        const X = v => ki + (v - xl) / (xh - xl) * (ka - ki);
+        [xl, (xl + xh) / 2, xh].forEach(v => { s += teks(X(v), pb + 18, fmt(v), { uk: 15, w: '#555' }); });
+        seriSemua.forEach(x => x.nil.forEach((v, i) => { const xv = parseFloat(x.kat[i]); if (v != null && !isNaN(xv)) s += `<circle cx="${X(xv).toFixed(1)}" cy="${skalaNilai(v).toFixed(1)}" r="5" fill="${x.warna}"/>`; }));
+      } else {
+        kategori.forEach((k, i) => { const t = tengahPita(i); s += mendatar ? teks(ki - 8, t + 4, String(k).slice(0, 18), { jangkar: 'end', uk: 15 }) : miring ? teks(t, pb + 14, String(k).slice(0, 18), { jangkar: 'end', uk: 15, putar: -40 }) : teks(t, pb + 18, k, { uk: 15 }); });
+        // urutan gambar: area → batang → garis (seperti Word)
+        const urut = [...G.filter(g => g.jenis === 'areaChart'), ...G.filter(g => g.jenis === 'barChart'), ...G.filter(g => g.jenis === 'lineChart')];
+        urut.forEach(g => {
+          const persen = g.susun === 'percentStacked', susun = persen || g.susun === 'stacked';
+          const totalKat = i => g.seri.reduce((a, x) => a + Math.abs(x.nil[i] || 0), 0) || 1;
+          const nilaiPakai = (x, i) => { const v = x.nil[i]; return v == null ? null : persen ? v / totalKat(i) * 100 : v; };
+          if (g.jenis === 'barChart') {
+            const lebarB = susun ? lebarPita * 0.6 : lebarPita * 0.75 / g.seri.length;
+            const dasarP = Array(nKat).fill(0), dasarN = Array(nKat).fill(0);
+            g.seri.forEach((x, j) => x.nil.forEach((_, i) => {
+              const v = nilaiPakai(x, i); if (v == null) return;
+              let a0 = 0, a1v = v; if (susun) { if (v >= 0) { a0 = dasarP[i]; dasarP[i] += v; } else { a0 = dasarN[i]; dasarN[i] += v; } a1v = a0 + v; }
+              const p0 = skalaNilai(a0), p1 = skalaNilai(a1v), geser = susun ? -lebarB / 2 : -lebarPita * 0.375 + j * lebarB;
+              const warna = x.warnaTitik[i] || x.warna, t = tengahPita(i) + (mendatar ? -geser - lebarB : geser);
+              s += mendatar ? `<rect x="${Math.min(p0, p1).toFixed(1)}" y="${t.toFixed(1)}" width="${Math.abs(p1 - p0).toFixed(1)}" height="${lebarB.toFixed(1)}" fill="${warna}"/>`
+                : `<rect x="${t.toFixed(1)}" y="${Math.min(p0, p1).toFixed(1)}" width="${lebarB.toFixed(1)}" height="${Math.abs(p1 - p0).toFixed(1)}" fill="${warna}"/>`;
+              if (x.labelNilai) s += mendatar ? teks(Math.max(p0, p1) + 6, t + lebarB / 2 + 4, fmt(x.nil[i]), { jangkar: 'start', uk: 15 }) : teks(t + lebarB / 2, (susun ? (p0 + p1) / 2 + 4 : Math.min(p0, p1) - 5), fmt(x.nil[i]), { uk: 15, w: susun ? '#fff' : '#333' });
+            }));
+          } else {
+            const dasar = Array(nKat).fill(0);
+            g.seri.forEach(x => {
+              const P = []; x.nil.forEach((_, i) => { const v = nilaiPakai(x, i); if (v == null) return; const a0 = susun ? dasar[i] : 0; if (susun) dasar[i] += v; P.push([tengahPita(i), skalaNilai(a0 + v), i, a0]); });
+              if (!P.length) return;
+              if (g.jenis === 'areaChart') {
+                const balik = susun ? P.slice().reverse().map(([t, , , a0]) => `${t.toFixed(1)},${skalaNilai(a0).toFixed(1)}`).join(' ') : `${P[P.length - 1][0].toFixed(1)},${nol.toFixed(1)} ${P[0][0].toFixed(1)},${nol.toFixed(1)}`;
+                s += `<polygon points="${P.map(([t, y]) => t.toFixed(1) + ',' + y.toFixed(1)).join(' ')} ${balik}" fill="${x.warna}" fill-opacity="0.75"/>`;
+              } else {
+                s += `<polyline points="${P.map(([t, y]) => t.toFixed(1) + ',' + y.toFixed(1)).join(' ')}" fill="none" stroke="${x.warna}" stroke-width="3"/>` + P.map(([t, y]) => `<circle cx="${t.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${x.warna}"/>`).join('');
+              }
+              if (x.labelNilai) P.forEach(([t, y, i]) => { s += teks(t, y - 9, fmt(x.nil[i]), { uk: 15 }); });
+            });
+          }
+        });
+      }
+    }
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}"><rect width="${W}" height="${Hh}" fill="#fff"/>${s}</svg>`;
+  }
   const kids = (el, ns, name) => Array.from(el.childNodes).filter(n => n.nodeType === 1 && n.localName === name && n.namespaceURI === ns);
   // ---- Keterangan paket (meta.info): jenis, semester, guru penyusun, tingkat peserta, cakupan materi ----
   const JENIS = ['Latihan', 'Ulangan Harian', 'Tengah Semester', 'Akhir Semester', 'Tryout TKA', 'Tryout UTBK'];
@@ -546,16 +763,61 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     const rdoc = dp.parseFromString(relsXml, 'application/xml');
     Array.from(rdoc.getElementsByTagName('Relationship')).forEach(r => rels[r.getAttribute('Id')] = r.getAttribute('Target'));
     const mediaCache = {}; const warnings = [];
+    // Letak yang sedang dibaca (mis. "soal nomor 3 varian A"), supaya peringatan menyebut tempatnya.
+    let lokasi = ''; const di = () => lokasi ? ` (${lokasi})` : '';
+    const jalurRel = target => target.startsWith('/') ? target.slice(1) : 'word/' + target.replace(/^\.\//, '');
     async function media(rId) {
       if (mediaCache[rId] !== undefined) return mediaCache[rId];
       const target = rels[rId]; if (!target) return (mediaCache[rId] = null);
-      const path = target.startsWith('/') ? target.slice(1) : 'word/' + target;
+      const path = jalurRel(target);
       const ext = (path.split('.').pop() || '').toLowerCase(); const mime = MIME[ext];
-      if (!mime) { warnings.push(`Gambar ${path} berformat ${ext.toUpperCase()} yang tidak didukung browser; simpan ulang sebagai PNG/JPG.`); return (mediaCache[rId] = null); }
+      if (!mime) { warnings.push(`Gambar${di()} berformat ${ext.toUpperCase()} (biasanya objek tempelan ChemDraw, MathType, Equation 3.0, atau Visio) tidak bisa ditampilkan browser dan dilewati. Ubah menjadi gambar: klik kanan objeknya → Salin, lalu Tempel Spesial → Gambar (PNG).`); return (mediaCache[rId] = null); }
       const f = zip.file(path); if (!f) return (mediaCache[rId] = null);
-      const b64 = await f.async('base64');
-      if (b64.length > 600000) warnings.push(`Gambar ${path} berukuran ${Math.round(b64.length * 0.75 / 1024)} KB (>450 KB); perkecil agar halaman cepat dimuat.`);
-      return (mediaCache[rId] = `data:${mime};base64,${b64}`);
+      const r = await rapikanGambar(`data:${mime};base64,${await f.async('base64')}`, mime);
+      if (r.gagal && !/^image\/(png|jpeg|gif)$/.test(mime)) warnings.push(`Gambar ${ext.toUpperCase()}${di()} tidak bisa diubah ke PNG; simpan ulang gambarnya sebagai PNG/JPG agar ikut terekspor ke naskah Word.`);
+      if (ukuranData(r.src) > GAMBAR_BYTE_MAKS) warnings.push(`Gambar${di()} masih ${Math.round(ukuranData(r.src) / 1024)} KB (>450 KB); perkecil agar halaman cepat dimuat.`);
+      return (mediaCache[rId] = r.src);
+    }
+    async function grafikWord(rId) {
+      const target = rels[rId]; const f = target && zip.file(jalurRel(target)); if (!f) return null;
+      let svg = null; try { svg = grafikSvg(dp.parseFromString(await f.async('string'), 'application/xml')); } catch (e) { svg = null; }
+      return svg ? svgKeGambar(svg) : null;
+    }
+    // Gambar, grafik Word, kotak teks, dan objek di dalam w:drawing / w:pict / w:object / mc:AlternateContent
+    async function isiGambar(n) {
+      let h = ''; const masalah = [];
+      for (const bl of Array.from(n.getElementsByTagNameNS(NS_A, 'blip'))) { const id = bl.getAttributeNS(NS_R, 'embed') || bl.getAttribute('r:embed'); const src = await media(id); if (src) h += `<img src="${src}" alt="gambar">`; }
+      for (const ch of Array.from(n.getElementsByTagNameNS(NS_C, 'chart'))) {
+        const id = ch.getAttributeNS(NS_R, 'id') || ch.getAttribute('r:id'); const src = await grafikWord(id);
+        if (src) { h += `<img src="${src}" alt="grafik">`; warnings.push(`Grafik Word${di()} diubah otomatis menjadi gambar; periksa di pratinjau apakah sudah sesuai.`); }
+        else masalah.push('grafik Word yang jenisnya belum didukung (mis. radar, gelembung)');
+      }
+      for (const tb of Array.from(n.getElementsByTagNameNS(NS_W, 'txbxContent'))) {
+        let p = tb.parentNode, dalam = false; while (p && p !== n) { if (p.localName === 'txbxContent') { dalam = true; break; } p = p.parentNode; }
+        if (dalam) continue;
+        const bagian = []; for (const c of Array.from(tb.childNodes)) { if (c.nodeType !== 1) continue; if (c.localName === 'p') bagian.push(await paraHtml(c)); else if (c.localName === 'tbl') bagian.push(await tableHtml(c)); }
+        const isi = bagian.filter(Boolean); if (isi.length) h += `<table><tr><td>${isi.map(x => x.startsWith('<table>') ? x : `<p>${x}</p>`).join('')}</td></tr></table>`;
+      }
+      if (!h) { const im = n.getElementsByTagNameNS(NS_V, 'imagedata')[0]; if (im) { const id = im.getAttributeNS(NS_R, 'id') || im.getAttribute('r:id'); const src = await media(id); if (src) h += `<img src="${src}" alt="gambar">`; else return { h, masalah, sudah: true }; } }
+      if (!h && !masalah.length) {
+        const gd = n.getElementsByTagNameNS(NS_A, 'graphicData')[0], uri = gd ? gd.getAttribute('uri') || '' : '';
+        const garisMendatar = Array.from(n.getElementsByTagNameNS(NS_V, 'rect')).some(r => r.getAttribute('o:hr') === 't');
+        if (/diagram/.test(uri)) masalah.push('SmartArt');
+        else if (/chartex/.test(uri)) masalah.push('grafik Word jenis baru (histogram, air terjun, kotak-garis, peta pohon)');
+        else if (!garisMendatar && (gd || n.localName === 'pict' || n.localName === 'AlternateContent')) masalah.push('bentuk Word (Shapes: panah, garis, kotak, bangun datar)');
+      }
+      return { h, masalah };
+    }
+    async function gambarHtml(n) {
+      let r;
+      if (n.localName === 'AlternateContent') {   // pakai pilihan utama; bila kosong, cadangannya
+        const el = Array.from(n.childNodes).filter(x => x.nodeType === 1);
+        const urut = el.filter(x => x.localName === 'Choice').concat(el.filter(x => x.localName === 'Fallback'));
+        for (const x of urut) { const c = await isiGambar(x); if (!r || (!r.h && c.h)) r = c; if (c.h) break; }
+        r = r || { h: '', masalah: [] };
+      } else r = await isiGambar(n);
+      if (!r.h && !r.sudah) [...new Set(r.masalah)].forEach(m => warnings.push(`${m[0].toUpperCase() + m.slice(1)}${di()} tidak bisa ditampilkan di layar siswa dan dilewati. Ubah menjadi gambar: pilih objeknya → klik kanan → Salin, lalu Tempel Spesial → Gambar (PNG).`));
+      return r.h;
     }
     async function runHtml(r) {
       let out = ''; const rPr = kids(r, NS_W, 'rPr')[0]; let pre = '', post = '';
@@ -571,11 +833,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
         else if (n.localName === 'tab') out += ' ';
         else if (n.localName === 'br' || n.localName === 'cr') out += '<br>';
         else if (n.localName === 'sym') out += '';
-        else if (n.localName === 'drawing' || n.localName === 'pict' || n.localName === 'object') {
-          const blips = n.getElementsByTagNameNS(NS_A, 'blip'); let done = false;
-          for (const bl of Array.from(blips)) { const id = bl.getAttributeNS(NS_R, 'embed') || bl.getAttribute('r:embed'); const src = await media(id); if (src) { out += `<img src="${src}" alt="gambar">`; done = true; } }
-          if (!done) { const im = n.getElementsByTagNameNS(NS_V, 'imagedata')[0]; if (im) { const id = im.getAttributeNS(NS_R, 'id') || im.getAttribute('r:id'); const src = await media(id); if (src) out += `<img src="${src}" alt="gambar">`; } }
-        }
+        else if (n.localName === 'drawing' || n.localName === 'pict' || n.localName === 'object' || n.localName === 'AlternateContent') out += await gambarHtml(n);
       }
       return out ? pre + out + post : '';
     }
@@ -605,7 +863,11 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       switch (L) {
         case 'oMathPara': return mKids(n, 'oMath').map(ommlToLatex).join(' \\quad ');
         case 'oMath': case 'e': case 'num': case 'den': case 'sub': case 'sup': case 'deg': case 'lim': case 'fName': case 'box': case 'borderBox': case 'phant': case 'sSubSupPr': return all();
-        case 'r': return texText(Array.from(n.getElementsByTagNameNS(NS_M, 't')).map(x => x.textContent).join(''));
+        case 'r': { // teks tegak (Word: m:sty=p / m:nor), mis. nama fungsi det, lim, satuan
+          const t = texText(Array.from(n.getElementsByTagNameNS(NS_M, 't')).map(x => x.textContent).join('')); const pr = mFirst(n, 'rPr');
+          if (pr && (mAttr(pr, 'sty') === 'p' || mFirst(pr, 'nor')) && /[A-Za-z]/.test(t)) return `\\mathrm{${t}}`;
+          // nama fungsi yang diketik sebagai huruf biasa ("det A", "log 8") tetap tegak seperti di Word
+          return t.replace(/(^|[^A-Za-z\\])(arcsin|arccos|arctan|sinh|cosh|tanh|sin|cos|tan|cot|sec|csc|log|ln|exp|det|lim|max|min)(?![A-Za-z])/g, '$1\\$2 '); }
         case 't': return texText(n.textContent);
         case 'f': { const ty = mAttr(mFirst(n, 'fPr'), 'type'); const a = mE(n, 'num'), b = mE(n, 'den'); if (ty === 'lin' || ty === 'skw') return `{${a}}/{${b}}`; if (ty === 'noBar') return `\\genfrac{}{}{0pt}{}{${a}}{${b}}`; return `\\frac{${a}}{${b}}`; }
         case 'sSup': return `{${mE(n, 'e')}}^{${mE(n, 'sup')}}`;
@@ -619,11 +881,13 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
         case 'nary': { const pr = mFirst(n, 'naryPr'); let ch = mAttr(pr, 'chr'); if (ch === null) ch = '∫'; const NM = { '∑': '\\sum', '∏': '\\prod', '∐': '\\coprod', '∫': '\\int', '∬': '\\iint', '∭': '\\iiint', '∮': '\\oint', '⋃': '\\bigcup', '⋂': '\\bigcap', '⋁': '\\bigvee', '⋀': '\\bigwedge' };
           const sh = mAttr(pr, 'subHide'), uh = mAttr(pr, 'supHide'); const sub = mE(n, 'sub'), sup = mE(n, 'sup');
           return `${NM[ch] || '\\operatorname{' + texText(ch) + '}'}${sh === '1' || sh === 'on' || !sub.trim() ? '' : `_{${sub}}`}${uh === '1' || uh === 'on' || !sup.trim() ? '' : `^{${sup}}`} ${mE(n, 'e')}`; }
-        case 'func': { const f = mE(n, 'fName').trim(); const known = ['sin', 'cos', 'tan', 'cot', 'sec', 'csc', 'log', 'ln', 'exp', 'lim', 'max', 'min', 'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh', 'det', 'gcd']; const plain = f.replace(/\\ /g, ' ').trim();
+        case 'func': { const f = mE(n, 'fName').trim(); const known = ['sin', 'cos', 'tan', 'cot', 'sec', 'csc', 'log', 'ln', 'exp', 'lim', 'max', 'min', 'arcsin', 'arccos', 'arctan', 'sinh', 'cosh', 'tanh', 'det', 'gcd']; const plain = f.replace(/^\\mathrm\{(.*)\}$/, '$1').replace(/\\ /g, ' ').trim();
           return `${known.includes(plain) ? '\\' + plain : /^\\/.test(f) ? f : '\\operatorname{' + plain + '}'}{${mE(n, 'e')}}`; }
         case 'bar': { const pos = mAttr(mFirst(n, 'barPr'), 'pos'); return pos === 'bot' ? `\\underline{${mE(n, 'e')}}` : `\\overline{${mE(n, 'e')}}`; }
         case 'acc': { let ch = mAttr(mFirst(n, 'accPr'), 'chr'); if (ch === null) ch = '̂'; const AC = { '̂': 'hat', '̃': 'tilde', '̇': 'dot', '̈': 'ddot', '̄': 'bar', '̅': 'overline', '⃗': 'vec', '̆': 'breve', '́': 'acute', '̀': 'grave', '̌': 'check', '⃖': 'overleftarrow' }; return `\\${AC[ch] || 'hat'}{${mE(n, 'e')}}`; }
-        case 'limLow': return `\\underset{${mE(n, 'lim')}}{${mE(n, 'e')}}`;
+        case 'limLow': { // lim/max/min di bawah → \lim\limits_{…} (tegak, batas di bawah)
+          const e = mE(n, 'e').trim(), op = e.replace(/^\\mathrm\{(.*)\}$/, '$1').replace(/^\\/, '').replace(/\\ /g, ' ').trim();
+          return /^(lim|max|min|sup|inf)$/.test(op) ? `\\${op}\\limits_{${mE(n, 'lim')}}` : `\\underset{${mE(n, 'lim')}}{${e}}`; }
         case 'limUpp': return `\\overset{${mE(n, 'lim')}}{${mE(n, 'e')}}`;
         case 'groupChr': { const pos = mAttr(mFirst(n, 'groupChrPr'), 'pos'); return pos === 'top' ? `\\overbrace{${mE(n, 'e')}}` : `\\underbrace{${mE(n, 'e')}}`; }
         case 'eqArr': return `\\begin{aligned}${mKids(n, 'e').map(ommlToLatex).join(' \\\\ ')}\\end{aligned}`;
@@ -636,8 +900,8 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       for (const n of Array.from(p.childNodes)) {
         if (n.nodeType !== 1) continue;
         if (n.localName === 'r' && n.namespaceURI === NS_W) out += await runHtml(n);
-        else if (n.localName === 'hyperlink' || n.localName === 'smartTag' || n.localName === 'ins' || n.localName === 'sdt' || n.localName === 'sdtContent') { for (const r of Array.from(n.getElementsByTagNameNS(NS_W, 'r'))) out += await runHtml(r); }
-        else if (n.namespaceURI === NS_M) { const tex = ommlToLatex(n).trim(); if (tex) out += '\\(' + esc(tex) + '\\)'; }
+        else if (n.localName === 'hyperlink' || n.localName === 'smartTag' || n.localName === 'ins' || n.localName === 'sdt' || n.localName === 'sdtContent' || n.localName === 'fldSimple' || n.localName === 'customXml') { for (const r of Array.from(n.getElementsByTagNameNS(NS_W, 'r'))) out += await runHtml(r); }
+        else if (n.namespaceURI === NS_M) { let tex = ommlToLatex(n).trim(); if (tex) { if (rumusKimia(n.textContent)) tex = `\\mathrm{${tex}}`; out += '\\(' + esc(tex) + '\\)'; } }
       }
       return out;
     }
@@ -656,7 +920,9 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       while (parts.length && parts[parts.length - 1] === '') parts.pop();
       while (parts.length && parts[0] === '') parts.shift();
       const html = parts.length === 1 && !parts[0].startsWith('<table>') ? parts[0] : parts.map(p => p.startsWith('<table>') ? p : `<p>${p}</p>`).join('');
-      return { html, text: text.replace(/ /g, ' ').trim() };
+      // Sel yang hanya berisi gambar/grafik (mis. pilihan jawaban berupa gambar) tidak dianggap kosong.
+      const tx = text.replace(/ /g, ' ').trim();
+      return { html, text: tx || (/<img /.test(html) ? '[gambar]' : '') };
     }
     const body = doc.getElementsByTagNameNS(NS_W, 'body')[0];
     const tables = [];
@@ -677,11 +943,15 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       for (const tr of rows) {
         const tcs = kids(tr, NS_W, 'tc'); if (!tcs.length) continue;
         const c0 = await cellHtml(tcs[0]); const t0 = c0.text.toUpperCase();
-        if (tcs.length < 2 || /^(INFORMASI UJIAN|TEKS BACAAN|SOAL\b)/.test(t0)) { if (cur) nGabung++; flush(); cur = { type: tipeDari(t0), title: t0, fields: {}, order: [] }; continue; }
+        if (tcs.length < 2 || /^(INFORMASI UJIAN|TEKS BACAAN|SOAL\b)/.test(t0)) { if (cur) nGabung++; flush(); cur = { type: tipeDari(t0), title: t0, fields: {}, order: [] }; lokasi = cur.type === 'INFO' ? 'informasi ujian' : ''; continue; }
         if (!cur) continue;
         const label = canonLabel(c0.text);
-        if (cur.fields[label] !== undefined) { const { type: ty, title: ti } = cur; flush(); nGabung++; cur = { type: ty, title: ti, fields: {}, order: [] }; }
+        if (cur.fields[label] !== undefined) { const { type: ty, title: ti } = cur; flush(); nGabung++; cur = { type: ty, title: ti, fields: {}, order: [] }; lokasi = ''; }
         cur.fields[label] = await cellHtml(tcs[1]); cur.order.push(label);
+        const isiT = cur.fields[label].text;
+        if (label === 'nomor' && isiT) lokasi = 'soal nomor ' + isiT;
+        else if (label === 'varian' && isiT && /^soal nomor/.test(lokasi)) lokasi += ' varian ' + isiT.toUpperCase().slice(0, 1);
+        else if (label === 'kode teks' && isiT && cur.type === 'TEKS') lokasi = 'teks bacaan ' + isiT;
       }
       flush();
       if (nGabung) warnings.push(`Satu tabel Word memuat ${nGabung + 1} tabel yang tergabung (baris kosong di antara tabel terhapus); sudah dipisahkan otomatis.`);
@@ -699,7 +969,9 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       tables.splice(i, 1);
       warnings.push(`Tabel data yang berada di luar sel dipindahkan ke ${prev.type === 'TEKS' ? 'Isi teks bacaan ' + ((prev.fields['kode teks'] || {}).text || '') : 'Perintah soal nomor ' + ((prev.fields.nomor || {}).text || '')}.`);
     }
-    return { tables, warnings };
+    // Peringatan yang sama (mis. 4 grafik di satu soal) cukup sekali, dengan jumlahnya.
+    const hitung = new Map(); warnings.forEach(w => hitung.set(w, (hitung.get(w) || 0) + 1));
+    return { tables, warnings: [...hitung].map(([w, n]) => n > 1 ? `${w} (${n}×)` : w) };
   }
 
   // ---------------- membangun paket ----------------
@@ -1357,7 +1629,9 @@ const studentBase=()=>location.href.replace(/[#?].*$/,"").replace(/[^\/]*$/,"")+
 function autoSup(el){const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const nodes=[];let n;while((n=w.nextNode()))if(/\^/.test(n.nodeValue)&&!(n.parentElement&&n.parentElement.closest(".katex,script,style")))nodes.push(n);
   const sup=t=>esc(t).replace(/\^\(([^()]{1,24})\)/g,"<sup>$1</sup>").replace(/\^(-?[0-9A-Za-z°]{1,6})/g,"<sup>$1</sup>");
   for(const t of nodes){const html=t.nodeValue.split(/(\\\(.*?\\\)|\$\$.*?\$\$|\\\[.*?\\\])/s).map((seg,i)=>i%2?esc(seg):sup(seg)).join("");if(html!==esc(t.nodeValue)){const s=document.createElement("span");s.innerHTML=html;t.replaceWith(s)}}}
-function mathRender(el){if(!el)return;try{autoSup(el)}catch(e){}if(window.renderMathInElement){try{renderMathInElement(el,{delimiters:[{left:"$$",right:"$$",display:true},{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}],throwOnError:false})}catch(e){}}
+/* Rumus yang lebih lebar dari wadahnya (mis. persamaan reaksi panjang di layar HP) tidak terpotong (20 Okt 2026): diperkecil sampai pas (paling kecil ±65%); bila masih terlalu panjang, dijadikan baris sendiri yang bisa digeser ke samping. */
+function rumusLebar(el){el.querySelectorAll(".katex").forEach(k=>{if(k.closest(".katex-display"))return;k.style.fontSize="";k.classList.remove("rumus-lebar");const w=k.parentElement&&k.parentElement.closest(".stim,.q,.opt>span:last-child,td,li,.k,div");if(!w)return;const r=k.getBoundingClientRect(),ada=w.getBoundingClientRect().right-r.left;if(ada<=0||r.width<=ada+1)return;const p=ada/r.width;if(p>=0.65)k.style.fontSize=(1.21*p*0.97).toFixed(3)+"em";else{k.style.fontSize="0.8em";k.classList.add("rumus-lebar")}})}
+function mathRender(el){if(!el)return;try{autoSup(el)}catch(e){}if(window.renderMathInElement){try{renderMathInElement(el,{delimiters:[{left:"$$",right:"$$",display:true},{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}],throwOnError:false});rumusLebar(el);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>rumusLebar(el))}catch(e){}}
   else if((mathRender.n=(mathRender.n||0)+1)<=8){setTimeout(()=>mathRender(el),800)}}
 
 /* ---------- pratinjau ---------- */

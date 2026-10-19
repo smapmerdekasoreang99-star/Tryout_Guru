@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/mhchem.min.js"></script><!-- rumus kimia mhchem, mis. \ce{H2SO4} (20 Okt 2026) -->
 <title>Asesmen Merdeka — SMA Plus Merdeka Soreang</title>
 <!-- Pratinjau tautan (WhatsApp dll.): judul seragam "Aplikasi · Halaman — Sekolah" -->
 <meta name="description" content="Ujian daring: masuk dengan NISN, kerjakan soal, hasil langsung tersimpan.">
@@ -52,6 +53,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.grow{flex:1}
 .pill{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;background:var(--acc-soft);color:var(--acc);font-weight:600;letter-spacing:.02em}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.good{background:var(--good-soft);color:var(--good)}
 .stim{font-size:16px}.stim img{max-width:100%;height:auto;display:block;margin:8px 0}
+/* Gambar di pertanyaan, pilihan, pernyataan, dan menjodohkan tidak boleh melebihi layar HP (20 Okt 2026) */
+.q img,.opt img,.tbl img,.jd img{max-width:100%;height:auto;vertical-align:middle}.opt>span:last-child{min-width:0;flex:1}
+.rumus-lebar{display:block;max-width:100%;overflow-x:auto;overflow-y:hidden;padding:2px 0 6px}.katex-display{overflow-x:auto;overflow-y:hidden;padding-bottom:4px}
 .stim table,.tbl{border-collapse:collapse;width:100%;margin:8px 0;font-size:14px}.stim th,.stim td,.tbl th,.tbl td{border:1px solid var(--line);padding:8px 8px;text-align:left;vertical-align:top}.stim th,.tbl th{background:var(--emas-kabut);font-weight:600}
 .tbl-wrap{overflow-x:auto}.q{font-weight:600;margin:12px 0 8px}
 .teks{background:var(--kertas-3);border:1px solid var(--garis-2);border-radius:10px;padding:12px;margin:8px 0;font-size:15px}.teks summary{cursor:pointer;font-weight:700}
@@ -582,7 +586,9 @@ function safeHtml(html){const ALLOW={B:1,I:1,U:1,SUB:1,SUP:1,BR:1,P:1,TABLE:1,TR
 function autoSup(el){const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const nodes=[];let n;while((n=w.nextNode()))if(/\^/.test(n.nodeValue)&&!(n.parentElement&&n.parentElement.closest(".katex,script,style")))nodes.push(n);
   const sup=t=>esc(t).replace(/\^\(([^()]{1,24})\)/g,"<sup>$1</sup>").replace(/\^(-?[0-9A-Za-z°]{1,6})/g,"<sup>$1</sup>");
   for(const t of nodes){const html=t.nodeValue.split(/(\\\(.*?\\\)|\$\$.*?\$\$|\\\[.*?\\\])/s).map((seg,i)=>i%2?esc(seg):sup(seg)).join("");if(html!==esc(t.nodeValue)){const s=document.createElement("span");s.innerHTML=html;t.replaceWith(s)}}}
-function mathRender(el){if(!el)return;try{autoSup(el)}catch(e){}if(window.renderMathInElement){try{renderMathInElement(el,{delimiters:[{left:"$$",right:"$$",display:true},{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}],throwOnError:false})}catch(e){}}
+/* Rumus yang lebih lebar dari wadahnya (mis. persamaan reaksi panjang di layar HP) tidak terpotong (20 Okt 2026): diperkecil sampai pas (paling kecil ±65%); bila masih terlalu panjang, dijadikan baris sendiri yang bisa digeser ke samping. */
+function rumusLebar(el){el.querySelectorAll(".katex").forEach(k=>{if(k.closest(".katex-display"))return;k.style.fontSize="";k.classList.remove("rumus-lebar");const w=k.parentElement&&k.parentElement.closest(".stim,.q,.opt>span:last-child,td,li,.k,div");if(!w)return;const r=k.getBoundingClientRect(),ada=w.getBoundingClientRect().right-r.left;if(ada<=0||r.width<=ada+1)return;const p=ada/r.width;if(p>=0.65)k.style.fontSize=(1.21*p*0.97).toFixed(3)+"em";else{k.style.fontSize="0.8em";k.classList.add("rumus-lebar")}})}
+function mathRender(el){if(!el)return;try{autoSup(el)}catch(e){}if(window.renderMathInElement){try{renderMathInElement(el,{delimiters:[{left:"$$",right:"$$",display:true},{left:"\\(",right:"\\)",display:false},{left:"\\[",right:"\\]",display:true}],throwOnError:false});rumusLebar(el);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>rumusLebar(el))}catch(e){}}
   else if((mathRender.n=(mathRender.n||0)+1)<=8){setTimeout(()=>mathRender(el),800)}}
 
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2400)}
