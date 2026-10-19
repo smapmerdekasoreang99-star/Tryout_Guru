@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
+<script src="config.js?v=2"></script>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Asesmen Merdeka · PAS — SMA Plus Merdeka Soreang</title>
+<meta name="robots" content="noindex">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>window.XL_APLIKASI = "Asesmen Merdeka · PAS";</script>
+<script src="assets/simpan.js?v=3"></script>
+<script src="assets/kepala-excel.js?v=1"></script>
+<script src="assets/excel.js?v=4"></script>
+<link rel="stylesheet" href="assets/dasar.css?v=3">
+<link rel="icon" href="assets/ikon-32.png">
+<style>
+/* Halaman operator PAS / Tryout Bersama (Tahap 2, 20 Okt 2026). Gaya = admin.html: bilah atas gelap bergaris emas,
+   tab berikon, kartu putih. Tata letak: daftar asesmen → ruang kerja satu asesmen (Ringkasan, Peserta & Ruang,
+   Jadwal, Folder Soal, Cetak). */
+:root{--bg:var(--kertas);--card:#fff;--ink:var(--tinta);--muted:var(--tinta-2);--line:var(--garis);--acc:var(--gelap);--good:var(--hadir);--good-soft:var(--hadir-muda);--bad:var(--absen);--bad-soft:var(--absen-muda);--warn:var(--emas-teks);--warn-soft:var(--emas-muda);--info:var(--sakit);--info-soft:var(--sakit-muda);font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:12px 12px 64px}
+header.top{background:var(--gelap);color:#fff;padding:10px 16px;border-bottom:4px solid var(--emas);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header.top img{height:40px}header.top .t{font-weight:700;font-size:17px}header.top .sub{font-size:12px;color:var(--emas)}
+header.top .kanan{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+header.top .kanan a,header.top .kanan button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
+header.top .kanan a:hover,header.top .kanan button:hover{background:rgba(255,255,255,.12)}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:600;margin:0;text-wrap:balance}h2{font-size:21px}h3{font-size:17px}
+p{margin:0}.muted{color:var(--muted)}.small{font-size:13px}.hidden{display:none!important}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.grow{flex:1}.kolom{display:flex;flex-direction:column;gap:8px}
+button{font-family:inherit;font-size:14px;border:0;border-radius:8px;padding:8px 16px;cursor:pointer;background:var(--gelap);color:var(--emas);font-weight:700}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--garis-2)}button.ghost:hover{border-color:var(--emas-tua)}
+button.danger{background:var(--bad);color:#fff}button.mini{padding:4px 10px;font-size:13px}button:disabled{opacity:.5;cursor:default}
+input[type=text],input[type=password],input[type=number],select{padding:7px 10px;font-size:14px;border:1px solid var(--line);border-radius:8px;font-family:inherit;background:#fff}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 9px;border-radius:999px;background:var(--netral-muda);color:var(--tinta-2);font-weight:700;white-space:nowrap}
+.pill.good{background:var(--good-soft);color:var(--good)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.warn{background:var(--warn-soft);color:var(--warn)}.pill.info{background:var(--info-soft);color:var(--info)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{background:#fff;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600}.chip.on{background:var(--gelap);color:var(--emas);border-color:var(--gelap)}
+.tabs{position:sticky;top:0;z-index:20;display:flex;gap:4px;margin:12px 0;padding:5px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1px solid rgba(214,204,182,.7);border-radius:14px;overflow-x:auto;scrollbar-width:none}
+.tabs button{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:var(--tinta-2);border-radius:10px;padding:9px 14px;font-weight:600;white-space:nowrap}
+.tabs button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button:hover{background:var(--kertas-3);color:var(--gelap)}.tabs button.on{background:var(--gelap);color:#fff}.tabs button.on svg{color:var(--emas)}
+.gulir{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th{background:var(--kertas-3);text-align:left;font-size:12px;color:var(--tinta-2);padding:7px 9px;white-space:nowrap;border-bottom:1px solid var(--line)}
+td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:last-child td{border-bottom:0}
+.drop{border:2px dashed var(--garis-2);border-radius:12px;padding:20px;text-align:center;background:var(--emas-kabut)}
+.drop label{color:var(--gelap);text-decoration:underline;cursor:pointer;font-weight:700}
+.daftar-as{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px}
+.as{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;cursor:pointer;text-align:left;color:inherit;font-weight:400}
+.as:hover{border-color:var(--emas-tua)}.as b{font-family:"Fraunces",Georgia,serif;font-size:18px;font-weight:600}
+.alis{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--emas-teks);font-weight:700}
+.kepala{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.angka{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.angka div{background:var(--kertas-3);border-radius:10px;padding:10px 12px}.angka b{display:block;font-family:"Fraunces",Georgia,serif;font-size:24px;line-height:1.1}.angka span{font-size:12px;color:var(--muted)}
+.periksa{display:flex;flex-direction:column;gap:6px}.periksa div{display:flex;gap:8px;align-items:flex-start;font-size:14px}
+.sel-mapel{display:flex;flex-direction:column;gap:2px}.sel-mapel span{font-size:12px;display:flex;justify-content:space-between;gap:8px;background:var(--kertas-3);border-radius:6px;padding:1px 7px}
+.sel-mapel em{font-style:normal;color:var(--tinta-3)}
+.naskah td select{max-width:260px}
+.kode{font-family:ui-monospace,Consolas,monospace;font-weight:700;letter-spacing:.06em}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120%);background:var(--gelap);color:#fff;padding:10px 16px;border-radius:10px;z-index:300;opacity:0;transition:.25s;max-width:calc(100% - 32px)}
+.toast.show{transform:translateX(-50%);opacity:1}
+.tirai{position:fixed;inset:0;background:rgba(20,24,30,.5);z-index:200;display:grid;place-items:center;padding:16px}
+.tirai .card{max-width:520px;width:100%;margin:0}
+.sibuk{opacity:.6;pointer-events:none}
+@media (max-width:640px){.tabs button span{display:none}}
+</style>
+</head>
+<body>
+<header class="top"><img src="assets/logo.png" alt=""><div><div class="t">Asesmen Merdeka · PAS</div><div class="sub">Ujian bersama — halaman operator</div></div>
+  <div class="kanan"><a href="index.html">Menu guru</a><a href="admin.html">Admin</a><button id="btn-keluar" class="hidden">Keluar</button></div></header>
+<div class="wrap">
+
+<div class="card" id="kartu-pin">
+  <div class="row"><label class="f grow">PIN operator<input type="password" id="pin" autocomplete="off"></label><button id="btn-pin" style="align-self:flex-end">Masuk</button></div>
+  <p class="small muted" id="pin-pesan" style="margin-top:8px">Halaman ini khusus operator/kurikulum. Pengawas memakai <b>Menu guru → PAS</b> (layar ruang).</p>
+</div>
+
+<!-- ======================= DAFTAR ASESMEN ======================= -->
+<section id="v-daftar" class="hidden">
+  <div class="kepala" style="margin-top:8px"><div><div class="alis">Ujian bersama</div><h2>Daftar asesmen</h2></div>
+    <div class="row"><input type="text" id="as-nama" placeholder="mis. PAS Ganjil 2026/2027" style="min-width:260px"><button id="btn-as-buat">Buat asesmen</button></div></div>
+  <div class="daftar-as" id="daftar-as" style="margin-top:12px"></div>
+</section>
+
+<!-- ======================= RUANG KERJA ======================= -->
+<section id="v-kerja" class="hidden">
+  <div class="kepala" style="margin-top:8px">
+    <div><a href="#" id="kembali" class="small">‹ Semua asesmen</a><h2 id="k-nama"></h2><div class="row small muted" id="k-info"></div></div>
+    <div class="row" id="k-aksi"></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="ringkas" class="on"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg><span>Ringkasan &amp; Terbit</span></button>
+    <button data-tab="peserta"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Peserta &amp; Ruang</span></button>
+    <button data-tab="jadwal"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Jadwal</span></button>
+    <button data-tab="soal"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Folder Soal</span></button>
+    <button data-tab="cetak"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></svg><span>Cetak</span></button>
+  </nav>
+
+  <!-- Ringkasan -->
+  <div id="tab-ringkas">
+    <div class="card"><div class="angka" id="r-angka"></div></div>
+    <div class="card kolom">
+      <div class="kepala"><h3>Pemeriksaan sebelum terbit</h3><button class="ghost mini" id="btn-periksa">Periksa ulang</button></div>
+      <div class="periksa" id="r-periksa"><p class="muted small">Memeriksa…</p></div>
+      <div class="row" style="margin-top:8px" id="r-terbit"></div>
+    </div>
+    <div class="card kolom">
+      <h3>Aturan pelaksanaan</h3>
+      <div class="row" style="align-items:flex-end">
+        <label class="f">Pintu dibuka sebelum soal (menit)<input type="number" id="at-pintu" min="0" max="60" style="width:110px"></label>
+        <label class="f">Pintu ditutup sesudah soal (menit)<input type="number" id="at-terlambat" min="0" max="120" style="width:110px"></label>
+        <label class="f">Batas keluar halaman (kali)<input type="number" id="at-maks" min="0" max="20" style="width:110px"></label>
+        <label class="f">Abaikan keluar &lt; (detik)<input type="number" id="at-tol" min="0" max="120" style="width:110px"></label>
+        <label class="f">Kode buka kunci (kosong = PIN pengawas)<input type="text" id="at-kode" style="width:160px" autocomplete="off"></label>
+        <button id="btn-atur">Simpan aturan</button>
+      </div>
+      <p class="small muted">Siswa yang terlambat hanya mendapat sisa waktu; semua selesai pada jam akhir sesi (ditambah perpanjangan/jeda bila ada).</p>
+    </div>
+    <div class="card kolom"><h3>Jejak perubahan</h3><div class="gulir"><table><thead><tr><th>Waktu</th><th>Oleh</th><th>Tindakan</th><th>Rincian</th></tr></thead><tbody id="r-jejak"></tbody></table></div></div>
+  </div>
+
+  <!-- Peserta & Ruang -->
+  <div id="tab-peserta" class="hidden">
+    <div class="card kolom">
+      <div class="kepala"><div><h3>1. Unggah peserta per ruang</h3><p class="small muted">Template berisi semua siswa aktif (NISN, nama, kelas). Isi kolom <b>Ruang</b> (mis. R01) dan <b>Kelompok</b> (mis. <code>10</code>, <code>11-IPA</code>, <code>12-IPS</code>; harus sama persis dengan kelompok di jadwal). Siswa yang Ruang-nya kosong tidak ikut.</p></div>
+        <button class="ghost" id="btn-tpl-peserta">Unduh template peserta</button></div>
+      <div class="drop" id="drop-peserta"><p><b>Seret berkas Excel peserta ke sini</b> atau <label>pilih berkas<input type="file" id="file-peserta" accept=".xlsx,.xls,.csv" class="hidden"></label></p></div>
+      <div id="p-pratinjau"></div>
+      <p class="small muted hidden" id="p-terkunci">Asesmen sudah diterbitkan: peserta tidak bisa diunggah ulang. Pindah ruang dan susulan diatur saat pelaksanaan (Tahap 3).</p>
+    </div>
+    <div class="card kolom">
+      <div class="kepala"><h3>2. Ruang</h3><button class="ghost mini" id="btn-ruang-simpan">Simpan nama &amp; kapasitas</button></div>
+      <div class="gulir"><table><thead><tr><th>Ruang</th><th>Nama / letak</th><th>Kapasitas</th><th>Peserta</th><th>Komposisi kelompok</th></tr></thead><tbody id="t-ruang"></tbody></table></div>
+    </div>
+    <div class="card kolom">
+      <div class="kepala"><h3>Daftar peserta <span class="muted small" id="p-n"></span></h3><input type="text" id="p-cari" placeholder="Cari nama / NISN / ruang"></div>
+      <div class="gulir" style="max-height:520px;overflow:auto"><table><thead><tr><th>No. peserta</th><th>Nama</th><th>NISN</th><th>Kelas</th><th>Ruang</th><th>Kelompok</th></tr></thead><tbody id="t-peserta"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- Jadwal -->
+  <div id="tab-jadwal" class="hidden">
+    <div class="card kolom">
+      <div class="kepala"><div><h3>Unggah jadwal</h3><p class="small muted">Satu baris = satu kelompok di satu sesi: <b>Tanggal</b>, <b>Sesi ke-</b>, <b>Jam mulai</b> (jam soal terbuka), <b>Durasi</b> (menit), <b>Kelompok</b>, <b>Mapel</b>. Satu sesi harus sama jam & durasinya untuk semua kelompok. Laci naskah (mapel × tingkat) dibuat otomatis di Folder Soal.</p></div>
+        <button class="ghost" id="btn-tpl-jadwal">Unduh template jadwal</button></div>
+      <div class="drop" id="drop-jadwal"><p><b>Seret berkas Excel jadwal ke sini</b> atau <label>pilih berkas<input type="file" id="file-jadwal" accept=".xlsx,.xls,.csv" class="hidden"></label></p></div>
+      <div id="j-pesan"></div>
+    </div>
+    <div class="card kolom">
+      <div class="kepala"><h3>Mapel per kelompok</h3><div class="chips" id="j-hari"></div></div>
+      <div class="gulir"><table id="t-jadwal"></table></div>
+    </div>
+    <div class="card kolom">
+      <div class="kepala"><h3>Isi tiap ruang</h3><span class="small muted">mapel dan jumlah siswa yang mengerjakannya di ruang itu</span></div>
+      <div class="gulir"><table id="t-isi-ruang"></table></div>
+    </div>
+  </div>
+
+  <!-- Folder Soal -->
+  <div id="tab-soal" class="hidden">
+    <div class="card kolom">
+      <div class="kepala"><div><h3>Folder Soal PAS</h3><p class="small muted">Satu laci per mapel × tingkat. Pasang <b>paket</b> dari bank soal, tunjuk <b>penyusun</b>, lalu ubah status menjadi <b>Terkunci</b> setelah ditinjau. Sesi ujian untuk laci baru dibuat saat paketnya dipasang (boleh sesudah terbit).</p></div>
+        <span class="pill" id="s-progres"></span></div>
+      <div class="gulir naskah"><table><thead><tr><th>Mapel</th><th>Kelas</th><th>Dipakai</th><th>Penyusun</th><th>Paket soal</th><th>Status</th></tr></thead><tbody id="t-naskah"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- Cetak -->
+  <div id="tab-cetak" class="hidden">
+    <div class="card kolom">
+      <h3>Cetak untuk pelaksanaan</h3>
+      <div class="row"><label class="f">Ruang<select id="c-ruang"></select></label><label class="f">Hari<select id="c-hari"></select></label></div>
+      <div class="row">
+        <button id="btn-kartu">Kartu peserta</button>
+        <button id="btn-hadir">Daftar hadir</button>
+        <button id="btn-kode">Lembar kode akses</button>
+        <button class="ghost" id="btn-kode-xlsx">Semua kode (Excel)</button>
+      </div>
+      <p class="small muted">Kartu peserta: 8 kartu per halaman A4 berisi nama, NISN, ruang, nomor peserta, dan jadwal mapel siswa itu. Daftar hadir: per ruang per sesi. Lembar kode (RAHASIA): per ruang per hari, untuk amplop berita acara — sama dengan kode yang tampil di layar pengawas. Kode baru ada setelah asesmen diterbitkan.</p>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="tirai hidden" id="tanya"><div class="card kolom"><h3 id="tanya-j"></h3><p class="muted" id="tanya-i"></p><div class="row" style="justify-content:flex-end"><button class="ghost" id="tanya-batal">Batal</button><button id="tanya-ok">Lanjut</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const SB=(()=>{const c=window.TKA_SUPABASE||{};return c.url&&c.key?c:null})();
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m,ms){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),ms||3200)}
+async function rpc(fn,args){if(!SB)throw new Error("Server belum diatur (config.js)");
+  const r=await fetch(`${SB.url}/rest/v1/rpc/${fn}`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SB.key,.../^eyJ[\w-]*\.[\w-]+\.[\w-]*$/.test(SB.key)?{"Authorization":"Bearer "+SB.key}:{}},body:JSON.stringify(args||{})});
+  let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw new Error((j&&(j.message||j.hint||j.error))||("HTTP "+r.status));return j}
+function tanya(judul,isi,ok){return new Promise(res=>{$("tanya-j").textContent=judul;$("tanya-i").innerHTML=isi;$("tanya-ok").textContent=ok||"Lanjut";$("tanya").classList.remove("hidden");
+  const tutup=v=>{$("tanya").classList.add("hidden");res(v)};$("tanya-ok").onclick=()=>tutup(true);$("tanya-batal").onclick=()=>tutup(false)})}
+const WIB={timeZone:"Asia/Jakarta"};
+const jam=iso=>new Date(iso).toLocaleTimeString("id-ID",{...WIB,hour:"2-digit",minute:"2-digit"}).replace(":",".");
+const tglPanjang=d=>new Date(d+"T00:00:00+07:00").toLocaleDateString("id-ID",{...WIB,weekday:"long",day:"numeric",month:"long",year:"numeric"});
+const tglPendek=d=>new Date(d+"T00:00:00+07:00").toLocaleDateString("id-ID",{...WIB,weekday:"short",day:"numeric",month:"short"});
+const waktuPendek=iso=>new Date(iso).toLocaleString("id-ID",{...WIB,day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+
+let PIN="",A=null,TAB="ringkas",HARI=null,GURU=null,PAKET=null,PRATINJAU=null;
+
+/* ---------------- masuk ---------------- */
+async function masuk(pin){
+  $("pin-pesan").textContent="Memeriksa PIN…";
+  try{const j=await rpc("tka_masuk_guru",{p_pin:pin});
+    if(j.peran!=="operator"){$("pin-pesan").innerHTML=`PIN ini milik <b>${esc(j.nama)}</b> (${esc(j.peran)}). Halaman PAS khusus <b>operator</b>. Pengawas memakai Menu guru → PAS.`;return}
+    PIN=pin;try{sessionStorage.setItem("tka_v2_pin",JSON.stringify({pin,peran:j.peran}))}catch(e){}
+    $("kartu-pin").classList.add("hidden");$("btn-keluar").classList.remove("hidden");
+    const id=+(new URLSearchParams(location.search).get("id")||0);if(id)buka(id);else muatDaftar();
+  }catch(e){$("pin-pesan").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+$("btn-pin").onclick=()=>masuk($("pin").value.trim());
+$("pin").onkeydown=e=>{if(e.key==="Enter")$("btn-pin").click()};
+$("btn-keluar").onclick=()=>{try{sessionStorage.removeItem("tka_v2_pin")}catch(e){}location.href="index.html"};
+try{const s=JSON.parse(sessionStorage.getItem("tka_v2_pin")||"null");if(s&&s.pin){$("pin").value=s.pin;masuk(s.pin)}}catch(e){}
+
+/* ---------------- daftar asesmen ---------------- */
+const STATUS={draf:["Draf","warn"],terbit:["Terbit","good"],selesai:["Selesai",""]};
+async function muatDaftar(){
+  $("v-kerja").classList.add("hidden");$("v-daftar").classList.remove("hidden");history.replaceState(null,"","pas.html");
+  try{const L=await rpc("asm_daftar",{p_pin:PIN});
+    $("daftar-as").innerHTML=L.map(a=>`<button class="as" data-id="${a.id}"><span class="row" style="justify-content:space-between"><b>${esc(a.nama)}</b><span class="pill ${STATUS[a.status][1]}">${STATUS[a.status][0]}</span></span>
+      <span class="small muted">${a.dari?(a.dari===a.sampai?tglPendek(a.dari):tglPendek(a.dari)+" – "+tglPendek(a.sampai)):"Jadwal belum diunggah"}</span>
+      <span class="small">${a.n_peserta} peserta · ${a.n_ruang} ruang · ${a.n_sesi} sesi</span></button>`).join("")||'<p class="muted">Belum ada asesmen. Buat yang pertama di atas.</p>';
+    document.querySelectorAll("#daftar-as .as").forEach(b=>b.onclick=()=>buka(+b.dataset.id));
+  }catch(e){$("daftar-as").innerHTML=`<p class="pill bad">${esc(e.message)}</p>`}}
+$("btn-as-buat").onclick=async()=>{const n=$("as-nama").value.trim();if(n.length<3)return toast("Tulis nama asesmen (mis. PAS Ganjil 2026/2027)");
+  try{const r=await rpc("asm_simpan",{p_pin:PIN,p_id:null,p_nama:n,p_atur:{}});$("as-nama").value="";buka(r.id)}catch(e){toast(e.message)}};
+$("kembali").onclick=e=>{e.preventDefault();muatDaftar()};
+
+/* ---------------- ruang kerja ---------------- */
+async function buka(id){
+  try{A=await rpc("asm_ambil",{p_pin:PIN,p_id:id})}catch(e){toast(e.message);return muatDaftar()}
+  $("v-daftar").classList.add("hidden");$("v-kerja").classList.remove("hidden");history.replaceState(null,"","pas.html?id="+id);
+  gambar();}
+async function muatUlang(){if(A)await buka(A.asesmen.id)}
+const draf=()=>A.asesmen.status==="draf";
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;gambar()});
+function gambar(){
+  const a=A.asesmen,st=STATUS[a.status];
+  $("k-nama").textContent=a.nama;
+  const hari=[...new Set(A.sesi.filter(s=>!s.batal).map(s=>s.hari))];
+  $("k-info").innerHTML=`<span class="pill ${st[1]}">${st[0]}</span><span>${A.peserta.length} peserta · ${A.ruang.length} ruang · ${A.sesi.filter(s=>!s.batal).length} sesi · ${hari.length} hari</span>`;
+  $("k-aksi").innerHTML=draf()?'<button class="ghost mini" id="btn-ganti-nama">Ganti nama</button><button class="ghost mini" id="btn-hapus">Hapus</button>':"";
+  if(draf()){$("btn-ganti-nama").onclick=async()=>{const n=prompt("Nama asesmen",a.nama);if(!n)return;try{await rpc("asm_simpan",{p_pin:PIN,p_id:a.id,p_nama:n,p_atur:{}});muatUlang()}catch(e){toast(e.message)}};
+    $("btn-hapus").onclick=async()=>{if(!await tanya("Hapus asesmen?",`<b>${esc(a.nama)}</b> beserta peserta, jadwal, dan laci naskahnya dihapus. Paket soal di bank soal tidak ikut terhapus.`,"Hapus"))return;
+      try{await rpc("asm_hapus",{p_pin:PIN,p_id:a.id});A=null;muatDaftar()}catch(e){toast(e.message)}}}
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===TAB));
+  ["ringkas","peserta","jadwal","soal","cetak"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
+  ({ringkas:gRingkas,peserta:gPeserta,jadwal:gJadwal,soal:gSoal,cetak:gCetak})[TAB]();
+}
+
+/* ---------------- Ringkasan & Terbit ---------------- */
+async function gRingkas(){
+  const at=A.asesmen.atur,ns=A.naskah;
+  $("r-angka").innerHTML=[[A.peserta.length,"peserta"],[A.ruang.length,"ruang"],[A.sesi.filter(s=>!s.batal).length,"sesi"],[new Set(A.sesi.map(s=>s.hari)).size,"hari"],
+    [`${ns.filter(n=>n.paket).length}/${ns.length}`,"naskah berpaket"],[`${ns.filter(n=>n.status==="terkunci").length}/${ns.length}`,"naskah terkunci"]].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("");
+  $("at-pintu").value=at.pintu_menit;$("at-terlambat").value=at.terlambat_menit;$("at-maks").value=at.maks_keluar;$("at-tol").value=at.toleransi_keluar;$("at-kode").value=at.kode_buka||"";
+  $("r-jejak").innerHTML=A.jejak.map(j=>`<tr><td style="white-space:nowrap">${waktuPendek(j.waktu)}</td><td>${esc(j.oleh)}</td><td>${esc(j.aksi)}</td><td class="small muted">${esc(ringkasRinci(j.rinci))}</td></tr>`).join("")||'<tr><td colspan="4" class="muted">Belum ada.</td></tr>';
+  $("r-terbit").innerHTML=draf()?'<button id="btn-terbit">Terbitkan</button><span class="small muted">Membuat kode ruang per sesi dan sesi ujian. Sesudah terbit, peserta & jadwal tidak bisa diunggah ulang.</span>'
+    :`<span class="pill good">Diterbitkan</span><button class="ghost mini" id="btn-batal-terbit">Batal terbit</button><span class="small muted">Batal terbit hanya bisa selama belum ada siswa yang masuk.</span>`;
+  if(draf())$("btn-terbit").onclick=terbitkan;else $("btn-batal-terbit").onclick=batalTerbit;
+  await periksa();
+}
+function ringkasRinci(r){if(!r||typeof r!=="object")return"";return Object.entries(r).filter(([k])=>k!=="nilai"||true).map(([k,v])=>`${k}: ${typeof v==="object"?JSON.stringify(v):v}`).join(", ").slice(0,160)}
+const IKON_P={galat:["Perlu diperbaiki","bad"],periksa:["Periksa","warn"],info:["Info","info"]};
+async function periksa(){
+  try{const L=await rpc("asm_periksa",{p_pin:PIN,p_id:A.asesmen.id});
+    $("r-periksa").innerHTML=L.map(x=>`<div><span class="pill ${IKON_P[x.jenis][1]}">${IKON_P[x.jenis][0]}</span><span>${esc(x.pesan)}</span></div>`).join("");
+    if(!L.some(x=>x.jenis!=="info"))$("r-periksa").insertAdjacentHTML("afterbegin",'<div><span class="pill good">Lolos</span><span>Tidak ada masalah.</span></div>');
+    const b=$("btn-terbit");if(b)b.disabled=L.some(x=>x.jenis==="galat");
+  }catch(e){$("r-periksa").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+$("btn-periksa").onclick=periksa;
+async function terbitkan(){
+  if(!await tanya("Terbitkan asesmen?",`Kode akses dibuat untuk setiap ruang di setiap sesi, dan sesi ujian disiapkan untuk naskah yang sudah punya paket. Pada hari H setiap sesi <b>terbuka sendiri</b> sesuai jadwal.<br><br>Sesudah terbit, peserta dan jadwal tidak bisa diunggah ulang.`,"Terbitkan"))return;
+  try{const r=await rpc("asm_terbitkan",{p_pin:PIN,p_id:A.asesmen.id});toast(`Diterbitkan: ${r.tugas} tugas siswa, ${r.kode_ruang} kode ruang, ${r.sesi_ujian} sesi ujian.`,5000);muatUlang()}catch(e){toast(e.message,6000)}}
+async function batalTerbit(){
+  if(!await tanya("Batal terbit?","Kode ruang dan sesi ujian PAS ini dihapus, asesmen kembali menjadi draf. Hanya bisa bila belum ada siswa yang masuk.","Batal terbit"))return;
+  try{await rpc("asm_batal_terbit",{p_pin:PIN,p_id:A.asesmen.id});toast("Kembali menjadi draf");muatUlang()}catch(e){toast(e.message,6000)}}
+$("btn-atur").onclick=async()=>{const n=id=>Math.max(0,parseInt($(id).value||"0",10));
+  try{await rpc("asm_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_nama:"",p_atur:{pintu_menit:n("at-pintu"),terlambat_menit:n("at-terlambat"),maks_keluar:n("at-maks"),toleransi_keluar:n("at-tol"),kode_buka:$("at-kode").value.trim()}});
+    toast("Aturan tersimpan"+(draf()?"":". Berlaku untuk sesi yang disiapkan sesudah ini."));muatUlang()}catch(e){toast(e.message)}};
+
+/* ---------------- Excel: baca ---------------- */
+async function bacaLembar(file){
+  const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:"array",cellDates:true});
+  const ws=wb.Sheets[wb.SheetNames[0]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:"",raw:true});
+  return rows}
+// Cari baris judul (yang memuat kata kunci), lalu peta nama kolom → indeks
+function petaKolom(rows,kunci){for(let i=0;i<Math.min(rows.length,30);i++){const r=rows[i].map(x=>String(x).trim().toLowerCase());
+    if(kunci.every(k=>r.some(c=>c.startsWith(k))))return{i,ke:k=>r.findIndex(c=>c.startsWith(k))}}return null}
+const pad=n=>String(n).padStart(2,"0");
+function keTanggal(v){if(v instanceof Date)return`${v.getFullYear()}-${pad(v.getMonth()+1)}-${pad(v.getDate())}`;
+  const s=String(v).trim();let m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);if(m)return`${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  m=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);if(m)return`${m[3]}-${pad(m[2])}-${pad(m[1])}`;
+  if(typeof v==="number"&&v>30000){const d=new Date(Math.round((v-25569)*864e5));return`${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`}return null}
+function keJam(v){if(v instanceof Date)return`${pad(v.getHours())}:${pad(v.getMinutes())}`;
+  if(typeof v==="number"&&v<1){const m=Math.round(v*1440);return`${pad(Math.floor(m/60))}:${pad(m%60)}`}
+  const m=String(v).trim().match(/^(\d{1,2})[.:](\d{2})/);return m?`${pad(m[1])}:${m[2]}`:null}
+function siapkanDrop(drop,input,fn){input.onchange=e=>{if(e.target.files[0])fn(e.target.files[0]);e.target.value=""};
+  drop.ondragover=e=>{e.preventDefault();drop.style.borderColor="var(--emas-tua)"};drop.ondragleave=()=>drop.style.borderColor="";
+  drop.ondrop=e=>{e.preventDefault();drop.style.borderColor="";if(e.dataTransfer.files[0])fn(e.dataTransfer.files[0])}}
+
+/* ---------------- Peserta & Ruang ---------------- */
+function gPeserta(){
+  $("drop-peserta").classList.toggle("hidden",!draf());$("p-terkunci").classList.toggle("hidden",draf());
+  if(!draf())$("p-pratinjau").innerHTML="";
+  const komp={};A.peserta.forEach(p=>{(komp[p.ruang]=komp[p.ruang]||{})[p.kelompok]=((komp[p.ruang]||{})[p.kelompok]||0)+1});
+  $("t-ruang").innerHTML=A.ruang.map(r=>`<tr><td><b>${esc(r.kode)}</b></td><td><input type="text" data-rn="${esc(r.kode)}" value="${esc(r.nama||"")}" placeholder="mis. Gd A lt 1" style="width:200px"></td>
+    <td><input type="number" data-rk="${esc(r.kode)}" value="${r.kapasitas??""}" min="1" max="200" style="width:90px"></td>
+    <td>${r.n}${r.kapasitas&&r.n>r.kapasitas?' <span class="pill warn">melebihi</span>':""}</td>
+    <td class="small">${Object.entries(komp[r.kode]||{}).sort().map(([k,n])=>`${esc(k)}: ${n}`).join(" · ")}</td></tr>`).join("")||'<tr><td colspan="5" class="muted">Ruang dibuat otomatis dari berkas peserta.</td></tr>';
+  gambarPeserta();
+}
+function gambarPeserta(){const q=$("p-cari").value.trim().toLowerCase();
+  const L=A.peserta.filter(p=>!q||[p.nama,p.nisn,p.ruang,p.kelas,p.kelompok,p.no].join(" ").toLowerCase().includes(q));
+  $("p-n").textContent=`(${L.length} dari ${A.peserta.length})`;
+  $("t-peserta").innerHTML=L.slice(0,800).map(p=>`<tr><td>${esc(p.no)}</td><td>${esc(p.nama||"?")}${p.aktif?"":' <span class="pill bad">nonaktif</span>'}</td><td>${esc(p.nisn)}</td><td>${esc(p.kelas||"")}</td><td>${esc(p.ruang)}</td><td>${esc(p.kelompok)}</td></tr>`).join("")||'<tr><td colspan="6" class="muted">Belum ada peserta.</td></tr>'}
+$("p-cari").oninput=gambarPeserta;
+$("btn-ruang-simpan").onclick=async()=>{const rows=A.ruang.map(r=>({kode:r.kode,nama:document.querySelector(`[data-rn="${r.kode}"]`).value,kapasitas:document.querySelector(`[data-rk="${r.kode}"]`).value}));
+  try{await rpc("asm_ruang_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_rows:rows});toast("Ruang tersimpan");muatUlang()}catch(e){toast(e.message)}};
+$("btn-tpl-peserta").onclick=e=>jalankanUnduh(e.target,async()=>{
+  const S=await rpc("tka_list_siswa",{p_pin:PIN,p_kelas:null});const ada={};A.peserta.forEach(p=>ada[p.nisn]=p);
+  const baris=S.filter(s=>s.aktif).sort((a,b)=>a.kelas.localeCompare(b.kelas,"id",{numeric:true})||a.nama.localeCompare(b.nama,"id"))
+    .map(s=>{const p=ada[s.nisn];return[s.nisn,s.nama,s.kelas,p?p.ruang:"",p?p.kelompok:(String(s.kelas).match(/^(10|11|12)/)||[""])[0],p?p.no:""]});
+  const nama=`Template_Peserta_PAS_${potongNama(A.asesmen.nama)}.xlsx`;
+  await unduhBukuXLSX({namaBerkas:nama,judulBuku:"Peserta PAS",lembar:[{nama:"Peserta",judul:"Peserta per ruang — "+A.asesmen.nama,sub:"isi kolom Ruang & Kelompok",
+    info:[["Cara mengisi","Ruang: kode ruang (mis. R01). Kelompok: 10, 11-IPA, 12-IPS, dst. — sama persis dengan kelompok di jadwal. Ruang kosong = tidak ikut."],["Jangan ubah","Baris judul tabel (NISN, Nama, Kelas, Ruang, Kelompok, No. peserta)."]],
+    kolom:[{t:"NISN",w:14,rata:"left"},{t:"Nama",w:34},{t:"Kelas",w:9},{t:"Ruang",w:9},{t:"Kelompok",w:11},{t:"No. peserta",w:12}],baris,beku:2,melintang:false}]});return nama});
+async function unggahPeserta(file){
+  try{const rows=await bacaLembar(file);const pk=petaKolom(rows,["nisn","ruang","kelompok"]);
+    if(!pk)return toast("Kolom NISN, Ruang, dan Kelompok tidak ditemukan. Pakai template peserta.",6000);
+    const cN=pk.ke("nisn"),cR=pk.ke("ruang"),cK=pk.ke("kelompok"),cP=pk.ke("no");let tanpa=0;
+    const data=[];rows.slice(pk.i+1).forEach(r=>{const nisn=String(r[cN]??"").trim();if(!nisn)return;const ruang=String(r[cR]??"").trim();if(!ruang){tanpa++;return}
+      data.push({nisn,ruang,kelompok:String(r[cK]??"").trim(),no_peserta:cP>=0?String(r[cP]??"").trim():""})});
+    if(!data.length)return toast("Tidak ada baris yang Ruang-nya terisi.",5000);
+    const h=await rpc("asm_peserta_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_rows:data,p_ganti:true,p_simpan:false});PRATINJAU=data;
+    $("p-pratinjau").innerHTML=`<div class="card kolom" style="background:var(--emas-kabut)"><h3>Pratinjau: ${h.n} peserta akan disimpan</h3>
+      <div class="row small">${Object.entries(h.per_ruang).sort().map(([r,n])=>`<span class="pill">${esc(r)}: ${n}</span>`).join("")}</div>
+      <div class="row small">${Object.entries(h.per_kelompok).sort().map(([k,n])=>`<span class="pill info">${esc(k)}: ${n}</span>`).join("")}</div>
+      ${tanpa?`<p class="small muted">${tanpa} siswa tanpa ruang tidak ikut.</p>`:""}
+      ${h.tidak_dikenal.length?`<p class="small"><span class="pill bad">${h.tidak_dikenal.length} baris dilewati</span> ${h.tidak_dikenal.slice(0,12).map(x=>`${esc(x.nisn)} (${esc(x.alasan)})`).join("; ")}${h.tidak_dikenal.length>12?" …":""}</p>`:""}
+      ${h.ganda.length?`<p class="small"><span class="pill warn">${h.ganda.length} NISN ganda</span> hanya baris pertama yang dipakai.</p>`:""}
+      <div class="row"><button id="btn-p-simpan">Simpan (ganti semua peserta)</button><button class="ghost" id="btn-p-batal">Batal</button></div></div>`;
+    $("btn-p-batal").onclick=()=>{$("p-pratinjau").innerHTML="";PRATINJAU=null};
+    $("btn-p-simpan").onclick=async()=>{try{const r=await rpc("asm_peserta_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_rows:PRATINJAU,p_ganti:true,p_simpan:true});
+      toast(`${r.n} peserta tersimpan`);$("p-pratinjau").innerHTML="";muatUlang()}catch(e){toast(e.message,6000)}};
+  }catch(e){toast("Berkas tidak terbaca: "+e.message,6000)}}
+siapkanDrop($("drop-peserta"),$("file-peserta"),unggahPeserta);
+
+/* ---------------- Jadwal ---------------- */
+const NASKAH=id=>A.naskah.find(n=>n.id===id)||{};
+function gJadwal(){
+  $("drop-jadwal").classList.toggle("hidden",!draf());
+  const hari=[...new Set(A.sesi.map(s=>s.hari))].sort();if(!hari.includes(HARI))HARI=hari[0]||null;
+  $("j-hari").innerHTML=hari.map((h,i)=>`<button class="chip ${h===HARI?"on":""}" data-h="${h}">Hari ${i+1} · ${tglPendek(h)}</button>`).join("");
+  document.querySelectorAll("#j-hari .chip").forEach(b=>b.onclick=()=>{HARI=b.dataset.h;gJadwal()});
+  const S=A.sesi.filter(s=>s.hari===HARI).sort((a,b)=>a.ke-b.ke);
+  const kel=[...new Set([...A.peserta.map(p=>p.kelompok),...A.sesi.flatMap(s=>Object.keys(s.jadwal))])].sort((a,b)=>a.localeCompare(b,"id",{numeric:true}));
+  if(!S.length){$("t-jadwal").innerHTML='<tr><td class="muted">Jadwal belum diunggah.</td></tr>';$("t-isi-ruang").innerHTML="";return}
+  $("t-jadwal").innerHTML=`<thead><tr><th>Kelompok</th>${S.map(s=>`<th>Sesi ${s.ke} · ${jam(s.mulai)}–${jam(s.akhir)}${s.batal?' <span class="pill bad">batal</span>':""}</th>`).join("")}</tr></thead><tbody>`+
+    kel.map(k=>`<tr><td><b>${esc(k)}</b> <span class="small muted">${A.peserta.filter(p=>p.kelompok===k).length}</span></td>${S.map(s=>{const n=s.jadwal[k];return`<td>${n?esc(NASKAH(n).mapel):'<span class="muted">—</span>'}</td>`}).join("")}</tr>`).join("")+"</tbody>";
+  const perRuang={};A.peserta.forEach(p=>(perRuang[p.ruang]=perRuang[p.ruang]||[]).push(p));
+  $("t-isi-ruang").innerHTML=`<thead><tr><th>Ruang</th><th>Peserta</th>${S.map(s=>`<th>Sesi ${s.ke}</th>`).join("")}</tr></thead><tbody>`+
+    Object.keys(perRuang).sort().map(r=>`<tr><td><b>${esc(r)}</b></td><td>${perRuang[r].length}</td>${S.map(s=>{const m={};perRuang[r].forEach(p=>{const n=s.jadwal[p.kelompok];if(n){const nm=NASKAH(n).mapel+" "+NASKAH(n).tingkat;m[nm]=(m[nm]||0)+1}});
+      const kd=(s.ruang.find(x=>x.ruang===r)||{}).kode;return`<td><div class="sel-mapel">${Object.entries(m).map(([a,b])=>`<span><b>${esc(a)}</b><em>${b}</em></span>`).join("")||'<span class="muted">—</span>'}${kd?`<span>kode <b class="kode">${kd}</b></span>`:""}</div></td>`}).join("")}</tr>`).join("")+"</tbody>";
+}
+$("btn-tpl-jadwal").onclick=e=>jalankanUnduh(e.target,async()=>{
+  let baris=[];A.sesi.filter(s=>s.jenis==="jadwal").forEach(s=>Object.entries(s.jadwal).forEach(([k,n])=>baris.push([s.hari,s.ke,jam(s.mulai).replace(".",":"),s.durasi,k,NASKAH(n).mapel])));
+  if(!baris.length){const kel=[...new Set(A.peserta.map(p=>p.kelompok))].sort();const kk=kel.length?kel:["10","11-IPA","11-IPS","12-IPA","12-IPS"];
+    baris=kk.map(k=>["2026-12-01",1,"07:30",90,k,"(isi mapel)"]).concat(kk.map(k=>["2026-12-01",2,"09:30",90,k,"(isi mapel)"]))}
+  const nama=`Template_Jadwal_PAS_${potongNama(A.asesmen.nama)}.xlsx`;
+  await unduhBukuXLSX({namaBerkas:nama,judulBuku:"Jadwal PAS",lembar:[{nama:"Jadwal",judul:"Jadwal — "+A.asesmen.nama,sub:"satu baris = satu kelompok di satu sesi",
+    info:[["Tanggal","YYYY-MM-DD, mis. 2026-12-01"],["Jam mulai","jam soal terbuka (HH:MM); pintu masuk dibuka beberapa menit sebelumnya"],["Kelompok","sama persis dengan kolom Kelompok di berkas peserta"]],
+    kolom:[{t:"Tanggal",w:13},{t:"Sesi ke-",w:9},{t:"Jam mulai",w:11},{t:"Durasi (menit)",w:13},{t:"Kelompok",w:12},{t:"Mapel",w:30}],baris,beku:1,melintang:false}]});return nama});
+async function unggahJadwal(file){
+  try{const rows=await bacaLembar(file);const pk=petaKolom(rows,["tanggal","sesi","jam","durasi","kelompok","mapel"]);
+    if(!pk)return toast("Kolom Tanggal, Sesi ke-, Jam mulai, Durasi, Kelompok, Mapel tidak ditemukan. Pakai template jadwal.",6000);
+    const c={t:pk.ke("tanggal"),s:pk.ke("sesi"),j:pk.ke("jam"),d:pk.ke("durasi"),k:pk.ke("kelompok"),m:pk.ke("mapel")};const salah=[];const data=[];
+    rows.slice(pk.i+1).forEach((r,i)=>{if(r.every(x=>String(x).trim()===""))return;const hari=keTanggal(r[c.t]),mulai=keJam(r[c.j]);
+      if(!hari||!mulai){salah.push(`Baris ${pk.i+i+2}: tanggal/jam tidak terbaca`);return}
+      data.push({hari,ke:parseInt(r[c.s],10),mulai,durasi:parseInt(r[c.d],10),kelompok:String(r[c.k]).trim(),mapel:String(r[c.m]).trim()})});
+    if(salah.length)return $("j-pesan").innerHTML=`<p class="small"><span class="pill bad">Belum disimpan</span> ${esc(salah.slice(0,10).join(" | "))}</p>`;
+    if(A.sesi.length&&!await tanya("Ganti jadwal?",`${data.length} baris jadwal baru menggantikan jadwal yang ada. Laci naskah yang sudah punya penyusun/paket tetap disimpan.`,"Ganti jadwal"))return;
+    const r=await rpc("asm_jadwal_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_rows:data,p_ganti:true});
+    $("j-pesan").innerHTML=`<p class="small"><span class="pill good">Tersimpan</span> ${r.baris} baris → ${r.n_sesi} sesi, ${r.n_naskah} laci naskah.</p>`;muatUlang();
+  }catch(e){$("j-pesan").innerHTML=`<p class="small"><span class="pill bad">Belum disimpan</span> ${esc(e.message)}</p>`}}
+siapkanDrop($("drop-jadwal"),$("file-jadwal"),unggahJadwal);
+
+/* ---------------- Folder Soal ---------------- */
+const ST_NASKAH={belum:["Belum diunggah","bad"],diunggah:["Diunggah","warn"],ditinjau:["Ditinjau","info"],terkunci:["Terkunci","good"]};
+async function gSoal(){
+  const ns=A.naskah;$("s-progres").textContent=`${ns.filter(n=>n.status==="terkunci").length} / ${ns.length} terkunci`;
+  if(!GURU||!PAKET){$("t-naskah").innerHTML='<tr><td colspan="6" class="muted">Memuat daftar guru dan paket…</td></tr>';
+    try{const [g,p]=await Promise.all([rpc("mtd_admin_guru",{p_pin:PIN}),rpc("tka_list_paket",{p_pin:PIN})]);
+      GURU=(g.guru||[]).filter(x=>x.aktif).map(x=>({id:x.id,nama:x.nama})).sort((a,b)=>a.nama.localeCompare(b.nama,"id"));PAKET=p}catch(e){toast(e.message)}}
+  const opsiGuru=sel=>`<option value="">— belum —</option>`+(GURU||[]).map(g=>`<option value="${esc(g.id)}" ${g.id===sel?"selected":""}>${esc(g.nama)}</option>`).join("");
+  const opsiPaket=(n)=>{const cocok=p=>(p.mapel||"").toLowerCase().includes(n.mapel.toLowerCase().split(" ")[0])||(p.judul||"").toLowerCase().includes(n.mapel.toLowerCase());
+    const L=(PAKET||[]).filter(p=>!p.arsip).sort((a,b)=>(cocok(b)-cocok(a))||String(b.diubah).localeCompare(String(a.diubah)));
+    return`<option value="">— belum —</option>`+L.map(p=>`<option value="${esc(p.kode)}" ${p.kode===n.paket?"selected":""}>${esc(p.kode)} · ${esc(p.judul)} (${p.n_soal} soal)</option>`).join("")};
+  $("t-naskah").innerHTML=ns.map(n=>`<tr><td><b>${esc(n.mapel)}</b></td><td>${esc(n.tingkat)}</td>
+    <td class="small">${n.dipakai.map(d=>`${tglPendek(d.hari)} S${d.ke} (${esc(d.kelompok)})`).join("<br>")||'<span class="muted">tidak dipakai</span>'}</td>
+    <td><select data-guru="${n.id}">${opsiGuru(n.penyusun)}</select></td>
+    <td><select data-paket="${n.id}">${opsiPaket(n)}</select>${n.paket&&n.paket_judul?`<div class="small muted">${n.n_soal} soal</div>`:""}</td>
+    <td><select data-st="${n.id}">${Object.entries(ST_NASKAH).map(([k,[l]])=>`<option value="${k}" ${k===n.status?"selected":""}>${l}</option>`).join("")}</select> <span class="pill ${ST_NASKAH[n.status][1]}">${ST_NASKAH[n.status][0]}</span></td></tr>`).join("")||'<tr><td colspan="6" class="muted">Laci naskah muncul setelah jadwal diunggah.</td></tr>';
+  const ubah=async(id,nilai,el)=>{el.disabled=true;try{const r=await rpc("asm_naskah_atur",{p_pin:PIN,p_naskah:+id,p_nilai:nilai});toast(r.sesi_ujian_baru?`Tersimpan · ${r.sesi_ujian_baru} sesi ujian disiapkan`:"Tersimpan");await muatUlang()}catch(e){toast(e.message,6000);el.disabled=false}};
+  document.querySelectorAll("[data-guru]").forEach(s=>s.onchange=()=>ubah(s.dataset.guru,{penyusun:s.value},s));
+  document.querySelectorAll("[data-paket]").forEach(s=>s.onchange=()=>ubah(s.dataset.paket,{paket:s.value},s));
+  document.querySelectorAll("[data-st]").forEach(s=>s.onchange=()=>ubah(s.dataset.st,{status:s.value},s));
+}
+
+/* ---------------- Cetak ---------------- */
+function gCetak(){
+  const R=A.ruang.map(r=>r.kode),H=[...new Set(A.sesi.filter(s=>!s.batal).map(s=>s.hari))].sort();
+  $("c-ruang").innerHTML='<option value="">Semua ruang</option>'+R.map(r=>`<option>${esc(r)}</option>`).join("");
+  $("c-hari").innerHTML='<option value="">Semua hari</option>'+H.map((h,i)=>`<option value="${h}">Hari ${i+1} · ${tglPendek(h)}</option>`).join("");
+  ["btn-kode","btn-kode-xlsx"].forEach(b=>$(b).disabled=draf());
+}
+const ruangNama=k=>{const r=A.ruang.find(x=>x.kode===k);return r&&r.nama?`${k} · ${r.nama}`:k};
+const sesiAktif=()=>A.sesi.filter(s=>!s.batal).sort((a,b)=>a.mulai.localeCompare(b.mulai));
+function jadwalSiswa(p){return sesiAktif().filter(s=>s.jadwal[p.kelompok]).map(s=>({s,mapel:NASKAH(s.jadwal[p.kelompok]).mapel}))}
+function bukaCetak(judul,isi,css){
+  const w=window.open("","_blank");if(!w)return toast("Jendela cetak diblokir peramban. Izinkan pop-up untuk halaman ini.",6000);
+  w.document.write(`<!doctype html><html lang="id"><head><meta charset="utf-8"><title>${esc(judul)}</title><style>
+    @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:"Segoe UI",Arial,sans-serif;color:#221E17;margin:0;font-size:11pt}
+    .alat{position:sticky;top:0;background:#1D2A3A;color:#fff;padding:10px 14px;display:flex;gap:10px;align-items:center}.alat button{background:#C29433;color:#1D2A3A;border:0;border-radius:6px;padding:8px 14px;font-weight:700;cursor:pointer}
+    @media print{.alat{display:none}}h1{font-size:15pt;margin:0}h2{font-size:12pt;margin:0}table{border-collapse:collapse;width:100%}th,td{border:1px solid #8B8173;padding:4px 6px;text-align:left;font-size:10pt}th{background:#F6F2E8}
+    .kop{display:flex;gap:10px;align-items:center;border-bottom:2px solid #C29433;padding-bottom:6px;margin-bottom:8px}.kop img{height:40px}.kecil{font-size:9pt;color:#5E5548}.halaman{page-break-after:always;padding:4mm 0}.halaman:last-child{page-break-after:auto}
+    ${css||""}</style></head><body><div class="alat"><b>${esc(judul)}</b><button onclick="print()">Cetak / simpan PDF</button><span class="kecil" style="color:#BDB3A0">Pilih kertas A4.</span></div>${isi}</body></html>`);
+  w.document.close();}
+const kop=(judul,sub)=>`<div class="kop"><img src="${new URL("assets/logo.png",location.href).href}" alt=""><div><div class="kecil">SMA Plus Merdeka Soreang · ${esc(A.asesmen.nama)}</div><h1>${esc(judul)}</h1>${sub?`<div class="kecil">${esc(sub)}</div>`:""}</div></div>`;
+$("btn-kartu").onclick=()=>{
+  const r=$("c-ruang").value;const P=A.peserta.filter(p=>!r||p.ruang===r).sort((a,b)=>a.ruang.localeCompare(b.ruang)||a.no.localeCompare(b.no,"id",{numeric:true}));
+  if(!P.length)return toast("Belum ada peserta.");
+  const kartu=P.map(p=>`<div class="kartu"><div class="kk"><img src="${new URL("assets/logo.png",location.href).href}" alt=""><div><b>KARTU PESERTA</b><div class="kecil">${esc(A.asesmen.nama)}</div></div></div>
+    <table class="id"><tr><td>Nama</td><td><b>${esc(p.nama)}</b></td></tr><tr><td>NISN</td><td class="mono">${esc(p.nisn)}</td></tr><tr><td>Kelas</td><td>${esc(p.kelas)}</td></tr>
+    <tr><td>Ruang</td><td><b>${esc(ruangNama(p.ruang))}</b></td></tr><tr><td>No. peserta</td><td class="mono"><b>${esc(p.no)}</b></td></tr></table>
+    <table class="jd">${jadwalSiswa(p).map(({s,mapel})=>`<tr><td>${tglPendek(s.hari)}</td><td>S${s.ke} ${jam(s.mulai)}</td><td>${esc(mapel)}</td></tr>`).join("")||'<tr><td>Belum ada jadwal</td></tr>'}</table>
+    <div class="kecil">Masuk ujian: NISN + kode akses dari pengawas ruang. Datang 10 menit sebelum jam mulai.</div></div>`);
+  let isi="";for(let i=0;i<kartu.length;i+=8)isi+=`<div class="halaman grid">${kartu.slice(i,i+8).join("")}</div>`;
+  bukaCetak("Kartu peserta"+(r?" "+r:""),isi,`.grid{display:grid;grid-template-columns:1fr 1fr;gap:4mm}.kartu{border:1.5px dashed #8B8173;border-radius:4px;padding:3mm;height:64mm;overflow:hidden;display:flex;flex-direction:column;gap:2mm;break-inside:avoid}
+    .kk{display:flex;gap:6px;align-items:center;border-bottom:1.5px solid #C29433;padding-bottom:2px}.kk img{height:26px}.kartu td{border:0;padding:0 4px 0 0;font-size:9pt}.kartu table.jd td{border-bottom:1px dotted #D6CCB6;font-size:8pt}.mono{font-family:Consolas,monospace}`)};
+$("btn-hadir").onclick=()=>{
+  const r=$("c-ruang").value,h=$("c-hari").value;const R=r?[r]:A.ruang.map(x=>x.kode);const S=sesiAktif().filter(s=>!h||s.hari===h);
+  let isi="";R.forEach(rk=>S.forEach(s=>{const P=A.peserta.filter(p=>p.ruang===rk&&s.jadwal[p.kelompok]).sort((a,b)=>a.no.localeCompare(b.no,"id",{numeric:true}));if(!P.length)return;
+    isi+=`<div class="halaman">${kop("Daftar hadir — Ruang "+ruangNama(rk),`${tglPanjang(s.hari)} · Sesi ${s.ke} · ${jam(s.mulai)}–${jam(s.akhir)} WIB`)}
+    <table><thead><tr><th style="width:28px">No</th><th>No. peserta</th><th>Nama</th><th>Kelas</th><th>Mapel</th><th style="width:28%">Tanda tangan</th></tr></thead><tbody>
+    ${P.map((p,i)=>`<tr><td>${i+1}</td><td>${esc(p.no)}</td><td>${esc(p.nama)}</td><td>${esc(p.kelas)}</td><td>${esc(NASKAH(s.jadwal[p.kelompok]).mapel)}</td><td style="height:22px">${i%2?"":`${i+1}.`}${i%2?`<span style="margin-left:50%">${i+1}.</span>`:""}</td></tr>`).join("")}</tbody></table>
+    <p class="kecil" style="margin-top:6px">Hadir: ____  Tidak hadir: ____ (dicatat di layar pengawas → otomatis masuk daftar susulan)</p>
+    <table style="margin-top:14px;border:0"><tr><td style="border:0;width:50%"></td><td style="border:0">Pengawas,<br><br><br><br>(__________________________)</td></tr></table></div>`}));
+  if(!isi)return toast("Tidak ada data untuk ruang/hari itu.");bukaCetak("Daftar hadir",isi)};
+$("btn-kode").onclick=()=>{
+  if(draf())return toast("Kode ada setelah asesmen diterbitkan.");
+  const r=$("c-ruang").value,h=$("c-hari").value;const R=r?[r]:A.ruang.map(x=>x.kode);const H=[...new Set(sesiAktif().map(s=>s.hari))].filter(x=>!h||x===h);
+  let isi="";R.forEach(rk=>H.forEach(hr=>{const S=sesiAktif().filter(s=>s.hari===hr&&s.ruang.some(x=>x.ruang===rk));if(!S.length)return;
+    isi+=`<div class="lembar">${kop("RAHASIA · Kode akses ruang "+ruangNama(rk),tglPanjang(hr))}<table><thead><tr><th>Sesi</th><th>Jam soal terbuka</th><th>Kode akses</th></tr></thead><tbody>
+    ${S.map(s=>`<tr><td>Sesi ${s.ke}</td><td>${jam(s.mulai)}–${jam(s.akhir)} WIB</td><td class="kd">${s.ruang.find(x=>x.ruang===rk).kode.replace(/(\d{3})(\d{3})/,"$1 $2")}</td></tr>`).join("")}</tbody></table>
+    <p class="kecil">Dipakai hanya bila layar pengawas tidak bisa dibuka. Kode berlaku sejak pintu dibuka sampai sesi berakhir, hanya untuk siswa ruang ini.</p></div>`}));
+  if(!isi)return toast("Tidak ada data untuk ruang/hari itu.");
+  bukaCetak("Lembar kode akses",isi,`.lembar{border:2px dashed #8B8173;border-radius:6px;padding:5mm;margin-bottom:6mm;break-inside:avoid}.kd{font-family:Consolas,monospace;font-size:16pt;font-weight:700;letter-spacing:2px}`)};
+$("btn-kode-xlsx").onclick=e=>jalankanUnduh(e.target,async()=>{
+  const baris=[];sesiAktif().forEach(s=>s.ruang.forEach(x=>baris.push([s.hari,s.ke,jam(s.mulai)+"–"+jam(s.akhir),x.ruang,ruangNama(x.ruang).replace(/^[^·]*·\s*/,""),x.kode])));
+  const nama=`Kode_Akses_PAS_${potongNama(A.asesmen.nama)}.xlsx`;
+  await unduhBukuXLSX({namaBerkas:nama,judulBuku:"Kode akses PAS",lembar:[{nama:"Kode",judul:"Kode akses per ruang per sesi — RAHASIA",sub:A.asesmen.nama,
+    kolom:[{t:"Tanggal",w:12},{t:"Sesi",w:7},{t:"Jam",w:14},{t:"Ruang",w:9},{t:"Nama ruang",w:22},{t:"Kode akses",w:13,tebal:true}],baris,beku:1,melintang:false,
+    catatan:["Simpan berkas ini baik-baik. Kode yang sama tampil otomatis di layar pengawas 10 menit sebelum soal terbuka."]}]});return nama});
+</script>
+</body>
+</html>
