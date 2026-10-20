@@ -300,13 +300,13 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <div class="info-grid">
       <label class="small">Judul<input type="text" id="di-judul" maxlength="150"></label>
       <label class="small">Mata pelajaran <span class="muted">(daftar dari Data Induk)</span><select id="di-mapel"></select></label>
-      <label class="small">Jenis<input type="text" id="di-jenis" list="di-jenis-list" placeholder="pilih atau ketik"></label>
+      <label class="small">Jenis <span class="muted">(ditentukan sistem; bertambah bila ada asesmen baru di PAS)</span><select id="di-jenis"></select></label>
       <label class="small">Semester<input type="text" id="di-semester" list="di-semester-list"></label>
       <label class="small">Guru penyusun <span class="muted">(mengikuti penyusun paket; operator menggantinya lewat tombol <b>Atur</b>)</span><input type="text" id="di-penyusun" readonly tabindex="-1" style="background:var(--bg);cursor:default"></label>
       <div class="small">Tingkat peserta <span class="muted">(kelas yang mengerjakan)</span><div class="chips" id="di-tingkat"></div></div>
       <div class="small">Cakupan materi <span class="muted">(pilih hanya bila berbeda dari tingkat peserta, mis. tryout TKA kelas 12 dengan materi kelas 10–12)</span><div class="chips" id="di-cakupan"></div></div>
     </div>
-    <datalist id="di-jenis-list"></datalist><datalist id="di-semester-list"></datalist>
+    <datalist id="di-semester-list"></datalist>
     <div class="row" style="margin-top:12px"><button id="btn-di-simpan" class="good">Simpan keterangan</button><button class="ghost" id="btn-di-batal">Tutup</button></div><div id="di-status" class="small" style="margin-top:8px"></div></div>
   <div class="card hidden" id="daftar-lihat-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Pratinjau paket <span id="dl-kode" class="pill"></span></h3><span class="row"><button class="btn-unduh" data-fmt="docx" id="btn-dl-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-dl-docx-siswa">Unduh naskah siswa</button><button class="ghost" id="btn-dl-tutup" style="padding:8px 12px;font-size:13px">Tutup</button></span></div>
     <div id="dl-info" class="small muted" style="margin:6px 0"></div><div id="dl-prev"></div></div>
@@ -710,12 +710,18 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   }
   const kids = (el, ns, name) => Array.from(el.childNodes).filter(n => n.nodeType === 1 && n.localName === name && n.namespaceURI === ns);
   // ---- Keterangan paket (meta.info): jenis, semester, guru penyusun, tingkat peserta, cakupan materi ----
-  const JENIS = ['Latihan', 'Ulangan Harian', 'Tengah Semester', 'Akhir Semester', 'Tryout TKA', 'Tryout UTBK'];
-  const JENIS_ALIAS = { uh: 'Ulangan Harian', ulangan: 'Ulangan Harian', pts: 'Tengah Semester', sts: 'Tengah Semester', pas: 'Akhir Semester', sas: 'Akhir Semester', pat: 'Akhir Semester', sat: 'Akhir Semester', tka: 'Tryout TKA', utbk: 'Tryout UTBK', snbt: 'Tryout UTBK' };
+  // Jenis ditentukan sistem (20 Okt 2026): 5 pilihan tetap + Nama Asesmen dari PAS / Ujian Bersama
+  // (dimuat lewat tka_jenis_daftar → setJenis). Server juga menjaganya (pemicu tka_jenis_ikut_daftar).
+  const JENIS_DASAR = ['Latihan Harian', 'Asesmen Formatif', 'Asesmen Sumatif', 'Tryout TKA', 'Tryout UTBK'];
+  const JENIS_BAWAAN = 'Latihan Harian';
+  const JENIS = JENIS_DASAR.slice();
+  function setJenis(a) { JENIS.length = 0; JENIS.push(...JENIS_DASAR, ...(a || []).filter(j => j && !JENIS_DASAR.includes(j))); }
+  // teks bebas (Word, nama lama) → jenis baku; tidak dikenali → Latihan Harian
   function normJenis(s) {
-    s = String(s || '').trim().replace(/\s+/g, ' '); if (!s) return '';
+    s = String(s || '').trim().replace(/\s+/g, ' '); if (!s) return JENIS_BAWAAN;
     const l = s.toLowerCase();
-    return JENIS.find(j => j.toLowerCase() === l) || JENIS_ALIAS[l] || (/\btka\b/.test(l) ? 'Tryout TKA' : /\b(utbk|snbt)\b/.test(l) ? 'Tryout UTBK' : s);
+    return JENIS.find(j => j.toLowerCase() === l) || (/\btka\b/.test(l) ? 'Tryout TKA' : /\b(utbk|snbt)\b/.test(l) ? 'Tryout UTBK'
+      : /formatif/.test(l) ? 'Asesmen Formatif' : /sumatif|ulangan|semester|\b(uh|pts|sts|pas|sas|pat|sat)\b/.test(l) ? 'Asesmen Sumatif' : JENIS_BAWAAN);
   }
   // "12", "XII", "10–12", "X s.d. XII", "10, 12" → ["12"], ["10","11","12"], ["10","12"]
   function parseTingkat(s) {
@@ -1228,7 +1234,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     return { ok: errors.length === 0, errors, warnings, kisi };
   }
   root.TKA = { parseDocx, buildPaket, buildKisi, checkKisi, kisiDariPaket, komposisi, normBentuk, normLevel, BENTUK_LABEL,
-    info: { JENIS, normJenis, parseTingkat, fmtTingkat, semesterDari, infoBersih } };
+    info: { JENIS, JENIS_BAWAAN, setJenis, normJenis, parseTingkat, fmtTingkat, semesterDari, infoBersih } };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>/* tka_docgen.js — membangkitkan "Template Soal" (.docx) yang sudah terisi dari kisi-kisi, langsung di browser (JSZip).
@@ -1382,7 +1388,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   }
   function barisInfo(kvf, i) {
     i = i || {}; const f = (root.TKA && root.TKA.info) ? root.TKA.info.fmtTingkat : a => (a || []).join(', ');
-    return [kvf('Jenis (Latihan / Ulangan Harian / Tengah Semester / Akhir Semester / Tryout TKA / Tryout UTBK)', i.jenis || ''),
+    return [kvf('Jenis (Latihan Harian / Asesmen Formatif / Asesmen Sumatif / Tryout TKA / Tryout UTBK; kosongkan = Latihan Harian)', i.jenis || ''),
       kvf('Tingkat peserta (kelas yang mengerjakan, mis. 12 atau 10–12)', f(i.tingkat)),
       kvf('Cakupan materi (kelas asal materi bila berbeda, mis. 10–12; kosongkan bila sama)', f(i.cakupan)),
       kvf('Semester (mis. Ganjil 2026/2027; kosongkan = otomatis)', i.semester || ''),
@@ -1832,6 +1838,7 @@ const chipDipilih=el=>[...el.querySelectorAll(".chip.on")].map(b=>b.dataset.t);
 /* Daftar mapel = salinan tabel mapel Data Induk (tka_mapel), disinkron otomatis saat operator masuk.
    Penulisan mapel dari berkas Word disamakan dengan daftar ini ("kimia" → "Kimia"). */
 let MAPEL=[];
+async function muatJenis(){try{TKA.info.setJenis(await rpc("tka_jenis_daftar",{p_pin:PIN()}))}catch(e){/* tetap 5 pilihan dasar */}}
 async function muatMapel(){try{MAPEL=(await rpc("tka_mapel_daftar",{p_pin:PIN()})).mapel||[]}catch(e){MAPEL=[]}}
 const mapelBaku=m=>{m=String(m||"").trim().replace(/\s+/g," ");const x=MAPEL.find(o=>o.nama.toLowerCase()===m.toLowerCase());return x?x.nama:m};
 const mapelCatatan=m=>!MAPEL.length||mapelDikenal(m)?"":` <span class="pill warn">Mata pelajaran "${esc(String(m||"").trim()||"kosong")}" tidak ada di daftar Data Induk</span> Pilih yang benar lewat Pustaka paket → buka paket → Ubah judul &amp; keterangan.`;
@@ -1849,8 +1856,9 @@ async function sinkronMapel(){if(PERAN!=="operator"||!INDUK||!INDUK.url||!INDUK.
     const j=await r.json();if(r.ok&&Array.isArray(j)&&j.length)await rpc("tka_mapel_sinkron",{p_pin:PIN(),p_rows:j})}catch(e){/* daftar lama tetap dipakai */}
   await muatMapel()}
 function bukaKeterangan(r){if(!r)return;if(!PIN()){toast("Isi PIN dahulu");return}const I=TKA.info,i=r.info||{};INFO_KODE=r.kode;INFO_LAMA=i;
-  $("di-kode").textContent=r.kode;$("di-judul").value=r.judul||"";isiPilihMapel($("di-mapel"),r.mapel);$("di-jenis").value=i.jenis||"";$("di-semester").value=i.semester||I.semesterDari(r.dibuat);$("di-penyusun").value=r.pemilik_nama||i.penyusun||"belum ditetapkan";
-  $("di-jenis-list").innerHTML=I.JENIS.map(j=>`<option value="${esc(j)}">`).join("");
+  $("di-kode").textContent=r.kode;$("di-judul").value=r.judul||"";isiPilihMapel($("di-mapel"),r.mapel);$("di-semester").value=i.semester||I.semesterDari(r.dibuat);$("di-penyusun").value=r.pemilik_nama||i.penyusun||"belum ditetapkan";
+  {const lama=i.jenis&&!I.JENIS.includes(i.jenis)?i.jenis:"";  // mis. nama asesmen PAS yang sudah dihapus tetap tampil
+   $("di-jenis").innerHTML=(lama?[lama]:[]).concat(I.JENIS).map(j=>`<option value="${esc(j)}">${esc(j)}</option>`).join("");$("di-jenis").value=lama||I.normJenis(i.jenis)}
   const y=new Date().getFullYear();$("di-semester-list").innerHTML=[y-1,y,y+1].flatMap(t=>[`Ganjil ${t}/${t+1}`,`Genap ${t}/${t+1}`]).map(v=>`<option value="${v}">`).join("");
   chipTingkat($("di-tingkat"),(i.tingkat||[]).length?i.tingkat:I.parseTingkat(r.kelas));chipTingkat($("di-cakupan"),i.cakupan||[]);
   $("di-status").textContent="";const c=$("daftar-info-card");c.classList.remove("hidden");c.scrollIntoView({behavior:"smooth"});$("di-judul").focus()}
@@ -1858,7 +1866,7 @@ async function simpanKeterangan(){if(!INFO_KODE)return;const i0=INFO_LAMA||{},I=
   if(!judul){$("di-status").innerHTML='<span class="pill bad">Judul tidak boleh kosong</span>';return}
   if(!$("di-mapel").value){$("di-status").innerHTML='<span class="pill bad">Pilih mata pelajaran</span>';return}
   const tingkat=chipDipilih($("di-tingkat"));let cakupan=chipDipilih($("di-cakupan"));if(cakupan.join()===tingkat.join())cakupan=[];
-  const info=I.infoBersih({jenis:I.normJenis($("di-jenis").value),semester:$("di-semester").value,penyusun:i0.penyusun,tingkat,cakupan});
+  const info=I.infoBersih({jenis:$("di-jenis").value||I.JENIS_BAWAAN,semester:$("di-semester").value,penyusun:i0.penyusun,tingkat,cakupan});
   $("btn-di-simpan").disabled=true;
   try{const j=await rpc("tka_ubah_keterangan",{p_pin:PIN(),p_kode:INFO_KODE,p_judul:judul,p_info:info,p_mapel:$("di-mapel").value||null});$("di-status").innerHTML=`<span class="pill good">Tersimpan</span> ${esc(j.kode)}`;muatDaftarKisi();muatDaftar()}
   catch(e){$("di-status").innerHTML=`<span class="pill bad">Gagal: ${esc(e.message)}</span>`}finally{$("btn-di-simpan").disabled=false}}
@@ -2474,7 +2482,7 @@ window.addEventListener("DOMContentLoaded",()=>{
         (j.bersama?' <span class="pill warn">PIN guru bersama</span> Paket yang diunggah dengan PIN ini tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator.':"")+
         (j.peran==="operator"&&j.guru_tanpa_pin?` <span class="pill warn">${j.guru_tanpa_pin} guru belum punya PIN pribadi</span> — menu <b>Admin → PIN Guru</b>.`:"");
       $("pin-status").insertAdjacentHTML("beforeend",' <a href="#" id="pin-ganti" class="small">Ganti PIN</a>');$("pin-ganti").onclick=ev=>{ev.preventDefault();$("pin-baris").classList.remove("hidden");$("pin-card").classList.remove("masuk");$("pin").focus()};
-      muatDaftarKisi();muatDaftar();muatSinkron();muatMapel();muatInduk();const tb=document.querySelector("#tabs button.on");if(tb)bukaTab(tb.dataset.tab)}catch(e){document.documentElement.classList.remove("pin-otomatis");try{sessionStorage.removeItem("tka_v2_pin")}catch(er){}setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span> Ketik PIN lalu tekan Cek PIN.`;$("sinkron-info").innerHTML=""}};
+      muatDaftarKisi();muatDaftar();muatSinkron();muatMapel();muatJenis();muatInduk();const tb=document.querySelector("#tabs button.on");if(tb)bukaTab(tb.dataset.tab)}catch(e){document.documentElement.classList.remove("pin-otomatis");try{sessionStorage.removeItem("tka_v2_pin")}catch(er){}setPeran("");$("pin-status").innerHTML=`<span class="pill bad">${esc(e.message)}</span> Ketik PIN lalu tekan Cek PIN.`;$("sinkron-info").innerHTML=""}};
   document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>bukaTab(b.dataset.tab));
   window.bukaTab=t=>{const b=document.querySelector(`#tabs button[data-tab="${t}"]`);if(!b)return;document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x===b));["kisi","unggah","daftar","darurat","siswa","guru","impor","cadangan","bantuan"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==b.dataset.tab));document.body.classList.toggle("lebar",b.dataset.tab==="guru");if(b.dataset.tab==="siswa"&&PIN())muatSiswa();if(b.dataset.tab==="guru"&&PIN())muatGuru();if(b.dataset.tab==="daftar"){muatDaftarKisi();muatDaftar()}};pasangMenu();
   $("file").onchange=e=>{if(e.target.files[0])bacaFile(e.target.files[0])};

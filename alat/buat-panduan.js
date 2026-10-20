@@ -75,7 +75,7 @@ const ISI = [
   TB(["Baris", "Cara mengisi"], [
     ["**Kode ujian**", "Unik untuk setiap paket. Huruf besar, angka, dan strip, 3–31 karakter, tanpa spasi (spasi diubah menjadi strip). Contoh: KIM-STO-01. Kode sama = memperbarui paket yang sama."],
     ["Judul, Mata pelajaran, Kelas, Materi", "Isi nama mapel saja (mis. Kimia), sesuai daftar mapel Data Induk. Penulisan disamakan otomatis (kimia → Kimia); mapel di luar daftar diberi peringatan."],
-    ["**Jenis**", "Latihan / Ulangan Harian / Tengah Semester / Akhir Semester / Tryout TKA / Tryout UTBK. Singkatan UH, PTS, PAS, SAS, TKA, UTBK, SNBT dikenali."],
+    ["**Jenis**", "Pilih salah satu: Latihan Harian / Asesmen Formatif / Asesmen Sumatif / Tryout TKA / Tryout UTBK. Kosong atau tidak dikenali = **Latihan Harian**. Ulangan harian, PTS, PAS, SAS dibaca sebagai Asesmen Sumatif; TKA, UTBK, SNBT dikenali. Daftar jenis ditentukan sistem dan hanya bertambah bila operator membuat asesmen baru di PAS / Ujian Bersama (paket naskah PAS otomatis berjenis nama asesmen itu)."],
     ["**Tingkat peserta**", "Kelas yang mengerjakan, mis. 12 atau 10–12. Kosong = ditebak dari isian Kelas."],
     ["**Cakupan materi**", "Hanya bila materinya dari kelas lain, mis. tryout TKA kelas 12 dengan materi 10–12. Kosongkan bila sama."],
     ["**Semester**", "Mis. Ganjil 2026/2027. Kosong = otomatis dari tanggal (Juli–Desember Ganjil, Januari–Juni Genap)."],
@@ -166,7 +166,7 @@ const ISI = [
     ["", "Lihat soal & kunci", "Pratinjau seluruh soal dengan kunci, plus unduh soal & pembahasan / naskah siswa. Hanya penyusun dan operator."],
     ["", "Template soal .docx · Kisi-kisi .docx", "Mengunduh ulang template soal atau kisi-kisi."],
     ["", "Unduh JSON", "Cadangan paket."],
-    ["**Kelola**", "Ubah judul & keterangan", "Judul, mata pelajaran (dari daftar Data Induk), jenis, semester, tingkat peserta, cakupan materi. Guru penyusun tampil tetapi tidak bisa diketik: ia mengikuti penyusun paket (lihat 3.6). Kode tidak bisa diubah."],
+    ["**Kelola**", "Ubah judul & keterangan", "Judul, mata pelajaran (dari daftar Data Induk), jenis (droplist tetap dari sistem), semester, tingkat peserta, cakupan materi. Guru penyusun tampil tetapi tidak bisa diketik: ia mengikuti penyusun paket (lihat 3.6). Kode tidak bisa diubah."],
     ["", "Arsipkan / Kembalikan dari arsip", "Sesi yang masih terbuka ikut ditutup, paket disembunyikan, hasil tetap. Mengunggah ulang soal dengan kode yang sama juga mengeluarkannya dari arsip."],
     ["", "Hapus paket · Hapus kisi-kisi", "Bila paket punya hasil, Anda ditanya apakah hasilnya ikut dihapus (Batal = hasil tetap disimpan)."],
   ], [1, 2, 3.5]),
