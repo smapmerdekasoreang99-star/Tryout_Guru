@@ -199,10 +199,11 @@ const ISI = [
     ["**Paket soal**", "Cari judul, kode, mapel, atau penyusun. Daftar dikelompokkan per mapel, tanpa paket arsip; tanda *sedang dibuka* bila paket itu sedang dipakai sesi lain."],
     ["**Peserta**", "**Kelas tertentu** (bawaan): ketuk chip kelas, atau **Kelas saya** (rombel yang Anda ampu menurut jadwal KBM), **Semua kelas 10/11/12**, **Kosongkan**. **Siswa tertentu**: cari nama/NISN, pilih semua yang tampil, atau **Tempel daftar NISN**. **Semua siswa**: seluruh siswa aktif."],
     ["**Cara siswa masuk**", "**Dengan kode akses**: siswa mengetik NISN + kode 6 angka yang Anda umumkan. **Tanpa kode akses (cukup NISN)**: selama jam sesi, siswa kelas peserta cukup membuka halaman depan dan mengetik NISN; siswa di luar peserta ditolak. Tanpa kode hanya untuk kelas atau siswa tertentu (bukan semua siswa)."],
-    ["**Mulai**", "**Sekarang**, atau **Jadwalkan** tanggal dan jam (paling jauh 7 hari ke depan; bawaan besok 07.00). Sebelum jamnya, siswa diberi tahu *baru dimulai pukul …*."],
+    ["**Waktu**", "**Mulai sekarang** (sesi tertutup = sekarang + lama pengerjaan + kelonggaran), atau **Terjadwal**: isi **Bisa dibuka mulai** (paling jauh 7 hari ke depan; bawaan besok 07.00) dan **Sampai** (paling lama 14 hari sesudah mulai), mis. latihan di rumah Senin 07.00 s.d. Jumat 15.00. Sebelum jamnya, siswa diberi tahu *baru dimulai pukul …*. Lama pengerjaan tetap berlaku untuk tiap siswa sejak ia masuk."],
+    ["**Sesudah siswa mengumpulkan**", "**Hanya nilai** (bawaan; siswa melihat nilai dan nomor benar/salah, cocok untuk asesmen di kelas) atau **Nilai + kunci & pembahasan** (cocok untuk latihan/belajar di rumah). Bisa diubah kapan saja lewat saklar **Pembahasan** di kartu sesi; pilihan terakhir Anda diingat untuk sesi berikutnya."],
     ["**Lama pengerjaan** (menit)", "Waktu untuk tiap siswa sejak ia masuk. Terisi dari durasi paket; 5–300 menit."],
     ["**Kelonggaran masuk** (menit)", "Tambahan waktu agar siswa yang terlambat masih bisa masuk. Bawaan 10 menit."],
-    ["**Sesi tertutup**", "Dihitung otomatis: jam mulai + lama pengerjaan + kelonggaran. Sesudahnya siswa tidak bisa masuk."],
+    ["**Sesi tertutup**", "Mulai sekarang: dihitung otomatis (sekarang + lama pengerjaan + kelonggaran). Terjadwal: sama dengan isian Sampai. Sesudahnya siswa tidak bisa masuk."],
   ], [1.7, 4.8]),
   H3("Pengawasan & jalur tamu"),
   TB(["Isian", "Bawaan", "Arti"], [

@@ -447,13 +447,20 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
     <div class="se-pilih" style="margin-top:12px"><span class="f" style="display:block;font-weight:600">Cara siswa masuk</span>
       <label class="ds-baris"><span class="ds-l"><b><input type="radio" name="se-akses" value="kode" checked> Dengan kode akses</b><span>Siswa masuk dengan NISN + kode 6 angka yang Anda umumkan.</span></span></label>
       <label class="ds-baris"><span class="ds-l"><b><input type="radio" name="se-akses" value="tanpa"> Tanpa kode akses (cukup NISN)</b><span>Selama jam sesi, siswa kelas peserta cukup membuka halaman depan dan mengetik NISN. Bagikan tautannya ke guru/kelas.</span></span></label></div>
-    <div class="se-pilih" style="margin-top:8px"><span class="f" style="display:block;font-weight:600">Mulai</span>
-      <div class="row"><label><input type="radio" name="se-kapan" value="kini" checked> Sekarang</label><label><input type="radio" name="se-kapan" value="jadwal"> Jadwalkan</label>
-        <input type="datetime-local" id="se-mulai" class="hidden" aria-label="Tanggal dan jam mulai"></div>
+    <div class="se-pilih" style="margin-top:8px"><span class="f" style="display:block;font-weight:600">Waktu</span>
+      <div class="row"><label><input type="radio" name="se-kapan" value="kini" checked> Mulai sekarang</label><label><input type="radio" name="se-kapan" value="jadwal"> Terjadwal (mulai … sampai …)</label></div>
+      <div id="se-jadwal" class="ds-tiga hidden" style="margin-top:8px">
+        <label class="ds-isian"><span>Bisa dibuka mulai</span><input type="datetime-local" id="se-mulai" aria-label="Tanggal dan jam mulai"><small>paling jauh 7 hari ke depan</small></label>
+        <label class="ds-isian"><span>Sampai</span><input type="datetime-local" id="se-akhir" aria-label="Tanggal dan jam sesi ditutup"><small>paling lama 14 hari sesudah mulai</small></label>
+      </div>
       <small class="muted" id="se-mulai-ket"></small></div>
+    <div class="se-pilih" style="margin-top:8px"><span class="f" style="display:block;font-weight:600">Sesudah siswa mengumpulkan</span>
+      <label class="ds-baris"><span class="ds-l"><b><input type="radio" name="se-pemb" value="tidak" checked> Hanya nilai</b><span>Siswa melihat nilai dan nomor yang benar/salah, tanpa kunci dan pembahasan. Cocok untuk asesmen di kelas.</span></span></label>
+      <label class="ds-baris"><span class="ds-l"><b><input type="radio" name="se-pemb" value="ya"> Nilai + kunci &amp; pembahasan</b><span>Siswa bisa membaca kunci dan pembahasan setiap soal. Cocok untuk latihan atau belajar di rumah.</span></span></label>
+      <small class="muted">Bisa diubah kapan saja lewat saklar <b>Pembahasan</b> di kartu sesi.</small></div>
     <div class="ds-tiga" style="margin-top:12px">
       <label class="ds-isian"><span>Lama pengerjaan</span><span class="ds-satuan"><input type="number" id="se-durasi" min="5" max="300" inputmode="numeric"><em>menit</em></span><small>tiap siswa, sejak ia masuk</small></label>
-      <label class="ds-isian"><span>Kelonggaran masuk</span><span class="ds-satuan"><input type="number" id="se-tambah" min="0" max="420" inputmode="numeric"><em>menit</em></span><small>untuk siswa yang terlambat masuk</small></label>
+      <label class="ds-isian" id="se-tambah-wrap"><span>Kelonggaran masuk</span><span class="ds-satuan"><input type="number" id="se-tambah" min="0" max="420" inputmode="numeric"><em>menit</em></span><small>untuk siswa yang terlambat masuk</small></label>
       <div class="ds-isian"><span>Sesi tertutup</span><b id="se-sampai" class="se-jam">–</b><small>sesudahnya siswa tidak bisa masuk</small></div>
     </div>
     <details class="se-lain"><summary>Pengawasan &amp; jalur tamu</summary>
@@ -1103,7 +1110,7 @@ async function muatSesi(diam){if(!diam)$("se-info").textContent="Memuat…";
     if(!(diam&&document.activeElement&&document.activeElement.matches("#se-daftar [data-menit], #se-daftar [data-aw]")))renderSesi();if(SE_PANTAU)muatPantau(SE_PANTAU,true);$("se-info").textContent="Diperbarui "+jam(new Date())}
   catch(e){$("se-info").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 function kartuSesi(s){const m=s.milik,a=[];
-  const st=s.terjadwal?`<span class="pk-pill st-siap"><span class="titik t-siap"></span>Terjadwal ${esc(tglJam(s.mulai))}</span>`:s.buka?`<span class="pk-pill st-aktif"><span class="titik t-aktif"></span>Dibuka s.d. ${jam(s.sampai)}</span>`:`<span class="pk-pill st-selesai"><span class="titik t-selesai"></span>Ditutup ${jam(s.sampai)}</span>`;
+  const st=s.terjadwal?`<span class="pk-pill st-siap"><span class="titik t-siap"></span>Terjadwal ${esc(tglJam(s.mulai))} – ${esc(tglJam(s.sampai))}</span>`:s.buka?`<span class="pk-pill st-aktif"><span class="titik t-aktif"></span>Dibuka s.d. ${esc(tglJam(s.sampai)).replace("hari ini ","")}</span>`:`<span class="pk-pill st-selesai"><span class="titik t-selesai"></span>Ditutup ${jam(s.sampai)}</span>`;
   // Tambah (sesi terbuka) / Buka kembali (sesi ditutup): guru mengetik sendiri menitnya, 1–300
   const menit=`<input type="number" data-menit min="1" max="300" step="1" inputmode="numeric" value="${esc(SE_MENIT[s.id]||15)}" aria-label="Jumlah menit">menit`;
   if(m&&s.buka)a.push(`<span class="ubah-waktu" role="group" aria-label="Ubah waktu sesi"><button class="uw-kurang" data-a="kurangi" title="Mempersingkat sesi dan waktu mengerjakan siswa yang sedang ujian"><b aria-hidden="true">−</b>Kurangi</button><label class="uw-isi"><input type="number" data-menit min="1" max="300" step="1" inputmode="numeric" value="${esc(SE_MENIT[s.id]||15)}" aria-label="Jumlah menit">menit</label><button class="uw-tambah" data-a="tambah" title="Menambah waktu sesi dan waktu mengerjakan siswa yang sedang ujian"><b aria-hidden="true">+</b>Tambah</button></span>`,'<button class="danger" data-a="tutup">Tutup sekarang</button>');
@@ -1167,7 +1174,7 @@ const muatQR=()=>_qrPustaka||(_qrPustaka=new Promise((ok,gagal)=>{if(window.QRCo
 const alamatSiswa=()=>{const u=new URL("./",location.href),p=new URLSearchParams();["sb","key"].forEach(k=>{if(qs.get(k))p.set(k,qs.get(k))});return u.href+(p.toString()?"?"+p:"")};
 async function tampilLayar(s){const L=$("se-layar"),qr=$("sl-qr"),dasar=alamatSiswa();
   $("sl-judul").textContent=s.judul;$("sl-kode").textContent=s.tanpa_kode?"Cukup NISN":kodeTampil(s.kode);
-  $("sl-ket").textContent=s.tanpa_kode?`Buka alamat di bawah lalu ketik NISN · ${s.terjadwal?"mulai "+tglJam(s.mulai)+" · ":""}tertutup ${tglJam(s.sampai)}`:`Masuk dengan NISN dan kode ini · sesi tertutup pukul ${jam(s.sampai)}`;
+  $("sl-ket").textContent=s.tanpa_kode?`Buka alamat di bawah lalu ketik NISN · ${s.terjadwal?"mulai "+tglJam(s.mulai)+" · ":""}tertutup ${tglJam(s.sampai)}`:`Masuk dengan NISN dan kode ini · ${s.terjadwal?"mulai "+tglJam(s.mulai)+" · ":""}sesi tertutup ${tglJam(s.sampai)}`;
   $("sl-url").textContent=dasar.replace(/\?.*$/,"").replace(/\/$/,"");$("sl-pet").textContent="";
   qr.innerHTML="";qr.classList.add("hidden");L.classList.remove("qr-saja");L.classList.remove("hidden");$("btn-sl-tutup").focus();
   // harus dipanggil sebelum menunggu apa pun, supaya masih dianggap bagian dari tekanan tombol
@@ -1215,7 +1222,7 @@ async function aksiSesi(id,a,el){const s=SESI.find(x=>x.id===id);if(!s)return;
 async function bukaFormSesi(kode){$("se-form").classList.remove("hidden");$("se-form-msg").textContent="";
   try{if(!PAKETS.length)PAKETS=await rpc("tka_list_paket",{p_pin:PIN})}catch(e){$("se-form-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}
   const at=GURU.atur||{};$("se-maks").value=at.maks_keluar??5;$("se-tol").value=at.toleransi_keluar??10;$("se-buka").value=at.kode_buka||"";$("se-tamu").checked=!!at.tamu;$("se-tambah").value=at.menit_tambah??10;
-  document.querySelector(`[name=se-akses][value=${at.tanpa_kode?"tanpa":"kode"}]`).checked=true;document.querySelector("[name=se-kapan][value=kini]").checked=true;aturMulai();
+  document.querySelector(`[name=se-akses][value=${at.tanpa_kode?"tanpa":"kode"}]`).checked=true;document.querySelector("[name=se-kapan][value=kini]").checked=true;document.querySelector(`[name=se-pemb][value=${at.pembahasan?"ya":"tidak"}]`).checked=true;$("se-mulai").value="";$("se-akhir").value="";aturMulai();
   $("se-cari").value="";SE_PAKET=kode||"";$("se-durasi").value="";renderPaketSesi();pilihPaketSesi(SE_PAKET);
   $("se-form").scrollIntoView({behavior:"smooth"});
   if(!SISWA){$("se-peserta").textContent="Memuat data siswa…";try{SISWA=await rpc("tka_list_siswa",{p_pin:PIN})}catch(e){$("se-peserta").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}}
@@ -1235,28 +1242,38 @@ function pilihPaketSesi(kode){SE_PAKET=kode||"";const p=PAKETS.find(x=>x.kode===
 const seJadwal=()=>document.querySelector("[name=se-kapan]:checked").value==="jadwal";
 const seTanpaKode=()=>document.querySelector("[name=se-akses]:checked").value==="tanpa";
 const isoLokal=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
-function aturMulai(){const el=$("se-mulai");el.classList.toggle("hidden",!seJadwal());
-  if(seJadwal()&&!el.value){const b=new Date();b.setDate(b.getDate()+1);b.setHours(7,0,0,0);el.value=isoLokal(b)}
-  el.min=isoLokal(new Date());el.max=isoLokal(new Date(Date.now()+7*864e5));hitungSampai()}
+function aturMulai(){const j=seJadwal();$("se-jadwal").classList.toggle("hidden",!j);$("se-tambah-wrap").classList.toggle("hidden",j);
+  if(j&&!$("se-mulai").value){const b=new Date();b.setDate(b.getDate()+1);b.setHours(7,0,0,0);$("se-mulai").value=isoLokal(b)}
+  if(j&&!$("se-akhir").value)isiAkhirBawaan();
+  $("se-mulai").min=isoLokal(new Date());$("se-mulai").max=isoLokal(new Date(Date.now()+7*864e5));hitungSampai()}
+// sampai bawaan = mulai + lama pengerjaan + 60 menit (mis. jam pertama); guru bisa memperpanjang sampai berhari-hari
+function isiAkhirBawaan(){const m=seMulai();if(!m)return;const d=+$("se-durasi").value||30;$("se-akhir").value=isoLokal(new Date(m.getTime()+(d+60)*60000))}
 const seMulai=()=>{if(!seJadwal())return null;const d=new Date($("se-mulai").value);return isNaN(d)?null:d};
-function hitungSampai(){const d=+$("se-durasi").value||0,t=+$("se-tambah").value||0,m=seMulai(),dasar=m?m.getTime():Date.now();
-  $("se-sampai").textContent=d?(m?tglJam(new Date(dasar+(d+t)*60000)):jam(dasar+(d+t)*60000)):"–";
-  $("se-mulai-ket").textContent=m?`Siswa baru bisa masuk mulai ${tglJam(m)}.`:""}
+const seAkhir=()=>{if(!seJadwal())return null;const d=new Date($("se-akhir").value);return isNaN(d)?null:d};
+function hitungSampai(){const d=+$("se-durasi").value||0,t=+$("se-tambah").value||0,m=seMulai(),z=seAkhir();
+  if(seJadwal()){$("se-akhir").min=m?isoLokal(new Date(m.getTime()+5*60000)):"";
+    $("se-sampai").textContent=z?tglJam(z):"–";
+    const lama=m&&z?Math.round((z-m)/60000):0;
+    $("se-mulai-ket").textContent=m&&z?(lama<5?"Jam sampai harus sesudah jam mulai.":`Siswa bisa masuk ${tglJam(m)} s.d. ${tglJam(z)} (${lamaTeks(lama)}); tiap siswa mengerjakan paling lama ${d||"–"} menit sejak ia masuk.`):"";return}
+  $("se-sampai").textContent=d?jam(Date.now()+(d+t)*60000):"–";$("se-mulai-ket").textContent=""}
+const lamaTeks=m=>m>=1440?`${Math.floor(m/1440)} hari${m%1440?" "+Math.round(m%1440/60)+" jam":""}`:m>=60?`${Math.floor(m/60)} jam${m%60?" "+m%60+" menit":""}`:`${m} menit`;
 async function kirimSesi(){const p=PAKETS.find(x=>x.kode===SE_PAKET),msg=$("se-form-msg");
   if(!p){msg.innerHTML='<span class="pill bad">Pilih paket soal dulu</span>';return}if(!SE_ED){msg.innerHTML='<span class="pill bad">Data siswa belum termuat</span>';return}
   const ps=SE_ED.get();if((ps.mode==="kelas"&&!ps.kelas.length)||(ps.mode==="siswa"&&!ps.nisn.length)){msg.innerHTML='<span class="pill bad">Pilih kelas atau siswa peserta</span>';return}
   const d=parseInt($("se-durasi").value,10)||0,t=Math.max(0,parseInt($("se-tambah").value||"0",10));
-  const tanpa=seTanpaKode(),mulai=seMulai();
-  if(seJadwal()&&!mulai){msg.innerHTML='<span class="pill bad">Isi tanggal dan jam mulai</span>';return}
+  const tanpa=seTanpaKode(),mulai=seMulai(),akhir=seAkhir(),menit=mulai&&akhir?Math.round((akhir-mulai)/60000):d+t;
+  if(seJadwal()&&(!mulai||!akhir)){msg.innerHTML='<span class="pill bad">Isi tanggal dan jam mulai serta sampai</span>';return}
+  if(seJadwal()&&menit<5){msg.innerHTML='<span class="pill bad">Jam sampai harus paling sedikit 5 menit sesudah jam mulai</span>';return}
+  if(seJadwal()&&menit>20160){msg.innerHTML='<span class="pill bad">Sesi paling lama 14 hari</span>';return}
   if(tanpa&&ps.mode==="semua"){msg.innerHTML='<span class="pill bad">Tanpa kode akses hanya untuk kelas atau siswa tertentu. Pilih kelas pesertanya.</span>';return}
-  const atur={tanpa_kode:tanpa,tamu:$("se-tamu").checked,maks_keluar:Math.max(0,parseInt($("se-maks").value||"0",10)),toleransi_keluar:Math.max(0,parseInt($("se-tol").value||"0",10)),kode_buka:$("se-buka").value.trim().toUpperCase()};
+  const atur={tanpa_kode:tanpa,pembahasan:document.querySelector("[name=se-pemb]:checked").value==="ya",tamu:$("se-tamu").checked,maks_keluar:Math.max(0,parseInt($("se-maks").value||"0",10)),toleransi_keluar:Math.max(0,parseInt($("se-tol").value||"0",10)),kode_buka:$("se-buka").value.trim().toUpperCase()};
   $("btn-se-buka").disabled=true;msg.textContent=mulai?"Menjadwalkan…":"Membuka…";
-  try{const s=await rpc("tka_sesi_buka",{p_pin:PIN,p_ujian:p.kode,p_peserta:ps,p_durasi:d,p_menit:d+t,p_atur:atur,...(mulai?{p_mulai:mulai.toISOString()}:{})});
-    GURU.atur={...atur,menit_tambah:t};p.aktif=true;$("se-form").classList.add("hidden");msg.textContent="";toast(s.terjadwal?"Dijadwalkan mulai "+tglJam(s.mulai):s.tanpa_kode?"Dibuka — siswa cukup mengetik NISN":"Dibuka — kode "+kodeTampil(s.kode));await muatSesi(true);tampilLayar(s)}
+  try{const s=await rpc("tka_sesi_buka",{p_pin:PIN,p_ujian:p.kode,p_peserta:ps,p_durasi:d,p_menit:menit,p_atur:atur,...(mulai?{p_mulai:mulai.toISOString()}:{})});
+    GURU.atur={...atur,menit_tambah:mulai?(GURU.atur||{}).menit_tambah??t:t};p.aktif=true;$("se-form").classList.add("hidden");msg.textContent="";toast(s.terjadwal?"Dijadwalkan mulai "+tglJam(s.mulai):s.tanpa_kode?"Dibuka — siswa cukup mengetik NISN":"Dibuka — kode "+kodeTampil(s.kode));await muatSesi(true);tampilLayar(s)}
   catch(e){msg.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}finally{$("btn-se-buka").disabled=false}}
 function pasangSesi(){
   $("btn-se-back").onclick=bukaMenu;tombolMuat("btn-se-muat",()=>muatSesi(),"se-info");$("btn-se-baru").onclick=()=>bukaFormSesi("");$("btn-se-batal").onclick=()=>$("se-form").classList.add("hidden");
-  $("btn-se-buka").onclick=kirimSesi;$("se-cari").oninput=renderPaketSesi;["se-durasi","se-tambah","se-mulai"].forEach(id=>$(id).oninput=hitungSampai);document.querySelectorAll("[name=se-kapan]").forEach(x=>x.onchange=aturMulai);
+  $("btn-se-buka").onclick=kirimSesi;$("se-cari").oninput=renderPaketSesi;["se-durasi","se-tambah","se-akhir"].forEach(id=>$(id).oninput=hitungSampai);$("se-mulai").oninput=()=>{const m=seMulai(),z=seAkhir();if(m&&(!z||z<=m))isiAkhirBawaan();hitungSampai()};document.querySelectorAll("[name=se-kapan]").forEach(x=>x.onchange=aturMulai);
   $("se-paket").onclick=e=>{const b=e.target.closest("[data-kode]");if(b)pilihPaketSesi(b.dataset.kode)};
   $("btn-sl-tutup").onclick=tutupLayar;$("sl-qr").onclick=()=>$("se-layar").classList.toggle("qr-saja");
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("se-layar").classList.contains("hidden"))tutupLayar()});

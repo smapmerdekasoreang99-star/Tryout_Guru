@@ -51,7 +51,7 @@ Rincian keputusan: RENCANA_MENU_TRYOUT.md (folder induk). Ubin menu mengikuti pe
 
 Alamat lama `admin.html?menu=soal` tetap berfungsi (Pustaka Paket, langsung ke Langkah 1). `admin.html?menu=pustaka&tab=kisi` membuka tab tertentu.
 
-**Sesi tanpa kode akses** (`atur.tanpa_kode`): `tka_periksa_masuk` dengan kode kosong mencari sesi tanpa kode yang sedang berjalan dan pesertanya mencakup NISN itu (yang terbaru dimulai, belum punya hasil). Tidak boleh untuk peserta "semua siswa". Kode 6 angka tetap dibuat sebagai cadangan. **Terjadwal**: `tka_sesi_buka(..., p_mulai)`; sebelum jamnya siswa mendapat pesan "baru dimulai pukul …".
+**Sesi tanpa kode akses** (`atur.tanpa_kode`): `tka_periksa_masuk` dengan kode kosong mencari sesi tanpa kode yang sedang berjalan dan pesertanya mencakup NISN itu (yang terbaru dimulai, belum punya hasil). Tidak boleh untuk peserta "semua siswa". Kode 6 angka tetap dibuat sebagai cadangan. **Terjadwal**: `tka_sesi_buka(..., p_mulai)` dengan `p_menit` = mulai s.d. sampai (paling lama 14 hari, sejak 21 Okt 2026; tambah waktu juga sampai 14 hari dari sekarang); sebelum jamnya siswa mendapat pesan "baru dimulai pukul …". **Pembahasan** dipilih saat membuka (`atur.pembahasan`, diingat di `tka_guru_atur`), tetap bisa diubah lewat saklar di kartu sesi.
 
 PIN cukup dimasukkan sekali di menu guru; halaman Pustaka Paket, Asesmen Bersama, Kontrol Pelaksanaan, dan Admin memakai PIN yang sama (tab peramban yang sama). Uji coba soal: Pustaka Paket → buka paket → **Coba soal**. **Lihat hasil** membuka Dasbor Hasil dengan paket itu terpilih.
 
