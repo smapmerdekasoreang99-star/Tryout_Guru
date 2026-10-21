@@ -361,22 +361,22 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 
 <section id="v-menu" class="hidden">
   <div class="card m-cek hidden" id="m-cek"><i aria-hidden="true"></i>Memeriksa PIN…</div>
-  <div class="card form" id="m-login"><h2>Menu guru / pengawas</h2><p class="muted small">Masukkan PIN sekali; berlaku selama peramban ini terbuka. <b>PIN pribadi guru</b> (sama dengan PIN Matematika Dasar): membuka sesi ujian untuk kelas Anda dan mengelola paket buatan Anda. <b>PIN pengawas</b>: melihat sesi, membantu siswa masuk, membuka kunci. <b>PIN operator</b>: semuanya termasuk data siswa dan PIN guru.</p>
+  <div class="card form" id="m-login"><h2>Menu guru / admin</h2><p class="muted small">Masukkan PIN sekali; berlaku selama peramban ini terbuka. <b>PIN pribadi guru</b> (sama dengan PIN Matematika Dasar): membuka sesi ujian untuk kelas Anda dan mengelola paket buatan Anda. <b>PIN pengawas</b>: melihat sesi, membantu siswa masuk, membuka kunci. <b>PIN operator</b>: semuanya termasuk data siswa dan PIN guru.</p>
     <label class="f" for="m-pin">PIN</label><input type="password" id="m-pin" data-lihat autocomplete="one-time-code" placeholder="Ketik PIN" spellcheck="false">
     <div class="row" style="margin-top:10px"><button id="btn-m-masuk">Masuk</button><button class="ghost" id="btn-m-back">Kembali</button></div><div id="m-msg" class="small" style="margin-top:6px"></div></div>
   <div id="m-main" class="hidden">
     <div class="m-sambut"><div><span class="lbl">Menu guru · Asesmen Merdeka</span><h2 id="m-halo">Selamat datang</h2><div id="m-info" class="small"></div></div>
       <div class="m-kanan"><span class="pill" id="m-peran"></span></div></div>
     <div class="menu">
-      <!-- PAS / Ujian bersama (20 Okt 2026): operator mengelola di pas.html; layar ruang pengawas menyusul (Tahap 3) -->
-      <a class="mi op-only" id="mi-pas" href="pas.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11M15 9v11"/></svg></span><span class="mi-tx"><b>PAS · Ujian Bersama</b><span>Peserta per ruang, jadwal, folder soal, terbitkan, cetak kartu &amp; daftar hadir</span></span></a>
-      <a class="mi awas-only" id="mi-ruang" href="ruang.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h7"/></svg></span><span class="mi-tx"><b>PAS · Layar Ruang</b><span>Untuk pengawas: kode akses ruang, siswa yang terkunci/tidak aktif, buka kunci, jeda, pesan ke layar</span></span></a>
-      <button class="mi" id="mi-sesi"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg></span><span class="mi-tx"><b>Sesi Ujian</b><span>Buka ujian untuk kelas, tampilkan kode akses, pantau siswa yang sedang mengerjakan</span></span></button>
-      <button class="mi" id="mi-dasbor"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="mi-tx"><b>Dasbor Hasil</b><span>Rekap nilai, analisis butir, belum mengerjakan, riwayat siswa, unduh Excel</span></span></button>
-      <a class="mi kelola-only" id="mi-soal" href="admin.html?menu=soal"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg></span><span class="mi-tx"><b>Upload Soal</b><span>Kisi-kisi, template soal, terbit ke bank soal, jalur darurat</span></span></a>
-      <a class="mi kelola-only" id="mi-pustaka" href="admin.html?menu=pustaka"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h3v18H6a2 2 0 0 1-2-2zM9 3h4v18H9zM14.5 4.2l3.9-1 3.4 16.6-3.9.9z"/></svg></span><span class="mi-tx"><b>Pustaka Paket</b><span>Bank soal: cari paket, buka sesi, coba soal, lihat hasil</span></span></a>
-      <button class="mi" id="mi-siswa"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="8" r="4"/><path d="M3.5 21a7.5 7.5 0 0 1 12.2-5.8M17 17l2 2 3.5-3.5"/></svg></span><span class="mi-tx"><b>Daftar Siswa</b><span>Bantu pengawas: cari NISN siswa yang lupa NISN-nya</span></span></button>
-      <a class="mi op-only" id="mi-admin" href="admin.html?menu=admin"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.1 7.5 9.5 4.3-1.4 7.5-4.9 7.5-9.5V6z"/><circle cx="12" cy="11" r="2.2"/><path d="M12 13.2V16"/></svg></span><span class="mi-tx"><b>Admin</b><span>Data siswa, PIN guru, impor kode hasil, cadangan, bantuan</span></span></a>
+      <!-- Struktur menu 21 Okt 2026 (RENCANA_MENU_TRYOUT.md). Guru: Latihan/Tryout, Dasbor, Pustaka, NISN.
+           Operator: Asesmen Bersama, Kontrol Pelaksanaan, Dasbor, Admin. Pengawas: Kontrol Pelaksanaan, NISN. -->
+      <button class="mi" data-peran="guru" id="mi-sesi"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg></span><span class="mi-tx"><b>Latihan / Tryout</b><span>Buka latihan atau tryout untuk kelas: dengan kode akses atau cukup NISN, sekarang atau terjadwal</span></span></button>
+      <a class="mi" data-peran="operator" id="mi-pas" href="pas.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11M15 9v11"/></svg></span><span class="mi-tx"><b>Asesmen Bersama</b><span>Peserta per ruang, jadwal, folder soal, terbitkan, cetak kartu &amp; daftar hadir</span></span></a>
+      <a class="mi" data-peran="operator pengawas" id="mi-ruang" href="ruang.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h7"/></svg></span><span class="mi-tx"><b>Kontrol Pelaksanaan</b><span>Layar ruang: kode akses ruang, siswa terkunci/tidak aktif, buka kunci, jeda, pesan ke layar</span></span></a>
+      <button class="mi" data-peran="guru operator" id="mi-dasbor"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="mi-tx"><b>Dasbor Hasil</b><span>Rekap nilai, analisis butir, belum mengerjakan, riwayat siswa, unduh Excel</span></span></button>
+      <a class="mi" data-peran="guru" id="mi-pustaka" href="admin.html?menu=pustaka"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h3v18H6a2 2 0 0 1-2-2zM9 3h4v18H9zM14.5 4.2l3.9-1 3.4 16.6-3.9.9z"/></svg></span><span class="mi-tx"><b>Pustaka Paket</b><span>Paket Anda &amp; teman semapel per jenis; upload soal dengan atau tanpa kisi-kisi</span></span></a>
+      <button class="mi" data-peran="guru pengawas" id="mi-siswa"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="8" r="4"/><path d="M3.5 21a7.5 7.5 0 0 1 12.2-5.8M17 17l2 2 3.5-3.5"/></svg></span><span class="mi-tx"><b>NISN Siswa</b><span>Cari NISN siswa yang lupa NISN-nya (guru: kelas yang Anda ampu)</span></span></button>
+      <a class="mi" data-peran="operator" id="mi-admin" href="admin.html?menu=admin"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.1 7.5 9.5 4.3-1.4 7.5-4.9 7.5-9.5V6z"/><circle cx="12" cy="11" r="2.2"/><path d="M12 13.2V16"/></svg></span><span class="mi-tx"><b>Admin</b><span>Data siswa, PIN guru, pustaka paket, impor kode hasil, cadangan, bantuan</span></span></a>
     </div>
     <div class="card hidden" id="v-ujicoba"><h2>Uji coba soal</h2><p class="muted small">Paket mana pun di bank soal bisa dicoba tanpa membuka sesi. Hasil <b>tidak disimpan</b>. Kunci &amp; pembahasan tersedia di halaman hasil bila Anda penyusun paketnya.</p>
       <label class="f" for="uc-kode">Kode ujian</label><input type="text" id="uc-kode" autocapitalize="characters" style="text-transform:uppercase" placeholder="contoh: KIM-STO-01">
@@ -385,8 +385,8 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 </section>
 
 <section id="v-siswa" class="hidden">
-  <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Daftar siswa</h2><button class="ghost" id="btn-s-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
-    <p class="muted small">Untuk membantu siswa yang lupa NISN. Jangan perlihatkan layar ini kepada siswa lain.</p>
+  <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">NISN Siswa</h2><button class="ghost" id="btn-s-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
+    <p class="muted small">Untuk membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya (jadwal KBM di Data Induk). Jangan perlihatkan layar ini kepada siswa lain.</p>
     <input type="text" id="s-cari" placeholder="Cari nama atau NISN…" autocomplete="off">
     <div class="chips" id="s-kelas"></div>
     <div class="row"><label class="small grow">Tandai sudah/belum mengerjakan pada ujian <select id="s-ujian" style="padding:6px 8px"><option value="">(tidak ditandai)</option></select></label><button class="soft mini" id="btn-s-refresh">Muat ulang</button></div>
@@ -396,21 +396,28 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 </section>
 
 <section id="v-sesi" class="hidden">
-  <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Sesi ujian</h2><button class="ghost" id="btn-se-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
-    <p class="muted small">Pilih paket dari bank soal dan kelasnya, lalu tuliskan <b>kode akses</b> di papan. Siswa membuka halaman depan dan masuk dengan <b>NISN + kode akses</b>. Sesi tertutup sendiri saat waktunya habis.</p>
-    <div class="row"><button id="btn-se-baru" class="kelola-only">+ Buka sesi baru</button><button type="button" class="ds-muat" id="btn-se-muat"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Muat ulang</button><span id="se-info" class="small muted"></span></div>
+  <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Latihan / Tryout</h2><button class="ghost" id="btn-se-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
+    <p class="muted small">Pilih paket dari bank soal dan kelasnya. <b>Dengan kode akses</b>: tuliskan kodenya di papan, siswa masuk dengan NISN + kode. <b>Tanpa kode akses</b>: selama jam sesi, siswa kelas peserta cukup mengetik NISN (cocok untuk latihan yang dibagikan lewat tautan, mis. literasi jam pertama). Sesi bisa dijadwalkan sampai 7 hari ke depan dan tertutup sendiri saat waktunya habis.</p>
+    <div class="row"><button id="btn-se-baru" class="kelola-only">+ Buka latihan / tryout</button><button type="button" class="ds-muat" id="btn-se-muat"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Muat ulang</button><span id="se-info" class="small muted"></span></div>
   </div>
   <div class="card hidden" id="se-form">
-    <h2>Buka sesi baru</h2>
+    <h2>Buka latihan / tryout</h2>
     <label class="f" for="se-cari">Paket soal</label>
     <input type="text" id="se-cari" placeholder="Cari judul, kode, mapel, atau penyusun…" autocomplete="off">
     <div class="se-paket" id="se-paket" role="listbox" aria-label="Paket soal"></div>
     <div id="se-paket-info" class="small" style="margin-top:6px"></div>
     <label class="f">Peserta</label><div id="se-peserta" class="small muted">Memuat data siswa…</div>
+    <div class="se-pilih" style="margin-top:12px"><span class="f" style="display:block;font-weight:600">Cara siswa masuk</span>
+      <label class="ds-baris"><span class="ds-l"><b><input type="radio" name="se-akses" value="kode" checked> Dengan kode akses</b><span>Siswa masuk dengan NISN + kode 6 angka yang Anda umumkan.</span></span></label>
+      <label class="ds-baris"><span class="ds-l"><b><input type="radio" name="se-akses" value="tanpa"> Tanpa kode akses (cukup NISN)</b><span>Selama jam sesi, siswa kelas peserta cukup membuka halaman depan dan mengetik NISN. Bagikan tautannya ke guru/kelas.</span></span></label></div>
+    <div class="se-pilih" style="margin-top:8px"><span class="f" style="display:block;font-weight:600">Mulai</span>
+      <div class="row"><label><input type="radio" name="se-kapan" value="kini" checked> Sekarang</label><label><input type="radio" name="se-kapan" value="jadwal"> Jadwalkan</label>
+        <input type="datetime-local" id="se-mulai" class="hidden" aria-label="Tanggal dan jam mulai"></div>
+      <small class="muted" id="se-mulai-ket"></small></div>
     <div class="ds-tiga" style="margin-top:12px">
       <label class="ds-isian"><span>Lama pengerjaan</span><span class="ds-satuan"><input type="number" id="se-durasi" min="5" max="300" inputmode="numeric"><em>menit</em></span><small>tiap siswa, sejak ia masuk</small></label>
       <label class="ds-isian"><span>Kelonggaran masuk</span><span class="ds-satuan"><input type="number" id="se-tambah" min="0" max="420" inputmode="numeric"><em>menit</em></span><small>untuk siswa yang terlambat masuk</small></label>
-      <div class="ds-isian"><span>Sesi tertutup pukul</span><b id="se-sampai" class="se-jam">–</b><small>sesudahnya siswa tidak bisa masuk</small></div>
+      <div class="ds-isian"><span>Sesi tertutup</span><b id="se-sampai" class="se-jam">–</b><small>sesudahnya siswa tidak bisa masuk</small></div>
     </div>
     <details class="se-lain"><summary>Pengawasan &amp; jalur tamu</summary>
       <div class="ds-tiga">
@@ -420,7 +427,7 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
       </div>
       <label class="ds-baris"><span class="ds-l"><b>Izinkan tamu</b><span>Siswa yang belum terdaftar boleh masuk dengan nama dan kelas (memakai kode akses yang sama).</span></span><span class="saklar"><input type="checkbox" role="switch" id="se-tamu"><i></i></span></label>
     </details>
-    <div class="row" style="margin-top:12px"><button id="btn-se-buka">Buka sesi</button><button class="ghost" id="btn-se-batal">Batal</button></div>
+    <div class="row" style="margin-top:12px"><button id="btn-se-buka">Buka</button><button class="ghost" id="btn-se-batal">Batal</button></div>
     <div id="se-form-msg" class="small" style="margin-top:6px"></div>
   </div>
   <div id="se-daftar"></div>
@@ -827,7 +834,8 @@ function renderDetail(i,pos){const q=Q(i),a=S.answers[i],ok=S.result.detail[i].b
 let ROWS=[],PIN="",PERAN="",PAKETS=[],GPK=null,GPES=null,GSESI=[],G_SESI_AWAL="";
 let GURU={};   // identitas dari PIN: {id, nama, bersama, kelas_saya, atur}
 /* ---------- Menu guru / pengawas ---------- */
-function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);document.body.classList.toggle("bukan-op",PERAN!=="operator");document.body.classList.toggle("peran-guru",PERAN==="guru");$("m-peran").textContent=PERAN==="operator"?"Operator · akses penuh":PERAN==="guru"?"Guru · kelola":"Pengawas · lihat"}
+function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);document.body.classList.toggle("bukan-op",PERAN!=="operator");document.body.classList.toggle("peran-guru",PERAN==="guru");$("m-peran").textContent=PERAN==="operator"?"Admin · operator":PERAN==="guru"?"Guru":"Pengawas";
+  document.querySelectorAll(".menu [data-peran]").forEach(x=>x.classList.toggle("hidden",!x.dataset.peran.split(" ").includes(PERAN)))}
 let SESI_URL=qs.get("sesi");   // admin.html → index.html?guru&sesi=KODE: langsung ke form buka sesi untuk paket itu
 let DASBOR_URL=qs.get("dasbor"),UJI_URL=qs.get("ujicoba"),G_DASBOR="";   // Pustaka paket → Hasil / Coba soal
 async function masukMenu(pin){$("m-msg").textContent="Memeriksa…";
@@ -853,11 +861,13 @@ async function bukaSiswa(force){show("v-siswa");if(!SISWA||force){$("s-list").te
   renderKelasChips();renderSiswa();$("s-cari").focus()}
 let S_PESERTA=null;
 async function muatStatusSiswa(){const k=$("s-ujian").value;S_HASIL=null;S_PESERTA=null;if(!k)return;try{const rows=await rpc("tka_list",{p_pin:PIN,p_ujian:k});S_HASIL=new Set(rows.filter(r=>r.nisn).map(r=>String(r.nisn)));const pes=await rpc("tka_get_peserta",{p_pin:PIN,p_ujian:k});S_PESERTA=pes.mode==="semua"?null:new Set((pes.daftar||[]).map(String))}catch(e){toast("Gagal memuat status: "+e.message)}}
-function renderKelasChips(){const ks=[...new Set(SISWA.map(x=>x.kelas||"–"))].sort(kelasSort);const cnt=k=>SISWA.filter(x=>(x.kelas||"–")===k&&x.aktif).length;
+// guru hanya melihat kelas yang ia ampu (21 Okt 2026); SISWA tetap lengkap untuk pemilih peserta sesi
+const siswaLihat=()=>PERAN==="guru"?SISWA.filter(x=>(GURU.kelas_saya||[]).includes(x.kelas)):SISWA;
+function renderKelasChips(){const SISWA=siswaLihat();const ks=[...new Set(SISWA.map(x=>x.kelas||"–"))].sort(kelasSort);const cnt=k=>SISWA.filter(x=>(x.kelas||"–")===k&&x.aktif).length;
   $("s-kelas").innerHTML=`<button class="chip${S_KELAS?"":" on"}" data-k="">Semua (${SISWA.filter(x=>x.aktif).length})</button>`+ks.map(k=>`<button class="chip${S_KELAS===k?" on":""}" data-k="${esc(k)}">${esc(k)} (${cnt(k)})</button>`).join("");
   $("s-kelas").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{S_KELAS=b.dataset.k;renderKelasChips();renderSiswa()})}
-function renderSiswa(){if(!SISWA)return;const q=$("s-cari").value.trim().toLowerCase();
-  const rows=SISWA.filter(x=>(!S_KELAS||(x.kelas||"–")===S_KELAS)&&(!q||String(x.nama).toLowerCase().includes(q)||String(x.nisn).includes(q))).sort((a,b)=>kelasSort(a.kelas,b.kelas)||String(a.nama).localeCompare(String(b.nama),"id"));
+function renderSiswa(){if(!SISWA)return;const SISWA_=siswaLihat();if(PERAN==="guru"&&!SISWA_.length){$("s-list").innerHTML='<p class="muted">Anda belum tercatat mengampu kelas di jadwal KBM Data Induk. Minta operator memeriksa jadwal Anda.</p>';$("s-info").textContent="";return}const q=$("s-cari").value.trim().toLowerCase();
+  const rows=SISWA_.filter(x=>(!S_KELAS||(x.kelas||"–")===S_KELAS)&&(!q||String(x.nama).toLowerCase().includes(q)||String(x.nisn).includes(q))).sort((a,b)=>kelasSort(a.kelas,b.kelas)||String(a.nama).localeCompare(String(b.nama),"id"));
   const lim=rows.slice(0,300);let ket=`${rows.length} siswa`;const na=rows.filter(x=>!x.aktif).length;if(na)ket+=` (${na} nonaktif)`;const pst=x=>!S_PESERTA||S_PESERTA.has(String(x.nisn));if(S_HASIL)ket+=` · sudah ${rows.filter(x=>S_HASIL.has(String(x.nisn))).length}, belum ${rows.filter(x=>x.aktif&&pst(x)&&!S_HASIL.has(String(x.nisn))).length}${S_PESERTA?`, bukan peserta ${rows.filter(x=>!pst(x)).length}`:""}`;if(rows.length>300)ket+=" · ditampilkan 300 pertama, persempit pencarian";$("s-info").textContent=ket;
   $("s-list").innerHTML=lim.map(x=>{const st=S_HASIL?(S_HASIL.has(String(x.nisn))?'<span class="pill good">Sudah</span>':(!pst(x)?'<span class="pill" style="background:var(--kertas-3);color:var(--muted)">bukan peserta</span>':x.aktif?'<span class="pill warn">Belum</span>':"")):"";
     return `<div class="srow${x.aktif?"":" off"}"><div class="sr-top"><div><b>${esc(x.nama)}</b> <span class="muted small">${esc(x.kelas||"–")}${x.aktif?"":" · nonaktif"}</span></div>${st}</div><div class="sr-bot"><code class="nisn">${esc(x.nisn)}</code><button class="soft mini" data-copy="${esc(x.nisn)}">Salin NISN</button></div></div>`}).join("")||"<p class='muted'>Tidak ada siswa yang cocok.</p>";
@@ -904,7 +914,7 @@ const ujIni=()=>PAKETS.find(p=>p.kode===$("g-ujian").value);
 function ujRenderKini(){const el=$("uj-kini"),p=ujIni();el.disabled=!p;
   if(!p){el.innerHTML='<span class="uj-isi"><span class="lbl">Ujian</span><span class="j">Belum ada paket</span><span class="uj-meta">Terbitkan paket dari Halaman admin terlebih dahulu.</span></span>';return}
   const i=p.info||{};
-  el.innerHTML=`<span class="uj-isi"><span class="lbl">Ujian yang ditampilkan</span><span class="j">${esc(p.judul)}${i.jenis?`<span class="tag">${esc(i.jenis)}</span>`:""}${p.darurat?'<span class="tag bad">Darurat</span>':""}</span><span class="uj-meta">${ujMeta(p,true)}</span></span>`+
+  el.innerHTML=`<span class="uj-isi"><span class="lbl">Ujian yang ditampilkan</span><span class="j">${esc(p.judul)}${i.jenis?`<span class="tag">${esc(i.jenis)}</span>`:""}${p.darurat?'<span class="tag" title="Diunggah tanpa kisi-kisi; kisi-kisi disusun otomatis">kisi-kisi otomatis</span>':""}</span><span class="uj-meta">${ujMeta(p,true)}</span></span>`+
     `<span class="uj-st">${ujStatus(p)}</span><span class="ganti">Ganti ujian<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`}
 // perubahan kecil dari dasbor (buka/tutup ujian, jumlah hasil) ikut tampil di kartu tanpa memuat ulang daftar
 function ujSetel(ubah){const p=ujIni();if(p){Object.assign(p,ubah);ujRenderKini();if(!$("uj-panel").classList.contains("hidden"))ujRenderPanel()}}
@@ -923,7 +933,7 @@ function ujRenderPanel(){const dasar=PAKETS.filter(ujCocok),n=s=>dasar.filter(p=
   el.innerHTML=[...g.entries()].sort((a,b)=>(a[0]?0:1)-(b[0]?0:1)||a[1].l.localeCompare(b[1].l,"id")).map(([,v])=>
     `<section class="uj-grup"><header class="uj-grup-k"><div><span class="lbl">Mata pelajaran</span><h3>${esc(v.l)}</h3></div><span class="jml">${v.isi.length} ujian</span></header>`+
     v.isi.sort(ujUrut).map(p=>{const i=p.info||{};
-      return `<button type="button" class="uj-baris${p.kode===kini?" on":""}" data-kode="${esc(p.kode)}"${p.kode===kini?' aria-current="true"':""}><span class="uj-id"><span class="j">${esc(p.judul)}${i.jenis?`<span class="tag">${esc(i.jenis)}</span>`:""}${p.darurat?'<span class="tag bad">Darurat</span>':""}</span><span class="m">${ujMeta(p,false)}</span></span><span class="uj-st">${ujStatus(p)}</span></button>`}).join("")+`</section>`).join("")}
+      return `<button type="button" class="uj-baris${p.kode===kini?" on":""}" data-kode="${esc(p.kode)}"${p.kode===kini?' aria-current="true"':""}><span class="uj-id"><span class="j">${esc(p.judul)}${i.jenis?`<span class="tag">${esc(i.jenis)}</span>`:""}${p.darurat?'<span class="tag" title="Diunggah tanpa kisi-kisi; kisi-kisi disusun otomatis">kisi-kisi otomatis</span>':""}</span><span class="m">${ujMeta(p,false)}</span></span><span class="uj-st">${ujStatus(p)}</span></button>`}).join("")+`</section>`).join("")}
 function ujBuka(){$("uj-panel").classList.remove("hidden");$("uj-kini").setAttribute("aria-expanded","true");ujRenderPanel();$("uj-cari").focus();
   const on=$("uj-daftar").querySelector(".uj-baris.on");if(on)on.scrollIntoView({block:"nearest"})}
 function ujTutup(){$("uj-panel").classList.add("hidden");$("uj-kini").setAttribute("aria-expanded","false")}
@@ -1028,7 +1038,7 @@ async function muatSesi(diam){if(!diam)$("se-info").textContent="Memuat…";
     if(!(diam&&document.activeElement&&document.activeElement.matches("#se-daftar [data-menit], #se-daftar [data-aw]")))renderSesi();if(SE_PANTAU)muatPantau(SE_PANTAU,true);$("se-info").textContent="Diperbarui "+jam(new Date())}
   catch(e){$("se-info").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 function kartuSesi(s){const m=s.milik,a=[];
-  const st=s.buka?`<span class="pk-pill st-aktif"><span class="titik t-aktif"></span>Dibuka s.d. ${jam(s.sampai)}</span>`:`<span class="pk-pill st-selesai"><span class="titik t-selesai"></span>Ditutup ${jam(s.sampai)}</span>`;
+  const st=s.terjadwal?`<span class="pk-pill st-siap"><span class="titik t-siap"></span>Terjadwal ${esc(tglJam(s.mulai))}</span>`:s.buka?`<span class="pk-pill st-aktif"><span class="titik t-aktif"></span>Dibuka s.d. ${jam(s.sampai)}</span>`:`<span class="pk-pill st-selesai"><span class="titik t-selesai"></span>Ditutup ${jam(s.sampai)}</span>`;
   // Tambah (sesi terbuka) / Buka kembali (sesi ditutup): guru mengetik sendiri menitnya, 1–300
   const menit=`<input type="number" data-menit min="1" max="300" step="1" inputmode="numeric" value="${esc(SE_MENIT[s.id]||15)}" aria-label="Jumlah menit">menit`;
   if(m&&s.buka)a.push(`<span class="ubah-waktu" role="group" aria-label="Ubah waktu sesi"><button class="uw-kurang" data-a="kurangi" title="Mempersingkat sesi dan waktu mengerjakan siswa yang sedang ujian"><b aria-hidden="true">−</b>Kurangi</button><label class="uw-isi"><input type="number" data-menit min="1" max="300" step="1" inputmode="numeric" value="${esc(SE_MENIT[s.id]||15)}" aria-label="Jumlah menit">menit</label><button class="uw-tambah" data-a="tambah" title="Menambah waktu sesi dan waktu mengerjakan siswa yang sedang ujian"><b aria-hidden="true">+</b>Tambah</button></span>`,'<button class="danger" data-a="tutup">Tutup sekarang</button>');
@@ -1043,7 +1053,7 @@ function kartuSesi(s){const m=s.milik,a=[];
     (s.buka?"Setelah ditutup, sesi hilang sendiri dari daftar 12 jam kemudian":`Sesi hilang sendiri dari daftar sekitar pukul ${hilang}`)+"; hasil tetap tersimpan di Dasbor Hasil.</p>":"";
   return `<div class="card se-kartu${s.buka?" buka":""}" data-sesi="${s.id}"><div class="se-kepala"><div><span class="lbl">${esc(s.mapel||"Tanpa mapel")}</span><h3>${esc(s.judul)}</h3>`+
     `<div class="m"><span class="kode">${esc(s.ujian)}</span> · ${esc(ringkasPeserta(s.peserta))} · ${s.durasi} menit · dibuka ${esc(s.oleh_nama||s.oleh)}, ${esc(tglJam(s.mulai))}</div></div>${st}</div>`+
-    (s.buka?`<div class="se-kode"><span>Kode akses</span><b>${kodeTampil(s.kode)}</b><button class="soft" data-a="layar">Tampilkan besar</button></div>`:"")+
+    (s.buka&&s.tanpa_kode?`<div class="se-kode"><span>Tanpa kode akses</span><b style="font-size:1.1em">Cukup NISN</b><button class="soft" data-a="layar">Tampilkan tautan</button></div><p class="se-cat">${s.terjadwal?`Mulai ${esc(tglJam(s.mulai))} s.d. ${esc(tglJam(s.sampai))}. `:""}Siswa kelas peserta membuka halaman depan dan cukup mengetik NISN. Kode cadangan ${kodeTampil(s.kode)} tetap bisa dipakai.</p>`:s.buka?`<div class="se-kode"><span>Kode akses</span><b>${kodeTampil(s.kode)}</b><button class="soft" data-a="layar">Tampilkan besar</button></div>${s.terjadwal?`<p class="se-cat">Kode baru berlaku mulai ${esc(tglJam(s.mulai))}.</p>`:""}`:"")+
     `<div class="se-angka"><span>${awasTeks(s.atur)}</span><span><b>${s.n_peserta}</b> peserta</span><span><b>${s.n_masuk}</b> sudah masuk</span><span><b>${s.n_aktif}</b> sedang mengerjakan</span><span><b>${s.n_selesai}</b> selesai</span>${s.atur&&s.atur.tamu?"<span>tamu diizinkan</span>":""}</div>`+
     `<div class="row se-aksi">${a.join("")}</div>${m&&SE_AWAS===s.id?panelAwas(s):""}${catHapus}<div class="se-pantau hidden" data-pantau></div></div>`}
 /* Pengawasan sesi (batas keluar halaman, detik yang diabaikan, kode buka kunci): diisi saat membuka sesi,
@@ -1060,8 +1070,8 @@ function panelAwas(s){const w={...awasAtur(s.atur),...SE_AWAS_DRAFT};
 function renderSesi(){const el=$("se-daftar");
   if(SE_PANTAU&&!SESI.some(s=>s.id===SE_PANTAU))SE_PANTAU=null;
   if(!SESI.length){el.innerHTML=`<div class="card"><p class="muted" style="margin:0">Belum ada sesi yang terbuka atau ditutup dalam 12 jam terakhir.${PERAN!=="pengawas"?" Tekan <b>Buka sesi baru</b> untuk memulai.":""}</p></div>`;return}
-  const buka=SESI.filter(s=>s.buka),tutup=SESI.filter(s=>!s.buka);
-  el.innerHTML=(buka.length?`<h3>Sedang dibuka (${buka.length})</h3>`+buka.map(kartuSesi).join(""):"")+(tutup.length?`<h3>Ditutup dalam 12 jam terakhir</h3>`+tutup.map(kartuSesi).join(""):"");
+  const jadwal=SESI.filter(s=>s.terjadwal),buka=SESI.filter(s=>s.buka&&!s.terjadwal),tutup=SESI.filter(s=>!s.buka);
+  el.innerHTML=(buka.length?`<h3>Sedang dibuka (${buka.length})</h3>`+buka.map(kartuSesi).join(""):"")+(jadwal.length?`<h3>Terjadwal (${jadwal.length})</h3>`+jadwal.map(kartuSesi).join(""):"")+(tutup.length?`<h3>Ditutup dalam 12 jam terakhir</h3>`+tutup.map(kartuSesi).join(""):"");
   if(SE_PANTAU&&SE_PANTAU_HTML){const box=el.querySelector(`[data-sesi="${SE_PANTAU}"] [data-pantau]`);if(box){box.innerHTML=SE_PANTAU_HTML;box.classList.remove("hidden")}}}
 async function muatPantau(id,diam){const box=document.querySelector(`[data-sesi="${id}"] [data-pantau]`);if(!box)return;box.classList.remove("hidden");if(!diam)box.innerHTML='<p class="muted small">Memuat…</p>';
   try{const j=await rpc("tka_sesi_pantau",{p_pin:PIN,p_id:id});const kini=new Date(j.sekarang);
@@ -1091,17 +1101,17 @@ const muatQR=()=>_qrPustaka||(_qrPustaka=new Promise((ok,gagal)=>{if(window.QRCo
 // alamat halaman siswa (folder ini); ?sb=&key= ikut bila server dipasang lewat tautan, bukan config.js
 const alamatSiswa=()=>{const u=new URL("./",location.href),p=new URLSearchParams();["sb","key"].forEach(k=>{if(qs.get(k))p.set(k,qs.get(k))});return u.href+(p.toString()?"?"+p:"")};
 async function tampilLayar(s){const L=$("se-layar"),qr=$("sl-qr"),dasar=alamatSiswa();
-  $("sl-judul").textContent=s.judul;$("sl-kode").textContent=kodeTampil(s.kode);
-  $("sl-ket").textContent=`Masuk dengan NISN dan kode ini · sesi tertutup pukul ${jam(s.sampai)}`;
+  $("sl-judul").textContent=s.judul;$("sl-kode").textContent=s.tanpa_kode?"Cukup NISN":kodeTampil(s.kode);
+  $("sl-ket").textContent=s.tanpa_kode?`Buka alamat di bawah lalu ketik NISN · ${s.terjadwal?"mulai "+tglJam(s.mulai)+" · ":""}tertutup ${tglJam(s.sampai)}`:`Masuk dengan NISN dan kode ini · sesi tertutup pukul ${jam(s.sampai)}`;
   $("sl-url").textContent=dasar.replace(/\?.*$/,"").replace(/\/$/,"");$("sl-pet").textContent="";
   qr.innerHTML="";qr.classList.add("hidden");L.classList.remove("qr-saja");L.classList.remove("hidden");$("btn-sl-tutup").focus();
   // harus dipanggil sebelum menunggu apa pun, supaya masih dianggap bagian dari tekanan tombol
   if(L.requestFullscreen&&!document.fullscreenElement)L.requestFullscreen().catch(()=>{});
   try{await muatQR();
     // koreksi L + kotak 1024: QR renggang dan besar, terbaca dari 8–10 m di layar proyektor/TV
-    new QRCode(qr,{text:`${dasar}#kode=${encodeURIComponent(s.kode)}`,width:1024,height:1024,correctLevel:QRCode.CorrectLevel.L});
+    new QRCode(qr,{text:s.tanpa_kode?dasar:`${dasar}#kode=${encodeURIComponent(s.kode)}`,width:1024,height:1024,correctLevel:QRCode.CorrectLevel.L});
     qr.removeAttribute("title");   // qrcodejs memasang title berisi tautan lengkap (dengan kode)
-    $("sl-pet").textContent="Pindai QR: kode akses langsung terisi · ketuk QR untuk memperbesar";qr.classList.remove("hidden")}
+    $("sl-pet").textContent=s.tanpa_kode?"Pindai QR untuk membuka halaman ujian · ketuk QR untuk memperbesar":"Pindai QR: kode akses langsung terisi · ketuk QR untuk memperbesar";qr.classList.remove("hidden")}
   catch(e){/* tanpa QR: kode saja */}}
 function tutupLayar(){$("se-layar").classList.add("hidden");if(document.fullscreenElement===$("se-layar"))document.exitFullscreen().catch(()=>{})}
 async function aksiSesi(id,a,el){const s=SESI.find(x=>x.id===id);if(!s)return;
@@ -1140,6 +1150,7 @@ async function aksiSesi(id,a,el){const s=SESI.find(x=>x.id===id);if(!s)return;
 async function bukaFormSesi(kode){$("se-form").classList.remove("hidden");$("se-form-msg").textContent="";
   try{if(!PAKETS.length)PAKETS=await rpc("tka_list_paket",{p_pin:PIN})}catch(e){$("se-form-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}
   const at=GURU.atur||{};$("se-maks").value=at.maks_keluar??5;$("se-tol").value=at.toleransi_keluar??10;$("se-buka").value=at.kode_buka||"";$("se-tamu").checked=!!at.tamu;$("se-tambah").value=at.menit_tambah??10;
+  document.querySelector(`[name=se-akses][value=${at.tanpa_kode?"tanpa":"kode"}]`).checked=true;document.querySelector("[name=se-kapan][value=kini]").checked=true;aturMulai();
   $("se-cari").value="";SE_PAKET=kode||"";$("se-durasi").value="";renderPaketSesi();pilihPaketSesi(SE_PAKET);
   $("se-form").scrollIntoView({behavior:"smooth"});
   if(!SISWA){$("se-peserta").textContent="Memuat data siswa…";try{SISWA=await rpc("tka_list_siswa",{p_pin:PIN})}catch(e){$("se-peserta").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return}}
@@ -1155,19 +1166,32 @@ function pilihPaketSesi(kode){SE_PAKET=kode||"";const p=PAKETS.find(x=>x.kode===
   $("se-paket").querySelectorAll(".se-pk").forEach(b=>b.classList.toggle("on",b.dataset.kode===SE_PAKET));
   $("se-paket-info").innerHTML=p?`Dipilih: <b>${esc(p.judul)}</b> <span class="kode">${esc(p.kode)}</span> · ${p.n_soal} soal · durasi paket ${p.durasi} menit`:'<span class="muted">Pilih satu paket di atas.</span>';
   if(p)$("se-durasi").value=p.durasi;hitungSampai()}
-function hitungSampai(){const d=+$("se-durasi").value||0,t=+$("se-tambah").value||0;$("se-sampai").textContent=d?jam(Date.now()+(d+t)*60000):"–"}
+// Mulai sekarang / dijadwalkan (21 Okt 2026): jadwal diisi besok 07.00 bila kosong, paling jauh 7 hari ke depan
+const seJadwal=()=>document.querySelector("[name=se-kapan]:checked").value==="jadwal";
+const seTanpaKode=()=>document.querySelector("[name=se-akses]:checked").value==="tanpa";
+const isoLokal=d=>new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+function aturMulai(){const el=$("se-mulai");el.classList.toggle("hidden",!seJadwal());
+  if(seJadwal()&&!el.value){const b=new Date();b.setDate(b.getDate()+1);b.setHours(7,0,0,0);el.value=isoLokal(b)}
+  el.min=isoLokal(new Date());el.max=isoLokal(new Date(Date.now()+7*864e5));hitungSampai()}
+const seMulai=()=>{if(!seJadwal())return null;const d=new Date($("se-mulai").value);return isNaN(d)?null:d};
+function hitungSampai(){const d=+$("se-durasi").value||0,t=+$("se-tambah").value||0,m=seMulai(),dasar=m?m.getTime():Date.now();
+  $("se-sampai").textContent=d?(m?tglJam(new Date(dasar+(d+t)*60000)):jam(dasar+(d+t)*60000)):"–";
+  $("se-mulai-ket").textContent=m?`Siswa baru bisa masuk mulai ${tglJam(m)}.`:""}
 async function kirimSesi(){const p=PAKETS.find(x=>x.kode===SE_PAKET),msg=$("se-form-msg");
   if(!p){msg.innerHTML='<span class="pill bad">Pilih paket soal dulu</span>';return}if(!SE_ED){msg.innerHTML='<span class="pill bad">Data siswa belum termuat</span>';return}
   const ps=SE_ED.get();if((ps.mode==="kelas"&&!ps.kelas.length)||(ps.mode==="siswa"&&!ps.nisn.length)){msg.innerHTML='<span class="pill bad">Pilih kelas atau siswa peserta</span>';return}
   const d=parseInt($("se-durasi").value,10)||0,t=Math.max(0,parseInt($("se-tambah").value||"0",10));
-  const atur={tamu:$("se-tamu").checked,maks_keluar:Math.max(0,parseInt($("se-maks").value||"0",10)),toleransi_keluar:Math.max(0,parseInt($("se-tol").value||"0",10)),kode_buka:$("se-buka").value.trim().toUpperCase()};
-  $("btn-se-buka").disabled=true;msg.textContent="Membuka sesi…";
-  try{const s=await rpc("tka_sesi_buka",{p_pin:PIN,p_ujian:p.kode,p_peserta:ps,p_durasi:d,p_menit:d+t,p_atur:atur});
-    GURU.atur={...atur,menit_tambah:t};p.aktif=true;$("se-form").classList.add("hidden");msg.textContent="";toast("Sesi dibuka — kode "+kodeTampil(s.kode));await muatSesi(true);tampilLayar(s)}
+  const tanpa=seTanpaKode(),mulai=seMulai();
+  if(seJadwal()&&!mulai){msg.innerHTML='<span class="pill bad">Isi tanggal dan jam mulai</span>';return}
+  if(tanpa&&ps.mode==="semua"){msg.innerHTML='<span class="pill bad">Tanpa kode akses hanya untuk kelas atau siswa tertentu. Pilih kelas pesertanya.</span>';return}
+  const atur={tanpa_kode:tanpa,tamu:$("se-tamu").checked,maks_keluar:Math.max(0,parseInt($("se-maks").value||"0",10)),toleransi_keluar:Math.max(0,parseInt($("se-tol").value||"0",10)),kode_buka:$("se-buka").value.trim().toUpperCase()};
+  $("btn-se-buka").disabled=true;msg.textContent=mulai?"Menjadwalkan…":"Membuka…";
+  try{const s=await rpc("tka_sesi_buka",{p_pin:PIN,p_ujian:p.kode,p_peserta:ps,p_durasi:d,p_menit:d+t,p_atur:atur,...(mulai?{p_mulai:mulai.toISOString()}:{})});
+    GURU.atur={...atur,menit_tambah:t};p.aktif=true;$("se-form").classList.add("hidden");msg.textContent="";toast(s.terjadwal?"Dijadwalkan mulai "+tglJam(s.mulai):s.tanpa_kode?"Dibuka — siswa cukup mengetik NISN":"Dibuka — kode "+kodeTampil(s.kode));await muatSesi(true);tampilLayar(s)}
   catch(e){msg.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}finally{$("btn-se-buka").disabled=false}}
 function pasangSesi(){
   $("btn-se-back").onclick=bukaMenu;$("btn-se-muat").onclick=()=>muatSesi();$("btn-se-baru").onclick=()=>bukaFormSesi("");$("btn-se-batal").onclick=()=>$("se-form").classList.add("hidden");
-  $("btn-se-buka").onclick=kirimSesi;$("se-cari").oninput=renderPaketSesi;["se-durasi","se-tambah"].forEach(id=>$(id).oninput=hitungSampai);
+  $("btn-se-buka").onclick=kirimSesi;$("se-cari").oninput=renderPaketSesi;["se-durasi","se-tambah","se-mulai"].forEach(id=>$(id).oninput=hitungSampai);document.querySelectorAll("[name=se-kapan]").forEach(x=>x.onchange=aturMulai);
   $("se-paket").onclick=e=>{const b=e.target.closest("[data-kode]");if(b)pilihPaketSesi(b.dataset.kode)};
   $("btn-sl-tutup").onclick=tutupLayar;$("sl-qr").onclick=()=>$("se-layar").classList.toggle("qr-saja");
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("se-layar").classList.contains("hidden"))tutupLayar()});
@@ -1362,7 +1386,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   // (2) siswa mengonfirmasi, baru token pengerjaan dibuat. NISN yang salah ketik tidak mengunci NISN teman.
   $("btn-start").onclick=async()=>{if(!SB){galatMasuk("Server belum diatur. Hubungi admin.");return}
     if(S&&!S.submitted&&S.deadline>Date.now()&&!confirm("Ada pengerjaan yang belum selesai di perangkat ini. Mulai baru akan menghapusnya. Lanjutkan?"))return;
-    const kode=kodeAkses();if(kode.length!==6){galatMasuk("Isi kode akses 6 angka yang diumumkan guru atau pengawas.");$("akses").focus();return}
+    const kode=kodeAkses();if(kode.length!==6&&(kode.length||MODE!=="siswa")){galatMasuk(MODE==="siswa"?"Kode akses harus 6 angka. Kosongkan bila gurumu bilang tanpa kode.":"Isi kode akses 6 angka yang diumumkan guru atau pengawas.");$("akses").focus();return}
     $("btn-start").disabled=true;
     try{
       if(MODE==="siswa"){const nisn=$("nisn").value.replace(/\D/g,"");if(!nisn){galatMasuk("Isi NISN dahulu.");$("nisn").focus();return}

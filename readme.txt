@@ -1,4 +1,4 @@
-# Asesmen Merdeka (Tryout) v7 — Panduan (kisi-kisi → template soal → bank soal → sesi ujian; data siswa; PIN pribadi guru)
+# Asesmen Merdeka (Tryout) v7 — Panduan (kisi-kisi → template soal → bank soal → latihan/tryout; data siswa; PIN pribadi guru)
 
 **Panduan guru** (15 Okt 2026): `Panduan_Guru_Asesmen_Merdeka.pdf` dan `.docx`, dibuka lewat tombol 📘 Panduan di pojok kanan atas halaman guru (Menu guru, Sesi, Dasbor, Upload/Pustaka/Admin), tidak di halaman siswa. Isinya ditulis di `alat/buat-panduan.js` (mesin sama dengan Petualangan TKA SD); bila tampilan atau aturan berubah, ubah ISI di sana lalu jalankan `npm i --no-save --no-package-lock docx@9` (sekali) dan `node alat/buat-panduan.js`.
 
@@ -15,7 +15,8 @@ Guru isi perintah soal, pertanyaan, pilihan, kunci, pembahasan
         │  (Langkah 2, admin.html) unggah → dicocokkan dengan kisi-kisi di server → pratinjau
         ▼
 Terbitkan → masuk bank soal
-        │  (Menu guru → Sesi ujian) pilih paket + kelas + lama pengerjaan → kode akses 6 angka
+        │  (Menu guru → Latihan / Tryout) pilih paket + kelas + lama pengerjaan → kode akses 6 angka
+        │  atau tanpa kode akses (cukup NISN); mulai sekarang atau terjadwal (≤ 7 hari)
         ▼
 Siswa buka index.html, masuk dengan NISN + kode akses → hasil & analisis di dasbor guru
 ```
@@ -30,22 +31,29 @@ Isi folder:
 | `Contoh_Kisi_Kisi_BIndo_TeksBacaan.docx` + `Contoh_Soal_Terisi_BIN-CTH-01.docx` | Contoh **dengan teks bacaan bersama** (B. Indonesia: 2 teks, 6 soal) untuk Langkah 1 & 2 |
 | `admin.html` | Halaman guru/admin (PIN): Langkah 1, Langkah 2, daftar kisi-kisi & paket, unduh naskah soal (.docx), tautan/QR, saklar aktif/pembahasan, impor kode hasil |
 | `index.html` | Halaman siswa + dasbor guru |
-| `Template_Soal_Darurat.docx` | Untuk **jalur darurat** (terbit tanpa kisi-kisi; hanya dengan PIN darurat) |
+| `Template_Soal_Tanpa_Kisi.docx` | Untuk **upload tanpa kisi-kisi** (dulu jalur darurat; cukup PIN guru) |
 | `Template_Data_Siswa.xlsx` | Contoh format data siswa (NISN, NIS, Nama, Kelas, Tanggal Lahir); ekspor Dapodik juga diterima |
 | `supabase_setup_v6.sql` | Skema database (aman dijalankan di atas v1–v5) |
 
-## Menu guru (index.html → Masuk guru / pengawas → PIN)
+## Menu (index.html → Masuk guru / pengawas → PIN) — struktur sejak 21 Okt 2026
 
-| Menu | Isi | Pengawas | Guru | Operator |
+Rincian keputusan: RENCANA_MENU_TRYOUT.md (folder induk). Ubin menu mengikuti peran (`data-peran` di index.html).
+
+| Menu | Isi | Guru | Operator | Pengawas |
 |---|---|---|---|---|
-| **Sesi Ujian** | buka/tutup sesi, kode akses, pantau siswa | ✓ (lihat, Lepas) | ✓ | ✓ |
-| **Dasbor Hasil** | rekap, analisis butir, belum mengerjakan, riwayat, Excel | ✓ | ✓ | ✓ |
-| **Upload Soal** (`admin.html?menu=soal`) | Langkah 1 · Kisi-kisi, Langkah 2 · Soal, Jalur Darurat | | ✓ | ✓ |
-| **Pustaka Paket** (`admin.html?menu=pustaka`) | bank soal: buka sesi, coba soal, lihat hasil, kelola paket | | ✓ | ✓ |
-| **Daftar Siswa** | cari NISN siswa yang lupa | ✓ | ✓ | ✓ |
-| **Admin** (`admin.html?menu=admin`) | Data Siswa, PIN Guru, Impor Kode Hasil, Cadangan, Bantuan | | | ✓ |
+| **Latihan / Tryout** (dulu Sesi Ujian) | buka/tutup sesi dengan kode akses atau **tanpa kode** (cukup NISN), mulai sekarang atau **terjadwal** ≤ 7 hari, pantau siswa | ✓ | | |
+| **Dasbor Hasil** | rekap, analisis butir, belum mengerjakan, riwayat, Excel | ✓ | ✓ | |
+| **Pustaka Paket** (`admin.html?menu=pustaka`) | bank soal per jenis (paket sendiri + teman semapel yang Publish); **+ Upload soal**: Langkah 1 · Kisi-kisi, Langkah 2 · Soal, Tanpa Kisi-kisi | ✓ | (lewat Admin) | |
+| **NISN Siswa** (dulu Daftar Siswa) | cari NISN siswa yang lupa; guru hanya kelas yang diampu (`tka_guru_kelas`, disaring di halaman) | ✓ | | ✓ (semua) |
+| **Asesmen Bersama** (`pas.html`, dulu PAS · Ujian Bersama) | peserta per ruang, jadwal, folder soal, terbit, cetak | | ✓ | |
+| **Kontrol Pelaksanaan** (`ruang.html`, dulu PAS · Layar Ruang) | layar ruang pengawas | | ✓ | ✓ |
+| **Admin** (`admin.html?menu=admin`) | Data Siswa, PIN Guru, Pustaka Paket, Impor Kode Hasil, Cadangan, Bantuan | | ✓ | |
 
-PIN cukup dimasukkan sekali di menu guru; halaman Upload Soal, Pustaka Paket, dan Admin memakai PIN yang sama (tab peramban yang sama). Uji coba soal: Pustaka Paket → buka paket → **Coba soal**. **Lihat hasil** membuka Dasbor Hasil dengan paket itu terpilih.
+Alamat lama `admin.html?menu=soal` tetap berfungsi (Pustaka Paket, langsung ke Langkah 1). `admin.html?menu=pustaka&tab=kisi` membuka tab tertentu.
+
+**Sesi tanpa kode akses** (`atur.tanpa_kode`): `tka_periksa_masuk` dengan kode kosong mencari sesi tanpa kode yang sedang berjalan dan pesertanya mencakup NISN itu (yang terbaru dimulai, belum punya hasil). Tidak boleh untuk peserta "semua siswa". Kode 6 angka tetap dibuat sebagai cadangan. **Terjadwal**: `tka_sesi_buka(..., p_mulai)`; sebelum jamnya siswa mendapat pesan "baru dimulai pukul …".
+
+PIN cukup dimasukkan sekali di menu guru; halaman Pustaka Paket, Asesmen Bersama, Kontrol Pelaksanaan, dan Admin memakai PIN yang sama (tab peramban yang sama). Uji coba soal: Pustaka Paket → buka paket → **Coba soal**. **Lihat hasil** membuka Dasbor Hasil dengan paket itu terpilih.
 
 ## A. Pemasangan / pembaruan (±10 menit)
 
@@ -72,14 +80,14 @@ PIN cukup dimasukkan sekali di menu guru; halaman Upload Soal, Pustaka Paket, da
 - Pratinjau (kunci hijau) → **Terbitkan ke bank soal**. Paket belum bisa dikerjakan siswa sampai guru membuka sesinya (bagian C3c).
 - **Unduh naskah (.docx)**: di pratinjau Langkah 2, tab *Pustaka paket → buka paket → Lihat soal*, dan jalur darurat tersedia dua unduhan Word — **Soal & pembahasan** (kunci ditandai hijau ✔, pembahasan tiap soal, rekap kunci per varian; rahasia, untuk guru/arsip) dan **Naskah siswa** (tanpa kunci/pembahasan, untuk dicetak sebagai cadangan bila jaringan bermasalah). Tiap varian di halaman terpisah; teks bacaan tampil sekali sebelum soal pertama yang merujuknya; gambar, tabel, sub/superscript ikut; rumus Word Equation tampil sebagai kode `( … )` (belum dikonversi balik ke rumus Word). Hanya untuk PIN guru/operator.
 
-## C2. Jalur darurat (hanya keadaan mendesak)
+## C2. Upload tanpa kisi-kisi (dulu "jalur darurat"; sejak 21 Okt 2026)
 
-- Tab **Jalur darurat** di `admin.html` menerbitkan paket langsung dari `Template_Soal_Darurat.docx` tanpa Langkah 1.
-- **Menyiapkan berkas** (kotak Jalur darurat): **Unduh template darurat** (dibuat aplikasi, berisi ketentuan & petunjuk konversi) untuk memindahkan soal secara manual, atau **Unduh prompt AI** / **Salin prompt** untuk ChatGPT/Gemini/Claude — lampirkan template darurat + naskah soal, tempel prompt, unduh berkas Word hasil AI. Prompt = prompt konversi yang sudah teruji di sekolah (Prompt_Konversi_Soal_ke_Template_Darurat.txt), ditambah catatan baris keterangan INFORMASI UJIAN dan format cadangan bila AI tidak bisa membuat berkas Word (no. 12). Template darurat dari aplikasi isinya sama dengan template lama, ditambah baris Jenis/Tingkat/Cakupan/Semester/Guru penyusun. Bagian *Penjelasan lengkap untuk guru* menjelaskan kapan memakai jalur ini, langkah manual & AI, yang wajib diperiksa (kunci!), dan kerahasiaan soal.
-- Hanya bisa dengan **PIN darurat** (bawaan `darurat2026`, terpisah dari PIN guru; dicek di server). Ganti di SQL Editor: `update public.tka_privat set v = 'PIN_BARU' where k = 'pin_darurat';` Simpan PIN ini pada pimpinan/kurikulum, bukan pada semua guru.
-- Setiap tabel soal wajib mengisi Bentuk dan Level; Kompetensi & Indikator sangat dianjurkan. Aplikasi menyusun kisi-kisi otomatis dari soal, menampilkan komposisi (peringatan bila Reasoning < 20% atau Knowing > 30%), lalu menerbitkan.
-- Paket dan kisi-kisinya ditandai **Darurat** di daftar admin dan di dasbor guru (bisa diaudit). Kisi-kisi resmi yang sudah ada tidak ditimpa oleh jalur darurat.
-- **Pengesahan**: *Pustaka paket → buka paket → Kisi-kisi .docx* (atau tombol setelah terbit darurat) → guru memeriksa/melengkapi di Word → unggah di **Langkah 1** dengan kode yang sama. Bila jumlah soal dan bentuk per nomor cocok dengan paket yang sudah terbit, tanda Darurat dicabut dari kisi-kisi dan paket (jejak "disahkan" tetap tercatat). Bila tidak cocok, kisi-kisi tersimpan tetapi paket tetap berlabel Darurat.
+- Tab **Tanpa Kisi-kisi** di Pustaka Paket menerbitkan paket langsung dari `Template_Soal_Tanpa_Kisi.docx` tanpa Langkah 1.
+- **Menyiapkan berkas**: **Unduh template tanpa kisi-kisi** untuk memindahkan soal secara manual, atau **Unduh prompt AI** / **Salin prompt** untuk ChatGPT/Gemini/Claude — lampirkan template + naskah soal, tempel prompt, unduh berkas Word hasil AI. Bagian *Penjelasan lengkap* menjelaskan langkah manual & AI, yang wajib diperiksa (kunci!), dan kerahasiaan soal.
+- Cukup **PIN guru atau operator** yang sudah dipakai masuk (`tka_terbitkan_darurat` menerima PIN masuk; PIN darurat lama tetap diterima). Guru ber-PIN pribadi otomatis menjadi penyusun dan tidak bisa menimpa paket guru lain.
+- Setiap tabel soal wajib mengisi Bentuk dan Level; Kompetensi & Indikator sangat dianjurkan. Aplikasi menyusun kisi-kisi otomatis dari soal, menampilkan komposisi, lalu menerbitkan.
+- Paket setara paket biasa, hanya diberi tanda kecil **kisi-kisi otomatis** (data: `meta.darurat`, nama kunci lama dipertahankan). Kisi-kisi yang sudah dilengkapi guru tidak ditimpa.
+- **Melengkapi kisi-kisi (tidak wajib)**: *Pustaka paket → buka paket → Kisi-kisi .docx* → lengkapi di Word → unggah di **Langkah 1** dengan kode yang sama. Bila jumlah soal dan bentuk per nomor cocok, tanda kisi-kisi otomatis dicabut.
 
 ## C3. Data siswa & identitas (v4)
 
@@ -143,7 +151,7 @@ Revisi soal: perbaiki Word → unggah ulang di Langkah 2 (kode sama; hanya penyu
 
 Pustaka paket (tab admin): satu baris per kode ujian dengan jalur Kisi-kisi → Soal → Dibuka → Hasil; saring menurut mapel, kelas, jenis, semester, status; kelompokkan menurut kelas, mata pelajaran, jenis, guru, atau semester; klik baris untuk semua tindakan. Paket semester lalu cukup **diarsipkan** (sesi terbuka ikut ditutup, tersembunyi, tidak bisa dibuka sesinya, hasil tetap; kembalikan lewat saringan Arsip; unggah ulang soal dengan kode sama otomatis mengeluarkannya dari arsip).
 
-Keterangan paket (baris di tabel INFORMASI UJIAN; template kosong: tombol *Unduh template kisi-kisi kosong* di Langkah 1): **Jenis** (ditentukan sistem, tidak bisa ditambah guru: Latihan Harian / Asesmen Formatif / Asesmen Sumatif / Tryout TKA / Tryout UTBK, ditambah Nama Asesmen dari PAS / Ujian Bersama; kosong atau tidak dikenali = Latihan Harian; paket yang dipasang di naskah PAS otomatis berjenis nama asesmennya, dan ikut berganti bila nama asesmen diganti), **Tingkat peserta** (kelas yang mengerjakan, mis. 12 atau 10–12; kosong = ditebak dari isian Kelas), **Cakupan materi** (hanya bila berbeda dari tingkat peserta, mis. tryout TKA kelas 12 dengan materi 10–12), **Semester** (kosong = otomatis dari tanggal), **Guru penyusun**. Keterangan hanya untuk mencari & mengelompokkan paket; siapa yang boleh mengerjakan tetap diatur di Peruntukan. **Mata pelajaran** mengikuti daftar mapel Data Induk (tabel `tka_mapel`, disinkron otomatis saat operator masuk dengan pengaturan sumber Data Induk yang sudah tersimpan): penulisan dari Word disamakan ("kimia" → "Kimia"), mapel yang tidak ada di daftar diberi peringatan saat diunggah, dan bisa dipilih ulang dari daftar di **Ubah judul & keterangan**. Isi Mata pelajaran dengan nama mapelnya saja (Kimia), sedangkan TKA ditandai di baris Jenis. Revisi kisi-kisi: unggah ulang di Langkah 1 → unduh Template Soal baru → isi ulang bagian yang berubah → Langkah 2.
+Keterangan paket (baris di tabel INFORMASI UJIAN; template kosong: tombol *Unduh template kisi-kisi kosong* di Langkah 1): **Jenis** (ditentukan sistem, tidak bisa ditambah guru: Asesmen Formatif / Asesmen Sumatif / Tryout ASAS / Tryout TKA / Tryout UTBK (21 Okt 2026; Latihan Harian dihapus → Asesmen Formatif), ditambah Nama Asesmen dari Asesmen Bersama; kosong atau tidak dikenali = Asesmen Formatif; paket yang dipasang di naskah PAS otomatis berjenis nama asesmennya, dan ikut berganti bila nama asesmen diganti), **Tingkat peserta** (kelas yang mengerjakan, mis. 12 atau 10–12; kosong = ditebak dari isian Kelas), **Cakupan materi** (hanya bila berbeda dari tingkat peserta, mis. tryout TKA kelas 12 dengan materi 10–12), **Semester** (kosong = otomatis dari tanggal), **Guru penyusun**. Keterangan hanya untuk mencari & mengelompokkan paket; siapa yang boleh mengerjakan tetap diatur di Peruntukan. **Mata pelajaran** mengikuti daftar mapel Data Induk (tabel `tka_mapel`, disinkron otomatis saat operator masuk dengan pengaturan sumber Data Induk yang sudah tersimpan): penulisan dari Word disamakan ("kimia" → "Kimia"), mapel yang tidak ada di daftar diberi peringatan saat diunggah, dan bisa dipilih ulang dari daftar di **Ubah judul & keterangan**. Isi Mata pelajaran dengan nama mapelnya saja (Kimia), sedangkan TKA ditandai di baris Jenis. Revisi kisi-kisi: unggah ulang di Langkah 1 → unduh Template Soal baru → isi ulang bagian yang berubah → Langkah 2.
 
 ## E. Arsip semester (11 Okt 2026)
 
