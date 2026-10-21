@@ -139,6 +139,17 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
     "Isi tanggal, jam mulai, durasi, dan ruang susulan, lalu **Buat sesi susulan**.",
     "Kode baru dibuat untuk ruang itu; naskahnya sama dengan jadwal asli tiap siswa. Bagikan kodenya lewat pengawas ruang susulan."),
   P("Siswa yang sudah mengumpulkan hilang sendiri dari daftar belum mengerjakan. Siswa tidak bisa mengerjakan paket yang sama dua kali."),
+  H2("Rekap Nilai"),
+  P("Tab **Rekap Nilai** mengumpulkan nilai **semua mapel** dalam satu tabel: satu baris per siswa, satu kolom per mapel. Hanya hasil dari sesi asesmen ini (termasuk susulan) yang dihitung; nilai latihan atau tryout lain yang kebetulan memakai paket sama tidak ikut."),
+  TB(["Bagian", "Isi"], [
+    ["**Kelas · Batas tuntas · Cari siswa**", "Menyaring tabel. Batas tuntas (bawaan 75) hanya untuk pewarnaan dan hitungan *di bawah batas*; diingat di perangkat ini."],
+    ["**Kotak angka**", "Peserta, nilai yang sudah masuk dari seluruh sel, rata-rata semua nilai, jumlah di bawah batas, belum mengerjakan, tidak hadir, masih terjadwal."],
+    ["**Per mapel**", "Peserta, sudah/belum/tidak hadir/terjadwal, rata-rata, tertinggi, terendah, dan jumlah di bawah batas per mapel."],
+    ["**Rata-rata per kelas**", "Rata-rata tiap mapel per kelas dan rata-rata keseluruhan, untuk membandingkan kelas."],
+    ["**Nilai per siswa**", "Nilai tiap mapel, rata-rata mapel yang sudah dinilai, dan *Dinilai* (mis. 4/5). Merah = di bawah batas; **TH** tidak hadir, **BL** belum mengerjakan, **JD** terjadwal, **·** siswa tidak punya mapel itu, **s** kecil = susulan."],
+    ["**Unduh Excel**", "Tiga lembar: Nilai per siswa, Per mapel, Per kelas. Mengikuti pilihan Kelas (pilih satu kelas untuk berkas wali kelas)."],
+  ], [2, 5]),
+  KOTAK("info", "Versi pertama", "Bentuk rekap ini masih bisa berubah mengikuti masukan kurikulum (format rapor, KKM per mapel, peringkat)."),
   H2("Hasil Siswa"),
   P("Tab **Hasil Siswa** menampilkan **Dasbor Hasil** yang sama dengan milik guru, khusus paket-paket di Folder Soal asesmen ini: rekapitulasi, rekap siswa, analisis butir, sub-materi, belum mengerjakan, riwayat siswa, dan **unduh Excel** per paket. Pilih paket lewat **Ganti ujian** di dalam dasbor. Guru penyusun juga melihat hasil paketnya di Dasbor Hasil masing-masing."),
 

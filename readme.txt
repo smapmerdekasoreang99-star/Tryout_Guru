@@ -2,6 +2,8 @@
 
 **Panduan guru** (15 Okt 2026): `Panduan_Guru_Asesmen_Merdeka.pdf` dan `.docx`, dibuka lewat tombol 📘 Panduan di pojok kanan atas halaman guru (Menu utama, Sesi, Dasbor, Upload/Pustaka/Admin), tidak di halaman siswa. Isinya ditulis di `alat/buat-panduan.js` (mesin sama dengan Petualangan TKA SD); bila tampilan atau aturan berubah, ubah ISI di sana lalu jalankan `npm i --no-save --no-package-lock docx@9` (sekali) dan `node alat/buat-panduan.js`.
 
+**Rekap Nilai** (22 Okt 2026): tab di Asesmen Bersama, fungsi server `asm_rekap_nilai` (migrasi database_tryout 20261022110000); nilai semua mapel per siswa + per mapel + per kelas, Excel 3 lembar. Versi pertama sebelum masukan kurikulum.
+
 **Panduan Asesmen Bersama** (21 Okt 2026, operator/kurikulum & pengawas ruang): `Panduan_Asesmen_Bersama.pdf` dan `.docx`, dibuka lewat 📘 Panduan di Asesmen Bersama (pas.html), Kontrol Pelaksanaan (ruang.html), dan menu Panduan halaman guru. Isinya di `alat/isi-panduan-pas.js`; buat ulang dengan `node alat/buat-panduan.js --pas`.
 
 ## Alur kerja

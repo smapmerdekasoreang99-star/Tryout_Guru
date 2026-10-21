@@ -56,6 +56,12 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
 .kepala{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
 .angka{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
 .angka div{background:var(--kertas-3);border-radius:10px;padding:10px 12px}.angka b{display:block;font-family:"Fraunces",Georgia,serif;font-size:24px;line-height:1.1}.angka span{font-size:12px;color:var(--muted)}
+/* Rekap Nilai (22 Okt 2026) */
+.rk-tabel td.n,.rk-tabel th.n,#rk-mapel .n,#rk-perkelas .n{text-align:center}
+.rk-tabel th{position:sticky;top:0;z-index:1}.rk-tabel td.nm{min-width:180px}
+.rk-kurang{color:var(--bad);font-weight:700}.rk-kosong{color:var(--garis-2)}
+.rk-st{font-style:normal;font-size:11px;font-weight:700;color:var(--tinta-2);background:var(--netral-muda);border-radius:4px;padding:1px 5px}
+.rk-legenda{gap:12px}.rk-tabel sup,.rk-legenda sup{color:var(--info);font-weight:700}
 .periksa{display:flex;flex-direction:column;gap:6px}.periksa div{display:flex;gap:8px;align-items:flex-start;font-size:14px}
 .sel-mapel{display:flex;flex-direction:column;gap:2px}.sel-mapel span{font-size:12px;display:flex;justify-content:space-between;gap:8px;background:var(--kertas-3);border-radius:6px;padding:1px 7px}
 .sel-mapel em{font-style:normal;color:var(--tinta-3)}
@@ -118,6 +124,7 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
     <button data-tab="peserta"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Peserta &amp; Ruang</span></button>
     <button data-tab="jadwal"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>Jadwal</span></button>
     <button data-tab="soal"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Folder Soal</span></button>
+    <button data-tab="rekap"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11M15 9v11"/></svg><span>Rekap Nilai</span></button>
     <button data-tab="hasil"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16"/><rect x="7" y="11" width="3" height="6"/><rect x="12" y="7" width="3" height="10"/><rect x="17" y="13" width="3" height="4"/></svg><span>Hasil Siswa</span></button>
     <button data-tab="pantau" id="tab-btn-pantau"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span>Pantau</span></button>
     <button data-tab="cetak"><svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="7"/></svg><span>Cetak</span></button>
@@ -189,6 +196,28 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
       <div class="kepala"><div><h3>Folder Soal PAS</h3><p class="small muted">Satu laci per mapel × tingkat. Pasang <b>paket</b> dari bank soal — <b>penyusun</b> otomatis diisi guru yang mengunggah paket itu (bisa diganti), lalu ubah status menjadi <b>Terkunci</b> setelah ditinjau. Sesi ujian untuk laci baru dibuat saat paketnya dipasang (boleh sesudah terbit).</p></div>
         <span class="pill" id="s-progres"></span></div>
       <div class="gulir naskah"><table><thead><tr><th>Mapel</th><th>Kelas</th><th>Dipakai</th><th>Penyusun <span class="small muted" style="font-weight:400">(otomatis: pengunggah paket)</span></th><th>Paket soal</th><th>Status</th></tr></thead><tbody id="t-naskah"></tbody></table></div>
+    </div>
+  </div>
+
+  <!-- Rekap Nilai (22 Okt 2026, versi pertama sebelum masukan kurikulum): nilai semua mapel per siswa, per mapel, per kelas -->
+  <div id="tab-rekap" class="hidden">
+    <div class="card kolom">
+      <div class="kepala"><div><h3>Rekap nilai semua mapel</h3><p class="small muted">Satu baris per siswa, satu kolom per mapel. Hanya hasil dari sesi asesmen ini (termasuk susulan) yang dihitung; nilai latihan/tryout lain dengan paket yang sama tidak ikut.</p></div>
+        <div class="row"><button class="ghost mini" id="rk-muat">Muat ulang</button><button id="rk-xlsx">Unduh Excel</button></div></div>
+      <div class="row" style="align-items:flex-end">
+        <label class="f">Kelas<select id="rk-kelas"></select></label>
+        <label class="f">Batas tuntas<input type="number" id="rk-kkm" min="0" max="100" style="width:90px"></label>
+        <label class="f grow">Cari siswa<input type="text" id="rk-cari" placeholder="Nama atau NISN"></label>
+      </div>
+      <div class="angka" id="rk-angka"></div>
+      <p class="small muted" id="rk-ket"></p>
+    </div>
+    <div class="card kolom"><h3>Per mapel</h3><div class="gulir"><table id="rk-mapel"></table></div></div>
+    <div class="card kolom"><div class="kepala"><h3>Rata-rata per kelas</h3><span class="small muted">semua kelas, tidak mengikuti pilihan Kelas di atas</span></div><div class="gulir"><table id="rk-perkelas"></table></div></div>
+    <div class="card kolom">
+      <div class="kepala"><h3>Nilai per siswa <span class="small muted" id="rk-n"></span></h3>
+        <div class="row small muted rk-legenda"><span><b class="rk-kurang">68</b> di bawah batas</span><span><i class="rk-st">TH</i> tidak hadir</span><span><i class="rk-st">BL</i> belum mengerjakan</span><span><i class="rk-st">JD</i> terjadwal</span><span>· tidak punya mapel ini</span><span><sup>s</sup> susulan</span></div></div>
+      <div class="gulir" style="max-height:640px;overflow:auto"><table id="rk-siswa" class="rk-tabel"></table></div>
     </div>
   </div>
 
@@ -307,10 +336,84 @@ function gambar(){
       try{await rpc("asm_hapus",{p_pin:PIN,p_id:a.id});A=null;muatDaftar()}catch(e){toast(e.message)}}}
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===TAB));
   $("tab-btn-pantau").classList.toggle("hidden",draf());if(TAB==="pantau"&&draf())TAB="ringkas";
-  ["ringkas","peserta","jadwal","soal","hasil","pantau","cetak"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
+  ["ringkas","peserta","jadwal","soal","rekap","hasil","pantau","cetak"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
   clearInterval(PT_T);if(TAB!=="pantau")PT_SESI=null;
-  ({ringkas:gRingkas,peserta:gPeserta,jadwal:gJadwal,soal:gSoal,hasil:gHasil,pantau:gPantau,cetak:gCetak})[TAB]();
+  ({ringkas:gRingkas,peserta:gPeserta,jadwal:gJadwal,soal:gSoal,rekap:gRekap,hasil:gHasil,pantau:gPantau,cetak:gCetak})[TAB]();
 }
+
+/* ---------------- Rekap Nilai (22 Okt 2026) ----------------
+   asm_rekap_nilai: satu sel = siswa × mapel {n, st: nilai|terjadwal|tidak_hadir|belum, sus}. Versi pertama sebelum
+   masukan kurikulum (format rapor, peringkat, KKM per mapel menyusul). Batas tuntas diingat per perangkat. */
+let RK=null;
+const RK_KKM="pas_rekap_kkm",RK_KODE={tidak_hadir:"TH",belum:"BL",terjadwal:"JD"};
+const angkaID=(x,d=1)=>x==null||isNaN(x)?"–":Number(x).toLocaleString("id-ID",{maximumFractionDigits:d});
+const rataRK=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+function rkKkm(){const v=parseInt($("rk-kkm").value,10);return v>=0&&v<=100?v:75}
+async function gRekap(paksa){
+  if(!$("rk-kkm").value){let v=75;try{const x=parseInt(localStorage.getItem(RK_KKM),10);if(x>=0&&x<=100)v=x}catch(e){}$("rk-kkm").value=v}
+  if(RK&&RK.asesmen.id===A.asesmen.id&&!paksa)return rkGambar();
+  if(!RK||RK.asesmen.id!==A.asesmen.id){$("rk-angka").innerHTML='<p class="muted small">Memuat rekap nilai…</p>';["rk-mapel","rk-perkelas","rk-siswa"].forEach(id=>$(id).innerHTML="");$("rk-ket").textContent=""}
+  try{RK=await rpc("asm_rekap_nilai",{p_pin:PIN,p_asesmen:A.asesmen.id});RK.dimuat=new Date();rkGambar();return true}
+  catch(e){$("rk-angka").innerHTML=`<p class="small"><span class="pill bad">${esc(e.message)}</span></p>`;return false}}
+function rkData(){
+  const M=RK.mapel.map(m=>m.mapel),kkm=rkKkm(),fk=$("rk-kelas").value,q=$("rk-cari").value.trim().toLowerCase();
+  const baris=RK.siswa.map(s=>{const v=M.map(m=>s.nilai[m]).filter(c=>c&&c.st==="nilai").map(c=>c.n);
+    return {...s,kelas:s.kelas||"—",rata:rataRK(v),dinilai:v.length,ditugaskan:M.filter(m=>s.nilai[m]).length}});
+  const SK=baris.filter(s=>!fk||s.kelas===fk),S=SK.filter(s=>!q||String(s.nama||"").toLowerCase().includes(q)||s.nisn.includes(q));
+  return {M,kkm,fk,SK,S,semua:baris}}
+function rkPerMapel(M,SK,kkm){return M.map(m=>{const c=SK.map(s=>s.nilai[m]).filter(Boolean),v=c.filter(x=>x.st==="nilai").map(x=>x.n);
+  return {m,peserta:c.length,sudah:v.length,belum:c.filter(x=>x.st==="belum").length,th:c.filter(x=>x.st==="tidak_hadir").length,jd:c.filter(x=>x.st==="terjadwal").length,
+    sus:c.filter(x=>x.sus).length,rata:rataRK(v),maks:v.length?Math.max(...v):null,min:v.length?Math.min(...v):null,kurang:v.filter(x=>x<kkm).length}})}
+function rkPerKelas(M,semua){const K=[...new Set(semua.map(s=>s.kelas))].sort((a,b)=>a.localeCompare(b,"id",{numeric:true}));
+  return K.map(k=>{const S=semua.filter(s=>s.kelas===k);return {k,n:S.length,
+    mp:M.map(m=>rataRK(S.map(s=>s.nilai[m]).filter(c=>c&&c.st==="nilai").map(c=>c.n))),rata:rataRK(S.filter(s=>s.rata!=null).map(s=>s.rata))}})}
+function rkGambar(){
+  const kel=[...new Set(RK.siswa.map(s=>s.kelas||"—"))].sort((a,b)=>a.localeCompare(b,"id",{numeric:true})),pil=$("rk-kelas"),lama=pil.value;
+  pil.innerHTML='<option value="">Semua kelas</option>'+kel.map(k=>`<option${k===lama?" selected":""}>${esc(k)}</option>`).join("");
+  const {M,kkm,SK,S,semua}=rkData();
+  if(!M.length){$("rk-angka").innerHTML='<p class="muted">Belum ada mapel. Unggah jadwal di tab <b>Jadwal</b> dulu.</p>';return}
+  const sel=SK.flatMap(s=>M.map(m=>s.nilai[m]).filter(Boolean)),nilai=sel.filter(c=>c.st==="nilai").map(c=>c.n),hit=st=>sel.filter(c=>c.st===st).length;
+  $("rk-angka").innerHTML=[[SK.length,"peserta"],[`${nilai.length}/${sel.length}`,"nilai masuk"],[angkaID(rataRK(nilai)),"rata-rata semua nilai"],
+    [nilai.filter(x=>x<kkm).length,"nilai di bawah "+kkm],[hit("belum"),"belum mengerjakan"],[hit("tidak_hadir"),"tidak hadir"],[hit("terjadwal"),"masih terjadwal"]]
+    .map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("");
+  $("rk-ket").textContent=`Dimuat pukul ${RK.dimuat.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}).replace(":",".")}. Siswa yang belum mengerjakan bisa dibuatkan susulan di tab Pantau → Susulan.`;
+  const PM=rkPerMapel(M,SK,kkm);
+  $("rk-mapel").innerHTML=`<thead><tr><th>Mapel</th><th class="n">Peserta</th><th class="n">Sudah</th><th class="n">Belum</th><th class="n">Tidak hadir</th><th class="n">Terjadwal</th><th class="n">Rata-rata</th><th class="n">Tertinggi</th><th class="n">Terendah</th><th class="n">Di bawah ${kkm}</th></tr></thead><tbody>`+
+    PM.map(p=>`<tr><td><b>${esc(p.m)}</b>${p.sus?` <span class="small muted">· ${p.sus} susulan</span>`:""}</td><td class="n">${p.peserta}</td><td class="n">${p.sudah}</td><td class="n">${p.belum||"–"}</td><td class="n">${p.th||"–"}</td><td class="n">${p.jd||"–"}</td>
+      <td class="n"><b>${angkaID(p.rata)}</b></td><td class="n">${p.maks??"–"}</td><td class="n">${p.min??"–"}</td><td class="n">${p.sudah?`${p.kurang} <span class="small muted">(${Math.round(p.kurang/p.sudah*100)}%)</span>`:"–"}</td></tr>`).join("")+"</tbody>";
+  const PK=rkPerKelas(M,semua);
+  $("rk-perkelas").innerHTML=`<thead><tr><th>Kelas</th><th class="n">Siswa</th>${M.map(m=>`<th class="n">${esc(m)}</th>`).join("")}<th class="n">Rata-rata</th></tr></thead><tbody>`+
+    PK.map(p=>`<tr><td><b>${esc(p.k)}</b></td><td class="n">${p.n}</td>${p.mp.map(v=>`<td class="n${v!=null&&v<kkm?" rk-kurang":""}">${angkaID(v)}</td>`).join("")}<td class="n${p.rata!=null&&p.rata<kkm?" rk-kurang":""}"><b>${angkaID(p.rata)}</b></td></tr>`).join("")+"</tbody>";
+  $("rk-n").textContent=S.length===SK.length?`(${S.length})`:`(${S.length} dari ${SK.length})`;
+  const selRK=c=>!c?'<span class="rk-kosong">·</span>':c.st==="nilai"?`<span class="${c.n<kkm?"rk-kurang":""}">${c.n}</span>${c.sus?"<sup>s</sup>":""}`:`<i class="rk-st">${RK_KODE[c.st]}</i>${c.sus?"<sup>s</sup>":""}`;
+  $("rk-siswa").innerHTML=`<thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>NISN</th>${M.map(m=>`<th class="n">${esc(m)}</th>`).join("")}<th class="n">Rata-rata</th><th class="n">Dinilai</th></tr></thead><tbody>`+
+    (S.map((s,i)=>`<tr><td>${i+1}</td><td class="nm"><b>${esc(s.nama||"(tidak ada di data siswa)")}</b></td><td>${esc(s.kelas)}</td><td class="small">${esc(s.nisn)}</td>
+      ${M.map(m=>`<td class="n">${selRK(s.nilai[m])}</td>`).join("")}<td class="n${s.rata!=null&&s.rata<kkm?" rk-kurang":""}"><b>${angkaID(s.rata)}</b></td><td class="n small">${s.dinilai}/${s.ditugaskan}</td></tr>`).join("")||
+     `<tr><td colspan="${M.length+6}" class="muted">Tidak ada siswa yang cocok.</td></tr>`)+"</tbody>";
+}
+$("rk-kelas").onchange=()=>RK&&rkGambar();$("rk-cari").oninput=()=>RK&&rkGambar();
+$("rk-kkm").oninput=()=>{try{localStorage.setItem(RK_KKM,String(rkKkm()))}catch(e){}if(RK)rkGambar()};
+$("rk-muat").onclick=async e=>{const b=e.target,t=b.textContent;b.disabled=true;b.textContent="Memuat…";const ok=await gRekap(true);b.disabled=false;b.textContent=t;if(ok)toast("Rekap nilai diperbarui")};
+$("rk-xlsx").onclick=e=>jalankanUnduh(e.target,async()=>{
+  if(!RK)throw new Error("Rekap belum dimuat");
+  const {M,kkm,fk,SK,semua}=rkData(),PM=rkPerMapel(M,SK,kkm),PK=rkPerKelas(M,semua),pos=4;
+  const nama=`Rekap_Nilai_${potongNama(RK.asesmen.nama)}${fk?"_"+potongNama(fk):""}_${tglBerkas()}.xlsx`;
+  const info=[["Asesmen",RK.asesmen.nama],["Kelas",fk||"Semua kelas"],["Batas tuntas",String(kkm)],["Keterangan","TH = tidak hadir · BL = belum mengerjakan · JD = terjadwal · – = tidak punya mapel ini"]];
+  const merah=v=>typeof v==="number"&&v<kkm?{warna:XL.merah,tebal:true}:null;
+  await unduhBukuXLSX({namaBerkas:nama,judulBuku:"Rekap nilai",lembar:[
+    {nama:"Nilai per siswa",judul:"Rekap nilai semua mapel",sub:RK.asesmen.nama,info,beku:2,
+     kolom:[{t:"No",w:5},{t:"Nama",w:30},{t:"Kelas",w:9},{t:"NISN",w:13},...M.map(m=>({t:m,w:Math.max(9,Math.min(16,m.length+2)),rata:"center"})),{t:"Rata-rata",w:10,fmt:"0.0",tebal:true,rata:"center"},{t:"Dinilai",w:8,rata:"center"},{t:"Susulan",w:18}],
+     baris:SK.map((s,i)=>[i+1,s.nama||"",s.kelas,s.nisn,...M.map(m=>{const c=s.nilai[m];return !c?"":c.st==="nilai"?c.n:RK_KODE[c.st]}),s.rata==null?"":Math.round(s.rata*10)/10,`${s.dinilai}/${s.ditugaskan}`,M.filter(m=>s.nilai[m]&&s.nilai[m].sus).join(", ")]),
+     warnaSel:(b,j)=>j>=pos&&j<=pos+M.length?merah(b[j]):null,
+     catatan:["Hanya hasil dari sesi asesmen ini (termasuk susulan) yang dihitung. Rata-rata siswa = rata-rata mapel yang sudah dinilai."]},
+    {nama:"Per mapel",judul:"Ringkasan per mapel",sub:RK.asesmen.nama,info:info.slice(0,3),beku:1,melintang:false,
+     kolom:[{t:"Mapel",w:24,tebal:true},{t:"Peserta",w:9},{t:"Sudah",w:8},{t:"Belum",w:8},{t:"Tidak hadir",w:9},{t:"Terjadwal",w:10},{t:"Rata-rata",w:10,fmt:"0.0",tebal:true},{t:"Tertinggi",w:10},{t:"Terendah",w:10},{t:"Di bawah "+kkm,w:10}],
+     baris:PM.map(p=>[p.m,p.peserta,p.sudah,p.belum,p.th,p.jd,p.rata==null?"":Math.round(p.rata*10)/10,p.maks??"",p.min??"",p.sudah?p.kurang:""])},
+    {nama:"Per kelas",judul:"Rata-rata per kelas",sub:RK.asesmen.nama,info:[info[0],info[2]],beku:1,
+     kolom:[{t:"Kelas",w:10,tebal:true},{t:"Siswa",w:8},...M.map(m=>({t:m,w:Math.max(9,Math.min(16,m.length+2)),fmt:"0.0"})),{t:"Rata-rata",w:10,fmt:"0.0",tebal:true}],
+     baris:PK.map(p=>[p.k,p.n,...p.mp.map(v=>v==null?"":Math.round(v*10)/10),p.rata==null?"":Math.round(p.rata*10)/10]),
+     warnaSel:(b,j)=>j>=2?merah(b[j]):null}]});
+  return nama});
 
 /* ---------------- Hasil Siswa: Dasbor Hasil (index.html?tanam=1&hanya=…) dalam iframe ----------------
    PIN ikut dari sessionStorage tab ini (tka_v2_pin). Tinggi iframe mengikuti isinya. */
