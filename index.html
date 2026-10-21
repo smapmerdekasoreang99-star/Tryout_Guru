@@ -318,6 +318,39 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 .ds-sesi-baris>div{display:grid;gap:1px;flex:1;min-width:0}.ds-sesi-baris>div span{font-size:12.5px;color:var(--muted)}.ds-sesi-baris .n{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
 /* tombol Muat ulang sedang bekerja */
 .memuat{opacity:.75;cursor:progress}.memuat svg{animation:muat-putar .9s linear infinite}@keyframes muat-putar{to{transform:rotate(360deg)}}
+/* NISN Siswa (21 Okt 2026) */
+.ns-judul{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.ns-alis{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--warn)}
+.ns-judul h2{margin:2px 0 0;font-size:22px}
+.ns-rahasia{display:flex;gap:8px;align-items:flex-start;background:var(--kertas-3);border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:13px;line-height:1.45;color:var(--muted);margin:12px 0}
+.ns-rahasia svg{flex:none;width:16px;height:16px;margin-top:1px;color:var(--warn)}
+.ns-cari{position:relative;display:block;margin-bottom:10px}.ns-cari svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--muted);pointer-events:none}
+.ns-cari input{padding-left:42px!important}
+.ns-tandai{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;margin-top:12px}
+.ns-tandai label{flex:1;min-width:220px;font-size:13px;color:var(--muted)}.ns-tandai select{width:100%;margin-top:4px}
+.ns-ringkas{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.ns-ringkas:empty{display:none}
+.ns-stat{display:inline-flex;align-items:baseline;gap:6px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:13px;color:var(--muted)}
+.ns-stat b{font-size:15px;color:var(--ink)}.ns-stat.good b{color:var(--good)}.ns-stat.warn b{color:var(--warn)}.ns-stat.cat{border-style:dashed}
+.ns-grup{margin:18px 0}
+.ns-grup>header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;border-bottom:2px solid var(--line);padding:0 2px 6px;margin-bottom:10px}
+.ns-grup h3{margin:0;font-size:15px;letter-spacing:.02em;color:var(--gelap)}.ns-grup>header span{font-size:12px;color:var(--muted)}
+.ns-kisi{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.ns-kartu{position:relative;display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;transition:border-color .15s,box-shadow .15s}
+.ns-kartu:hover{border-color:var(--garis-2);box-shadow:0 2px 10px rgba(29,42,58,.07)}
+.ns-kartu.off{opacity:.55}.ns-kartu.st-sudah{box-shadow:inset 4px 0 0 var(--good)}.ns-kartu.st-belum{box-shadow:inset 4px 0 0 var(--emas)}
+.ns-ava{flex:none;width:38px;height:38px;border-radius:50%;background:var(--gelap);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;letter-spacing:.03em}
+.ns-isi{min-width:0;flex:1}
+.ns-nama{font-weight:700;line-height:1.3;color:var(--ink);overflow-wrap:anywhere}.ns-kartu.ada-st .ns-nama{padding-right:70px}
+.ns-meta{font-size:12px;color:var(--muted);margin-top:1px}
+.ns-nisn{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.ns-nisn code{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;font-size:18px;font-weight:700;letter-spacing:.08em;color:var(--gelap);background:var(--kertas-3);border-radius:8px;padding:3px 9px}
+button.ns-salin{display:inline-flex;align-items:center;gap:5px;background:#fff;color:var(--gelap);border:1px solid var(--garis-2);border-radius:999px;padding:4px 11px;font-size:12px;font-weight:600;box-shadow:none}
+button.ns-salin svg{width:13px;height:13px}button.ns-salin:hover{border-color:var(--gelap)}
+button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:var(--good)}
+.ns-st{position:absolute;top:10px;right:10px;font-size:11px;font-weight:700;border-radius:999px;padding:2px 9px}
+.ns-st.sudah{background:var(--good-soft);color:var(--good)}.ns-st.belum{background:var(--warn-soft);color:var(--warn)}.ns-st.bukan{background:var(--kertas-3);color:var(--muted)}
+.ns-kosong{text-align:center;color:var(--muted);padding:28px 16px;background:#fff;border:1px dashed var(--garis-2);border-radius:12px;margin:12px 0}
+@media(max-width:560px){.ns-kisi{grid-template-columns:1fr}.ns-judul h2{font-size:20px}}
 </style>
 <!-- Ikon aplikasi (tab browser & layar HP), 13 Okt 2026 -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -387,14 +420,16 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 </section>
 
 <section id="v-siswa" class="hidden">
-  <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">NISN Siswa</h2><button class="ghost" id="btn-s-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
-    <p class="muted small">Untuk membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya (jadwal KBM di Data Induk). Jangan perlihatkan layar ini kepada siswa lain.</p>
-    <input type="text" id="s-cari" placeholder="Cari nama atau NISN…" autocomplete="off">
+  <!-- NISN Siswa (tampilan 21 Okt 2026): kartu per kelas, NISN besar + tombol salin -->
+  <div class="card form ns-kepala">
+    <div class="ns-judul"><div><span class="ns-alis">Bantuan siswa</span><h2>NISN Siswa</h2></div><button class="ghost" id="btn-s-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
+    <p class="ns-rahasia"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Untuk membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya (jadwal KBM di Data Induk). <b>Jangan perlihatkan layar ini kepada siswa lain.</b></span></p>
+    <label class="ns-cari"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13.5 13.5 18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="text" id="s-cari" placeholder="Cari nama atau NISN…" autocomplete="off" aria-label="Cari nama atau NISN"></label>
     <div class="chips" id="s-kelas"></div>
-    <div class="row"><label class="small grow">Tandai sudah/belum mengerjakan pada ujian <select id="s-ujian" style="padding:6px 8px"><option value="">(tidak ditandai)</option></select></label><button class="soft mini" id="btn-s-refresh">Muat ulang</button></div>
-    <div id="s-info" class="small muted" style="margin-top:6px"></div>
+    <div class="ns-tandai"><label>Tandai sudah/belum mengerjakan pada ujian<select id="s-ujian"><option value="">(tidak ditandai)</option></select></label><button type="button" class="ds-muat" id="btn-s-refresh"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Muat ulang</button></div>
+    <div id="s-info" class="ns-ringkas" aria-live="polite"></div>
   </div>
-  <div class="card" id="s-list-card"><div id="s-list"></div></div>
+  <div id="s-list-card"><div id="s-list"></div></div>
 </section>
 
 <section id="v-sesi" class="hidden">
@@ -879,12 +914,29 @@ const siswaLihat=()=>PERAN==="guru"?SISWA.filter(x=>(GURU.kelas_saya||[]).includ
 function renderKelasChips(){const SISWA=siswaLihat();const ks=[...new Set(SISWA.map(x=>x.kelas||"–"))].sort(kelasSort);const cnt=k=>SISWA.filter(x=>(x.kelas||"–")===k&&x.aktif).length;
   $("s-kelas").innerHTML=`<button class="chip${S_KELAS?"":" on"}" data-k="">Semua (${SISWA.filter(x=>x.aktif).length})</button>`+ks.map(k=>`<button class="chip${S_KELAS===k?" on":""}" data-k="${esc(k)}">${esc(k)} (${cnt(k)})</button>`).join("");
   $("s-kelas").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{S_KELAS=b.dataset.k;renderKelasChips();renderSiswa()})}
-function renderSiswa(){if(!SISWA)return;const SISWA_=siswaLihat();if(PERAN==="guru"&&!SISWA_.length){$("s-list").innerHTML='<p class="muted">Anda belum tercatat mengampu kelas di jadwal KBM Data Induk. Minta operator memeriksa jadwal Anda.</p>';$("s-info").textContent="";return}const q=$("s-cari").value.trim().toLowerCase();
+const IK_SALIN='<svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3 10.5V3.8C3 3.4 3.4 3 3.8 3h6.7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+const inisial=n=>String(n||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]||"").join("").toUpperCase();
+function renderSiswa(){if(!SISWA)return;const SISWA_=siswaLihat();
+  if(PERAN==="guru"&&!SISWA_.length){$("s-list").innerHTML='<p class="ns-kosong">Anda belum tercatat mengampu kelas di jadwal KBM Data Induk.<br>Minta operator memeriksa jadwal Anda.</p>';$("s-info").innerHTML="";return}
+  const q=$("s-cari").value.trim().toLowerCase();
   const rows=SISWA_.filter(x=>(!S_KELAS||(x.kelas||"–")===S_KELAS)&&(!q||String(x.nama).toLowerCase().includes(q)||String(x.nisn).includes(q))).sort((a,b)=>kelasSort(a.kelas,b.kelas)||String(a.nama).localeCompare(String(b.nama),"id"));
-  const lim=rows.slice(0,300);let ket=`${rows.length} siswa`;const na=rows.filter(x=>!x.aktif).length;if(na)ket+=` (${na} nonaktif)`;const pst=x=>!S_PESERTA||S_PESERTA.has(String(x.nisn));if(S_HASIL)ket+=` · sudah ${rows.filter(x=>S_HASIL.has(String(x.nisn))).length}, belum ${rows.filter(x=>x.aktif&&pst(x)&&!S_HASIL.has(String(x.nisn))).length}${S_PESERTA?`, bukan peserta ${rows.filter(x=>!pst(x)).length}`:""}`;if(rows.length>300)ket+=" · ditampilkan 300 pertama, persempit pencarian";$("s-info").textContent=ket;
-  $("s-list").innerHTML=lim.map(x=>{const st=S_HASIL?(S_HASIL.has(String(x.nisn))?'<span class="pill good">Sudah</span>':(!pst(x)?'<span class="pill" style="background:var(--kertas-3);color:var(--muted)">bukan peserta</span>':x.aktif?'<span class="pill warn">Belum</span>':"")):"";
-    return `<div class="srow${x.aktif?"":" off"}"><div class="sr-top"><div><b>${esc(x.nama)}</b> <span class="muted small">${esc(x.kelas||"–")}${x.aktif?"":" · nonaktif"}</span></div>${st}</div><div class="sr-bot"><code class="nisn">${esc(x.nisn)}</code><button class="soft mini" data-copy="${esc(x.nisn)}">Salin NISN</button></div></div>`}).join("")||"<p class='muted'>Tidak ada siswa yang cocok.</p>";
-  $("s-list").querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);toast("NISN "+b.dataset.copy+" disalin")}catch(e){toast("NISN: "+b.dataset.copy)}})}
+  const lim=rows.slice(0,300),pst=x=>!S_PESERTA||S_PESERTA.has(String(x.nisn));
+  const status=x=>!S_HASIL?"":S_HASIL.has(String(x.nisn))?"sudah":!pst(x)?"bukan":x.aktif?"belum":"";
+  const na=rows.filter(x=>!x.aktif).length,stat=(n,l,c)=>`<span class="ns-stat${c?" "+c:""}"><b>${n}</b>${l}</span>`;
+  $("s-info").innerHTML=stat(rows.length,"siswa")+(na?stat(na,"nonaktif"):"")+
+    (S_HASIL?stat(rows.filter(x=>status(x)==="sudah").length,"sudah","good")+stat(rows.filter(x=>status(x)==="belum").length,"belum","warn")+(S_PESERTA?stat(rows.filter(x=>status(x)==="bukan").length,"bukan peserta"):""):"")+
+    (rows.length>300?'<span class="ns-stat cat">Ditampilkan 300 pertama — persempit pencarian</span>':"");
+  const LBL={sudah:"Sudah",belum:"Belum",bukan:"Bukan peserta"};
+  const kartu=x=>{const st=status(x);return `<div class="ns-kartu${x.aktif?"":" off"}${st?" ada-st st-"+st:""}"><div class="ns-ava" aria-hidden="true">${esc(inisial(x.nama))}</div>`+
+    `<div class="ns-isi"><div class="ns-nama">${esc(x.nama)}</div><div class="ns-meta">Kelas ${esc(x.kelas||"–")}${x.aktif?"":" · nonaktif"}</div>`+
+    `<div class="ns-nisn"><code>${esc(x.nisn)}</code><button type="button" class="ns-salin" data-copy="${esc(x.nisn)}" aria-label="Salin NISN ${esc(x.nama)}">${IK_SALIN}<span>Salin</span></button></div></div>`+
+    (st?`<span class="ns-st ${st}">${LBL[st]}</span>`:"")+"</div>"};
+  const grup=new Map();lim.forEach(x=>{const k=x.kelas||"–";if(!grup.has(k))grup.set(k,[]);grup.get(k).push(x)});
+  $("s-list").innerHTML=lim.length?[...grup.entries()].map(([k,L])=>`<section class="ns-grup"><header><h3>Kelas ${esc(k)}</h3><span>${L.length} siswa</span></header><div class="ns-kisi">${L.map(kartu).join("")}</div></section>`).join("")
+    :'<p class="ns-kosong">Tidak ada siswa yang cocok dengan pencarian.</p>';
+  $("s-list").querySelectorAll("[data-copy]").forEach(b=>b.onclick=async()=>{const n=b.dataset.copy;
+    try{await navigator.clipboard.writeText(n);b.classList.add("ok");b.querySelector("span").textContent="Disalin ✓";toast("NISN "+n+" disalin");
+      setTimeout(()=>{b.classList.remove("ok");b.querySelector("span").textContent="Salin"},1600)}catch(e){toast("NISN: "+n)}})}
 const rowItems=r=>String(r.items||"").split("").map((c,i)=>({no:i+1,v:(r.varian||"")[i]||"?",benar:+c,level:(GPK.meta.blueprint[i]||{}).level||"",sub:(GPK.meta.blueprint[i]||{}).sub||""}));
 function levelSummary(it){const o={};[...new Set(it.map(x=>x.level).filter(Boolean))].sort(lsort).forEach(L=>{const s=it.filter(x=>x.level===L);o[L]=pct(s.reduce((a,x)=>a+x.benar,0),s.length)});return o}
 async function loginGuru(){const adaPin=!!PIN;if(!PIN)PIN=$("pin").value.trim();$("g-login-msg").textContent="Memeriksa…";
