@@ -1399,7 +1399,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("btn-guru-back").onclick=bukaMenu;$("btn-pin").onclick=()=>{PIN=$("pin").value.trim();loginGuru()};
   $("btn-guru-out").onclick=bukaMenu;
   // Dari QR guru: index.html#kode=123456 → kode akses terisi, siswa tinggal mengetik NISN. Kode dihapus dari alamat supaya tidak ikut tersimpan/terbagi.
-  const dariQR=location.hash.match(/kode=(d{6})/);
+  const dariQR=location.hash.match(/kode=(\d{6})/);
   if(dariQR){history.replaceState(null,"",location.pathname+location.search);$("akses").value=kodeTampil(dariQR[1]);$("akses-qr").classList.remove("hidden");$("nisn").focus()}
   if(qs.get("guru")!==null||SESI_URL||DASBOR_URL||UJI_URL)bukaMenu();
   $("btn-refresh").onclick=loadGuru;try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=$("g-sesi").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
