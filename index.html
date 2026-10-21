@@ -298,8 +298,8 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 .se-pantau{margin-top:12px;border-top:1px dashed var(--garis-2);padding-top:10px}
 .se-awas{margin-top:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px 12px;background:#fff}.se-awas .row{margin-top:10px}
 .st-belum{background:var(--netral-muda);color:var(--tinta-2)}.st-kerja{background:var(--emas-muda);color:var(--emas-teks)}.st-diam{background:var(--bad-soft);color:var(--bad)}.st-selesai2{background:var(--good-soft);color:var(--good)}
-#se-layar{position:fixed;inset:0;background:var(--gelap);color:#fff;z-index:var(--lapis-tirai);display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
-#se-layar .in{display:grid;gap:clamp(12px,2.4vh,24px);justify-items:center;max-width:100%}#se-layar .j{font-family:"Fraunces",Georgia,serif;font-size:clamp(20px,3.4vw,40px);font-weight:700;color:var(--kuning);max-width:min(1400px,94vw)}
+#se-layar{position:fixed;inset:0;background:var(--gelap);color:#fff;z-index:var(--lapis-tirai);display:flex;padding:clamp(56px,7vh,72px) 24px 24px;text-align:center;overflow-y:auto}
+#se-layar .in{display:grid;gap:clamp(10px,2vh,22px);justify-items:center;max-width:100%;margin:auto}   /* margin:auto = di tengah bila muat, mulai dari atas bila tidak (tidak terpotong) */#se-layar .j{font-family:"Fraunces",Georgia,serif;font-size:clamp(20px,3.4vw,40px);font-weight:700;color:var(--kuning);max-width:min(1400px,94vw)}
 /* Layar kode akses (seperti Matematika Dasar): layar penuh, QR besar berisi alamat + kode untuk dipindai dari 8–10 m, kode di sampingnya */
 #se-layar .sl-dua{display:flex;align-items:center;justify-content:center;gap:clamp(24px,5vw,80px);flex-wrap:wrap}
 #se-layar .sl-kol{display:grid;justify-items:center;gap:clamp(6px,1.4vh,14px)}
@@ -308,12 +308,15 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 #sl-qr.hidden+.sl-kol .kd{font-size:clamp(72px,18vw,260px)}
 #se-layar .ket{font-size:clamp(14px,2vw,24px);color:var(--tinta-terang-2)}
 #sl-qr{background:#fff;padding:clamp(10px,1.6vw,18px);border-radius:12px;line-height:0;cursor:zoom-in}
-#sl-qr img,#sl-qr canvas{width:min(62vh,46vw)!important;height:auto!important;image-rendering:pixelated}
+#sl-qr img,#sl-qr canvas{width:clamp(180px,min(100vh - 340px,44vw),760px)!important;height:auto!important;image-rendering:pixelated}
+@media(max-width:760px){#sl-qr img,#sl-qr canvas{width:clamp(180px,min(100vh - 420px,80vw),520px)!important}}
+#btn-sl-x{position:fixed;top:14px;right:16px;z-index:1;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:9px 16px;font-size:15px;font-weight:700}
+#btn-sl-x:hover{background:rgba(255,255,255,.22)}
 #se-layar .sl-url{font-size:clamp(12px,1.4vw,18px);color:var(--tinta-terang-2);word-break:break-all}
 #se-layar .sl-pet{font-size:clamp(12px,1.3vw,15px);color:var(--tinta-3)}
 #se-layar #btn-sl-tutup{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4)}
 #se-layar.qr-saja .sl-kol,#se-layar.qr-saja .j,#se-layar.qr-saja .sl-url,#se-layar.qr-saja #btn-sl-tutup{display:none}
-#se-layar.qr-saja #sl-qr{cursor:zoom-out}#se-layar.qr-saja #sl-qr img,#se-layar.qr-saja #sl-qr canvas{width:min(88vh,92vw)!important}
+#se-layar.qr-saja #sl-qr{cursor:zoom-out}#se-layar.qr-saja #sl-qr img,#se-layar.qr-saja #sl-qr canvas{width:min(100vh - 150px,92vw)!important}
 .ds-sesi{display:grid;gap:0;margin-top:6px}.ds-sesi-baris{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .ds-sesi-baris>div{display:grid;gap:1px;flex:1;min-width:0}.ds-sesi-baris>div span{font-size:12.5px;color:var(--muted)}.ds-sesi-baris .n{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
 /* tombol Muat ulang sedang bekerja */
@@ -355,6 +358,24 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
 /* mode tanam: dasbor di dalam Asesmen Bersama */
 .tanam header.top,.tanam .ds-atur,.tanam #btn-guru-out,.tanam #btn-g-sesi-baru,.tanam .ds-catatan,.tanam #hd-aksi,.tanam .staf{display:none!important}
 .tanam body{background:transparent}.tanam main,.tanam .wrap{padding-top:0!important;margin-top:0!important}
+/* Rekapitulasi (21 Okt 2026): ringkasan per kelas + sebaran nilai + rentang per kelas.
+   Warna status lolos validator dataviz (CVD & kontras): merah #A8432E, emas #B7862A, hijau #2F7A4C. */
+.rk{--rk-r:#A8432E;--rk-s:#B7862A;--rk-t:#2F7A4C;--rk-grid:#ECE6D8;--rk-ink:var(--tinta);--rk-mute:var(--tinta-2)}
+.rk-dua{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px;margin-top:14px}
+.rk-kartu{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 16px;position:relative}
+.rk-kartu h3{margin:0;font-size:15px}.rk-kartu .rk-sub{margin:2px 0 8px;font-size:12.5px;color:var(--rk-mute)}
+.rk-tabel{width:100%;border-collapse:collapse;font-size:14px}
+.rk-tabel th{text-align:left;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--rk-mute);font-weight:700;padding:8px 10px;border-bottom:2px solid var(--line)}
+.rk-tabel td{padding:8px 10px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.rk-tabel th.n,.rk-tabel td.n{text-align:right}.rk-tabel tr.semua td{font-weight:700;background:var(--kertas-3);border-bottom:0}
+.rk-tuntas{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}.rk-meter{width:60px;height:6px;border-radius:3px;background:var(--rk-grid);overflow:hidden}.rk-meter i{display:block;height:100%;background:var(--rk-t)}
+.rk-legenda{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--rk-mute);margin:2px 0 6px}.rk-legenda span{display:inline-flex;align-items:center;gap:6px}
+.rk-legenda i{display:inline-block;width:10px;height:10px;border-radius:2px}.rk-legenda i.o{border-radius:50%}
+.rk svg{display:block;width:100%;height:auto;overflow:visible}.rk svg text{font-family:inherit;fill:var(--rk-mute)}
+.rk .hit{fill:transparent;cursor:default}.rk .hit:hover+.mk,.rk g.bar:hover .mk{opacity:.85}
+.rk-grafik{overflow-x:auto}
+@media(max-width:560px){.rk-grafik svg{min-width:460px}.rk-tabel{font-size:13px}.rk-tabel th,.rk-tabel td{padding:7px 6px}.rk-meter{display:none}.rk-kartu{padding:12px}}
+.rk-tip{position:absolute;pointer-events:none;background:var(--gelap);color:#fff;font-size:12.5px;line-height:1.35;padding:6px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,calc(-100% - 10px));box-shadow:0 4px 14px rgba(0,0,0,.18);z-index:5}
 </style>
 <!-- Ikon aplikasi (tab browser & layar HP), 13 Okt 2026 -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -480,7 +501,7 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
   </div>
   <div id="se-daftar"></div>
 </section>
-<div id="se-layar" class="hidden" role="dialog" aria-modal="true" aria-label="Kode akses"><div class="in"><div class="j" id="sl-judul"></div>
+<div id="se-layar" class="hidden" role="dialog" aria-modal="true" aria-label="Kode akses"><button type="button" id="btn-sl-x" aria-label="Tutup tampilan kode">✕ Tutup</button><div class="in"><div class="j" id="sl-judul"></div>
   <div class="sl-dua"><div id="sl-qr" class="hidden" aria-label="QR halaman ujian beserta kode akses"></div>
     <div class="sl-kol"><div class="lbl">Kode akses</div><div class="kd" id="sl-kode"></div><div class="ket" id="sl-ket"></div></div></div>
   <div class="sl-url" id="sl-url"></div><div class="sl-pet" id="sl-pet"></div><button id="btn-sl-tutup">Tutup tampilan</button></div></div>
@@ -558,8 +579,9 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
           <button class="btn-unduh utama" data-fmt="xlsx" id="btn-xlsx" title="Rekap, jawaban per soal, analisis butir, dan sub-materi dalam satu buku kerja Excel berformat">Unduh rekap</button></div>
       </div>
       <div id="g-stat" class="stats"></div>
-      <div class="tabs" role="tablist"><button class="on" data-tab="rekap">Rekap siswa <span class="tb-n" id="tb-rekap"></span></button><button data-tab="butir">Analisis butir</button><button data-tab="sub">Sub-materi</button><button data-tab="belum">Belum mengerjakan <span class="tb-n warn" id="tb-belum"></span></button><button data-tab="riwayat">Riwayat siswa</button></div>
-      <div class="ds-panel" id="g-rekap"><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-tabel" data-beku="2"></table></div><p class="ds-catatan">Nilai: <span class="nilai t">≥ 75</span> tuntas · <span class="nilai s">60–74</span> · <span class="nilai r">&lt; 60</span>. Kolom <b>Keluar</b>: dihitung / semua kejadian (arahkan kursor untuk rincian).<span class="kelola-only"> <b>reset</b> = hapus hasil agar siswa bisa mengulang.</span></p></div>
+      <div class="tabs" role="tablist"><button class="on" data-tab="ringkas">Rekapitulasi</button><button data-tab="rekap">Rekap siswa <span class="tb-n" id="tb-rekap"></span></button><button data-tab="butir">Analisis butir</button><button data-tab="sub">Sub-materi</button><button data-tab="belum">Belum mengerjakan <span class="tb-n warn" id="tb-belum"></span></button><button data-tab="riwayat">Riwayat siswa</button></div>
+      <div class="ds-panel" id="g-ringkas"><div id="g-ringkas-isi"></div></div>
+      <div class="ds-panel hidden" id="g-rekap"><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-tabel" data-beku="2"></table></div><p class="ds-catatan">Nilai: <span class="nilai t">≥ 75</span> tuntas · <span class="nilai s">60–74</span> · <span class="nilai r">&lt; 60</span>. Kolom <b>Keluar</b>: dihitung / semua kejadian (arahkan kursor untuk rincian).<span class="kelola-only"> <b>reset</b> = hapus hasil agar siswa bisa mengulang.</span></p></div>
       <div class="ds-panel hidden" id="g-butir"><p class="ds-catatan" style="margin-top:0">Nomor = nomor asli pada kisi-kisi. Kesukaran: <span class="pill bad">sukar</span> &lt; 30% · <span class="pill warn">sedang</span> 30–70% · <span class="pill good">mudah</span> &gt; 70%. Kolom varian menunjukkan % benar tiap varian (uji kesetaraan).</p><div class="tbl-wrap tbl-beku"><table class="rekap" id="g-butir-tabel" data-beku="1"></table></div></div>
       <div class="ds-panel hidden" id="g-sub"><div id="g-sub-isi"></div></div>
       <div class="ds-panel hidden" id="g-belum"><p class="ds-catatan" style="margin-top:0">Peserta ujian ini (gabungan semua sesi) yang belum punya hasil. Kelas mengikuti saringan di atas; untuk satu sesi, buka <b>Pantau</b> di Sesi ujian. <span id="g-belum-peserta"></span></p><div id="g-belum-isi"></div></div>
@@ -1044,7 +1066,7 @@ async function loadGuru(){const kode=$("g-ujian").value;if(!kode)return;$("g-srv
     const ss=$("g-sesi"),sv=G_SESI_AWAL||ss.value,lama=ROWS.some(r=>!r.sesi_id);G_SESI_AWAL="";
     ss.innerHTML=`<option value="">Semua sesi</option>`+GSESI.map(s=>`<option value="${s.id}">${esc(tglJam(s.mulai))} · ${esc(TKA_PESERTA.ringkas(s.peserta).replace(/^Kelas: /,""))}</option>`).join("")+(lama?'<option value="lama">Sebelum ada sesi</option>':"");
     ss.value=[...ss.options].some(o=>o.value===String(sv))?String(sv):"";
-    renderRekap();renderButir();renderSub();
+    renderRekap();renderRingkas();renderButir();renderSub();
   }catch(e){$("g-srv").innerHTML=`<span class="it bad">Gagal memuat: ${esc(e.message)}</span>`}finally{$("btn-refresh").classList.remove("putar")}}
 /* Bilah status di bawah kartu ujian + kemajuan pengerjaan di kartu Peruntukan + jumlah di tab "Belum mengerjakan". */
 function renderInfo(){if(!GPK)return;const nP=GPES?+GPES.n_peserta||0:0,nT=ROWS.filter(r=>!r.tamu).length,w=nP?Math.min(100,Math.round(nT/nP*100)):0,belum=Math.max(0,nP-nT);
@@ -1070,6 +1092,52 @@ function tandaHasil(h){if(!h)return "";const m=h.terlambat?Math.max(1,Math.round
 const filtered=()=>{const k=$("g-kelas").value,s=$("g-sesi").value;return ROWS.filter(r=>(!k||r.kelas===k)&&(!s||(s==="lama"?!r.sesi_id:String(r.sesi_id)===s)))};
 // Kolom berkelas .beku dibuat sticky berurutan: left = jumlah lebar kolom beku di kirinya
 function bekukan(t){if(!t)return;t.querySelectorAll("tr").forEach(tr=>{const cs=[...tr.children].filter(c=>c.classList.contains("beku"));let left=0;cs.forEach((c,i)=>{c.style.left=left+"px";left+=c.offsetWidth;c.classList.toggle("beku-akhir",i===cs.length-1)})})}
+/* ---------- Rekapitulasi: tabel per kelas + sebaran nilai + rentang per kelas (SVG, tanpa pustaka) ---------- */
+function renderRingkas(){const el=$("g-ringkas-isi");if(!el)return;const rows=filtered().filter(r=>Number.isFinite(r.nilai));
+  if(!rows.length){el.innerHTML='<p class="muted" style="margin:12px 0">Belum ada hasil untuk ditampilkan.</p>';return}
+  const KKM=75,warna=v=>v>=KKM?"var(--rk-t)":v>=60?"var(--rk-s)":"var(--rk-r)";
+  const ring=L=>{const v=L.map(r=>r.nilai);return{n:L.length,avg:Math.round(v.reduce((a,b)=>a+b,0)/L.length),max:Math.max(...v),min:Math.min(...v),tuntas:L.filter(r=>r.nilai>=KKM).length}};
+  const per=new Map();rows.forEach(r=>{const k=r.kelas||"–";if(!per.has(k))per.set(k,[]);per.get(k).push(r)});
+  const kelas=[...per.keys()].sort(kelasSort).map(k=>({k,...ring(per.get(k))})),semua=ring(rows);
+  // tabel
+  const baris=(x,lbl,c)=>{const p=pct(x.tuntas,x.n);return `<tr${c?` class="${c}"`:""}><td>${esc(lbl)}</td><td class="n">${x.n}</td><td class="n">${x.avg}</td><td class="n">${x.max}</td><td class="n">${x.min}</td><td class="n"><span class="rk-tuntas">${x.tuntas} (${p}%)<span class="rk-meter" aria-hidden="true"><i style="width:${p}%"></i></span></span></td></tr>`};
+  const tabel=`<div class="tbl-wrap"><table class="rk-tabel"><thead><tr><th>Kelas</th><th class="n">Siswa</th><th class="n">Rata-rata</th><th class="n">Tertinggi</th><th class="n">Terendah</th><th class="n">Tuntas ≥ ${KKM}</th></tr></thead><tbody>`+
+    kelas.map(x=>baris(x,x.k)).join("")+(kelas.length>1?baris(semua,"Semua kelas","semua"):"")+"</tbody></table></div>";
+  // sebaran nilai: rentang 5 poin, mulai dari puluhan di bawah nilai terendah
+  const lo=Math.min(50,Math.floor(semua.min/10)*10),bins=[];for(let a=lo;a<=95;a+=5)bins.push({a,b:a===95?100:a+4,n:0});
+  rows.forEach(r=>{const b=bins.find(x=>r.nilai>=x.a&&r.nilai<=x.b)||bins[bins.length-1];b.n++});
+  const nMax=Math.max(...bins.map(b=>b.n)),lang=[1,2,5,10,20,50,100].find(t=>nMax/t<=5)||100,yMax=Math.max(lang,Math.ceil((nMax*1.15+0.5)/lang)*lang);
+  const W=560,H=250,ml=32,mr=8,mt=30,mb=34,pw=W-ml-mr,ph=H-mt-mb,slot=pw/bins.length,bw=Math.min(24,slot-2),y=v=>mt+ph-v/yMax*ph;
+  let g="";for(let t=0;t<=yMax;t+=lang)g+=`<line x1="${ml}" x2="${W-mr}" y1="${y(t)}" y2="${y(t)}" stroke="var(--rk-grid)" stroke-width="1"/><text x="${ml-6}" y="${y(t)+4}" font-size="11" text-anchor="end">${t}</text>`;
+  const kx=ml+(bins.findIndex(b=>b.a===KKM))*slot;
+  const batang=bins.map((b,j)=>{const x=ml+j*slot+(slot-bw)/2,h=b.n?Math.max(2,ph*b.n/yMax):0,yy=mt+ph-h,r=Math.min(4,h/2);
+    const path=h?`M${x},${mt+ph}V${yy+r}Q${x},${yy} ${x+r},${yy}H${x+bw-r}Q${x+bw},${yy} ${x+bw},${yy+r}V${mt+ph}Z`:"";
+    const lbl=(j%2===0||bins.length<=10)?`<text x="${ml+j*slot+slot/2}" y="${H-mb+16}" font-size="11" text-anchor="middle">${b.a}</text>`:"";
+    return `<g class="bar">${path?`<path class="mk" d="${path}" fill="${warna(b.a)}"/>`:""}${b.n?`<text x="${x+bw/2}" y="${yy-5}" font-size="11" text-anchor="middle" style="fill:var(--rk-ink)">${b.n}</text>`:""}${lbl}<rect class="hit" x="${ml+j*slot}" y="${mt}" width="${slot}" height="${ph}" data-tip="Nilai ${b.a}–${b.b}: <b>${b.n} siswa</b>"/></g>`}).join("");
+  const kkm=kx>=ml?`<line x1="${kx}" x2="${kx}" y1="${mt-14}" y2="${mt+ph}" stroke="var(--gelap)" stroke-width="1.5"/><text x="${kx+5}" y="${mt-6}" font-size="12" style="fill:var(--rk-ink);font-weight:600">KKM ${KKM}</text>`:"";
+  const sebaran=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Sebaran nilai: ${bins.filter(b=>b.n).map(b=>b.a+"–"+b.b+" "+b.n+" siswa").join(", ")}">${g}<line x1="${ml}" x2="${W-mr}" y1="${mt+ph}" y2="${mt+ph}" stroke="var(--garis-2)" stroke-width="1"/>${batang}${kkm}<text x="${ml+pw/2}" y="${H-2}" font-size="11" text-anchor="middle">nilai</text></svg>`;
+  // rentang per kelas: garis terendah–tertinggi + titik rata-rata
+  const RW=520,rl=52,rr=96,rt=30,rh=42,RH=rt+kelas.length*rh+24,px=v=>rl+v/100*(RW-rl-rr);
+  let rg="";for(let t=0;t<=100;t+=25)rg+=`<line x1="${px(t)}" x2="${px(t)}" y1="${rt-8}" y2="${RH-22}" stroke="var(--rk-grid)" stroke-width="1"/><text x="${px(t)}" y="${RH-5}" font-size="12" text-anchor="middle">${t}</text>`;
+  const rkkm=`<line x1="${px(KKM)}" x2="${px(KKM)}" y1="${rt-20}" y2="${RH-22}" stroke="var(--gelap)" stroke-width="1.5"/><text x="${px(KKM)+5}" y="${rt-12}" font-size="12" style="fill:var(--rk-ink);font-weight:600">KKM ${KKM}</text>`;
+  const rbar=kelas.map((x,j)=>{const cy=rt+j*rh+rh/2;
+    return `<g><text x="${rl-12}" y="${cy+5}" font-size="14" text-anchor="end" style="fill:var(--rk-ink);font-weight:600">${esc(x.k)}</text>`+
+      `<line x1="${px(x.min)}" x2="${px(x.max)}" y1="${cy}" y2="${cy}" stroke="#C9BFA8" stroke-width="4" stroke-linecap="round"/>`+
+      `<circle cx="${px(x.min)}" cy="${cy}" r="4" fill="${warna(x.min)}" stroke="#fff" stroke-width="2"/><circle cx="${px(x.max)}" cy="${cy}" r="4" fill="${warna(x.max)}" stroke="#fff" stroke-width="2"/>`+
+      `<circle cx="${px(x.avg)}" cy="${cy}" r="6.5" fill="var(--gelap)" stroke="#fff" stroke-width="2"/>`+
+      `<text x="${RW-rr+12}" y="${cy+5}" font-size="13" style="fill:var(--rk-ink)">rata-rata <tspan font-weight="700">${x.avg}</tspan></text>`+
+      `<rect class="hit" x="0" y="${cy-rh/2}" width="${RW}" height="${rh}" data-tip="Kelas ${esc(x.k)} · ${x.n} siswa<br>Rata-rata <b>${x.avg}</b> · tertinggi ${x.max} · terendah ${x.min}<br>Tuntas ${x.tuntas} (${pct(x.tuntas,x.n)}%)"/></g>`}).join("");
+  const rentang=`<svg viewBox="0 0 ${RW} ${RH}" role="img" aria-label="Rata-rata, tertinggi, dan terendah per kelas">${rg}${rkkm}${rbar}</svg>`;
+  const legNilai=`<div class="rk-legenda"><span><i style="background:var(--rk-r)"></i>&lt; 60</span><span><i style="background:var(--rk-s)"></i>60–74</span><span><i style="background:var(--rk-t)"></i>≥ ${KKM} tuntas</span></div>`;
+  el.innerHTML=`<div class="rk">`+
+    `<div class="rk-kartu"><h3>Ringkasan per kelas</h3><p class="rk-sub">${semua.n} siswa · rata-rata ${semua.avg} · tertinggi ${semua.max} · terendah ${semua.min} · tuntas ${semua.tuntas} siswa (${pct(semua.tuntas,semua.n)}%)</p>${tabel}</div>`+
+    `<div class="rk-dua"><div class="rk-kartu"><h3>Sebaran nilai</h3><p class="rk-sub">Banyak siswa per rentang nilai (5 poin).</p>${legNilai}<div class="rk-grafik">${sebaran}</div></div>`+
+    `<div class="rk-kartu"><h3>Rata-rata, tertinggi, terendah per kelas</h3><p class="rk-sub">Garis = terendah sampai tertinggi; titik gelap = rata-rata.</p>${legNilai}<div class="rk-grafik">${rentang}</div></div></div></div>`;
+  // keterangan saat diarahkan/disentuh
+  el.querySelectorAll(".rk-kartu").forEach(k=>{const hit=k.querySelectorAll(".hit");if(!hit.length)return;let tip=null;
+    const tampil=(e,h)=>{if(!tip){tip=document.createElement("div");tip.className="rk-tip";k.appendChild(tip)}tip.innerHTML=h.dataset.tip;
+      const kb=k.getBoundingClientRect(),hb=h.getBoundingClientRect();tip.style.left=Math.min(kb.width-80,Math.max(80,(e&&e.clientX?e.clientX:hb.left+hb.width/2)-kb.left))+"px";tip.style.top=(hb.top-kb.top+(h.closest("g.bar")?hb.height*0.35:4))+"px"};
+    hit.forEach(h=>{h.addEventListener("mousemove",e=>tampil(e,h));h.addEventListener("click",e=>tampil(e,h));h.addEventListener("mouseleave",()=>{if(tip){tip.remove();tip=null}})})})}
 function renderRekap(){const rows=filtered().sort((a,b)=>(a.kelas||"").localeCompare(b.kelas||"")||(a.nama||"").localeCompare(b.nama||""));const t=$("g-tabel");
   if(!rows.length){t.innerHTML="<tr><td class='muted'>Belum ada data.</td></tr>";$("g-stat").innerHTML="";$("tb-rekap").textContent="";return}$("tb-rekap").textContent=rows.length;
   const avg=Math.round(rows.reduce((s,r)=>s+r.nilai,0)/rows.length),tuntas=rows.filter(r=>r.nilai>=75).length;
@@ -1289,7 +1357,7 @@ function pasangSesi(){
   $("btn-se-back").onclick=bukaMenu;tombolMuat("btn-se-muat",()=>muatSesi(),"se-info");$("btn-se-baru").onclick=()=>bukaFormSesi("");$("btn-se-batal").onclick=()=>$("se-form").classList.add("hidden");
   $("btn-se-buka").onclick=kirimSesi;$("se-cari").oninput=renderPaketSesi;["se-durasi","se-tambah","se-akhir"].forEach(id=>$(id).oninput=hitungSampai);$("se-mulai").oninput=()=>{const m=seMulai(),z=seAkhir();if(m&&(!z||z<=m))isiAkhirBawaan();hitungSampai()};document.querySelectorAll("[name=se-kapan]").forEach(x=>x.onchange=aturMulai);
   $("se-paket").onclick=e=>{const b=e.target.closest("[data-kode]");if(b)pilihPaketSesi(b.dataset.kode)};
-  $("btn-sl-tutup").onclick=tutupLayar;$("sl-qr").onclick=()=>$("se-layar").classList.toggle("qr-saja");
+  $("btn-sl-tutup").onclick=tutupLayar;$("btn-sl-x").onclick=tutupLayar;$("sl-qr").onclick=()=>$("se-layar").classList.toggle("qr-saja");
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!$("se-layar").classList.contains("hidden"))tutupLayar()});
   // keluar layar penuh (Esc / F11 / gestur) sekaligus menutup tampilan kode
   document.addEventListener("fullscreenchange",()=>{if(!document.fullscreenElement&&!$("se-layar").classList.contains("hidden"))$("se-layar").classList.add("hidden")});
@@ -1522,9 +1590,9 @@ window.addEventListener("DOMContentLoaded",()=>{
   const dariQR=location.hash.match(/kode=(\d{6})/);
   if(dariQR){history.replaceState(null,"",location.pathname+location.search);$("akses").value=kodeTampil(dariQR[1]);$("akses-qr").classList.remove("hidden");$("nisn").focus()}
   if(qs.get("guru")!==null||SESI_URL||DASBOR_URL||UJI_URL)bukaMenu();
-  tombolMuat("btn-refresh",loadGuru,"g-srv");try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=$("g-sesi").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
+  tombolMuat("btn-refresh",loadGuru,"g-srv");try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=$("g-sesi").onchange=()=>{renderRekap();renderRingkas();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
   $("btn-g-sesi-baru").onclick=()=>bukaSesi({paket:$("g-ujian").value});
-  document.querySelectorAll(".ds-hasil .tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".ds-hasil .tabs button").forEach(x=>x.classList.toggle("on",x===b));["rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});
+  document.querySelectorAll(".ds-hasil .tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".ds-hasil .tabs button").forEach(x=>x.classList.toggle("on",x===b));["ringkas","rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});
   $("btn-cari").onclick=renderRiwayat;$("g-cari").addEventListener("keydown",e=>{if(e.key==="Enter")renderRiwayat()});
 });
 </script>

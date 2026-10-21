@@ -49,7 +49,7 @@ const ISI = [
   P("Ubin menu menyesuaikan PIN yang dipakai (struktur menu sejak 21 Oktober 2026)."),
   TB(["Tombol menu", "Isi", "Untuk"], [
     ["**Latihan / Tryout**", "Buka latihan/tryout untuk kelas: dengan atau tanpa kode akses, sekarang atau terjadwal; tampilkan kode, pantau siswa, tambah/kurangi waktu, pembahasan.", "guru"],
-    ["**Dasbor Hasil**", "Rekap nilai, analisis butir, sub-materi, belum mengerjakan, riwayat siswa, unduh Excel.", "guru"],
+    ["**Dasbor Hasil**", "Rekapitulasi per kelas & grafik, rekap nilai, analisis butir, sub-materi, belum mengerjakan, riwayat siswa, unduh Excel.", "guru"],
     ["**Pustaka Paket**", "Bank soal per jenis, hanya mapel yang Anda ampu: paket Anda dan paket teman semapel yang sudah Publish. Tombol **+ Upload soal**: Langkah 1 · Kisi-kisi, Langkah 2 · Soal, atau Tanpa Kisi-kisi.", "guru (operator lewat Admin)"],
     ["**NISN Siswa**", "Membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya; operator dan pengawas semua kelas.", "guru, operator, pengawas"],
     ["**Asesmen Bersama**", "Ujian bersama (PAS, tryout bersama): peserta per ruang, jadwal, folder soal, **hasil siswa** (dasbor hasil khusus paket di folder soal), terbitkan, cetak.", "operator"],
@@ -271,7 +271,7 @@ const ISI = [
     "**Sesi ujian untuk paket ini** (bisa diciutkan): semua sesi paket ini — titik hijau dibuka, abu-abu selesai — dengan peserta, jam, pembuka, kode, tanda pembahasan, dan *selesai/peserta*.",
     "**Peserta**: gabungan peserta semua sesi, dengan batang *sudah mengerjakan* dan *belum*. Tamu tidak dihitung."),
   H2("Saringan dan kotak ringkasan"),
-  P("Saringan **Sesi** (Semua sesi, satu sesi, atau *Sebelum ada sesi*) dan **Kelas** berlaku untuk tab Rekap, Analisis butir, Sub-materi, dan unduhan Excel. Enam kotak ringkasan dihitung dari baris yang lolos saringan:"),
+  P("Saringan **Sesi** (Semua sesi, satu sesi, atau *Sebelum ada sesi*) dan **Kelas** berlaku untuk tab Rekapitulasi, Rekap, Analisis butir, Sub-materi, dan unduhan Excel. Enam kotak ringkasan dihitung dari baris yang lolos saringan:"),
   TB(["Kotak", "Arti"], [
     ["**siswa mengerjakan**", "Jumlah hasil, termasuk tamu."],
     ["**rata-rata nilai**", "Rata-rata nilai, dibulatkan."],
@@ -280,6 +280,8 @@ const ISI = [
     ["**keluar halaman ≥ 5×**", "Jumlah siswa yang keluar halaman (yang dihitung) 5 kali atau lebih."],
   ], [2, 4.5]),
   P("Warna nilai di seluruh dasbor: **hijau ≥ 75**, **kuning 60–74**, **merah < 60**."),
+  H2("Tab Rekapitulasi"),
+  P("Tab pertama, untuk membaca hasil sekilas. **Ringkasan per kelas**: jumlah siswa, rata-rata, tertinggi, terendah, dan tuntas (≥ 75) tiap kelas, ditambah baris *Semua kelas*. **Sebaran nilai**: banyak siswa per rentang 5 poin; batang merah < 60, emas 60–74, hijau ≥ 75, dengan garis KKM 75. **Rata-rata, tertinggi, terendah per kelas**: garis dari nilai terendah ke tertinggi dengan titik gelap di rata-rata, sehingga kelas yang perlu perhatian langsung terlihat. Arahkan kursor (atau ketuk) batang/baris untuk melihat angkanya."),
   H2("Tab Rekap siswa"),
   TB(["Kolom", "Arti"], [
     ["Nama, NISN, Kelas", "Identitas. Tanda di samping nama: **tamu**; **terlambat N mnt** (jawaban akhir sampai lebih dari 2 menit setelah waktu habis — tetap dinilai dari HP); **dari simpanan** (dinilai dari simpanan otomatis karena HP tidak mengirim); **impor** (dimasukkan operator dari kode hasil)."],
