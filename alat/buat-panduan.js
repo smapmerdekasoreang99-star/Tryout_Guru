@@ -6,13 +6,16 @@
    Jalankan dari akar proyek:
      npm i --no-save --no-package-lock docx@9      (sekali; node_modules diabaikan git)
      node alat/buat-panduan.js
+     node alat/buat-panduan.js --pas   (Panduan Asesmen Bersama untuk operator & pengawas; isi di alat/isi-panduan-pas.js)
    Ubah isi panduan di sini bila tampilan atau aturan aplikasi berubah, lalu jalankan ulang. */
 "use strict";
 const fs = require("fs"), path = require("path"), os = require("os"), { spawn } = require("child_process");
 
-const SUBJUDUL = "Menyusun paket soal, membuka latihan/tryout, dan membaca hasil", UNTUK = "guru, operator/kurikulum, dan pengawas";
-const AKAR = path.join(__dirname, ".."), NAMA = "Panduan_Guru_Asesmen_Merdeka";
-const JUDUL = "Panduan Guru Asesmen Merdeka", VERSI = "15 Oktober 2026";
+const PAS = process.argv.includes("--pas");
+const SUBJUDUL = PAS ? "Menyiapkan, mengawasi, dan menyelesaikan ujian bersama (PAS, tryout bersama)" : "Menyusun paket soal, membuka latihan/tryout, dan membaca hasil";
+const UNTUK = PAS ? "operator/kurikulum dan pengawas ruang" : "guru, operator/kurikulum, dan pengawas";
+const AKAR = path.join(__dirname, ".."), NAMA = PAS ? "Panduan_Asesmen_Bersama" : "Panduan_Guru_Asesmen_Merdeka";
+const JUDUL = PAS ? "Panduan Asesmen Bersama" : "Panduan Guru Asesmen Merdeka", VERSI = PAS ? "21 Oktober 2026" : "15 Oktober 2026";
 
 /* ================= Isi panduan =================
    Blok: H1/H2/H3 (judul, dinomori otomatis), P (paragraf), UL/OL (daftar), TB (tabel: kepala, baris, lebar relatif),
@@ -23,7 +26,7 @@ const TB = (kepala, baris, lebar) => ({ t: "tb", kepala, baris, lebar: lebar || 
 const KOTAK = (jenis, judul, ...isi) => ({ t: "kotak", jenis, judul, isi });
 const STAT = (ket, ...a) => ({ t: "stat", a, ket });
 
-const ISI = [
+const ISI = PAS ? require("./isi-panduan-pas")({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) : [
   /* ============================ 1 ============================ */
   H1("Mengenal Asesmen Merdeka"),
   P("Asesmen Merdeka adalah aplikasi ujian berbasis web sekolah untuk ulangan harian, penilaian tengah/akhir semester, dan tryout TKA/UTBK. Guru menyusun soal di Word, aplikasi mengubahnya menjadi ujian di HP siswa, menilainya otomatis di server, lalu menyajikan rekap nilai, analisis butir soal, dan rekomendasi tindak lanjut."),
@@ -113,7 +116,7 @@ const ISI = [
   H3("Gambar, tabel, rumus, dan teks bacaan"),
   UL("**Huruf**: tebal, miring, subscript, dan superscript ikut terbaca (garis bawah tidak). Tulisan x^2 atau 3^(-2) di teks biasa otomatis menjadi pangkat.",
     "**Tabel** di dalam sel Perintah soal ikut terbaca. Tabel data yang terlanjur diletakkan tepat di bawah tabel soal dipindahkan otomatis ke Perintah soal.",
-    "**Gambar** PNG/JPG (juga GIF, BMP, WEBP, SVG). EMF/WMF ditolak — simpan ulang sebagai PNG. Usahakan tiap gambar < 450 KB dan seluruh paket < 4 MB agar ringan di HP siswa.",
+    "**Gambar** PNG/JPG (juga GIF, BMP, WEBP, SVG). EMF/WMF ditolak — simpan ulang sebagai PNG. Saat unggah, gambar yang lebih besar dari 120 KB atau lebih lebar dari 1200 piksel **dikecilkan otomatis** (tulisan di gambar tetap terbaca); peringatan muncul bila sesudahnya masih > 250 KB. Usahakan seluruh paket < 1 MB agar soal cepat tampil di HP siswa, terutama pada ujian serentak.",
     "**Rumus** Word Equation dibaca dan ditampilkan sebagai rumus. Template menyarankan rumus sederhana diketik biasa; bila memakai Equation, periksa tampilannya di pratinjau.",
     "**Teks bacaan**: isi Judul dan Isi di tabel TEKS BACAAN. Di HP siswa teks tampil di atas setiap soal yang merujuknya (bisa dilipat) dan soal-soal bertopik teks yang sama tetap berkelompok walau urutan diacak."),
   H2("Langkah 2 — Unggah soal dan terbitkan"),
@@ -361,6 +364,7 @@ const ISI = [
     ["**Cadangan**", "**Unduh cadangan** (paket, siswa, hasil; PIN opsional) dan **Pulihkan** (gabung/timpa). **Ukuran database & arsip semester**: arsipkan semester yang sudah berakhir (unduh berkas arsip, lalu kosongkan rincian jawaban dengan mengetik ARSIPKAN <SEMESTER>). Nilai dan analisis butir tetap di database; berkas arsip dibuka dengan **Buka Arsip**."],
   ], [1.4, 5.1]),
   P("Penyusun paket lama diatur di **Pustaka Paket → rincian paket → Atur** (lihat 3.6)."),
+  KOTAK("info", "Asesmen Bersama dan Kontrol Pelaksanaan", "Menyiapkan PAS/tryout bersama (peserta per ruang, jadwal, Folder Soal, terbit, cetak, pantau, susulan) dan tugas pengawas ruang dijelaskan di **Panduan Asesmen Bersama** (tombol 📘 Panduan di halaman Asesmen Bersama dan Kontrol Pelaksanaan)."),
 ];
 
 /* ================= Penomoran judul ================= */

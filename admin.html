@@ -497,10 +497,12 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   /* ---- Gambar dirapikan di peramban saat unggah (20 Okt 2026) ----
-     BMP/WEBP/SVG → PNG (ikut terekspor ke naskah Word, BMP jauh lebih kecil); gambar > 450 KB atau lebih lebar
-     dari 1600 px diperkecil (PNG atau JPEG, mana yang lebih kecil) supaya ringan dimuat ±800 HP serentak.
+     BMP/WEBP/SVG → PNG (ikut terekspor ke naskah Word, BMP jauh lebih kecil); gambar > 120 KB atau lebih lebar
+     dari 1200 px diperkecil (PNG atau JPEG, mana yang lebih kecil) supaya ringan dimuat ±800 HP serentak.
+     21 Okt 2026: batas diperketat dari 450 KB / 1600 px — uji beban PAS: satu gambar 276 KB × 800 HP membuat soal
+     baru tampil 5–10 dtk setelah jam mulai. Bila JPEG 1200 px masih > 120 KB, dicoba JPEG 900 px.
      Di luar peramban (uji Node) gambar dibiarkan apa adanya. */
-  const GAMBAR_LEBAR_MAKS = 1600, GAMBAR_BYTE_MAKS = 450 * 1024;
+  const GAMBAR_LEBAR_MAKS = 1200, GAMBAR_BYTE_MAKS = 120 * 1024, GAMBAR_BYTE_PERINGATAN = 250 * 1024;
   const bisaKanvas = () => typeof document !== 'undefined' && typeof Image !== 'undefined';
   const ukuranData = d => Math.round((d.length - d.indexOf(',') - 1) * 0.75);
   const muatGambar = src => new Promise((ok, gagal) => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => gagal(new Error('gambar tidak terbaca')); im.src = src; });
@@ -522,7 +524,10 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       if (biasa && ukuranData(dataUrl) <= GAMBAR_BYTE_MAKS && lebarAsli <= GAMBAR_LEBAR_MAKS) return { src: dataUrl };
       const calon = biasa && lebarAsli <= GAMBAR_LEBAR_MAKS ? [dataUrl] : [];
       const png = (await gambarKeKanvas(dataUrl, GAMBAR_LEBAR_MAKS, 1, false)).c.toDataURL('image/png'); calon.push(png);
-      if (ukuranData(png) > GAMBAR_BYTE_MAKS) calon.push((await gambarKeKanvas(dataUrl, GAMBAR_LEBAR_MAKS, 1, true)).c.toDataURL('image/jpeg', 0.85));
+      if (ukuranData(png) > GAMBAR_BYTE_MAKS) {
+        const jpg = (await gambarKeKanvas(dataUrl, GAMBAR_LEBAR_MAKS, 1, true)).c.toDataURL('image/jpeg', 0.82); calon.push(jpg);
+        if (ukuranData(jpg) > GAMBAR_BYTE_MAKS) calon.push((await gambarKeKanvas(dataUrl, 900, 1, true)).c.toDataURL('image/jpeg', 0.8));
+      }
       const pilih = calon.sort((a, b) => ukuranData(a) - ukuranData(b))[0];
       return { src: pilih, ubah: pilih !== dataUrl };
     } catch (e) { return { src: dataUrl, gagal: true }; }
@@ -787,7 +792,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       const f = zip.file(path); if (!f) return (mediaCache[rId] = null);
       const r = await rapikanGambar(`data:${mime};base64,${await f.async('base64')}`, mime);
       if (r.gagal && !/^image\/(png|jpeg|gif)$/.test(mime)) warnings.push(`Gambar ${ext.toUpperCase()}${di()} tidak bisa diubah ke PNG; simpan ulang gambarnya sebagai PNG/JPG agar ikut terekspor ke naskah Word.`);
-      if (ukuranData(r.src) > GAMBAR_BYTE_MAKS) warnings.push(`Gambar${di()} masih ${Math.round(ukuranData(r.src) / 1024)} KB (>450 KB); perkecil agar halaman cepat dimuat.`);
+      if (ukuranData(r.src) > GAMBAR_BYTE_PERINGATAN) warnings.push(`Gambar${di()} masih ${Math.round(ukuranData(r.src) / 1024)} KB (>${GAMBAR_BYTE_PERINGATAN / 1024} KB); perkecil di Word agar soal cepat tampil di HP siswa.`);
       return (mediaCache[rId] = r.src);
     }
     async function grafikWord(rId) {
