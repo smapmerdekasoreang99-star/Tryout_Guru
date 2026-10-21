@@ -316,6 +316,8 @@ label.se-sak{display:inline-flex;align-items:center;gap:8px;border:1px solid var
 #se-layar.qr-saja #sl-qr{cursor:zoom-out}#se-layar.qr-saja #sl-qr img,#se-layar.qr-saja #sl-qr canvas{width:min(88vh,92vw)!important}
 .ds-sesi{display:grid;gap:0;margin-top:6px}.ds-sesi-baris{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .ds-sesi-baris>div{display:grid;gap:1px;flex:1;min-width:0}.ds-sesi-baris>div span{font-size:12.5px;color:var(--muted)}.ds-sesi-baris .n{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+/* tombol Muat ulang sedang bekerja */
+.memuat{opacity:.75;cursor:progress}.memuat svg{animation:muat-putar .9s linear infinite}@keyframes muat-putar{to{transform:rotate(360deg)}}
 </style>
 <!-- Ikon aplikasi (tab browser & layar HP), 13 Okt 2026 -->
 <link rel="manifest" href="manifest.webmanifest">
@@ -833,6 +835,17 @@ function renderDetail(i,pos){const q=Q(i),a=S.answers[i],ok=S.result.detail[i].b
 /* ================= GURU ================= */
 let ROWS=[],PIN="",PERAN="",PAKETS=[],GPK=null,GPES=null,GSESI=[],G_SESI_AWAL="";
 let GURU={};   // identitas dari PIN: {id, nama, bersama, kelas_saya, atur}
+
+/* Tombol Muat ulang memberi reaksi (21 Okt 2026): "Memuat…" + ikon berputar, lalu pesan hasilnya.
+   status = elemen yang menampilkan galat dari fungsi muatnya (pill bad / .bad). */
+function tombolMuat(id,fn,status){const b=document.getElementById(id);if(!b)return;
+  b.onclick=async()=>{if(b.classList.contains("memuat"))return;const asal=b.innerHTML;b.classList.add("memuat");b.setAttribute("aria-busy","true");
+    b.innerHTML=asal.replace("Muat ulang","Memuat…");
+    try{await fn()}catch(e){/* pesan galat ditampilkan fungsi muatnya */}
+    b.classList.remove("memuat");b.removeAttribute("aria-busy");b.innerHTML=asal;
+    const st=status?document.getElementById(status):null,gagal=!!(st&&st.querySelector(".bad, .pill.bad, [style*='var(--bad)']"));
+    const j=new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    toast(gagal?"Gagal memuat ulang — lihat pesan di halaman":"Diperbarui pukul "+j)}}
 /* ---------- Menu guru / pengawas ---------- */
 function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);document.body.classList.toggle("bukan-op",PERAN!=="operator");document.body.classList.toggle("peran-guru",PERAN==="guru");$("m-peran").textContent=PERAN==="operator"?"Admin · operator":PERAN==="guru"?"Guru":"Pengawas";
   document.querySelectorAll(".menu [data-peran]").forEach(x=>x.classList.toggle("hidden",!x.dataset.peran.split(" ").includes(PERAN)))}
@@ -1190,7 +1203,7 @@ async function kirimSesi(){const p=PAKETS.find(x=>x.kode===SE_PAKET),msg=$("se-f
     GURU.atur={...atur,menit_tambah:t};p.aktif=true;$("se-form").classList.add("hidden");msg.textContent="";toast(s.terjadwal?"Dijadwalkan mulai "+tglJam(s.mulai):s.tanpa_kode?"Dibuka — siswa cukup mengetik NISN":"Dibuka — kode "+kodeTampil(s.kode));await muatSesi(true);tampilLayar(s)}
   catch(e){msg.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}finally{$("btn-se-buka").disabled=false}}
 function pasangSesi(){
-  $("btn-se-back").onclick=bukaMenu;$("btn-se-muat").onclick=()=>muatSesi();$("btn-se-baru").onclick=()=>bukaFormSesi("");$("btn-se-batal").onclick=()=>$("se-form").classList.add("hidden");
+  $("btn-se-back").onclick=bukaMenu;tombolMuat("btn-se-muat",()=>muatSesi(),"se-info");$("btn-se-baru").onclick=()=>bukaFormSesi("");$("btn-se-batal").onclick=()=>$("se-form").classList.add("hidden");
   $("btn-se-buka").onclick=kirimSesi;$("se-cari").oninput=renderPaketSesi;["se-durasi","se-tambah","se-mulai"].forEach(id=>$(id).oninput=hitungSampai);document.querySelectorAll("[name=se-kapan]").forEach(x=>x.onchange=aturMulai);
   $("se-paket").onclick=e=>{const b=e.target.closest("[data-kode]");if(b)pilihPaketSesi(b.dataset.kode)};
   $("btn-sl-tutup").onclick=tutupLayar;$("sl-qr").onclick=()=>$("se-layar").classList.toggle("qr-saja");
@@ -1414,7 +1427,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   document.addEventListener("click",e=>{const p=document.getElementById("panduan");if(p&&p.open&&!p.contains(e.target))p.open=false});
   document.addEventListener("keydown",e=>{const p=document.getElementById("panduan");if(p&&e.key==="Escape")p.open=false});
   $("btn-m-back").onclick=()=>show("v-start");$("btn-m-out").onclick=keluarMenu;
-  $("mi-siswa").onclick=()=>bukaSiswa(false);$("btn-s-back").onclick=bukaMenu;$("btn-s-refresh").onclick=()=>bukaSiswa(true);
+  $("mi-siswa").onclick=()=>bukaSiswa(false);$("btn-s-back").onclick=bukaMenu;tombolMuat("btn-s-refresh",()=>bukaSiswa(true),"s-list");
   $("s-cari").addEventListener("input",renderSiswa);$("s-ujian").onchange=async()=>{await muatStatusSiswa();renderSiswa()};
   $("mi-dasbor").onclick=()=>{show("v-guru");if($("g-main").classList.contains("hidden"))loginGuru()};
   $("mi-sesi").onclick=()=>bukaSesi();pasangSesi();
@@ -1426,7 +1439,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   const dariQR=location.hash.match(/kode=(\d{6})/);
   if(dariQR){history.replaceState(null,"",location.pathname+location.search);$("akses").value=kodeTampil(dariQR[1]);$("akses-qr").classList.remove("hidden");$("nisn").focus()}
   if(qs.get("guru")!==null||SESI_URL||DASBOR_URL||UJI_URL)bukaMenu();
-  $("btn-refresh").onclick=loadGuru;try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=$("g-sesi").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
+  tombolMuat("btn-refresh",loadGuru,"g-srv");try{if(localStorage.getItem("tka_dasbor_atur")==="tutup")$("ds-pengaturan").open=false}catch(e){}$("ds-pengaturan").addEventListener("toggle",e=>{try{localStorage.setItem("tka_dasbor_atur",e.target.open?"buka":"tutup")}catch(er){}});pasangPemilihUjian();$("g-kelas").onchange=$("g-sesi").onchange=()=>{renderRekap();renderButir();renderSub()};$("btn-xlsx").onclick=unduhExcel;
   $("btn-g-sesi-baru").onclick=()=>bukaSesi({paket:$("g-ujian").value});
   document.querySelectorAll(".ds-hasil .tabs button").forEach(b=>b.onclick=()=>{document.querySelectorAll(".ds-hasil .tabs button").forEach(x=>x.classList.toggle("on",x===b));["rekap","butir","sub","belum","riwayat"].forEach(t=>$("g-"+t).classList.toggle("hidden",t!==b.dataset.tab));if(b.dataset.tab==="belum")renderBelum();if(b.dataset.tab==="riwayat")renderRiwayat()});
   $("btn-cari").onclick=renderRiwayat;$("g-cari").addEventListener("keydown",e=>{if(e.key==="Enter")renderRiwayat()});
