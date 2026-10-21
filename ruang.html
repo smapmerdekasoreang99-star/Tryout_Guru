@@ -13,7 +13,7 @@
 <style>
 /* Layar Ruang PAS untuk pengawas (Tahap 3c, 20 Okt 2026): kode akses besar + QR, status setiap siswa di ruang,
    aksi pengawas (buka kunci, Lepas, +menit, izinkan masuk, tidak hadir, tutup ujian, jeda ruang, pesan ke layar).
-   Diperbarui sendiri tiap 15 detik. Dibuka dari Menu guru → PAS, atau QR di meja pengawas (ruang.html?a=1&ruang=R07). */
+   Diperbarui sendiri tiap 15 detik. Dibuka dari Menu utama → Kontrol Pelaksanaan, atau QR di meja pengawas (ruang.html?a=1&ruang=R07). */
 :root{--bg:var(--kertas);--card:#fff;--ink:var(--tinta);--muted:var(--tinta-2);--line:var(--garis);--good:var(--hadir);--good-soft:var(--hadir-muda);--bad:var(--absen);--bad-soft:var(--absen-muda);--warn:var(--emas-teks);--warn-soft:var(--emas-muda);--info:var(--sakit);--info-soft:var(--sakit-muda);font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
 *{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5}
 .wrap{max-width:1100px;margin:0 auto;padding:12px 12px 64px}
@@ -59,7 +59,7 @@ tr.perlu td{background:var(--bad-soft)}
 </head>
 <body>
 <header class="top"><img src="assets/logo.png" alt=""><div><div class="t">Kontrol Pelaksanaan</div><div class="sub" id="h-sub">Asesmen Merdeka — pengawas</div></div>
-  <div class="kanan"><button id="btn-ganti" class="hidden">Ganti ruang</button><a href="index.html?guru">Menu guru</a></div></header>
+  <div class="kanan"><button id="btn-ganti" class="hidden">Ganti ruang</button><a href="index.html?guru">Menu utama</a></div></header>
 <div class="wrap">
   <div class="card" id="kartu-pin"><div class="row"><input type="password" id="pin" placeholder="PIN pengawas / operator" autocomplete="off" style="flex:1"><button id="btn-pin">Masuk</button></div>
     <p class="small muted" id="pin-pesan" style="margin-top:6px">Masukkan PIN pengawas. Layar ini menampilkan kode akses ruang dan keadaan setiap siswa.</p></div>

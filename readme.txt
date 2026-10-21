@@ -1,6 +1,6 @@
 # Asesmen Merdeka (Tryout) v7 — Panduan (kisi-kisi → template soal → bank soal → latihan/tryout; data siswa; PIN pribadi guru)
 
-**Panduan guru** (15 Okt 2026): `Panduan_Guru_Asesmen_Merdeka.pdf` dan `.docx`, dibuka lewat tombol 📘 Panduan di pojok kanan atas halaman guru (Menu guru, Sesi, Dasbor, Upload/Pustaka/Admin), tidak di halaman siswa. Isinya ditulis di `alat/buat-panduan.js` (mesin sama dengan Petualangan TKA SD); bila tampilan atau aturan berubah, ubah ISI di sana lalu jalankan `npm i --no-save --no-package-lock docx@9` (sekali) dan `node alat/buat-panduan.js`.
+**Panduan guru** (15 Okt 2026): `Panduan_Guru_Asesmen_Merdeka.pdf` dan `.docx`, dibuka lewat tombol 📘 Panduan di pojok kanan atas halaman guru (Menu utama, Sesi, Dasbor, Upload/Pustaka/Admin), tidak di halaman siswa. Isinya ditulis di `alat/buat-panduan.js` (mesin sama dengan Petualangan TKA SD); bila tampilan atau aturan berubah, ubah ISI di sana lalu jalankan `npm i --no-save --no-package-lock docx@9` (sekali) dan `node alat/buat-panduan.js`.
 
 ## Alur kerja
 
@@ -15,7 +15,7 @@ Guru isi perintah soal, pertanyaan, pilihan, kunci, pembahasan
         │  (Langkah 2, admin.html) unggah → dicocokkan dengan kisi-kisi di server → pratinjau
         ▼
 Terbitkan → masuk bank soal
-        │  (Menu guru → Latihan / Tryout) pilih paket + kelas + lama pengerjaan → kode akses 6 angka
+        │  (Menu utama → Latihan / Tryout) pilih paket + kelas + lama pengerjaan → kode akses 6 angka
         │  atau tanpa kode akses (cukup NISN); mulai sekarang atau terjadwal (≤ 7 hari)
         ▼
 Siswa buka index.html, masuk dengan NISN + kode akses → hasil & analisis di dasbor guru
@@ -53,7 +53,7 @@ Alamat lama `admin.html?menu=soal` tetap berfungsi (Pustaka Paket, langsung ke L
 
 **Sesi tanpa kode akses** (`atur.tanpa_kode`): `tka_periksa_masuk` dengan kode kosong mencari sesi tanpa kode yang sedang berjalan dan pesertanya mencakup NISN itu (yang terbaru dimulai, belum punya hasil). Tidak boleh untuk peserta "semua siswa". Kode 6 angka tetap dibuat sebagai cadangan. **Terjadwal**: `tka_sesi_buka(..., p_mulai)` dengan `p_menit` = mulai s.d. sampai (paling lama 14 hari, sejak 21 Okt 2026; tambah waktu juga sampai 14 hari dari sekarang); sebelum jamnya siswa mendapat pesan "baru dimulai pukul …". **Pembahasan** dipilih saat membuka (`atur.pembahasan`, diingat di `tka_guru_atur`), tetap bisa diubah lewat saklar di kartu sesi.
 
-PIN cukup dimasukkan sekali di menu guru; halaman Pustaka Paket, Asesmen Bersama, Kontrol Pelaksanaan, dan Admin memakai PIN yang sama (tab peramban yang sama). Uji coba soal: Pustaka Paket → buka paket → **Coba soal**. **Lihat hasil** membuka Dasbor Hasil dengan paket itu terpilih.
+PIN cukup dimasukkan sekali di menu utama; halaman Pustaka Paket, Asesmen Bersama, Kontrol Pelaksanaan, dan Admin memakai PIN yang sama (tab peramban yang sama). Uji coba soal: Pustaka Paket → buka paket → **Coba soal**. **Lihat hasil** membuka Dasbor Hasil dengan paket itu terpilih.
 
 ## A. Pemasangan / pembaruan (±10 menit)
 
@@ -101,9 +101,9 @@ PIN cukup dimasukkan sekali di menu guru; halaman Pustaka Paket, Asesmen Bersama
 - **Dasbor guru**: saringan **Sesi**, kolom NISN, tombol *reset*, tab **Belum mengerjakan** (peserta gabungan semua sesi tanpa hasil, per kelas), tab **Riwayat siswa** (nilai tiap siswa lintas ujian, cari NISN/nama atau per kelas).
 - Privasi: data siswa tersimpan di tabel yang dikunci RLS dan hanya bisa dibaca dengan PIN guru. Kode akses hanya berlaku selama sesi terbuka dan hanya untuk peserta sesi itu; kode yang salah diperlambat server agar tidak bisa ditebak beruntun.
 
-## C3b. Menu guru, PIN pribadi, dan Daftar siswa (v7)
+## C3b. Menu utama, PIN pribadi, dan Daftar siswa (v7)
 
-- Layar awal siswa hanya punya satu tautan kecil **Guru / pengawas** (atau buka langsung `index.html?guru`). Setelah PIN dimasukkan **sekali** (berlaku selama tab/peramban terbuka), tampil **Menu guru**: *Sesi ujian*, *Dasbor hasil*, *Daftar siswa*, *Uji coba soal*, dan *Halaman admin*. Menu menampilkan nama pemilik PIN.
+- Layar awal siswa hanya punya satu tautan kecil **Guru / pengawas** (atau buka langsung `index.html?guru`). Setelah PIN dimasukkan **sekali** (berlaku selama tab/peramban terbuka), tampil **Menu utama**: *Sesi ujian*, *Dasbor hasil*, *Daftar siswa*, *Uji coba soal*, dan *Halaman admin*. Menu menampilkan nama pemilik PIN.
 - **PIN** (dicek di server, bukan hanya disembunyikan di layar):
 
 | PIN | Tempat | Boleh |
@@ -123,7 +123,7 @@ PIN cukup dimasukkan sekali di menu guru; halaman Pustaka Paket, Asesmen Bersama
 
 Paket adalah **bank soal**: tidak ada lagi saklar aktif, tautan `?ujian=KODE`, kode akses manual, atau peruntukan per paket. Ujian dibuka lewat **sesi**.
 
-- **Buka sesi**: Menu guru → **Sesi ujian** → **Buka sesi baru** → pilih paket (cari judul/kode/mapel; semua paket di bank soal boleh dipakai), **peserta** (kelas tertentu — tombol *Kelas saya* memilih rombel yang Anda ampu menurut jadwal KBM, *Semua kelas 12*, dst. — atau siswa tertentu), **lama pengerjaan** (bawaan: durasi paket), dan **kelonggaran masuk** (untuk siswa yang terlambat). Sesi tertutup pada *lama pengerjaan + kelonggaran*. Bagian *Pengawasan & jalur tamu*: batas keluar, toleransi, kode buka (kosong = PIN guru/pengawas/operator), izinkan tamu. Pengaturan terakhir diingat untuk sesi berikutnya.
+- **Buka sesi**: Menu utama → **Sesi ujian** → **Buka sesi baru** → pilih paket (cari judul/kode/mapel; semua paket di bank soal boleh dipakai), **peserta** (kelas tertentu — tombol *Kelas saya* memilih rombel yang Anda ampu menurut jadwal KBM, *Semua kelas 12*, dst. — atau siswa tertentu), **lama pengerjaan** (bawaan: durasi paket), dan **kelonggaran masuk** (untuk siswa yang terlambat). Sesi tertutup pada *lama pengerjaan + kelonggaran*. Bagian *Pengawasan & jalur tamu*: batas keluar, toleransi, kode buka (kosong = PIN guru/pengawas/operator), izinkan tamu. Pengaturan terakhir diingat untuk sesi berikutnya.
 - Server membuat **kode akses 6 angka**, unik di antara sesi yang terbuka, jadi kode sekaligus menentukan ujiannya. **Tampilkan besar** menampilkan kode untuk proyektor beserta alamat halaman siswa dan jam tutup.
 - **Waktu**: batas tiap siswa = yang lebih awal di antara (saat ia masuk + lama pengerjaan) dan akhir sesi, mengikuti jam server. HP siswa memberi kabar tiap menit: bila guru **memperpanjang** (+15/+30 menit) waktunya ikut bertambah; bila guru **menutup sekarang**, siswa yang sedang mengerjakan otomatis mengumpulkan jawaban dalam ±1 menit. Sesi yang sudah tertutup bisa **dibuka lagi 15 menit**.
 - **Pantau siswa**: setiap peserta dengan status *Belum masuk*, *Mengerjakan*, *Tidak aktif* (HP tidak memberi kabar >3 menit), *Selesai* (dengan nilai), atau *Sudah di sesi lain*; diperbarui tiap 20 detik. **Lepas** = siswa boleh masuk lagi dari perangkat lain; jawaban yang sudah tersimpan otomatis ikut pindah, dan waktunya tetap dihitung sejak pertama masuk (tambahan waktu lewat *Perpanjang*).
@@ -134,7 +134,7 @@ Paket adalah **bank soal**: tidak ada lagi saklar aktif, tautan `?ujian=KODE`, k
 - **Pembahasan** per sesi (saklar pada kartu sesi): siswa sesi itu yang sudah mengumpulkan boleh melihat kunci & pembahasan. Kelas lain yang memakai paket sama tidak ikut terbuka.
 - Sesi hanya bisa diubah oleh guru yang membukanya dan operator. Sesi tanpa siswa yang masuk boleh **dihapus**. Daftar menampilkan sesi yang terbuka dan yang ditutup 12 jam terakhir; sesi lama tetap terlihat di dasbor (kartu *Sesi ujian untuk paket ini*).
 - **Penyusun paket**: paket yang diunggah dengan PIN pribadi tercatat atas nama pengunggahnya. Semua guru boleh memakainya untuk membuka sesi, tetapi melihat soal & kunci, mengubah, mengarsipkan, dan menghapus hanya penyusun dan operator. Paket lama tanpa penyusun tetap boleh dikelola semua guru; operator menetapkan penyusunnya di *Pustaka paket → buka paket → Atur penyusun*.
-- Dari admin: *Pustaka paket → buka paket → Buka sesi* membuka Menu guru dengan paket itu sudah terpilih (`index.html?guru&sesi=KODE`).
+- Dari admin: *Pustaka paket → buka paket → Buka sesi* membuka Menu utama dengan paket itu sudah terpilih (`index.html?guru&sesi=KODE`).
 
 ## C4. Pengawasan keluar halaman
 
@@ -145,7 +145,7 @@ Paket adalah **bank soal**: tidak ada lagi saklar aktif, tautan `?ujian=KODE`, k
 
 ## D. Setelah ujian
 
-`index.html` → *Guru / pengawas* → PIN → **Dasbor hasil** → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah; judul kolom tetap di atas dan kolom nomor & nama tetap di kiri saat tabel digulir), analisis butir (judul kolom juga tetap) (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, tombol **Unduh (.xlsx)** (buku kerja Excel berformat: lembar Rekap, Jawaban per Soal, Analisis Butir, Sub-materi & Level; kop sekolah, nilai berwarna, panel beku, filter; ExcelJS dimuat dari CDN saat tombol ditekan). Hasil bisa disaring **per sesi**. Saklar **pembahasan** ada pada kartu sesi (Menu guru → Sesi ujian) dan hanya berlaku bagi siswa sesi itu.
+`index.html` → *Guru / pengawas* → PIN → **Dasbor hasil** → pilih ujian: rekap (nilai, % Knowing/Applying/Reasoning, sub-materi terlemah; judul kolom tetap di atas dan kolom nomor & nama tetap di kiri saat tabel digulir), analisis butir (judul kolom juga tetap) (% benar dan kesukaran per nomor, dipisah per varian), rekap sub-materi + rekomendasi, tombol **Unduh (.xlsx)** (buku kerja Excel berformat: lembar Rekap, Jawaban per Soal, Analisis Butir, Sub-materi & Level; kop sekolah, nilai berwarna, panel beku, filter; ExcelJS dimuat dari CDN saat tombol ditekan). Hasil bisa disaring **per sesi**. Saklar **pembahasan** ada pada kartu sesi (Menu utama → Latihan / Tryout) dan hanya berlaku bagi siswa sesi itu.
 
 Revisi soal: perbaiki Word → unggah ulang di Langkah 2 (kode sama; hanya penyusun atau operator) → paket ditimpa, hasil siswa tetap. Judul dan keterangan paket yang sudah tersimpan tidak ikut tertimpa oleh isian Word (Word hanya mengisi yang masih kosong); untuk menggantinya (bukan kode), buka paketnya di **Pustaka paket** → **Ubah judul & keterangan** — tautan, QR, dan hasil siswa tetap.
 
@@ -171,4 +171,4 @@ Keterangan paket (baris di tabel INFORMASI UJIAN; template kosong: tombol *Unduh
 
 - Kunci tidak pernah dikirim ke HP siswa; penilaian di server. PIN: pribadi guru, operator, pengawas, darurat (dan guru bersama selama peralihan).
 - Proyek gratis Supabase dijeda bila 7 hari tanpa aktivitas → *Restore* sehari sebelum ujian.
-- Diuji ujung-ke-ujung dengan PostgreSQL lokal dan tiruan browser (kisi → template → soal → terbit → data siswa CSV Dapodik → login NISN/tgl lahir → satu hasil → reset → tamu → kode akses → dasbor belum/riwayat → menu guru → tiga PIN → daftar siswa → peruntukan kelas/siswa: tolak login, belum mengerjakan, editor). Tombol "Kembali ke menu guru" tersedia di halaman hasil uji coba. Pembacaan **Excel (.xlsx)** memakai pustaka SheetJS dari CDN dan belum diuji di sini; bila gagal, simpan sebagai CSV. Belum diuji di Supabase/GitHub sungguhan — uji dengan berkas contoh dulu.
+- Diuji ujung-ke-ujung dengan PostgreSQL lokal dan tiruan browser (kisi → template → soal → terbit → data siswa CSV Dapodik → login NISN/tgl lahir → satu hasil → reset → tamu → kode akses → dasbor belum/riwayat → menu utama → tiga PIN → daftar siswa → peruntukan kelas/siswa: tolak login, belum mengerjakan, editor). Tombol "Kembali ke menu utama" tersedia di halaman hasil uji coba. Pembacaan **Excel (.xlsx)** memakai pustaka SheetJS dari CDN dan belum diuji di sini; bila gagal, simpan sebagai CSV. Belum diuji di Supabase/GitHub sungguhan — uji dengan berkas contoh dulu.

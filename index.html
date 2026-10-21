@@ -95,7 +95,7 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .nilai.t{background:var(--good-soft);color:var(--good)}.nilai.s{background:var(--warn-soft);color:var(--warn)}.nilai.r{background:var(--bad-soft);color:var(--bad)}
 .lv{display:inline-block;width:64px;height:8px;background:var(--garis);border-radius:4px;vertical-align:middle;margin-right:4px;overflow:hidden}.lv>i{display:block;height:100%;background:var(--gelap)}
 .gbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:12px 0}.gbox h3{margin:0 0 8px;font-size:14px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
-/* Menu guru: kartu sambutan + ubin berikon (gaya ikon sama dengan bilah menu Matematika Dasar) */
+/* Menu utama: kartu sambutan + ubin berikon (gaya ikon sama dengan bilah menu Matematika Dasar) */
 .menu{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin:14px 0 24px}
 .mi{display:flex;gap:14px;align-items:flex-start;text-align:left;background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:18px;font:inherit;font-weight:400;letter-spacing:0;text-decoration:none;cursor:pointer;box-shadow:var(--bayang-1);transition:transform .12s,box-shadow .12s,border-color .12s}
 .m-cek{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:15px}.m-cek.hidden{display:none}.m-cek i{width:18px;height:18px;border-radius:50%;border:2px solid var(--garis-2);border-top-color:var(--emas);animation:ds-putar .8s linear infinite}
@@ -397,11 +397,11 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
 
 <section id="v-menu" class="hidden">
   <div class="card m-cek hidden" id="m-cek"><i aria-hidden="true"></i>Memeriksa PIN…</div>
-  <div class="card form" id="m-login"><h2>Menu guru / admin</h2><p class="muted small">Masukkan PIN sekali; berlaku selama peramban ini terbuka. <b>PIN pribadi guru</b> (sama dengan PIN Matematika Dasar): membuka sesi ujian untuk kelas Anda dan mengelola paket buatan Anda. <b>PIN pengawas</b>: melihat sesi, membantu siswa masuk, membuka kunci. <b>PIN operator</b>: semuanya termasuk data siswa dan PIN guru.</p>
+  <div class="card form" id="m-login"><h2>Menu utama</h2><p class="muted small">Masukkan PIN sekali; berlaku selama peramban ini terbuka. <b>PIN pribadi guru</b> (sama dengan PIN Matematika Dasar): membuka sesi ujian untuk kelas Anda dan mengelola paket buatan Anda. <b>PIN pengawas</b>: melihat sesi, membantu siswa masuk, membuka kunci. <b>PIN operator</b>: semuanya termasuk data siswa dan PIN guru.</p>
     <label class="f" for="m-pin">PIN</label><input type="password" id="m-pin" data-lihat autocomplete="one-time-code" placeholder="Ketik PIN" spellcheck="false">
     <div class="row" style="margin-top:10px"><button id="btn-m-masuk">Masuk</button><button class="ghost" id="btn-m-back">Kembali</button></div><div id="m-msg" class="small" style="margin-top:6px"></div></div>
   <div id="m-main" class="hidden">
-    <div class="m-sambut"><div><span class="lbl">Menu guru · Asesmen Merdeka</span><h2 id="m-halo">Selamat datang</h2><div id="m-info" class="small"></div></div>
+    <div class="m-sambut"><div><span class="lbl">Menu utama · Asesmen Merdeka</span><h2 id="m-halo">Selamat datang</h2><div id="m-info" class="small"></div></div>
       <div class="m-kanan"><span class="pill" id="m-peran"></span></div></div>
     <div class="menu">
       <!-- Struktur menu 21 Okt 2026 (RENCANA_MENU_TRYOUT.md). Guru: Latihan/Tryout, Dasbor, Pustaka, NISN.
@@ -423,7 +423,7 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
 <section id="v-siswa" class="hidden">
   <!-- NISN Siswa (tampilan 21 Okt 2026): kartu per kelas, NISN besar + tombol salin -->
   <div class="card form ns-kepala">
-    <div class="ns-judul"><div><span class="ns-alis">Bantuan siswa</span><h2>NISN Siswa</h2></div><button class="ghost" id="btn-s-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
+    <div class="ns-judul"><div><span class="ns-alis">Bantuan siswa</span><h2>NISN Siswa</h2></div><button class="ghost" id="btn-s-back" style="padding:8px 12px;font-size:13px">‹ Menu utama</button></div>
     <p class="ns-rahasia"><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></svg><span>Untuk membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya (jadwal KBM di Data Induk). <b>Jangan perlihatkan layar ini kepada siswa lain.</b></span></p>
     <label class="ns-cari"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13.5 13.5 18 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input type="text" id="s-cari" placeholder="Cari nama atau NISN…" autocomplete="off" aria-label="Cari nama atau NISN"></label>
     <div class="chips" id="s-kelas"></div>
@@ -434,7 +434,7 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
 </section>
 
 <section id="v-sesi" class="hidden">
-  <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Latihan / Tryout</h2><button class="ghost" id="btn-se-back" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
+  <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Latihan / Tryout</h2><button class="ghost" id="btn-se-back" style="padding:8px 12px;font-size:13px">‹ Menu utama</button></div>
     <p class="muted small">Pilih paket dari bank soal dan kelasnya. <b>Dengan kode akses</b>: tuliskan kodenya di papan, siswa masuk dengan NISN + kode. <b>Tanpa kode akses</b>: selama jam sesi, siswa kelas peserta cukup mengetik NISN (cocok untuk latihan yang dibagikan lewat tautan, mis. literasi jam pertama). Sesi bisa dijadwalkan sampai 7 hari ke depan dan tertutup sendiri saat waktunya habis.</p>
     <div class="row"><button id="btn-se-baru" class="kelola-only">+ Buka latihan / tryout</button><button type="button" class="ds-muat" id="btn-se-muat"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9M13.5 2.5v3h-3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>Muat ulang</button><span id="se-info" class="small muted"></span></div>
   </div>
@@ -513,7 +513,7 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
   <div class="card m-cek hidden" id="g-muat"><i aria-hidden="true"></i>Memuat dasbor…</div>
   <div class="card form" id="g-login"><h2>Dasbor guru</h2><p class="muted small">Rekap hasil, analisis butir, sub-materi, riwayat siswa, dan pengaturan ujian.</p><label class="f" for="pin">PIN guru</label><input type="password" id="pin" data-lihat autocomplete="one-time-code" placeholder="Ketik PIN" spellcheck="false"><div class="row" style="margin-top:10px"><button id="btn-pin">Masuk</button><button class="ghost" id="btn-guru-back">Kembali</button></div><div id="g-login-msg" class="small" style="margin-top:6px"></div></div>
   <div id="g-main" class="hidden">
-    <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Dasbor guru</h2><button class="ghost" id="btn-guru-out" style="padding:8px 12px;font-size:13px">‹ Menu</button></div>
+    <div class="card form"><div class="row" style="justify-content:space-between"><h2 style="margin:0">Dasbor guru</h2><button class="ghost" id="btn-guru-out" style="padding:8px 12px;font-size:13px">‹ Menu utama</button></div>
       <input type="hidden" id="g-ujian">
       <button type="button" class="uj-kini" id="uj-kini" aria-expanded="false" aria-controls="uj-panel"></button>
       <div class="uj-panel hidden" id="uj-panel" role="dialog" aria-label="Pilih ujian">
@@ -532,7 +532,7 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
           <span class="ds-judul"><b>Sesi ujian untuk paket ini</b><span id="ds-atur-ringkas" class="ds-ringkas"></span></span><span class="ds-buka" aria-hidden="true"></span></summary>
         <div class="ds-isi">
           <div id="g-sesi-daftar" class="ds-sesi"></div>
-          <div class="ds-aksi"><p class="ds-catatan">Buka, perpanjang, atau tutup sesi, serta saklar pembahasan, ada di <b>Menu guru → Sesi ujian</b>. Hasil di bawah bisa disaring per sesi.</p><button type="button" class="kelola-only" id="btn-g-sesi-baru">Buka sesi untuk paket ini</button></div>
+          <div class="ds-aksi"><p class="ds-catatan">Buka, perpanjang, atau tutup sesi, serta saklar pembahasan, ada di <b>Menu utama → Latihan / Tryout</b>. Hasil di bawah bisa disaring per sesi.</p><button type="button" class="kelola-only" id="btn-g-sesi-baru">Buka sesi untuk paket ini</button></div>
         </div>
       </details>
 
@@ -848,7 +848,7 @@ async function kirim_(){const box=$("r-save");box.innerHTML='<span class="pill w
 const LORD={Knowing:1,Applying:2,Reasoning:3};const lsort=(a,b)=>(LORD[a]||9)-(LORD[b]||9)||String(a).localeCompare(String(b));
 function bar(p){return `<div class="bar"><i class="${p<50?"low":p<75?"mid":""}" style="width:${p}%"></i></div>`}
 const LV={Knowing:"Knowing · pemahaman konsep",Applying:"Applying · penerapan konsep",Reasoning:"Reasoning · penalaran",C1:"C1 · Mengingat",C2:"C2 · Memahami (Knowing)",C3:"C3 · Menerapkan (Applying)",C4:"C4 · Menganalisis (Reasoning)",C5:"C5 · Mengevaluasi (Reasoning)",C6:"C6 · Mencipta/Merancang (Reasoning)"};
-function renderResult(){const r=S.result;show("v-result");$("r-aksi").innerHTML=S.ujicoba?'<button class="soft" id="btn-r-menu">‹ Kembali ke menu guru</button>':'<button class="ghost" id="btn-r-awal">Kembali ke halaman awal</button>';
+function renderResult(){const r=S.result;show("v-result");$("r-aksi").innerHTML=S.ujicoba?'<button class="soft" id="btn-r-menu">‹ Kembali ke menu utama</button>':'<button class="ghost" id="btn-r-awal">Kembali ke halaman awal</button>';
   if(S.ujicoba)$("btn-r-menu").onclick=()=>{try{localStorage.removeItem(CFG.lsKey)}catch(e){}S=null;$("resume-box").classList.add("hidden");bukaMenu()};else $("btn-r-awal").onclick=()=>{location.href=location.pathname};$("r-analisis").classList.remove("hidden");$("r-peta").classList.remove("hidden");
   $("r-nilai").textContent=r.nilai;$("r-ket").textContent=`${r.benar} dari ${r.n} soal benar · ${fmtT(S.payload.durasi)} · ${S.nama} (${S.kelas})`;
   const det=r.detail;const levels=[...new Set(det.map(x=>x.level).filter(Boolean))].sort(lsort);
@@ -889,7 +889,7 @@ function tombolMuat(id,fn,status){const b=document.getElementById(id);if(!b)retu
     const st=status?document.getElementById(status):null,gagal=!!(st&&st.querySelector(".bad, .pill.bad, [style*='var(--bad)']"));
     const j=new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
     toast(gagal?"Gagal memuat ulang — lihat pesan di halaman":"Diperbarui pukul "+j)}}
-/* ---------- Menu guru / pengawas ---------- */
+/* ---------- Menu utama / pengawas ---------- */
 function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);document.body.classList.toggle("bukan-op",PERAN!=="operator");document.body.classList.toggle("peran-guru",PERAN==="guru");$("m-peran").textContent=PERAN==="operator"?"Admin · operator":PERAN==="guru"?"Guru":"Pengawas";
   document.querySelectorAll(".menu [data-peran]").forEach(x=>x.classList.toggle("hidden",!x.dataset.peran.split(" ").includes(PERAN)))}
 let SESI_URL=qs.get("sesi");   // admin.html → index.html?guru&sesi=KODE: langsung ke form buka sesi untuk paket itu
@@ -948,7 +948,7 @@ function renderSiswa(){if(!SISWA)return;const SISWA_=siswaLihat();
 const rowItems=r=>String(r.items||"").split("").map((c,i)=>({no:i+1,v:(r.varian||"")[i]||"?",benar:+c,level:(GPK.meta.blueprint[i]||{}).level||"",sub:(GPK.meta.blueprint[i]||{}).sub||""}));
 function levelSummary(it){const o={};[...new Set(it.map(x=>x.level).filter(Boolean))].sort(lsort).forEach(L=>{const s=it.filter(x=>x.level===L);o[L]=pct(s.reduce((a,x)=>a+x.benar,0),s.length)});return o}
 async function loginGuru(){const adaPin=!!PIN;if(!PIN)PIN=$("pin").value.trim();$("g-login-msg").textContent="Memeriksa…";
-  // PIN sudah diperiksa di menu guru: formulir PIN tidak perlu tampil, cukup "Memuat dasbor…"
+  // PIN sudah diperiksa di menu utama: formulir PIN tidak perlu tampil, cukup "Memuat dasbor…"
   if(adaPin){$("g-login").classList.add("hidden");$("g-muat").classList.remove("hidden")}
   // urutan pilihan awal: ujian yang baru dikerjakan di HP ini → ?ujian= → pilihan terakhir di dasbor → paket terbaru yang tidak diarsipkan
   let akhir="";try{akhir=localStorage.getItem("tka_dasbor_ujian")||""}catch(e){}

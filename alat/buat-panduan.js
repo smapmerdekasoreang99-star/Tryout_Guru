@@ -32,7 +32,7 @@ const ISI = [
   OL("**Kisi-kisi** — isi Template Kisi-kisi di Word, unggah di **Pustaka Paket → + Upload soal → Langkah 1**. Aplikasi membuatkan **Template Soal** yang nomor, varian, bentuk, dan indikatornya sudah terisi.",
     "**Soal** — isi pertanyaan, pilihan, kunci, dan pembahasan di Template Soal, unggah di **Langkah 2**, periksa pratinjau, lalu **Terbitkan ke bank soal**.",
     "**Publish** (bila ingin dipakai guru lain) — paket baru hanya terlihat oleh Anda dan operator sampai Anda menekan **Publish** di Pustaka Paket. Sesudah Publish, paket terlihat oleh guru yang mengampu mapel paket itu.",
-    "**Latihan / Tryout** — di **Menu guru → Latihan / Tryout**, pilih paket dan kelas peserta, **dengan kode akses** (server memberi kode 6 angka) atau **tanpa kode akses** (cukup NISN), mulai sekarang atau terjadwal.",
+    "**Latihan / Tryout** — di **Menu utama → Latihan / Tryout**, pilih paket dan kelas peserta, **dengan kode akses** (server memberi kode 6 angka) atau **tanpa kode akses** (cukup NISN), mulai sekarang atau terjadwal.",
     "**Siswa mengerjakan** di HP: buka halaman siswa, ketik NISN (+ kode akses bila ada). Jawaban tersimpan otomatis.",
     "**Hasil** — **Dasbor Hasil**: nilai, analisis butir, sub-materi terlemah, siswa yang belum mengerjakan, unduh Excel."),
   KOTAK("info", "Satu alamat untuk semua ujian",
@@ -70,7 +70,7 @@ const ISI = [
 
   /* ============================ 2 ============================ */
   H1("Menyusun Paket Soal"),
-  P("Buka **Menu guru → Pustaka Paket**, lalu tekan **+ Upload soal**. Ada tiga tab upload: **Langkah 1 · Kisi-kisi**, **Langkah 2 · Soal**, dan **Tanpa Kisi-kisi**. Dengan kisi-kisi: Langkah 1 lalu Langkah 2. Tanpa kisi-kisi: cukup satu berkas soal, kisi-kisinya disusun sistem."),
+  P("Buka **Menu utama → Pustaka Paket**, lalu tekan **+ Upload soal**. Ada tiga tab upload: **Langkah 1 · Kisi-kisi**, **Langkah 2 · Soal**, dan **Tanpa Kisi-kisi**. Dengan kisi-kisi: Langkah 1 lalu Langkah 2. Tanpa kisi-kisi: cukup satu berkas soal, kisi-kisinya disusun sistem."),
   H2("Langkah 1 — Kisi-kisi"),
   P("Tekan **Unduh template kisi-kisi kosong**, isi di Word, lalu unggah berkasnya di kotak Langkah 1. Template berisi dua bagian:"),
   H3("Bagian 1 — Informasi ujian"),
@@ -139,7 +139,7 @@ const ISI = [
 
   /* ============================ 3 ============================ */
   H1("Pustaka Paket"),
-  P("**Menu guru → Pustaka Paket** menampilkan satu baris untuk setiap kode ujian yang terlihat oleh Anda, dari kisi-kisi sampai hasil. Klik baris untuk membuka rinciannya. Tombol **Muat ulang** mengambil daftar terbaru."),
+  P("**Menu utama → Pustaka Paket** menampilkan satu baris untuk setiap kode ujian yang terlihat oleh Anda, dari kisi-kisi sampai hasil. Klik baris untuk membuka rinciannya. Tombol **Muat ulang** mengambil daftar terbaru."),
   H2("Paket mana yang terlihat"),
   TB(["Anda", "Paket yang tampil"], [
     ["**Guru**", "Paket buatan Anda sendiri · paket yang sudah di-**Publish** penyusunnya untuk mapel yang Anda ampu · paket tanpa penyusun (paket lama/dibuat operator) · paket yang pernah Anda pakai untuk membuka sesi."],
@@ -161,7 +161,7 @@ const ISI = [
   H2("Rincian paket: Ujian · Soal · Kelola"),
   P("Pita ringkasan di atas berisi mapel, kelas, durasi, jumlah soal dan varian, jumlah hasil, keterangan paket, **penyusun**, dan **status Publish**. Di bawahnya tiga panel:"),
   TB(["Panel", "Tombol", "Fungsi"], [
-    ["**Ujian**", "Buka sesi", "Membuka Menu guru → Buka sesi baru dengan paket ini terpilih."],
+    ["**Ujian**", "Buka sesi", "Membuka Menu utama → Buka sesi baru dengan paket ini terpilih."],
     ["", "Alamat siswa & QR", "Alamat halaman siswa dan QR-nya."],
     ["", "Lihat hasil", "Membuka Dasbor Hasil untuk paket ini."],
     ["**Soal**", "Coba soal", "Mengerjakan paket seperti siswa. Hasil dinilai tetapi **tidak disimpan**; kunci & pembahasan hanya tampil bila Anda penyusun atau operator."],
@@ -192,7 +192,7 @@ const ISI = [
 
   /* ============================ 4 ============================ */
   H1("Latihan / Tryout"),
-  P("**Menu guru → Latihan / Tryout** (dulu *Sesi Ujian*) menampilkan **sesi Anda** (yang Anda buka, atau untuk paket yang Anda susun; operator melihat semua) yang **sedang dibuka**, yang **terjadwal**, dan yang **ditutup dalam 12 jam terakhir**, diperbarui otomatis tiap 20 detik. Sesi yang lebih lama tetap terlihat di Dasbor Hasil (kartu *Sesi ujian untuk paket ini*)."),
+  P("**Menu utama → Latihan / Tryout** (dulu *Sesi Ujian*) menampilkan **sesi Anda** (yang Anda buka, atau untuk paket yang Anda susun; operator melihat semua) yang **sedang dibuka**, yang **terjadwal**, dan yang **ditutup dalam 12 jam terakhir**, diperbarui otomatis tiap 20 detik. Sesi yang lebih lama tetap terlihat di Dasbor Hasil (kartu *Sesi ujian untuk paket ini*)."),
   H2("Membuka latihan / tryout"),
   P("Tekan **+ Buka latihan / tryout**, lalu isi:"),
   TB(["Isian", "Arti"], [
@@ -263,7 +263,7 @@ const ISI = [
 
   /* ============================ 5 ============================ */
   H1("Dasbor Hasil"),
-  P("**Menu guru → Dasbor Hasil**. Dasbor membuka ujian yang terakhir Anda lihat di perangkat ini (atau yang dipilih dari Pustaka Paket / tombol Hasil di kartu sesi)."),
+  P("**Menu utama → Dasbor Hasil**. Dasbor membuka ujian yang terakhir Anda lihat di perangkat ini (atau yang dipilih dari Pustaka Paket / tombol Hasil di kartu sesi)."),
   H2("Memilih ujian"),
   P("Kartu **Ujian yang ditampilkan** berisi judul, jenis, tanda kisi-kisi otomatis, kode, mapel, tingkat, jumlah soal, penyusun, status, dan kemajuan *hasil/peserta*. Tekan **Ganti ujian** untuk membuka daftar: kotak cari, pilihan urut, chip status (**Semua** = semua yang tidak diarsipkan, **Sedang dibuka**, **Selesai**, **Siap dibuka**, **Arsip**), dan daftar per mata pelajaran. Esc menutup daftar; Enter di kotak cari memilih hasil pertama."),
   H2("Bilah status, sesi, dan peserta"),
@@ -320,7 +320,7 @@ const ISI = [
     ["**hapus**", "Hasil dihapus (mis. hasil uji tamu yang salah).", "sama"],
   ], [1, 3.7, 1.8]),
   H2("NISN Siswa"),
-  P("**Menu guru → NISN Siswa** membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya menurut jadwal KBM; pengawas dan operator melihat semua kelas. Cari nama atau NISN, atau ketuk chip kelas; NISN tampil besar dengan tombol **Salin NISN**. Pilih ujian pada *Tandai sudah/belum mengerjakan* untuk melihat siapa yang sudah, belum, atau bukan peserta. Jangan perlihatkan layar ini kepada siswa lain."),
+  P("**Menu utama → NISN Siswa** membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya menurut jadwal KBM; pengawas dan operator melihat semua kelas. Cari nama atau NISN, atau ketuk chip kelas; NISN tampil besar dengan tombol **Salin NISN**. Pilih ujian pada *Tandai sudah/belum mengerjakan* untuk melihat siapa yang sudah, belum, atau bukan peserta. Jangan perlihatkan layar ini kepada siswa lain."),
 
   /* ============================ 6 ============================ */
   H1("Dari Data ke Tindakan"),
