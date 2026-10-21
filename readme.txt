@@ -44,7 +44,7 @@ Rincian keputusan: RENCANA_MENU_TRYOUT.md (folder induk). Ubin menu mengikuti pe
 | **Latihan / Tryout** (dulu Sesi Ujian) | buka/tutup sesi dengan kode akses atau **tanpa kode** (cukup NISN), mulai sekarang atau **terjadwal** ≤ 7 hari, pantau siswa | ✓ | | |
 | **Dasbor Hasil** | rekap, analisis butir, belum mengerjakan, riwayat, Excel | ✓ | ✓ | |
 | **Pustaka Paket** (`admin.html?menu=pustaka`) | bank soal per jenis (paket sendiri + teman semapel yang Publish); **+ Upload soal**: Langkah 1 · Kisi-kisi, Langkah 2 · Soal, Tanpa Kisi-kisi | ✓ | (lewat Admin) | |
-| **NISN Siswa** (dulu Daftar Siswa) | cari NISN siswa yang lupa; guru hanya kelas yang diampu (`tka_guru_kelas`, disaring di halaman) | ✓ | | ✓ (semua) |
+| **NISN Siswa** (dulu Daftar Siswa) | cari NISN siswa yang lupa; guru hanya kelas yang diampu (`tka_guru_kelas`, disaring di halaman) | ✓ | ✓ (semua) | ✓ (semua) |
 | **Asesmen Bersama** (`pas.html`, dulu PAS · Ujian Bersama) | peserta per ruang, jadwal, folder soal, terbit, cetak | | ✓ | |
 | **Kontrol Pelaksanaan** (`ruang.html`, dulu PAS · Layar Ruang) | layar ruang pengawas | | ✓ | ✓ |
 | **Admin** (`admin.html?menu=admin`) | Data Siswa, PIN Guru, Pustaka Paket, Impor Kode Hasil, Cadangan, Bantuan | | ✓ | |

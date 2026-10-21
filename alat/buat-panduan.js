@@ -42,7 +42,7 @@ const ISI = [
   TB(["PIN", "Tanda di menu", "Yang boleh dilakukan"], [
     ["**PIN pribadi guru** (8 angka, sama dengan PIN Matematika Dasar)", "Guru", "Menu **Latihan / Tryout**, **Dasbor Hasil**, **Pustaka Paket** (termasuk upload soal), **NISN Siswa** (kelas yang Anda ampu). Paket yang diunggah tercatat atas nama Anda."],
     ["**PIN pengawas**", "Pengawas", "Menu **Kontrol Pelaksanaan** (layar ruang Asesmen Bersama) dan **NISN Siswa** (semua kelas)."],
-    ["**PIN operator / kurikulum**", "Admin · operator", "Menu **Asesmen Bersama**, **Kontrol Pelaksanaan**, **Dasbor Hasil**, **Admin** (data siswa, PIN guru, pustaka paket semua guru, cadangan, arsip semester)."],
+    ["**PIN operator / kurikulum**", "Admin · operator", "Menu **Asesmen Bersama**, **Kontrol Pelaksanaan**, **Dasbor Hasil**, **NISN Siswa**, **Admin** (data siswa, PIN guru, pustaka paket semua guru, cadangan, arsip semester)."],
     ["PIN guru bersama (peralihan)", "pil kuning PIN guru bersama", "Seperti guru, tetapi paket dan sesi tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator."],
   ], [1.7, 1.2, 3.6]),
   H2("Menu"),
@@ -51,7 +51,7 @@ const ISI = [
     ["**Latihan / Tryout**", "Buka latihan/tryout untuk kelas: dengan atau tanpa kode akses, sekarang atau terjadwal; tampilkan kode, pantau siswa, tambah/kurangi waktu, pembahasan.", "guru"],
     ["**Dasbor Hasil**", "Rekap nilai, analisis butir, sub-materi, belum mengerjakan, riwayat siswa, unduh Excel.", "guru, operator"],
     ["**Pustaka Paket**", "Bank soal per jenis: paket Anda dan paket teman semapel yang sudah Publish. Tombol **+ Upload soal**: Langkah 1 · Kisi-kisi, Langkah 2 · Soal, atau Tanpa Kisi-kisi.", "guru (operator lewat Admin)"],
-    ["**NISN Siswa**", "Membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya.", "guru, pengawas"],
+    ["**NISN Siswa**", "Membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya; operator dan pengawas semua kelas.", "guru, operator, pengawas"],
     ["**Asesmen Bersama**", "Ujian bersama (PAS, tryout bersama): peserta per ruang, jadwal, folder soal, terbitkan, cetak.", "operator"],
     ["**Kontrol Pelaksanaan**", "Layar ruang untuk pengawas: kode ruang, siswa terkunci/tidak aktif, buka kunci, jeda, pesan.", "operator, pengawas"],
     ["**Admin**", "Data siswa, PIN guru, pustaka paket, impor kode hasil, cadangan, arsip semester.", "operator"],
