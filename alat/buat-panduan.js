@@ -50,7 +50,7 @@ const ISI = [
   TB(["Tombol menu", "Isi", "Untuk"], [
     ["**Latihan / Tryout**", "Buka latihan/tryout untuk kelas: dengan atau tanpa kode akses, sekarang atau terjadwal; tampilkan kode, pantau siswa, tambah/kurangi waktu, pembahasan.", "guru"],
     ["**Dasbor Hasil**", "Rekap nilai, analisis butir, sub-materi, belum mengerjakan, riwayat siswa, unduh Excel.", "guru, operator"],
-    ["**Pustaka Paket**", "Bank soal per jenis: paket Anda dan paket teman semapel yang sudah Publish. Tombol **+ Upload soal**: Langkah 1 · Kisi-kisi, Langkah 2 · Soal, atau Tanpa Kisi-kisi.", "guru (operator lewat Admin)"],
+    ["**Pustaka Paket**", "Bank soal per jenis, hanya mapel yang Anda ampu: paket Anda dan paket teman semapel yang sudah Publish. Tombol **+ Upload soal**: Langkah 1 · Kisi-kisi, Langkah 2 · Soal, atau Tanpa Kisi-kisi.", "guru (operator lewat Admin)"],
     ["**NISN Siswa**", "Membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya; operator dan pengawas semua kelas.", "guru, operator, pengawas"],
     ["**Asesmen Bersama**", "Ujian bersama (PAS, tryout bersama): peserta per ruang, jadwal, folder soal, terbitkan, cetak.", "operator"],
     ["**Kontrol Pelaksanaan**", "Layar ruang untuk pengawas: kode ruang, siswa terkunci/tidak aktif, buka kunci, jeda, pesan.", "operator, pengawas"],
@@ -76,7 +76,7 @@ const ISI = [
   H3("Bagian 1 — Informasi ujian"),
   TB(["Baris", "Cara mengisi"], [
     ["**Kode ujian**", "Unik untuk setiap paket. Huruf besar, angka, dan strip, 3–31 karakter, tanpa spasi (spasi diubah menjadi strip). Contoh: KIM-STO-01. Kode sama = memperbarui paket yang sama."],
-    ["Judul, Mata pelajaran, Kelas, Materi", "Isi nama mapel saja (mis. Kimia), sesuai daftar mapel Data Induk. Penulisan disamakan otomatis (kimia → Kimia); mapel di luar daftar diberi peringatan."],
+    ["Judul, Mata pelajaran, Kelas, Materi", "Isi nama mapel saja (mis. Kimia), sesuai daftar mapel Data Induk. Saat diunggah, mapel bisa dipilih ulang: guru yang mengampu **satu** mapel langsung terisi mapelnya (terkunci); guru yang mengampu beberapa mapel memilih di antara mapel yang diampunya (menurut jadwal KBM; Upacara, Tahsin, dan kegiatan sekolah lain tidak dihitung)."],
     ["**Jenis**", "Pilih salah satu: Asesmen Formatif / Asesmen Sumatif / Tryout ASAS / Tryout TKA / Tryout UTBK. Kosong atau tidak dikenali = **Asesmen Formatif**. Latihan dibaca sebagai Asesmen Formatif; ulangan harian, PTS, PAS, SAS sebagai Asesmen Sumatif; ASAS, TKA, UTBK, SNBT dikenali. Daftar jenis ditentukan sistem dan hanya bertambah bila operator membuat asesmen baru di Asesmen Bersama (paket naskahnya otomatis berjenis nama asesmen itu)."],
     ["**Tingkat peserta**", "Kelas yang mengerjakan, mis. 12 atau 10–12. Kosong = ditebak dari isian Kelas."],
     ["**Cakupan materi**", "Hanya bila materinya dari kelas lain, mis. tryout TKA kelas 12 dengan materi 10–12. Kosongkan bila sama."],
