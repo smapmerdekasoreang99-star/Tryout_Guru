@@ -42,19 +42,19 @@ const ISI = [
   TB(["PIN", "Tanda di menu", "Yang boleh dilakukan"], [
     ["**PIN pribadi guru** (8 angka, sama dengan PIN Matematika Dasar)", "Guru", "Menu **Latihan / Tryout**, **Dasbor Hasil**, **Pustaka Paket** (termasuk upload soal), **NISN Siswa** (kelas yang Anda ampu). Paket yang diunggah tercatat atas nama Anda."],
     ["**PIN pengawas**", "Pengawas", "Menu **Kontrol Pelaksanaan** (layar ruang Asesmen Bersama) dan **NISN Siswa** (semua kelas)."],
-    ["**PIN operator / kurikulum**", "Admin · operator", "Menu **Asesmen Bersama**, **Kontrol Pelaksanaan**, **Dasbor Hasil**, **NISN Siswa**, **Admin** (data siswa, PIN guru, pustaka paket semua guru, cadangan, arsip semester)."],
+    ["**PIN operator / kurikulum**", "Admin · operator", "Khusus mengelola Asesmen Bersama. Menu **Asesmen Bersama** (termasuk tab **Hasil Siswa**), **Kontrol Pelaksanaan**, **NISN Siswa**, **Admin** (data siswa, PIN guru, cadangan, arsip semester)."],
     ["PIN guru bersama (peralihan)", "pil kuning PIN guru bersama", "Seperti guru, tetapi paket dan sesi tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator."],
   ], [1.7, 1.2, 3.6]),
   H2("Menu"),
   P("Ubin menu menyesuaikan PIN yang dipakai (struktur menu sejak 21 Oktober 2026)."),
   TB(["Tombol menu", "Isi", "Untuk"], [
     ["**Latihan / Tryout**", "Buka latihan/tryout untuk kelas: dengan atau tanpa kode akses, sekarang atau terjadwal; tampilkan kode, pantau siswa, tambah/kurangi waktu, pembahasan.", "guru"],
-    ["**Dasbor Hasil**", "Rekap nilai, analisis butir, sub-materi, belum mengerjakan, riwayat siswa, unduh Excel.", "guru, operator"],
+    ["**Dasbor Hasil**", "Rekap nilai, analisis butir, sub-materi, belum mengerjakan, riwayat siswa, unduh Excel.", "guru"],
     ["**Pustaka Paket**", "Bank soal per jenis, hanya mapel yang Anda ampu: paket Anda dan paket teman semapel yang sudah Publish. Tombol **+ Upload soal**: Langkah 1 · Kisi-kisi, Langkah 2 · Soal, atau Tanpa Kisi-kisi.", "guru (operator lewat Admin)"],
     ["**NISN Siswa**", "Membantu siswa yang lupa NISN. Guru melihat kelas yang diampunya; operator dan pengawas semua kelas.", "guru, operator, pengawas"],
-    ["**Asesmen Bersama**", "Ujian bersama (PAS, tryout bersama): peserta per ruang, jadwal, folder soal, terbitkan, cetak.", "operator"],
+    ["**Asesmen Bersama**", "Ujian bersama (PAS, tryout bersama): peserta per ruang, jadwal, folder soal, **hasil siswa** (dasbor hasil khusus paket di folder soal), terbitkan, cetak.", "operator"],
     ["**Kontrol Pelaksanaan**", "Layar ruang untuk pengawas: kode ruang, siswa terkunci/tidak aktif, buka kunci, jeda, pesan.", "operator, pengawas"],
-    ["**Admin**", "Data siswa, PIN guru, pustaka paket, impor kode hasil, cadangan, arsip semester.", "operator"],
+    ["**Admin**", "Data siswa, PIN guru, impor kode hasil, cadangan, arsip semester.", "operator"],
   ], [1.4, 3.6, 1.6]),
   H2("Istilah yang dipakai"),
   TB(["Istilah", "Arti"], [
@@ -143,7 +143,7 @@ const ISI = [
   H2("Paket mana yang terlihat"),
   TB(["Anda", "Paket yang tampil"], [
     ["**Guru**", "Paket buatan Anda sendiri · paket yang sudah di-**Publish** penyusunnya untuk mapel yang Anda ampu · paket tanpa penyusun (paket lama/dibuat operator) · paket yang pernah Anda pakai untuk membuka sesi."],
-    ["**Operator**", "Semua paket (lewat Admin → Pustaka Paket). Pengawas tidak memakai Pustaka Paket."],
+    ["**Operator**", "Tidak memakai Pustaka Paket; paket untuk asesmen bersama dipilih di Asesmen Bersama → Folder Soal. Pengawas juga tidak memakai Pustaka Paket."],
   ], [1.4, 5.1]),
   P("Aturan yang sama berlaku di Dasbor Hasil dan saat memilih paket di **Buka sesi baru**."),
   H2("Bilah Perlu tindakan dan saringan"),

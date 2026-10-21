@@ -42,12 +42,12 @@ Rincian keputusan: RENCANA_MENU_TRYOUT.md (folder induk). Ubin menu mengikuti pe
 | Menu | Isi | Guru | Operator | Pengawas |
 |---|---|---|---|---|
 | **Latihan / Tryout** (dulu Sesi Ujian) | buka/tutup sesi dengan kode akses atau **tanpa kode** (cukup NISN), mulai sekarang atau **terjadwal** ≤ 7 hari, pantau siswa | ✓ | | |
-| **Dasbor Hasil** | rekap, analisis butir, belum mengerjakan, riwayat, Excel | ✓ | ✓ | |
-| **Pustaka Paket** (`admin.html?menu=pustaka`) | bank soal per jenis, guru hanya mapel yang diampu (`mapel_saya` dari `tka_masuk_guru`: jadwal KBM tanpa rumpun Kegiatan Sekolah, TL = induk; kosong = tidak dibatasi) + paket buatan sendiri; mapel saat upload/ubah keterangan dibatasi sama (satu mapel = langsung terpilih & terkunci); **+ Upload soal**: Langkah 1 · Kisi-kisi, Langkah 2 · Soal, Tanpa Kisi-kisi | ✓ | (lewat Admin) | |
+| **Dasbor Hasil** | rekap, analisis butir, belum mengerjakan, riwayat, Excel (operator: lewat Asesmen Bersama → Hasil Siswa) | ✓ | | |
+| **Pustaka Paket** (`admin.html?menu=pustaka`) | bank soal per jenis, guru hanya mapel yang diampu (`mapel_saya` dari `tka_masuk_guru`: jadwal KBM tanpa rumpun Kegiatan Sekolah, TL = induk; kosong = tidak dibatasi) + paket buatan sendiri; mapel saat upload/ubah keterangan dibatasi sama (satu mapel = langsung terpilih & terkunci); **+ Upload soal**: Langkah 1 · Kisi-kisi, Langkah 2 · Soal, Tanpa Kisi-kisi | ✓ | | |
 | **NISN Siswa** (dulu Daftar Siswa) | cari NISN siswa yang lupa; guru hanya kelas yang diampu (`tka_guru_kelas`, disaring di halaman) | ✓ | ✓ (semua) | ✓ (semua) |
-| **Asesmen Bersama** (`pas.html`, dulu PAS · Ujian Bersama) | peserta per ruang, jadwal, folder soal, terbit, cetak | | ✓ | |
+| **Asesmen Bersama** (`pas.html`, dulu PAS · Ujian Bersama) | peserta per ruang, jadwal, folder soal, **Hasil Siswa** (Dasbor Hasil yang sama dimuat dalam iframe: `index.html?guru&tanam=1&hanya=KODE,…&dasbor=KODE`; pemilih ujian dibatasi paket Folder Soal, kartu sesi/peserta Latihan disembunyikan), terbit, cetak | | ✓ | |
 | **Kontrol Pelaksanaan** (`ruang.html`, dulu PAS · Layar Ruang) | layar ruang pengawas | | ✓ | ✓ |
-| **Admin** (`admin.html?menu=admin`) | Data Siswa, PIN Guru, Pustaka Paket, Impor Kode Hasil, Cadangan, Bantuan | | ✓ | |
+| **Admin** (`admin.html?menu=admin`) | Data Siswa, PIN Guru, Impor Kode Hasil, Cadangan, Bantuan (operator murni mengelola Asesmen Bersama, 21 Okt 2026) | | ✓ | |
 
 Alamat lama `admin.html?menu=soal` tetap berfungsi (Pustaka Paket, langsung ke Langkah 1). `admin.html?menu=pustaka&tab=kisi` membuka tab tertentu.
 

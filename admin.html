@@ -2041,7 +2041,7 @@ const MENU_INFO={
   // Struktur menu 21 Okt 2026: Upload soal ada di dalam Pustaka Paket (alamat lama ?menu=soal langsung ke Langkah 1)
   soal:{judul:"Pustaka Paket",sub:"Bank soal per jenis, upload soal dengan atau tanpa kisi-kisi",tab:["daftar","kisi","unggah","darurat"],buka:"kisi",peran:["operator","guru"]},
   pustaka:{judul:"Pustaka Paket",sub:"Bank soal per jenis, upload soal dengan atau tanpa kisi-kisi",tab:["daftar","kisi","unggah","darurat"],peran:["operator","guru"]},
-  admin:{judul:"Admin",sub:"Data siswa, PIN guru, pustaka paket, impor kode hasil, cadangan, bantuan",tab:["siswa","guru","daftar","impor","cadangan","bantuan"],peran:["operator"]}};
+  admin:{judul:"Admin",sub:"Data siswa, PIN guru, impor kode hasil, cadangan, bantuan",tab:["siswa","guru","impor","cadangan","bantuan"],peran:["operator"]}};
 function pasangMenu(){const I=MENU_INFO[MENU];document.title=I.judul+" · Asesmen Merdeka — SMA Plus Merdeka Soreang";$("hd-judul").textContent=I.judul;$("hd-sub").textContent="Asesmen Merdeka · "+I.sub;
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("hidden",!I.tab.includes(b.dataset.tab)));$("tabs").classList.toggle("hidden",I.tab.length<2);const t=new URLSearchParams(location.search).get("tab");bukaTab(I.tab.includes(t)?t:I.buka||I.tab[0])}
 // Menu yang bukan untuk peran ini: isi disembunyikan dan diberi keterangan
