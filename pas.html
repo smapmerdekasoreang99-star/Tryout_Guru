@@ -337,13 +337,19 @@ async function gRingkas(){
 }
 function ringkasRinci(r){if(!r||typeof r!=="object")return"";return Object.entries(r).filter(([k])=>k!=="nilai"||true).map(([k,v])=>`${k}: ${typeof v==="object"?JSON.stringify(v):v}`).join(", ").slice(0,160)}
 const IKON_P={galat:["Perlu diperbaiki","bad"],periksa:["Periksa","warn"],info:["Info","info"]};
-async function periksa(){
+// manual = tombol Periksa ulang (21 Okt 2026): tombol "Memeriksa…", daftar memudar, lalu jam pemeriksaan + pesan ringkas
+async function periksa(manual){const btn=$("btn-periksa"),box=$("r-periksa");
+  if(manual===true){if(btn.disabled)return;btn.disabled=true;btn.textContent="Memeriksa…";box.style.opacity=".45"}
   try{const L=await rpc("asm_periksa",{p_pin:PIN,p_id:A.asesmen.id});
     $("r-periksa").innerHTML=L.map(x=>`<div><span class="pill ${IKON_P[x.jenis][1]}">${IKON_P[x.jenis][0]}</span><span>${esc(x.pesan)}</span></div>`).join("");
     if(!L.some(x=>x.jenis!=="info"))$("r-periksa").insertAdjacentHTML("afterbegin",'<div><span class="pill good">Lolos</span><span>Tidak ada masalah.</span></div>');
     const b=$("btn-terbit");if(b)b.disabled=L.some(x=>x.jenis==="galat");
-  }catch(e){$("r-periksa").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
-$("btn-periksa").onclick=periksa;
+    const jam=new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"}),ng=L.filter(x=>x.jenis==="galat").length,np=L.filter(x=>x.jenis==="periksa").length;
+    box.insertAdjacentHTML("beforeend",`<p class="small muted" style="margin:6px 0 0">Diperiksa pukul ${jam}</p>`);
+    if(manual===true)toast(ng?`Pemeriksaan selesai: ${ng} galat${np?", "+np+" perlu diperiksa":""}`:np?`Pemeriksaan selesai: ${np} hal perlu diperiksa`:"Pemeriksaan selesai: tidak ada masalah");
+  }catch(e){box.innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;if(manual===true)toast("Gagal memeriksa: "+e.message)}
+  finally{box.style.opacity="";if(manual===true){btn.disabled=false;btn.textContent="Periksa ulang"}}}
+$("btn-periksa").onclick=()=>periksa(true);
 async function terbitkan(){
   if(!await tanya("Terbitkan asesmen?",`Kode akses dibuat untuk setiap ruang di setiap sesi, dan sesi ujian disiapkan untuk naskah yang sudah punya paket. Pada hari H setiap sesi <b>terbuka sendiri</b> sesuai jadwal.<br><br>Sesudah terbit, peserta dan jadwal tidak bisa diunggah ulang.`,"Terbitkan"))return;
   try{const r=await rpc("asm_terbitkan",{p_pin:PIN,p_id:A.asesmen.id});toast(`Diterbitkan: ${r.tugas} tugas siswa, ${r.kode_ruang} kode ruang, ${r.sesi_ujian} sesi ujian.`,5000);muatUlang()}catch(e){toast(e.message,6000)}}
