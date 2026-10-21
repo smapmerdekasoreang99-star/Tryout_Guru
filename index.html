@@ -1069,7 +1069,7 @@ function panelAwas(s){const w={...awasAtur(s.atur),...SE_AWAS_DRAFT};
     `<p class="se-cat">Siswa yang sedang mengerjakan memakai angka baru paling lambat 1 menit setelah disimpan; kode buka langsung berlaku. Hitungan keluar yang sudah terjadi tidak dihapus.</p></div>`}
 function renderSesi(){const el=$("se-daftar");
   if(SE_PANTAU&&!SESI.some(s=>s.id===SE_PANTAU))SE_PANTAU=null;
-  if(!SESI.length){el.innerHTML=`<div class="card"><p class="muted" style="margin:0">Belum ada sesi yang terbuka atau ditutup dalam 12 jam terakhir.${PERAN!=="pengawas"?" Tekan <b>Buka sesi baru</b> untuk memulai.":""}</p></div>`;return}
+  if(!SESI.length){el.innerHTML=`<div class="card"><p class="muted" style="margin:0">${PERAN==="guru"?"Belum ada sesi Anda (yang Anda buka, atau untuk paket yang Anda susun)":"Belum ada sesi"} yang terbuka atau ditutup dalam 12 jam terakhir.${PERAN!=="pengawas"?" Tekan <b>Buka latihan / tryout</b> untuk memulai.":""}</p></div>`;return}
   const jadwal=SESI.filter(s=>s.terjadwal),buka=SESI.filter(s=>s.buka&&!s.terjadwal),tutup=SESI.filter(s=>!s.buka);
   el.innerHTML=(buka.length?`<h3>Sedang dibuka (${buka.length})</h3>`+buka.map(kartuSesi).join(""):"")+(jadwal.length?`<h3>Terjadwal (${jadwal.length})</h3>`+jadwal.map(kartuSesi).join(""):"")+(tutup.length?`<h3>Ditutup dalam 12 jam terakhir</h3>`+tutup.map(kartuSesi).join(""):"");
   if(SE_PANTAU&&SE_PANTAU_HTML){const box=el.querySelector(`[data-sesi="${SE_PANTAU}"] [data-pantau]`);if(box){box.innerHTML=SE_PANTAU_HTML;box.classList.remove("hidden")}}}

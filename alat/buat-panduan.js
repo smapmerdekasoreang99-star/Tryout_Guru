@@ -192,7 +192,7 @@ const ISI = [
 
   /* ============================ 4 ============================ */
   H1("Latihan / Tryout"),
-  P("**Menu guru → Latihan / Tryout** (dulu *Sesi Ujian*) menampilkan sesi yang **sedang dibuka**, yang **terjadwal**, dan yang **ditutup dalam 12 jam terakhir**, diperbarui otomatis tiap 20 detik. Sesi yang lebih lama tetap terlihat di Dasbor Hasil (kartu *Sesi ujian untuk paket ini*)."),
+  P("**Menu guru → Latihan / Tryout** (dulu *Sesi Ujian*) menampilkan **sesi Anda** (yang Anda buka, atau untuk paket yang Anda susun; operator melihat semua) yang **sedang dibuka**, yang **terjadwal**, dan yang **ditutup dalam 12 jam terakhir**, diperbarui otomatis tiap 20 detik. Sesi yang lebih lama tetap terlihat di Dasbor Hasil (kartu *Sesi ujian untuk paket ini*)."),
   H2("Membuka latihan / tryout"),
   P("Tekan **+ Buka latihan / tryout**, lalu isi:"),
   TB(["Isian", "Arti"], [
