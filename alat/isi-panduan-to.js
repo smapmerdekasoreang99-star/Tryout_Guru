@@ -80,7 +80,10 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
   H2("3. Hasil"),
   P("Jumlah siswa yang mengerjakan dibanding sasaran, rata-rata, dan batang rata-rata tiap kelas."),
   H2("Mengubah atau menambah jadwal"),
+  KOTAK("saran", "TO ditukar karena kegiatan sekolah",
+    "Contoh: Rabu dipakai kegiatan Agustusan, TO minggu ini pindah ke Kamis dan TO minggu depan (seharusnya Kamis) menjadi Rabu. Buka TO minggu ini → **Ubah jadwal** → ganti tanggal ke Kamis → **Simpan perubahan**. Lalu buka TO minggu depan → ganti ke Rabu → **Simpan**. Dua langkah saja; kelas 10, 11, 12 ikut pindah. **Periode tidak berubah** karena periode dihitung dari urutan TO, bukan tanggal. Bila sesinya sudah telanjur dibuat, ubah juga waktunya di bagian **Sesi & link**."),
   UL("Di bagian bawah laci: **Ubah jadwal** (tanggal, jam ke-, mapel, jenis TKA/UTBK, kelas sasaran, guru penyusun, catatan). Centang **Batalkan TO ini** untuk libur mendadak.",
+    "Pilihan **Terapkan … juga ke kelas lain** (sudah tercentang) memindahkan TO yang sama untuk semua tingkat pada tanggal itu (Wajib), atau semua kelas 11 pada minggu itu (Pilihan), sekali simpan.",
     "**+ Tambah jadwal** (di tab Kalender) untuk TO baru, misalnya **jadwal Mapel Pilihan semester 2**. Untuk Pilihan, isi tanggal Senin sampai Jumat minggu itu dan satu kelas (mis. 11-1)."),
 
   /* ============================ 5 ============================ */
@@ -170,6 +173,6 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
     ["Ada libur di hari TO.", "Rincian TO → **Ubah jadwal**: geser tanggal, atau centang **Batalkan TO ini**."],
     ["Mengapa TO Juli–Agustus bertanda \"Sebelum aplikasi\"?", "TO itu dilaksanakan sebelum aplikasi dipakai untuk TO, jadi tidak dihitung di angka dan rekap."],
     ["Siswa ingin melihat pembahasan.", "Saat membuka sesi, centang **Tampilkan jawaban & pembahasan**."],
-    ["Apakah periode bisa diatur tanggalnya?", "Saat ini periode **bergulir** (setiap 3 TO Wajib / 5 minggu Pilihan). Bila kurikulum menetapkan tanggal periode, sampaikan ke operator untuk disesuaikan."],
+    ["Tanggal TO berubah mengikuti kalender kurikulum. Apakah periodenya kacau?", "Tidak. Periode dihitung dari **urutan TO** (Wajib: TO ke-1–3 = Periode 1, dst.; Pilihan: setiap 5 minggu), jadi menukar atau menggeser hari tidak mengubah isi periode. Cukup ubah tanggal TO di Kalender."],
   ], [2.4, 4.6]),
 ];
