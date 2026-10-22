@@ -232,7 +232,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   <div id="ko-bar" class="notice hidden" style="margin-top:8px"><div class="row" style="align-items:flex-end;gap:10px">
     <label class="grow small"><b>Mengunggah atas nama guru penyusun</b><select id="ko-penyusun"><option value="">— pilih guru penyusun —</option></select></label>
     <a href="to-tka.html" id="ko-kembali"><button type="button" class="ghost">‹ Batal, kembali ke Tryout Umum</button></a></div>
-    <p class="small muted" style="margin:6px 0 0">Soal tercatat atas nama guru ini dan otomatis berjenis <b>Tryout TKA</b>. Hanya mapel jadwal TO; 2 paket = 2 varian dalam satu berkas. Setelah terbit, pasang paketnya ke jadwal di halaman Tryout Umum.</p></div>
+    <p class="small muted" style="margin:6px 0 0">Soal tercatat atas nama guru ini dan otomatis berjenis <b>Tryout Umum</b>. Hanya mapel jadwal TO; 2 paket = 2 varian dalam satu berkas. Setelah terbit, pasang paketnya ke jadwal di halaman Tryout Umum.</p></div>
   <div id="sinkron-info" class="small" style="margin-top:6px"></div>
 </div>
 <nav class="tabs tab-ikon" id="tabs"><button data-tab="daftar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5a2 2 0 0 1 2-2h3v18H6a2 2 0 0 1-2-2zM9 3h4v18H9zM14.5 4.2l3.9-1 3.4 16.6-3.9.9z"/></svg><span>Pustaka Paket</span></button><button data-tab="kisi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg><span>Langkah 1 · Kisi-kisi</span></button><button data-tab="unggah"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg><span>Langkah 2 · Soal</span></button><button data-tab="darurat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg><span>Tanpa Kisi-kisi</span></button><button data-tab="siswa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Data Siswa</span></button><button data-tab="guru" class="op-only"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 9.2-9.2M17 6l3 3M14 9l2 2"/></svg><span>PIN Guru</span></button><button data-tab="impor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Impor Kode Hasil</span></button><button data-tab="cadangan"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Cadangan</span></button><button data-tab="bantuan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg><span>Bantuan</span></button></nav>
@@ -722,18 +722,20 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   }
   const kids = (el, ns, name) => Array.from(el.childNodes).filter(n => n.nodeType === 1 && n.localName === name && n.namespaceURI === ns);
   // ---- Keterangan paket (meta.info): jenis, semester, guru penyusun, tingkat peserta, cakupan materi ----
-  // Jenis ditentukan sistem (20 Okt 2026): 5 pilihan tetap + Nama Asesmen dari PAS / Ujian Bersama
+  // Jenis ditentukan sistem (20 Okt 2026; 22 Okt: Tryout Mandiri & Tryout Umum): 4 pilihan tetap + Nama Asesmen dari PAS / Ujian Bersama
   // (dimuat lewat tka_jenis_daftar → setJenis). Server juga menjaganya (pemicu tka_jenis_ikut_daftar).
-  const JENIS_DASAR = ['Asesmen Formatif', 'Asesmen Sumatif', 'Tryout ASAS', 'Tryout TKA', 'Tryout UTBK'];
+  const JENIS_DASAR = ['Asesmen Formatif', 'Asesmen Sumatif', 'Tryout Mandiri', 'Tryout Umum'];
   const JENIS_BAWAAN = 'Asesmen Formatif';
   const JENIS = JENIS_DASAR.slice();
   function setJenis(a) { JENIS.length = 0; JENIS.push(...JENIS_DASAR, ...(a || []).filter(j => j && !JENIS_DASAR.includes(j))); }
-  // teks bebas (Word, nama lama) → jenis baku; tidak dikenali → Asesmen Formatif (21 Okt 2026: Latihan Harian dihapus, Tryout ASAS ditambah)
+  // teks bebas (Word, nama lama) → jenis baku; tidak dikenali → Asesmen Formatif. Tryout TKA/ASAS/UTBK lama → Tryout Mandiri;
+  // koordinator selalu Tryout Umum (server juga menetapkannya)
   function normJenis(s) {
+    if (typeof PERAN !== 'undefined' && PERAN === 'koordinator') return 'Tryout Umum';
     s = String(s || '').trim().replace(/\s+/g, ' '); if (!s) return JENIS_BAWAAN;
     const l = s.toLowerCase();
-    return JENIS.find(j => j.toLowerCase() === l) || (/\btka\b/.test(l) ? 'Tryout TKA' : /\b(utbk|snbt)\b/.test(l) ? 'Tryout UTBK'
-      : /asas/.test(l) ? 'Tryout ASAS' : /formatif|latihan/.test(l) ? 'Asesmen Formatif' : /sumatif|ulangan|semester|\b(uh|pts|sts|pas|sas|pat|sat)\b/.test(l) ? 'Asesmen Sumatif' : JENIS_BAWAAN);
+    return JENIS.find(j => j.toLowerCase() === l) || (/\bumum\b/.test(l) ? 'Tryout Umum' : /\b(tka|utbk|snbt|asas|tryout|to|mandiri)\b/.test(l) ? 'Tryout Mandiri'
+      : /formatif|latihan/.test(l) ? 'Asesmen Formatif' : /sumatif|ulangan|semester|\b(uh|pts|sts|pas|sas|pat|sat)\b/.test(l) ? 'Asesmen Sumatif' : JENIS_BAWAAN);
   }
   // "12", "XII", "10–12", "X s.d. XII", "10, 12" → ["12"], ["10","11","12"], ["10","12"]
   function parseTingkat(s) {
@@ -1400,7 +1402,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   }
   function barisInfo(kvf, i) {
     i = i || {}; const f = (root.TKA && root.TKA.info) ? root.TKA.info.fmtTingkat : a => (a || []).join(', ');
-    return [kvf('Jenis (Asesmen Formatif / Asesmen Sumatif / Tryout ASAS / Tryout TKA / Tryout UTBK; kosongkan = Asesmen Formatif)', i.jenis || ''),
+    return [kvf('Jenis (Asesmen Formatif / Asesmen Sumatif / Tryout Mandiri / Tryout Umum; kosongkan = Asesmen Formatif)', i.jenis || ''),
       kvf('Tingkat peserta (kelas yang mengerjakan, mis. 12 atau 10–12)', f(i.tingkat)),
       kvf('Cakupan materi (kelas asal materi bila berbeda, mis. 10–12; kosongkan bila sama)', f(i.cakupan)),
       kvf('Semester (mis. Ganjil 2026/2027; kosongkan = otomatis)', i.semester || ''),
@@ -2411,7 +2413,7 @@ function pkKelompok(o){const g=PKF.grup;
     if(t){const n=String(t.periode).replace(/-/g,""),r=t.rentang;
       return ["0"+String(999999999-Number(n)).padStart(9,"0")+(t.program==="wajib"?"a":"b")+String(99-t.no).padStart(2,"0"),
         `TO Mapel ${t.program==="wajib"?"Wajib":"Pilihan"} · Periode ${t.no}${r?` · ${pkTglPendek(r.dari)}–${pkTglPendek(r.sampai)}`:""} · ${pkNamaSmt(t.periode)}`]}
-    if(/tryout/i.test(o.info.jenis||""))return ["1","Tryout belum dipasang ke jadwal TO"];
+    if(o.info.jenis==="Tryout Umum")return ["1","Tryout Umum belum dipasang ke jadwal"];
     return ["2","Bukan paket TO (formatif, sumatif, dan lainnya)"]}
   if(g==="kelas"){const t=pkTingkat(o);return t.length===1?["1"+t[0],"Kelas "+t[0]]:t.length?["2","Lintas tingkat"]:["3","Kelas belum diisi"]}
   if(g==="mapel"){const m=String(o.mapel||"").trim().replace(/\s+/g," ");return m?["0"+pkKunciMapel(m),m]:["1","Mata pelajaran belum diisi"]}

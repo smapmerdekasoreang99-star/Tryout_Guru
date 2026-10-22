@@ -318,7 +318,7 @@ function gMinggu(){const el=$("tab-minggu"),kini=new Date(),s0=senin(kini),s1=ta
   if($("m-wa-semua"))$("m-wa-semua").onclick=()=>salin(teksPengingat(belumSoal),"Pengingat untuk semua guru disalin — tempel di grup WA guru");
 }
 function teksPengingat(L){const g={};L.forEach(j=>(g[j.guru_id||"-"]=g[j.guru_id||"-"]||[]).push(j));
-  return `Assalamu'alaikum Bapak/Ibu. Pengingat soal *Tryout Umum* untuk minggu ${tglP(senin(L[0].d0))}–${tglP(tambahHari(senin(L[0].d0),4))}, mohon diunggah ke Asesmen Merdeka (Pustaka Paket, jenis *Tryout TKA*) paling lambat *${hariTgl(L[0].tenggat)}*:\n`+
+  return `Assalamu'alaikum Bapak/Ibu. Pengingat soal *Tryout Umum* untuk minggu ${tglP(senin(L[0].d0))}–${tglP(tambahHari(senin(L[0].d0),4))}, mohon diunggah ke Asesmen Merdeka (Pustaka Paket, jenis *Tryout Umum*) paling lambat *${hariTgl(L[0].tenggat)}*:\n`+
     Object.entries(g).map(([id,a])=>`• ${namaGuru(id)}: ${[...new Set(a.map(j=>j.mapel))].join(", ")} (${a.map(j=>j.program==="wajib"?`kelas ${j.tingkat}, ${hariTgl(j.d0)}`:j.kelas.join("/")).join("; ")})`).join("\n")+
     `\nFormat: 2 paket (2 varian dalam 1 berkas), 5 soal per paket (Matematika 3 soal), campuran PG, PG Kompleks, dan MCMA. Terima kasih.`}
 
@@ -350,7 +350,7 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
         <label class="f">Tanggal mulai<input type="date" id="lj-mulai" value="${x?x.mulai:isoD(new Date())}"></label><label class="f">Tanggal akhir<input type="date" id="lj-akhir" value="${x?x.akhir:isoD(new Date())}"></label>
         <label class="f">Jam ke-<input type="number" id="lj-jam" min="1" max="12" style="width:80px" value="${x&&x.jam_ke?x.jam_ke:""}"></label></div>
       <div class="row"><label class="f grow">Mapel<select id="lj-mapel">${mapelL.map(m=>`<option${x&&x.mapel===m?" selected":""}>${esc(m)}</option>`).join("")}</select></label>
-        <label class="f">Jenis<select id="lj-jenis"><option${x&&x.jenis==="Tryout TKA"?" selected":""}>Tryout TKA</option><option${x&&x.jenis==="Tryout UTBK"?" selected":""}>Tryout UTBK</option></select></label></div>
+        <label class="f">Sasaran<select id="lj-jenis"><option value="Tryout TKA"${x&&x.jenis==="Tryout TKA"?" selected":""}>TKA</option><option value="Tryout UTBK"${x&&x.jenis==="Tryout UTBK"?" selected":""}>UTBK</option></select></label></div>
       <label class="f">Kelas sasaran (pisahkan dengan koma)<input type="text" id="lj-kelas" value="${x?esc(x.kelas.join(", ")):""}" placeholder="mis. 11-1 atau 10-1, 10-2, … "></label>
       <div class="row"><label class="f grow">Guru penyusun soal<select id="lj-guru"><option value="">— belum ditetapkan —</option>${guruL.map(([g,n])=>`<option value="${g}"${x&&x.guru_id===g?" selected":""}>${esc(n)}</option>`).join("")}</select></label></div>
       <label class="f">Catatan<input type="text" id="lj-cat" value="${x?esc(x.catatan||""):""}" placeholder="mis. digeser karena libur"></label>
@@ -390,7 +390,7 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
 // TO lain yang dipindah bersama: Wajib = tingkat lain pada tanggal yang sama; Pilihan = kelas 11 lain pada minggu yang sama
 const rekanJadwal=x=>J.filter(y=>y.id!==x.id&&y.program===x.program&&y.mulai===x.mulai&&(x.program==="pilihan"||y.mapel===x.mapel));
 function tutupLaci(){const el=$("laci");if(el)el.remove()}
-function skorPaket(p,j){return (/tryout/i.test(p.jenis||"")?4:0)+((p.tingkat||[]).map(String).includes(String(j.tingkat))||String(p.kelas||"").includes(j.tingkat)?2:0)+(J.some(x=>x.paket===p.kode)?-3:0)}
+function skorPaket(p,j){return (p.jenis==="Tryout Umum"?4:/tryout/i.test(p.jenis||"")?2:0)+((p.tingkat||[]).map(String).includes(String(j.tingkat))||String(p.kelas||"").includes(j.tingkat)?2:0)+(J.some(x=>x.paket===p.kode)?-3:0)}
 function cekPaket(p,j){const mtk=/^matematika/.test(j.mk),nSoal=mtk?3:5,b=p.bentuk||{},kunci=Object.keys(b).map(x=>x.toUpperCase().replace(/[\s_–-]+/g," "));
   const adaPG=kunci.some(x=>/^(PG|PILIHAN GANDA)$/.test(x)),adaK=kunci.some(x=>/KOMPLEKS|PG ?K|MCMA|KATEGORI|BENAR/.test(x));
   const c=[[p.n_varian>=2,`2 paket (varian): <b>${p.n_varian}</b>`],[p.n_soal===nSoal,`Jumlah soal ${nSoal}: <b>${p.n_soal}</b>`],[adaPG&&adaK,`Campuran PG & PG Kompleks/MCMA: <b>${Object.entries(b).map(([k,n])=>`${esc(k)} ${n}`).join(", ")||"–"}</b>`]];
@@ -453,9 +453,9 @@ function ikatJadwal(j){if(!$("lj-simpan"))return;
 function gSoal(){const el=$("tab-soal"),kini=new Date(),s0=senin(kini),batas=tambahHari(s0,28);
   const L=J.filter(j=>!j.batal&&j.d1>=s0&&j.d0<batas).sort(URUT_TO);
   const ming=[...new Set(L.map(j=>isoD(senin(j.d0))))];
-  const lepas=D.paket.filter(p=>!p.arsip&&/tryout/i.test(p.jenis||"")&&!J.some(j=>j.paketEff===p.kode)&&Date.now()-Date.parse(p.dibuat)<45*864e5);
+  const lepas=D.paket.filter(p=>!p.arsip&&p.jenis==="Tryout Umum"&&!J.some(j=>j.paketEff===p.kode)&&Date.now()-Date.parse(p.dibuat)<45*864e5);
   const g={};J.filter(j=>!j.batal&&j.st!=="pra"&&j.d0<tambahHari(new Date(),1)).forEach(j=>{const x=g[j.guru_id||"-"]=g[j.guru_id||"-"]||{n:0,ok:0,telat:0};x.n++;if(j.paketEff)x.ok++});
-  el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="kepala"><div><h3>Soal yang harus masuk (4 minggu ke depan)</h3><p class="small muted">Tenggat: Jumat sebelum minggu pelaksanaan. Soal yang diunggah guru (jenis Tryout TKA) tinggal dipasang ke jadwalnya. Soal yang dikirim guru lewat WA bisa Anda unggahkan atas nama gurunya.</p></div>
+  el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="kepala"><div><h3>Soal yang harus masuk (4 minggu ke depan)</h3><p class="small muted">Tenggat: Jumat sebelum minggu pelaksanaan. Soal yang diunggah guru (jenis Tryout Umum) tinggal dipasang ke jadwalnya — jenisnya otomatis menjadi Tryout Umum saat dipasang. Soal yang dikirim guru lewat WA bisa Anda unggahkan atas nama gurunya.</p></div>
       <a class="tulis" href="admin.html?menu=pustaka&amp;tab=kisi"><button>+ Unggah soal atas nama guru</button></a></div>
     ${ming.map(m=>{const a=L.filter(j=>isoD(senin(j.d0))===m),t=a[0].tenggat,blm=a.filter(j=>!j.paketEff);
       return `<div style="margin-top:12px"><div class="kepala"><div><b>Minggu ${tglP(tglD(m))} – ${tglP(tambahHari(tglD(m),4))}</b> <span class="small muted">· tenggat ${hariTgl(t)} · ${a.length-blm.length}/${a.length} soal masuk</span></div>
@@ -463,7 +463,7 @@ function gSoal(){const el=$("tab-soal"),kini=new Date(),s0=senin(kini),batas=tam
         <div class="gulir" style="margin-top:6px"><table><thead><tr><th>TO</th><th>Mapel</th><th>Sasaran</th><th>Guru penyusun</th><th>Status</th><th>Paket</th><th>Pemeriksaan</th></tr></thead><tbody>
         ${a.map(j=>`<tr class="klik" data-buka="${j.id}"><td style="white-space:nowrap">${j.program==="wajib"?hariTgl(j.d0):"Sen–Jum"}<div class="kecil muted">${j.program==="wajib"?"Wajib":"Pilihan"}</div></td><td><b>${esc(j.mapel)}</b></td><td>${esc(sasaran(j))}</td><td>${esc(j.guru)}</td><td>${pilSt(j.st)}</td>
           <td class="small">${j.p?esc(j.p.judul):'<span class="muted">—</span>'}</td><td>${j.p?cekPaket(j.p,j):""}</td></tr>`).join("")}</tbody></table></div></div>`}).join("")||'<p class="kosong">Tidak ada TO dalam 4 minggu ke depan.</p>'}</div>
-    <div class="card kolom"><h3>Paket TO baru yang belum dipasang</h3><p class="small muted">Paket berjenis Tryout yang diunggah 45 hari terakhir dan belum dipakai di jadwal. Ketuk untuk memasangkan ke TO berikutnya dengan mapel yang sama.</p>
+    <div class="card kolom"><h3>Paket TO baru yang belum dipasang</h3><p class="small muted">Paket berjenis Tryout Umum yang diunggah 45 hari terakhir dan belum dipakai di jadwal. Ketuk untuk memasangkan ke TO berikutnya dengan mapel yang sama.</p>
       <div class="gulir"><table><thead><tr><th>Diunggah</th><th>Paket</th><th>Mapel</th><th>Penyusun</th><th class="n">Soal</th><th class="n">Varian</th><th>TO berikutnya</th></tr></thead><tbody>
       ${lepas.map(p=>{const hariIni=tglD(isoD(new Date())),nx=J.filter(j=>!j.batal&&j.mk===p.mk&&!j.paketEff&&j.d1>=hariIni).sort(URUT_TO)[0];
         return `<tr class="${nx?"klik":""}" ${nx?`data-buka="${nx.id}"`:""}><td>${tgl(p.dibuat)}</td><td><b>${esc(p.judul)}</b><div class="kecil muted">${esc(p.kode)}</div></td><td>${esc(p.mapel)}</td><td>${esc(namaGuru(p.pemilik))}</td><td class="n">${p.n_soal}</td><td class="n">${p.n_varian}</td>
