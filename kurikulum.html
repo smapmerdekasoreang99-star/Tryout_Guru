@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
+<script src="config.js?v=2"></script>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pantau Kurikulum — SMA Plus Merdeka Soreang</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/dasar.css?v=3">
+<link rel="icon" href="assets/ikon-32.png">
+<style>
+/* Pantau Kurikulum (22 Okt 2026, RENCANA_PANTAU_KURIKULUM.md): halaman hanya-baca untuk kurikulum (dan operator).
+   Gaya = pas.html (kepala gelap bergaris emas, tab berikon, kartu putih). Grafik dibuat sendiri (HTML/SVG), tanpa pustaka.
+   Warna tingkat kognitif: satu hue biru ordinal (lolos validator dataviz). Status nilai: merah/emas/hijau + tulisan. */
+:root{--bg:var(--kertas);--card:#fff;--ink:var(--tinta);--muted:var(--tinta-2);--line:var(--garis);
+  --c1:#86b6ef;--c2:#5598e7;--c3:#2a78d6;--c4:#1c5cab;--c5:#104281;--c6:#0b2a52;--lots:#86b6ef;--mots:#2a78d6;--hots:#104281;--tanpa:#D6CCB6;
+  --seri:#2a78d6;--seri-muda:#cde2fb;--baik:#2F7A4C;--cukup:#B7862A;--kurang:#A8432E}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--ink);font-size:15px;line-height:1.5;font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:12px 16px 64px}
+header.top{background:var(--gelap);color:#fff;padding:10px 16px;border-bottom:4px solid var(--emas);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header.top img{height:40px}header.top .t{font-weight:700;font-size:17px}header.top .sub{font-size:12px;color:var(--emas)}
+header.top .kanan{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+header.top .kanan a,header.top .kanan button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer}
+header.top .kanan a:hover,header.top .kanan button:hover{background:rgba(255,255,255,.12)}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:600;margin:0;text-wrap:balance}h2{font-size:22px}h3{font-size:17px}
+p{margin:0}.muted{color:var(--muted)}.small{font-size:13px}.kecil{font-size:12px}.hidden{display:none!important}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:12px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.grow{flex:1}.kolom{display:flex;flex-direction:column;gap:10px}
+button{font-family:inherit;font-size:14px;border:0;border-radius:8px;padding:8px 16px;cursor:pointer;background:var(--gelap);color:var(--emas);font-weight:700}
+button.ghost{background:#fff;color:var(--ink);border:1px solid var(--garis-2)}button.ghost:hover{border-color:var(--emas-tua)}button.mini{padding:4px 10px;font-size:13px}button:disabled{opacity:.5;cursor:default}
+input[type=text],input[type=password],input[type=number],select{padding:7px 10px;font-size:14px;border:1px solid var(--line);border-radius:8px;font-family:inherit;background:#fff;color:var(--ink)}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:600}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:2px 9px;border-radius:999px;background:var(--netral-muda);color:var(--tinta-2);font-weight:700;white-space:nowrap}
+.pill.good{background:var(--hadir-muda);color:var(--hadir-tua)}.pill.bad{background:var(--absen-muda);color:var(--absen-tua)}.pill.warn{background:var(--emas-muda);color:var(--emas-teks)}.pill.info{background:var(--sakit-muda);color:var(--sakit-tua)}
+.alis{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--emas-teks);font-weight:700}
+.kepala{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.tabs{position:sticky;top:0;z-index:20;display:flex;gap:4px;margin:12px 0;padding:5px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border:1px solid rgba(214,204,182,.7);border-radius:14px;overflow-x:auto;scrollbar-width:none}
+.tabs button{flex:1 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:transparent;color:var(--tinta-2);border-radius:10px;padding:9px 14px;font-weight:600;white-space:nowrap}
+.tabs button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs button:hover{background:var(--kertas-3);color:var(--gelap)}.tabs button.on{background:var(--gelap);color:#fff}.tabs button.on svg{color:var(--emas)}
+.saring{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.saring select{min-width:150px}
+.gulir{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th{background:var(--kertas-3);text-align:left;font-size:12px;color:var(--tinta-2);padding:8px 10px;white-space:nowrap;border-bottom:1px solid var(--line)}
+td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}tbody tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:center}tr.klik{cursor:pointer}tr.klik:hover td{background:var(--emas-kabut)}tr.pilih td{background:var(--emas-muda)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120%);background:var(--gelap);color:#fff;padding:10px 16px;border-radius:10px;z-index:300;opacity:0;transition:.25s;max-width:calc(100% - 32px)}
+.toast.show{transform:translateX(-50%);opacity:1}
+/* angka utama */
+.ubin{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.ubin>div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.ubin b{display:block;font-family:"Fraunces",Georgia,serif;font-size:30px;line-height:1.1;color:var(--gelap)}
+.ubin span{font-size:12px;color:var(--muted);font-weight:600}.ubin em{display:block;font-style:normal;font-size:12px;color:var(--tinta-3);margin-top:2px}
+/* kalimat temuan */
+.temuan{display:grid;gap:8px}.temuan p{padding:10px 14px;border-radius:10px;background:var(--kertas-3);border-left:4px solid var(--emas);font-size:14px}
+/* grafik */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:12px}.grid2>.card{margin:0}
+.grafik h3{margin-bottom:2px}.grafik .sub{font-size:13px;color:var(--muted);margin-bottom:12px}
+.bh{display:grid;grid-template-columns:minmax(90px,max-content) 1fr auto;gap:6px 10px;align-items:center;font-size:13px}
+.bh .lb{color:var(--tinta);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}.bh .nl{font-variant-numeric:tabular-nums;color:var(--tinta-2);font-weight:600;min-width:34px;text-align:right}
+.bh .tr{height:14px;background:var(--kertas-3);border-radius:4px;overflow:hidden}.bh .br{height:100%;background:var(--seri);border-radius:0 4px 4px 0;min-width:2px}
+.tumpuk{display:flex;height:14px;border-radius:4px;overflow:hidden;gap:2px;background:#fff}.tumpuk i{display:block;height:100%}
+.tumpuk.besar{height:22px}
+.legenda{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--tinta-2);margin-top:8px}.legenda span{display:inline-flex;align-items:center;gap:6px}
+.legenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
+svg.ch{width:100%;height:auto;display:block;overflow:visible}svg.ch text{font-family:inherit;font-size:11px;fill:var(--tinta-2)}
+svg.ch .sumbu{stroke:var(--garis-2);stroke-width:1}svg.ch .kisi{stroke:var(--garis);stroke-width:1;stroke-dasharray:2 3}
+svg.ch [data-tip]{cursor:default}svg.ch .hit{fill:transparent}svg.ch .hit:hover+.mk,svg.ch g.kol:hover rect.mk{opacity:.8}
+.peta td{text-align:center;font-weight:600;min-width:52px}.peta th{text-align:center}.peta th:first-child,.peta td:first-child{text-align:left}
+.tip{position:fixed;z-index:400;pointer-events:none;background:var(--gelap);color:#fff;font-size:12px;line-height:1.45;padding:7px 10px;border-radius:8px;max-width:280px;box-shadow:0 6px 18px rgba(0,0,0,.18);opacity:0;transition:opacity .1s}
+.tip.on{opacity:1}.tip b{color:var(--emas)}
+/* paket */
+.lv{display:inline-flex;align-items:center;justify-content:center;min-width:30px;padding:1px 6px;border-radius:5px;font-size:11px;font-weight:700;color:#fff}
+.lv.c1,.lv.c2,.lv.LOTS{background:var(--c1);color:var(--gelap)}.lv.c3,.lv.MOTS{background:var(--c3)}.lv.c4{background:var(--c4)}.lv.c5,.lv.HOTS{background:var(--c5)}.lv.c6{background:var(--c6)}.lv.x{background:var(--tanpa);color:var(--tinta)}
+.nilai-b{color:var(--baik);font-weight:700}.nilai-c{color:var(--cukup);font-weight:700}.nilai-k{color:var(--kurang);font-weight:700}
+.sel{display:inline-block;min-width:34px;text-align:center;border-radius:6px;padding:2px 4px;font-weight:700}
+.sel.b{background:#E4EFE7;color:var(--baik)}.sel.c{background:#FFF6D2;color:#8F6B1A}.sel.k{background:#F7E4DF;color:var(--kurang)}
+.laci{border-top:3px solid var(--emas)}
+.kosong{padding:28px;text-align:center;color:var(--muted)}
+.tren-naik{color:var(--baik);font-weight:700}.tren-turun{color:var(--kurang);font-weight:700}
+@media (max-width:640px){.ubin b{font-size:24px}.bh .lb{max-width:120px}h2{font-size:19px}}
+</style>
+</head>
+<body>
+<header class="top"><img src="assets/logo.png" alt=""><div><div class="t">Pantau Kurikulum</div><div class="sub">Asesmen Merdeka — paket soal, pelaksanaan, hasil & perkembangan siswa</div></div>
+  <div class="kanan"><a href="index.html?guru">Menu utama</a><button id="btn-keluar" class="hidden">Keluar</button></div></header>
+<div class="wrap">
+
+<div class="card" id="kartu-pin" style="max-width:520px;margin:40px auto">
+  <h2 style="margin-bottom:6px">Masuk kurikulum</h2>
+  <p class="small muted" style="margin-bottom:12px">Halaman ini hanya untuk melihat: semua paket soal, sesi, dan hasil siswa dari semua guru dan semua kelas. Tidak ada data yang bisa diubah dari sini.</p>
+  <div class="row"><input type="password" id="pin" placeholder="PIN kurikulum" autocomplete="off" style="flex:1"><button id="btn-pin">Masuk</button></div>
+  <p class="small" id="pin-pesan" style="margin-top:8px"></p>
+</div>
+
+<section id="v-isi" class="hidden">
+  <div class="kepala" style="margin-top:8px">
+    <div><div class="alis" id="k-periode"></div><h2>Perkembangan asesmen sekolah</h2><p class="small muted" id="k-info"></p></div>
+    <div class="row"><button class="ghost mini" id="btn-muat">Muat ulang</button></div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="ringkas" class="on"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg><span>Ringkasan</span></button>
+    <button data-tab="paket"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h3v18H6a2 2 0 0 1-2-2zM9 3h4v18H9zM14.5 4.2l3.9-1 3.6 16.6-3.9 1z"/></svg><span>Paket &amp; Kisi-kisi</span></button>
+    <button data-tab="sesi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg><span>Sesi &amp; Pelaksanaan</span></button>
+    <button data-tab="hasil"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Hasil &amp; Analisis</span></button>
+    <button data-tab="siswa"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a5 5 0 0 1 5-5h4M15 19l3-4 2 2 3-5"/></svg><span>Perkembangan Siswa</span></button>
+  </nav>
+  <div class="saring" id="saring">
+    <label class="f">Semester<select id="f-periode"></select></label>
+    <label class="f">Mapel<select id="f-mapel"></select></label>
+    <label class="f">Jenis<select id="f-jenis"></select></label>
+    <label class="f">Guru<select id="f-guru"></select></label>
+    <label class="f">Batas tuntas<input type="number" id="f-kkm" min="0" max="100" style="width:90px"></label>
+    <span class="small muted grow" id="f-ket" style="text-align:right"></span>
+  </div>
+
+  <!-- ================= Ringkasan ================= -->
+  <div id="tab-ringkas">
+    <div class="ubin" id="r-ubin" style="margin-top:12px"></div>
+    <div class="card"><h3 style="margin-bottom:10px">Temuan utama</h3><div class="temuan" id="r-temuan"></div></div>
+    <div class="grid2">
+      <div class="card grafik"><h3>Seberapa tinggi tingkat berpikir soal kita?</h3><p class="sub">Komposisi tingkat kognitif butir soal per mapel (dari kisi-kisi). HOTS = C4–C6 / Reasoning.</p><div id="r-kog"></div></div>
+      <div class="card grafik"><h3>Jenis paket apa saja yang disusun?</h3><p class="sub">Jumlah paket soal per jenis asesmen</p><div id="r-jenis"></div></div>
+      <div class="card grafik"><h3>Kapan paket soal diunggah?</h3><p class="sub">Paket baru per minggu (semua waktu)</p><div id="r-unggah"></div></div>
+      <div class="card grafik"><h3>Seberapa aktif asesmen berjalan?</h3><p class="sub">Siswa yang mengumpulkan jawaban per minggu, semester ini</p><div id="r-aktif"></div></div>
+    </div>
+    <div class="card grafik"><div class="kepala"><div><h3>Per guru</h3><p class="sub" style="margin:0">Paket, tingkat berpikir soal, sesi, dan hasil siswa tiap guru penyusun. Ketuk baris untuk melihat paketnya.</p></div></div>
+      <div class="gulir" style="margin-top:10px"><table id="r-guru"></table></div></div>
+  </div>
+
+  <!-- ================= Paket & Kisi-kisi ================= -->
+  <div id="tab-paket" class="hidden">
+    <div class="grid2" style="margin-top:12px">
+      <div class="card grafik"><h3>Sebaran C1–C6 seluruh butir</h3><p class="sub">Butir yang kisi-kisinya mencantumkan level C. Butir berlabel kategori TKA saja dihitung terpisah.</p><div id="p-c"></div></div>
+      <div class="card grafik"><h3>Bentuk soal</h3><p class="sub">Jumlah butir per bentuk soal</p><div id="p-bentuk"></div></div>
+    </div>
+    <div class="card kolom">
+      <div class="kepala"><div><h3>Daftar paket soal <span class="small muted" id="p-n"></span></h3><p class="small muted">Ketuk baris untuk melihat kisi-kisi lengkap dan tingkat kesulitannya.</p></div>
+        <input type="text" id="p-cari" placeholder="Cari judul, kode, atau guru" style="min-width:260px"></div>
+      <div class="gulir"><table id="p-tabel"></table></div>
+      <div class="legenda" id="p-legenda"></div>
+    </div>
+    <div class="card kolom laci hidden" id="p-rinci"></div>
+  </div>
+
+  <!-- ================= Sesi & Pelaksanaan ================= -->
+  <div id="tab-sesi" class="hidden">
+    <div class="ubin" id="s-ubin" style="margin-top:12px"></div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="card grafik"><h3>Sesi dibuka per minggu</h3><p class="sub">Jumlah sesi latihan/tryout/asesmen yang dibuka guru</p><div id="s-minggu"></div></div>
+      <div class="card grafik"><h3>Kelas mana sudah diuji di mapel apa?</h3><p class="sub">Jumlah paket berbeda yang dikerjakan tiap kelas per mapel, semester ini. Sel kosong = belum ada.</p><div id="s-peta" class="gulir"></div></div>
+    </div>
+    <div class="card kolom">
+      <div class="kepala"><h3>Riwayat sesi <span class="small muted" id="s-n"></span></h3><input type="text" id="s-cari" placeholder="Cari paket, guru, atau kelas" style="min-width:240px"></div>
+      <div class="gulir"><table id="s-tabel"></table></div>
+    </div>
+  </div>
+
+  <!-- ================= Hasil & Analisis ================= -->
+  <div id="tab-hasil" class="hidden">
+    <div class="card kolom" style="margin-top:12px">
+      <div class="row" style="align-items:flex-end">
+        <label class="f grow">Paket soal<select id="h-paket" style="width:100%"></select></label>
+        <label class="f">Kelas<select id="h-kelas"></select></label>
+      </div>
+    </div>
+    <div id="h-isi"></div>
+  </div>
+
+  <!-- ================= Perkembangan Siswa ================= -->
+  <div id="tab-siswa" class="hidden">
+    <div class="card kolom" style="margin-top:12px">
+      <div class="row" style="align-items:flex-end">
+        <label class="f">Kelas<select id="g-kelas"></select></label>
+        <label class="f grow">Cari siswa<input type="text" id="g-cari" placeholder="Nama atau NISN"></label>
+      </div>
+      <p class="small muted">Mapel, jenis, dan guru di saringan atas ikut membatasi ujian yang dihitung.</p>
+    </div>
+    <div id="g-isi"></div>
+  </div>
+</section>
+</div>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+<script>
+"use strict";
+const SB=(()=>{const c=window.TKA_SUPABASE||{};return c.url&&c.key?c:null})();
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m,ms){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),ms||3200)}
+async function rpc(fn,args){if(!SB)throw new Error("Server belum diatur (config.js)");
+  const r=await fetch(`${SB.url}/rest/v1/rpc/${fn}`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SB.key,.../^eyJ[\w-]*\.[\w-]+\.[\w-]*$/.test(SB.key)?{"Authorization":"Bearer "+SB.key}:{}},body:JSON.stringify(args||{})});
+  let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw new Error((j&&(j.message||j.hint||j.error))||("HTTP "+r.status));return j}
+const WIB={timeZone:"Asia/Jakarta"};
+const tgl=iso=>iso?new Date(iso).toLocaleDateString("id-ID",{...WIB,day:"numeric",month:"short",year:"numeric"}):"—";
+const tglPendek=iso=>iso?new Date(iso).toLocaleDateString("id-ID",{...WIB,day:"numeric",month:"short"}):"—";
+const jam=iso=>new Date(iso).toLocaleTimeString("id-ID",{...WIB,hour:"2-digit",minute:"2-digit"}).replace(":",".");
+const angka=(x,d=1)=>x==null||isNaN(x)?"–":Number(x).toLocaleString("id-ID",{maximumFractionDigits:d});
+const rata=a=>a.length?a.reduce((x,y)=>x+y,0)/a.length:null;
+const urutID=(a,b)=>String(a).localeCompare(String(b),"id",{numeric:true});
+const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+/* ---------------- Tingkat kognitif ----------------
+   level C1–C6 bila tertulis; bila hanya kategori TKA: Knowing = LOTS, Applying = MOTS, Reasoning = HOTS. */
+function kog(b){const s=`${b.level||""} ${b.tka||""}`,m=s.match(/\bC\s*([1-6])\b/i);
+  if(m){const c=+m[1];return {c,k:c<=2?"LOTS":c===3?"MOTS":"HOTS"}}
+  if(/reason|penalaran|\bL3\b|HOTS/i.test(s))return {c:null,k:"HOTS"};
+  if(/apply|aplikasi|penerapan|\bL2\b|MOTS/i.test(s))return {c:null,k:"MOTS"};
+  if(/know|pengetahuan|pemahaman|\bL1\b|LOTS/i.test(s))return {c:null,k:"LOTS"};
+  return {c:null,k:"?"}}
+const KOG=[["LOTS","LOTS (C1–C2 / Knowing)","var(--lots)"],["MOTS","MOTS (C3 / Applying)","var(--mots)"],["HOTS","HOTS (C4–C6 / Reasoning)","var(--hots)"]];
+const CWARNA=["var(--c1)","var(--c2)","var(--c3)","var(--c4)","var(--c5)","var(--c6)"];
+const CNAMA=["Mengingat","Memahami","Menerapkan","Menganalisis","Mengevaluasi","Mencipta"];
+function komposisi(kisi){const n={LOTS:0,MOTS:0,HOTS:0,"?":0},c=[0,0,0,0,0,0];kisi.forEach(b=>{const x=kog(b);n[x.k]++;if(x.c)c[x.c-1]++});
+  const t=n.LOTS+n.MOTS+n.HOTS;return {n,c,t,hots:t?n.HOTS/t*100:null}}
+const legKog=()=>`<div class="legenda">${KOG.map(([,l,w])=>`<span><i style="background:${w}"></i>${l}</span>`).join("")}</div>`;
+function batangKog(km,besar){if(!km.t)return '<span class="kecil muted">kisi-kisi tanpa level</span>';
+  return `<div class="tumpuk${besar?" besar":""}">${KOG.map(([k,l,w])=>km.n[k]?`<i style="flex:${km.n[k]};background:${w}" data-tip="<b>${l}</b><br>${km.n[k]} butir · ${angka(km.n[k]/km.t*100,0)}%"></i>`:"").join("")}</div>`}
+
+// bentuk soal dari berbagai penulisan kisi-kisi → satu nama
+function bentukBaku(b){const s=String(b||"").trim().toUpperCase().replace(/[\s_–-]+/g," ");
+  if(!s)return "Tidak diisi";if(/^(PG ?K|PG KOMPLEKS|MCMA|PILIHAN GANDA KOMPLEKS)$/.test(s))return "Pilihan ganda kompleks";if(/^(PG|PILIHAN GANDA)$/.test(s))return "Pilihan ganda";
+  if(/^(BS|B ?S|BENAR SALAH)$/.test(s))return "Benar–salah";if(/^(MJ|JODOH|MENJODOHKAN)$/.test(s))return "Menjodohkan";if(/^KATEGORI/.test(s))return "Kategori";
+  if(/^(IS|ISIAN|ISIAN SINGKAT)$/.test(s))return "Isian singkat";if(/^(URAIAN|ESAI|ESSAY)$/.test(s))return "Uraian";return b}
+/* ---------------- Grafik ---------------- */
+// batang mendatar: [{label, nilai, tip, warna}]
+function grafikBH(it,o={}){if(!it.length)return '<p class="kosong">Belum ada data.</p>';const mx=o.maks||Math.max(...it.map(x=>x.nilai),1);
+  return `<div class="bh">${it.map(x=>`<span class="lb" title="${esc(x.label)}">${esc(x.label)}</span><span class="tr" data-tip="${x.tip||`<b>${esc(x.label)}</b><br>${angka(x.nilai)}`}"><span class="br" style="display:block;width:${Math.max(0,x.nilai)/mx*100}%;${x.warna?`background:${x.warna}`:""}"></span></span><span class="nl">${o.fmt?o.fmt(x.nilai):angka(x.nilai)}</span>`).join("")}</div>`}
+const bulatAtas=v=>{if(v<=4)return Math.max(2,Math.ceil(v/2)*2);const p=Math.pow(10,Math.floor(Math.log10(v))),f=v/p;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p};
+// kolom tegak SVG: [{label, nilai, tip, warna}]
+function grafikKolom(it,o={}){if(!it.length||!it.some(x=>x.nilai))return '<p class="kosong">Belum ada data.</p>';
+  const W=o.lebar||640,H=o.tinggi||200,kiri=34,bawah=26,atas=10,mx=o.maks||bulatAtas(Math.max(...it.map(x=>x.nilai),1)),pw=(W-kiri-6)/it.length,bw=Math.max(3,Math.min(36,pw*.7));
+  const sk=v=>atas+(H-atas-bawah)*(1-v/mx),gar=[0,.5,1].map(f=>Math.round(mx*f));
+  const lbLangkah=Math.ceil(it.length/(o.nLabel||10));
+  return `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria||"grafik kolom")}">
+    ${gar.map(g=>`<line class="kisi" x1="${kiri}" x2="${W-4}" y1="${sk(g)}" y2="${sk(g)}"/><text x="${kiri-6}" y="${sk(g)+4}" text-anchor="end">${o.fmtSumbu?o.fmtSumbu(g):g}</text>`).join("")}
+    <line class="sumbu" x1="${kiri}" x2="${W-4}" y1="${H-bawah}" y2="${H-bawah}"/>
+    ${it.map((x,i)=>{const cx=kiri+pw*i+pw/2,y=sk(x.nilai),h=H-bawah-y;return `<g class="kol"><rect class="hit" x="${cx-pw/2}" y="${atas}" width="${pw}" height="${H-bawah-atas}" data-tip="${x.tip||`<b>${esc(x.label)}</b><br>${angka(x.nilai)}`}"/>
+      ${x.nilai?`<path class="mk" d="M${cx-bw/2},${H-bawah} V${y+Math.min(4,h)} Q${cx-bw/2},${y} ${cx-bw/2+Math.min(4,bw/2)},${y} H${cx+bw/2-Math.min(4,bw/2)} Q${cx+bw/2},${y} ${cx+bw/2},${y+Math.min(4,h)} V${H-bawah} Z" fill="${x.warna||"var(--seri)"}" pointer-events="none"/>`:""}
+      ${i%lbLangkah===0?`<text x="${cx}" y="${H-8}" text-anchor="middle">${esc(x.label)}</text>`:""}</g>`}).join("")}</svg>`}
+// garis kecil (small multiples): seri [{nama, warna, putus, titik:[{x(ms), y, tip}]}]
+function grafikGaris(seri,o={}){const semua=seri.flatMap(s=>s.titik);if(!semua.length)return '<p class="kosong">Belum ada data.</p>';
+  const W=o.lebar||560,H=o.tinggi||190,kiri=30,bawah=24,atas=10,kanan=12;let x0=Math.min(...semua.map(t=>t.x)),x1=Math.max(...semua.map(t=>t.x));if(x1===x0){x0-=864e5*3;x1+=864e5*3}
+  const sx=x=>kiri+(W-kiri-kanan)*(x-x0)/(x1-x0),sy=y=>atas+(H-atas-bawah)*(1-y/100);
+  const tk=[x0,(x0+x1)/2,x1];
+  return `<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.aria||"grafik garis")}">
+    ${[0,50,100].map(g=>`<line class="kisi" x1="${kiri}" x2="${W-kanan}" y1="${sy(g)}" y2="${sy(g)}"/><text x="${kiri-6}" y="${sy(g)+4}" text-anchor="end">${g}</text>`).join("")}
+    ${o.kkm!=null?`<line x1="${kiri}" x2="${W-kanan}" y1="${sy(o.kkm)}" y2="${sy(o.kkm)}" stroke="var(--cukup)" stroke-width="1" stroke-dasharray="5 4"/><text x="${W-kanan}" y="${sy(o.kkm)-4}" text-anchor="end" style="fill:var(--emas-teks)">batas ${o.kkm}</text>`:""}
+    <line class="sumbu" x1="${kiri}" x2="${W-kanan}" y1="${H-bawah}" y2="${H-bawah}"/>
+    ${tk.map((t,i)=>`<text x="${sx(t)}" y="${H-7}" text-anchor="${["start","middle","end"][i]}">${tglPendek(t)}</text>`).join("")}
+    ${seri.map(s=>{const p=[...s.titik].sort((a,b)=>a.x-b.x);return `<path d="${p.map((t,i)=>(i?"L":"M")+sx(t.x).toFixed(1)+","+sy(t.y).toFixed(1)).join(" ")}" fill="none" stroke="${s.warna}" stroke-width="2" ${s.putus?'stroke-dasharray="5 4"':""} stroke-linejoin="round"/>
+      ${p.map(t=>`<circle cx="${sx(t.x)}" cy="${sy(t.y)}" r="${s.putus?3:4.5}" fill="${s.putus?"#fff":s.warna}" stroke="${s.putus?s.warna:"#fff"}" stroke-width="2"/><circle cx="${sx(t.x)}" cy="${sy(t.y)}" r="12" class="hit" data-tip="${t.tip}"/>`).join("")}`}).join("")}</svg>`}
+const garisMini=(ys,w=90,h=24)=>{if(ys.length<2)return "";const mn=0,mx=100,sx=i=>2+(w-4)*i/(ys.length-1),sy=y=>2+(h-4)*(1-(y-mn)/(mx-mn));
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${ys.map((y,i)=>(i?"L":"M")+sx(i).toFixed(1)+","+sy(y).toFixed(1)).join(" ")}" fill="none" stroke="var(--seri)" stroke-width="1.6"/><circle cx="${sx(ys.length-1)}" cy="${sy(ys[ys.length-1])}" r="2.5" fill="var(--seri)"/></svg>`};
+const minggu=iso=>{const d=new Date(new Date(iso).toLocaleString("en-US",WIB));d.setHours(0,0,0,0);d.setDate(d.getDate()-((d.getDay()+6)%7));return d.getTime()};
+function perMinggu(waktu,dari,sampai){const m=new Map();let t=minggu(dari);const akhir=minggu(sampai);while(t<=akhir){m.set(t,0);t+=7*864e5}
+  waktu.forEach(w=>{const k=minggu(w);if(m.has(k))m.set(k,m.get(k)+1)});return [...m.entries()]}
+// tingkat nilai: b = ≥ batas, c = batas−15 .. batas, k = di bawahnya
+const KKM=()=>{const v=parseInt($("f-kkm").value,10);return v>=0&&v<=100?v:75};
+const kelasNilai=v=>v==null?"":v>=KKM()?"b":v>=KKM()-15?"c":"k";
+
+/* ---------------- Keterangan saat disentuh ---------------- */
+(()=>{const tp=$("tip");let aktif=null;
+  document.addEventListener("pointermove",e=>{const el=e.target.closest&&e.target.closest("[data-tip]");if(!el){tp.classList.remove("on");aktif=null;return}
+    if(el!==aktif){tp.innerHTML=el.getAttribute("data-tip");aktif=el}tp.classList.add("on");
+    const w=tp.offsetWidth,h=tp.offsetHeight;let x=e.clientX+14,y=e.clientY+14;if(x+w>innerWidth-8)x=e.clientX-w-14;if(y+h>innerHeight-8)y=e.clientY-h-14;tp.style.left=x+"px";tp.style.top=y+"px"});
+  document.addEventListener("scroll",()=>tp.classList.remove("on"),true)})();
+
+/* ---------------- Masuk & data ---------------- */
+let PIN="",D=null,TAB="ringkas",BUTIR={},P_PILIH=null,G_SISWA=null;
+const KUNCI_PIN="tka_v2_pin";
+async function masuk(pin){$("pin-pesan").textContent="Memeriksa PIN…";
+  try{D=await rpc("kur_data",{p_pin:pin,p_periode:$("f-periode").value||null});PIN=pin;
+    try{sessionStorage.setItem(KUNCI_PIN,JSON.stringify({pin,peran:D.peran}))}catch(e){}
+    $("kartu-pin").classList.add("hidden");$("v-isi").classList.remove("hidden");$("btn-keluar").classList.remove("hidden");siapkan();gambar()}
+  catch(e){$("pin-pesan").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
+$("btn-pin").onclick=()=>masuk($("pin").value.trim());$("pin").onkeydown=e=>{if(e.key==="Enter")$("btn-pin").click()};
+$("btn-keluar").onclick=()=>{try{sessionStorage.removeItem(KUNCI_PIN)}catch(e){}location.href="index.html?guru"};
+$("btn-muat").onclick=async e=>{const b=e.target;b.disabled=true;b.textContent="Memuat…";
+  try{D=await rpc("kur_data",{p_pin:PIN,p_periode:$("f-periode").value||null});BUTIR={};siapkan();gambar();toast("Data diperbarui")}catch(er){toast(er.message,6000)}finally{b.disabled=false;b.textContent="Muat ulang"}};
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;lsSet("kur_tab",TAB);gambar();scrollTo({top:0,behavior:"smooth"})});
+
+const namaGuru=(id,cad)=>(id&&D.guru[id])||cad||id||"—";
+const jenisBaku=j=>!j?"Lainnya":/^TO_?TKA$/i.test(j)?"Tryout TKA":j;
+const tingkatPaket=p=>(Array.isArray(p.tingkat)&&p.tingkat.length?p.tingkat:[String(p.kelas||"").match(/\d+/)?.[0]||String(p.kelas||"")]).join(", ");
+let PK={},SISWA={},KELAS_N={};
+function siapkan(){
+  PK={};D.paket.forEach(p=>{p.jenisB=jenisBaku(p.jenis);p.guru=namaGuru(p.pemilik,p.penyusun);p.km=komposisi(p.kisi);PK[p.kode]=p});
+  D.kisi_saja.forEach(k=>{k.jenisB=jenisBaku(k.jenis);k.guru=namaGuru(k.pemilik);k.km=komposisi(k.kisi)});
+  SISWA={};KELAS_N={};D.siswa.forEach(([n,nm,k])=>{SISWA[n]={nama:nm,kelas:k};KELAS_N[k]=(KELAS_N[k]||0)+1});
+  D.H=D.hasil.map(([nisn,kelas,ujian,nilai,waktu,sesi])=>({nisn,kelas:kelas||(SISWA[nisn]||{}).kelas||"—",ujian,nilai,waktu,sesi,p:PK[ujian]}));
+  // pilihan saringan (dipertahankan)
+  const isi=(id,daftar,semua)=>{const el=$(id),v=el.value;el.innerHTML=`<option value="">${semua}</option>`+daftar.map(x=>`<option value="${esc(x[0])}">${esc(x[1])}</option>`).join("");if(daftar.some(x=>x[0]===v))el.value=v};
+  const semuaPaket=[...D.paket,...D.kisi_saja];
+  isi("f-mapel",[...new Set(semuaPaket.map(p=>p.mapel).filter(Boolean))].sort(urutID).map(m=>[m,m]),"Semua mapel");
+  isi("f-jenis",[...new Set(semuaPaket.map(p=>p.jenisB))].sort(urutID).map(j=>[j,j]),"Semua jenis");
+  isi("f-guru",[...new Map(semuaPaket.filter(p=>p.pemilik).map(p=>[p.pemilik,p.guru])).entries()].sort((a,b)=>urutID(a[1],b[1])),"Semua guru");
+  const per=$("f-periode");if(!per.options.length){const k=D.periode.kode,[y1,y2,s]=k.split("-").map(Number),L=[];let a=y1,b=y2,c=s;
+    for(let i=0;i<4;i++){L.push([`${a}-${b}-${c}`,`${a}/${b} ${c===1?"Ganjil":"Genap"}`]);if(c===2)c=1;else{c=2;a--;b--}}
+    per.innerHTML=L.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("");per.value=k}
+  $("k-periode").textContent="Semester "+D.periode.nama;
+  $("k-info").textContent=`Data per ${new Date(D.sekarang).toLocaleString("id-ID",{...WIB,day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})} · ${D.paket.length} paket · ${D.sesi.length} sesi · ${D.hasil.length} hasil siswa semester ini${D.peran==="operator"?" · masuk sebagai operator":""}`;
+}
+// saringan atas
+const F=()=>({mapel:$("f-mapel").value,jenis:$("f-jenis").value,guru:$("f-guru").value});
+const cocokPaket=p=>{const f=F();return p&&(!f.mapel||p.mapel===f.mapel)&&(!f.jenis||p.jenisB===f.jenis)&&(!f.guru||p.pemilik===f.guru)};
+const paketTersaring=()=>D.paket.filter(cocokPaket);
+const hasilTersaring=()=>D.H.filter(h=>cocokPaket(h.p));
+const sesiTersaring=()=>D.sesi.filter(s=>cocokPaket(PK[s.ujian]));
+["f-mapel","f-jenis","f-guru"].forEach(id=>$(id).onchange=()=>{lsSet("kur_saring",F());gambar()});
+$("f-kkm").value=lsGet("kur_kkm",75);$("f-kkm").oninput=()=>{lsSet("kur_kkm",KKM());if(D)gambar()};
+$("f-periode").onchange=async()=>{try{toast("Memuat semester "+$("f-periode").selectedOptions[0].textContent+"…");D=await rpc("kur_data",{p_pin:PIN,p_periode:$("f-periode").value});BUTIR={};siapkan();gambar()}catch(e){toast(e.message,6000)}};
+
+function gambar(){
+  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===TAB));
+  ["ringkas","paket","sesi","hasil","siswa"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
+  const f=F(),aktif=[f.mapel,f.jenis,f.guru&&namaGuru(f.guru)].filter(Boolean);
+  $("f-ket").textContent=aktif.length?"Disaring: "+aktif.join(" · "):"Semua mapel, jenis, dan guru";
+  ({ringkas:gRingkas,paket:gPaket,sesi:gSesi,hasil:gHasil,siswa:gSiswa})[TAB]();
+}
+
+/* ================= Ringkasan ================= */
+function gRingkas(){
+  const P=paketTersaring(),H=hasilTersaring(),S=sesiTersaring(),f=F();
+  const KS=D.kisi_saja.filter(cocokPaket),km=komposisi(P.flatMap(p=>p.kisi)),guruN=new Set(P.map(p=>p.pemilik).filter(Boolean)).size;
+  const siswaN=new Set(H.map(h=>h.nisn)).size,nAktif=D.siswa.length;
+  $("r-ubin").innerHTML=[
+    [P.length,"paket soal",KS.length?`+ ${KS.length} kisi-kisi belum bersoal`:`${P.reduce((a,p)=>a+(p.n_soal||0),0)} butir soal`],
+    [guruN,"guru penyusun",`${new Set(P.map(p=>p.mapel)).size} mapel`],
+    [S.length,"sesi dibuka",`semester ${D.periode.nama}`],
+    [siswaN,"siswa mengerjakan",`${angka(siswaN/Math.max(1,nAktif)*100,0)}% dari ${nAktif} siswa aktif`],
+    [angka(rata(H.map(h=>h.nilai))),"rata-rata nilai",`${H.length} hasil · ${angka(H.filter(h=>h.nilai>=KKM()).length/Math.max(1,H.length)*100,0)}% ≥ ${KKM()}`],
+    [km.hots==null?"–":angka(km.hots,0)+"%","butir HOTS",`${km.n.HOTS} dari ${km.t} butir berlevel`],
+  ].map(([v,l,e])=>`<div><b>${v}</b><span>${l}</span><em>${e}</em></div>`).join("");
+  // temuan
+  const T=[];
+  if(km.t){const pm=[...new Set(P.map(p=>p.mapel))].map(m=>({m,k:komposisi(P.filter(p=>p.mapel===m).flatMap(p=>p.kisi))})).filter(x=>x.k.t);
+    pm.sort((a,b)=>b.k.hots-a.k.hots);
+    T.push(`<b>${angka(km.hots,0)}%</b> butir soal berada pada tingkat <b>HOTS</b> (C4–C6 / Reasoning), ${angka(km.n.MOTS/km.t*100,0)}% MOTS, dan ${angka(km.n.LOTS/km.t*100,0)}% LOTS.`+
+      (pm.length>1?` HOTS tertinggi di <b>${esc(pm[0].m)}</b> (${angka(pm[0].k.hots,0)}%), terendah di <b>${esc(pm[pm.length-1].m)}</b> (${angka(pm[pm.length-1].k.hots,0)}%).`:""))}
+  const baru=P.filter(p=>Date.now()-Date.parse(p.dibuat)<30*864e5);
+  T.push(baru.length?`<b>${baru.length} paket</b> diunggah dalam 30 hari terakhir, terbaru <b>${esc(baru[0].judul)}</b> oleh ${esc(baru[0].guru)} (${tgl(baru[0].dibuat)}).`:"Tidak ada paket baru dalam 30 hari terakhir.");
+  if(KS.length)T.push(`<b>${KS.length} kisi-kisi</b> sudah diunggah tetapi soalnya belum: ${KS.slice(0,3).map(k=>esc(k.judul)+" ("+esc(k.guru)+")").join(", ")}${KS.length>3?", …":""}.`);
+  const kelasSemua=Object.keys(KELAS_N).sort(urutID),kelasUji=new Set(H.map(h=>h.kelas)),belum=kelasSemua.filter(k=>!kelasUji.has(k));
+  if(kelasSemua.length)T.push(belum.length?`<b>${belum.length} dari ${kelasSemua.length} kelas</b> belum punya hasil ${f.mapel?esc(f.mapel)+" ":""}semester ini: ${belum.slice(0,8).map(esc).join(", ")}${belum.length>8?", …":""}.`:`Semua ${kelasSemua.length} kelas sudah punya hasil ${f.mapel?esc(f.mapel)+" ":""}semester ini.`);
+  if(H.length){const pk=[...new Set(H.map(h=>h.ujian))].map(u=>{const a=H.filter(h=>h.ujian===u);return {p:PK[u],n:a.length,r:rata(a.map(h=>h.nilai))}}).filter(x=>x.p&&x.n>=10).sort((a,b)=>a.r-b.r);
+    if(pk.length)T.push(`Rata-rata terendah: <b>${esc(pk[0].p.judul)}</b> (${angka(pk[0].r)} dari ${pk[0].n} siswa)${pk.length>1?`; tertinggi: <b>${esc(pk[pk.length-1].p.judul)}</b> (${angka(pk[pk.length-1].r)})`:""}.`)}
+  $("r-temuan").innerHTML=T.map(t=>`<p>${t}</p>`).join("");
+  // komposisi kognitif per mapel
+  const mp=[...new Set(P.map(p=>p.mapel))].sort(urutID).map(m=>({m,k:komposisi(P.filter(p=>p.mapel===m).flatMap(p=>p.kisi))}));
+  $("r-kog").innerHTML=mp.length?`<div class="bh" style="grid-template-columns:minmax(90px,max-content) 1fr auto">${[{m:"Semua mapel",k:km},...mp].map(x=>`<span class="lb"${x.m==="Semua mapel"?' style="font-weight:700"':""}>${esc(x.m)}</span>${batangKog(x.k)}<span class="nl" title="HOTS">${x.k.hots==null?"–":angka(x.k.hots,0)+"%"}</span>`).join("")}</div>${legKog()}<p class="kecil muted" style="margin-top:6px">Angka di kanan = persentase HOTS.</p>`:'<p class="kosong">Belum ada paket.</p>';
+  // jenis
+  const jn={};P.forEach(p=>jn[p.jenisB]=(jn[p.jenisB]||0)+1);
+  $("r-jenis").innerHTML=grafikBH(Object.entries(jn).sort((a,b)=>b[1]-a[1]).map(([j,n])=>({label:j,nilai:n,tip:`<b>${esc(j)}</b><br>${n} paket`})));
+  // unggahan per minggu (sejak paket pertama)
+  if(P.length){const w=P.map(p=>p.dibuat),d0=w.reduce((a,b)=>a<b?a:b),pm=perMinggu(w,d0,new Date().toISOString());
+    $("r-unggah").innerHTML=grafikKolom(pm.map(([t,n])=>({label:tglPendek(t),nilai:n,tip:`<b>Minggu ${tglPendek(t)}</b><br>${n} paket diunggah`})),{aria:"paket per minggu",nLabel:8})}else $("r-unggah").innerHTML='<p class="kosong">Belum ada paket.</p>';
+  const pa=perMinggu(H.map(h=>h.waktu),D.periode.dari,new Date(Math.min(Date.now(),Date.parse(D.periode.sampai))).toISOString());
+  $("r-aktif").innerHTML=grafikKolom(pa.map(([t,n])=>({label:tglPendek(t),nilai:n,tip:`<b>Minggu ${tglPendek(t)}</b><br>${n} jawaban dikumpulkan`})),{aria:"hasil per minggu",nLabel:8});
+  // per guru
+  const G=[...new Set(D.paket.filter(p=>(!f.mapel||p.mapel===f.mapel)&&(!f.jenis||p.jenisB===f.jenis)).map(p=>p.pemilik||"—"))].map(g=>{
+    const pp=D.paket.filter(p=>(p.pemilik||"—")===g&&(!f.mapel||p.mapel===f.mapel)&&(!f.jenis||p.jenisB===f.jenis)),kd=new Set(pp.map(p=>p.kode)),hh=D.H.filter(h=>kd.has(h.ujian));
+    return {g,nama:pp[0].guru,mapel:[...new Set(pp.map(p=>p.mapel))].join(", "),n:pp.length,soal:pp.reduce((a,p)=>a+(p.n_soal||0),0),km:komposisi(pp.flatMap(p=>p.kisi)),
+      sesi:D.sesi.filter(s=>kd.has(s.ujian)).length,hasil:hh.length,kelas:new Set(hh.map(h=>h.kelas)).size,r:rata(hh.map(h=>h.nilai)),akhir:pp.map(p=>p.dibuat).sort().pop()}}).sort((a,b)=>b.n-a.n);
+  $("r-guru").innerHTML=`<thead><tr><th>Guru</th><th>Mapel</th><th class="n">Paket</th><th class="n">Butir</th><th style="min-width:180px">Tingkat berpikir soal</th><th class="n">HOTS</th><th class="n">Sesi</th><th class="n">Kelas</th><th class="n">Hasil siswa</th><th class="n">Rata-rata</th><th>Unggah terakhir</th></tr></thead><tbody>`+
+    G.map(x=>`<tr class="klik" data-g="${esc(x.g)}"><td><b>${esc(x.nama)}</b></td><td>${esc(x.mapel)}</td><td class="n">${x.n}</td><td class="n">${x.soal}</td><td>${batangKog(x.km)}</td><td class="n">${x.km.hots==null?"–":angka(x.km.hots,0)+"%"}</td>
+      <td class="n">${x.sesi||"–"}</td><td class="n">${x.kelas||"–"}</td><td class="n">${x.hasil||"–"}</td><td class="n"><span class="nilai-${kelasNilai(x.r)}">${angka(x.r)}</span></td><td>${tgl(x.akhir)}</td></tr>`).join("")+"</tbody>";
+  document.querySelectorAll("#r-guru [data-g]").forEach(tr=>tr.onclick=()=>{if(tr.dataset.g!=="—"){$("f-guru").value=tr.dataset.g;lsSet("kur_saring",F())}TAB="paket";gambar()});
+}
+
+/* ================= Paket & Kisi-kisi ================= */
+function gPaket(){
+  const q=$("p-cari").value.trim().toLowerCase(),cocok=p=>!q||[p.judul,p.kode,p.guru,p.mapel].some(x=>String(x||"").toLowerCase().includes(q));
+  const P=paketTersaring().filter(cocok),KS=D.kisi_saja.filter(cocokPaket).filter(cocok),kisi=P.flatMap(p=>p.kisi),km=komposisi(kisi);
+  const tanpaC=kisi.filter(b=>!kog(b).c).length;
+  $("p-c").innerHTML=km.c.some(Boolean)?grafikKolom(km.c.map((n,i)=>({label:"C"+(i+1),nilai:n,warna:CWARNA[i],tip:`<b>C${i+1} · ${CNAMA[i]}</b><br>${n} butir${km.t?` · ${angka(n/km.c.reduce((a,b)=>a+b,0)*100,0)}%`:""}`})),{aria:"sebaran C1 sampai C6",tinggi:180})+
+    `<p class="kecil muted" style="margin-top:6px">${tanpaC?`${tanpaC} butir hanya berlabel kategori TKA (tanpa C): ${km.n.LOTS-km.c[0]-km.c[1]} Knowing, ${km.n.MOTS-km.c[2]} Applying, ${km.n.HOTS-km.c[3]-km.c[4]-km.c[5]} Reasoning.`:"Semua butir berlabel C."}</p>`:
+    `<p class="kosong">Belum ada butir berlabel C1–C6.${km.t?` ${km.t} butir memakai kategori TKA: ${km.n.LOTS} Knowing · ${km.n.MOTS} Applying · ${km.n.HOTS} Reasoning.`:""}</p>`;
+  const bt={};kisi.forEach(b=>{const k=bentukBaku(b.bentuk);bt[k]=(bt[k]||0)+1});
+  $("p-bentuk").innerHTML=grafikBH(Object.entries(bt).sort((a,b)=>b[1]-a[1]).map(([k,n])=>({label:k,nilai:n,tip:`<b>${esc(k)}</b><br>${n} butir`})));
+  $("p-n").textContent=`(${P.length}${KS.length?` + ${KS.length} kisi-kisi`:""})`;
+  const nSesi=k=>D.sesi.filter(s=>s.ujian===k).length,nHasil=k=>D.H.filter(h=>h.ujian===k).length;
+  const status=p=>[p.arsip?'<span class="pill">arsip</span>':"",p.dibagikan?'<span class="pill good">publish</span>':'<span class="pill">belum publish</span>',p.tanpa_kisi?'<span class="pill warn" title="Diunggah lewat Upload tanpa kisi-kisi">tanpa kisi-kisi</span>':""].join(" ");
+  $("p-tabel").innerHTML=`<thead><tr><th>Diunggah</th><th>Paket soal</th><th>Mapel · tingkat</th><th>Jenis</th><th>Guru penyusun</th><th class="n">Butir</th><th style="min-width:170px">Tingkat berpikir</th><th class="n">HOTS</th><th class="n">Sesi</th><th class="n">Hasil</th><th>Status</th></tr></thead><tbody>`+
+    (P.map(p=>`<tr class="klik${P_PILIH===p.kode?" pilih":""}" data-k="${esc(p.kode)}"><td style="white-space:nowrap">${tgl(p.dibuat)}<div class="kecil muted">${jam(p.dibuat)}</div></td><td><b>${esc(p.judul)}</b><div class="kecil muted">${esc(p.kode)}</div></td>
+      <td>${esc(p.mapel)}<div class="kecil muted">kelas ${esc(tingkatPaket(p))}</div></td><td>${esc(p.jenisB)}</td><td>${esc(p.guru)}</td><td class="n">${p.n_soal}${p.n_varian>1?`<div class="kecil muted">${p.n_varian} varian</div>`:""}</td>
+      <td>${batangKog(p.km)}</td><td class="n">${p.km.hots==null?"–":angka(p.km.hots,0)+"%"}</td><td class="n">${nSesi(p.kode)||"–"}</td><td class="n">${nHasil(p.kode)||"–"}</td><td>${status(p)}</td></tr>`).join("")+
+     KS.map(k=>`<tr class="klik${P_PILIH===k.kode?" pilih":""}" data-k="${esc(k.kode)}" data-kisi="1"><td style="white-space:nowrap">${tgl(k.dibuat)}</td><td><b>${esc(k.judul)}</b><div class="kecil muted">${esc(k.kode)}</div></td><td>${esc(k.mapel)}</td><td>${esc(k.jenisB)}</td><td>${esc(k.guru)}</td><td class="n">${k.n_soal||"–"}</td>
+      <td>${batangKog(k.km)}</td><td class="n">${k.km.hots==null?"–":angka(k.km.hots,0)+"%"}</td><td class="n">–</td><td class="n">–</td><td><span class="pill info">kisi-kisi, soal belum</span></td></tr>`).join("")||
+     '<tr><td colspan="11" class="kosong">Tidak ada paket yang cocok dengan saringan.</td></tr>')+"</tbody>";
+  $("p-legenda").innerHTML=legKog().replace(/^<div class="legenda">|<\/div>$/g,"");
+  document.querySelectorAll("#p-tabel [data-k]").forEach(tr=>tr.onclick=()=>{P_PILIH=tr.dataset.k;gPaket();rinciPaket(tr.dataset.k,!!tr.dataset.kisi);$("p-rinci").scrollIntoView({behavior:"smooth",block:"start"})});
+  if(P_PILIH)rinciPaket(P_PILIH,!PK[P_PILIH]);else $("p-rinci").classList.add("hidden");
+}
+$("p-cari").oninput=()=>gPaket();
+async function rinciPaket(kode,kisiSaja){const p=kisiSaja?D.kisi_saja.find(k=>k.kode===kode):PK[kode],el=$("p-rinci");if(!p){el.classList.add("hidden");return}el.classList.remove("hidden");
+  const km=p.km,nH=D.H.filter(h=>h.ujian===kode).length;
+  el.innerHTML=`<div class="kepala"><div><div class="alis">${esc(p.jenisB)} · ${esc(p.mapel)}</div><h3>${esc(p.judul)}</h3><p class="small muted">${esc(p.kode)} · ${esc(p.guru)} · diunggah ${tgl(p.dibuat)} ${p.dibuat?jam(p.dibuat):""}${p.diubah&&p.diubah.slice(0,16)!==String(p.dibuat).slice(0,16)?` · diubah ${tgl(p.diubah)}`:""}</p></div>
+    <div class="row">${nH?`<button class="ghost mini" id="pr-hasil">Lihat hasil (${nH})</button>`:""}<button class="ghost mini" id="pr-tutup">Tutup</button></div></div>
+    <div class="grid2"><div><p class="small" style="margin-bottom:6px"><b>Komposisi tingkat berpikir</b> · ${km.t} butir berlevel</p>${batangKog(km,true)}${legKog()}</div>
+      <div><p class="small" style="margin-bottom:6px"><b>Sebaran C1–C6</b></p>${km.c.some(Boolean)?grafikKolom(km.c.map((n,i)=>({label:"C"+(i+1),nilai:n,warna:CWARNA[i],tip:`<b>C${i+1} · ${CNAMA[i]}</b><br>${n} butir`})),{tinggi:130}):'<p class="small muted">Kisi-kisi memakai kategori TKA (Knowing/Applying/Reasoning), tanpa level C.</p>'}</div></div>
+    <div class="gulir"><table><thead><tr><th class="n">No</th><th>Sub-materi / kompetensi</th><th>Indikator</th><th class="n">Level</th><th>Kategori</th><th>Bentuk</th><th class="n" id="pr-pb">% benar</th></tr></thead><tbody id="pr-kisi">${p.kisi.map(b=>{const x=kog(b);
+      return `<tr><td class="n">${esc(b.no)}</td><td>${esc(b.sub)}</td><td class="small">${esc(b.indikator)}</td><td class="n"><span class="lv ${x.c?"c"+x.c:x.k==="?"?"x":x.k}">${x.c?"C"+x.c:x.k}</span></td><td class="small">${esc(b.tka||(x.c?CNAMA[x.c-1]:b.level||""))}</td><td>${esc(bentukBaku(b.bentuk))}</td><td class="n pb">…</td></tr>`}).join("")||'<tr><td colspan="7" class="kosong">Kisi-kisi kosong.</td></tr>'}</tbody></table></div>`;
+  $("pr-tutup").onclick=()=>{P_PILIH=null;gPaket()};if($("pr-hasil"))$("pr-hasil").onclick=()=>{TAB="hasil";H_PAKET=kode;gambar()};
+  // % benar per butir bila sudah ada hasil
+  const sel=[...el.querySelectorAll("td.pb")];if(!nH||kisiSaja){sel.forEach(t=>t.textContent="–");return}
+  try{const B=await butir(kode),pb=persenButir(B.baris,B.kisi.length||p.kisi.length);sel.forEach((t,i)=>{const v=pb[i];t.innerHTML=v==null?"–":`<span class="nilai-${v>=70?"b":v>=40?"c":"k"}">${angka(v,0)}%</span>`})}catch(e){sel.forEach(t=>t.textContent="?")}}
+
+/* ================= Sesi & Pelaksanaan ================= */
+function gSesi(){
+  const S=sesiTersaring(),H=hasilTersaring(),q=$("s-cari").value.trim().toLowerCase();
+  const target=s=>s.mode==="kelas"?s.kelas.reduce((a,k)=>a+(KELAS_N[k]||0),0):null;
+  const nT=S.reduce((a,s)=>a+(target(s)||0),0),nH=S.reduce((a,s)=>a+s.n_hasil,0);
+  $("s-ubin").innerHTML=[[S.length,"sesi dibuka",`${new Set(S.map(s=>s.oleh)).size} guru`],[new Set(S.flatMap(s=>s.kelas)).size,"kelas terlibat",`dari ${Object.keys(KELAS_N).length} kelas`],
+    [nH,"jawaban terkumpul",nT?`${angka(nH/nT*100,0)}% dari peserta sasaran`:""],[S.filter(s=>Date.parse(s.sampai)>Date.now()&&Date.parse(s.mulai)<=Date.now()).length,"sedang berlangsung",`${S.filter(s=>Date.parse(s.mulai)>Date.now()).length} terjadwal`]]
+    .map(([v,l,e])=>`<div><b>${v}</b><span>${l}</span><em>${e}</em></div>`).join("");
+  const pm=perMinggu(S.map(s=>s.mulai),D.periode.dari,new Date(Math.min(Date.now()+7*864e5,Date.parse(D.periode.sampai))).toISOString());
+  $("s-minggu").innerHTML=grafikKolom(pm.map(([t,n])=>({label:tglPendek(t),nilai:n,tip:`<b>Minggu ${tglPendek(t)}</b><br>${n} sesi dibuka`})),{aria:"sesi per minggu",nLabel:8});
+  // peta kelas × mapel: banyak paket berbeda yang punya hasil
+  const kelas=Object.keys(KELAS_N).sort(urutID),mapel=[...new Set(H.map(h=>h.p&&h.p.mapel).filter(Boolean))].sort(urutID);
+  if(!mapel.length)$("s-peta").innerHTML='<p class="kosong">Belum ada hasil.</p>';else{
+    const sel=(k,m)=>{const a=H.filter(h=>h.kelas===k&&h.p.mapel===m);return {n:new Set(a.map(h=>h.ujian)).size,s:new Set(a.map(h=>h.nisn)).size}};
+    const M=Math.max(1,...kelas.flatMap(k=>mapel.map(m=>sel(k,m).n))),warna=["#fff","#cde2fb","#9ec5f4","#5598e7","#256abf","#104281"];
+    $("s-peta").innerHTML=`<table class="peta"><thead><tr><th>Kelas</th>${mapel.map(m=>`<th>${esc(m)}</th>`).join("")}</tr></thead><tbody>${kelas.map(k=>`<tr><td><b>${esc(k)}</b> <span class="kecil muted">${KELAS_N[k]}</span></td>${mapel.map(m=>{const x=sel(k,m),i=x.n?Math.min(5,1+Math.floor((x.n-1)/M*5)):0;
+      return `<td style="background:${warna[i]};color:${i>=3?"#fff":"var(--tinta)"}" data-tip="<b>${esc(k)} · ${esc(m)}</b><br>${x.n} paket · ${x.s} dari ${KELAS_N[k]} siswa">${x.n||""}</td>`}).join("")}</tr>`).join("")}</tbody></table>`}
+  const L=S.filter(s=>{if(!q)return true;const p=PK[s.ujian]||{};return [p.judul,s.ujian,s.oleh_nama,namaGuru(s.oleh),s.kelas.join(" "),p.mapel].some(x=>String(x||"").toLowerCase().includes(q))});
+  $("s-n").textContent=`(${L.length})`;
+  $("s-tabel").innerHTML=`<thead><tr><th>Waktu</th><th>Paket</th><th>Guru</th><th>Kelas</th><th style="min-width:160px">Mengerjakan</th><th class="n">Rata-rata</th><th>Cara masuk</th></tr></thead><tbody>`+
+    (L.map(s=>{const p=PK[s.ujian]||{judul:s.ujian,mapel:""},t=target(s),hs=D.H.filter(h=>h.sesi===s.id),r=rata(hs.map(h=>h.nilai)),kini=Date.now(),st=Date.parse(s.mulai)>kini?'<span class="pill info">terjadwal</span>':Date.parse(s.sampai)>kini?'<span class="pill good">berlangsung</span>':s.n_hasil?"":'<span class="pill" title="Sesi sudah selesai tanpa ada siswa yang mengumpulkan">tanpa hasil</span>';
+      const satuHari=tgl(s.mulai)===tgl(s.sampai);
+      return `<tr class="klik" data-k="${esc(s.ujian)}"><td style="white-space:nowrap">${tgl(s.mulai)}<div class="kecil muted">${jam(s.mulai)}–${satuHari?"":tglPendek(s.sampai)+" "}${jam(s.sampai)}</div></td><td><b>${esc(p.judul)}</b><div class="kecil muted">${esc(p.mapel||"")} · ${esc(p.jenisB||"")}</div></td>
+        <td>${esc(s.oleh_nama||namaGuru(s.oleh))}</td><td>${s.mode==="kelas"?s.kelas.map(esc).join(", "):esc(s.mode||"")}</td>
+        <td>${t?`<div class="row" style="gap:6px;flex-wrap:nowrap"><span class="tumpuk" style="flex:1;min-width:70px;background:var(--kertas-3)"><i style="flex:${Math.min(s.n_hasil,t)};background:var(--seri)"></i><i style="flex:${Math.max(0,t-s.n_hasil)};background:transparent"></i></span><span class="kecil" style="white-space:nowrap"><b>${s.n_hasil}</b>/${t}</span></div>`:`<b>${s.n_hasil}</b> siswa`} ${st}</td>
+        <td class="n"><span class="nilai-${kelasNilai(r)}">${angka(r)}</span></td><td class="small">${s.pas?"Asesmen Bersama":s.tanpa_kode?"tanpa kode (NISN)":"kode akses"}</td></tr>`}).join("")||'<tr><td colspan="7" class="kosong">Belum ada sesi.</td></tr>')+"</tbody>";
+  document.querySelectorAll("#s-tabel [data-k]").forEach(tr=>tr.onclick=()=>{H_PAKET=tr.dataset.k;TAB="hasil";gambar()});
+}
+$("s-cari").oninput=()=>gSesi();
+
+/* ================= Hasil & Analisis ================= */
+let H_PAKET=null;
+async function butir(kode){if(!BUTIR[kode])BUTIR[kode]=await rpc("kur_butir",{p_pin:PIN,p_ujian:kode});return BUTIR[kode]}
+function persenButir(rows,n){const b=Array(n).fill(0),t=Array(n).fill(0);rows.forEach(r=>{const s=String(r[3]||"");for(let i=0;i<n;i++)if(i<s.length){t[i]++;if(s[i]==="1")b[i]++}});return b.map((x,i)=>t[i]?x/t[i]*100:null)}
+async function gHasil(){
+  const H=hasilTersaring(),kode=[...new Set(H.map(h=>h.ujian))].map(k=>({k,p:PK[k],n:H.filter(h=>h.ujian===k).length,akhir:H.filter(h=>h.ujian===k).map(h=>h.waktu).sort().pop()})).filter(x=>x.p).sort((a,b)=>urutID(b.akhir,a.akhir));
+  const sp=$("h-paket");sp.innerHTML=kode.map(x=>`<option value="${esc(x.k)}">${esc(x.p.judul)} — ${esc(x.p.mapel)} · ${x.n} hasil</option>`).join("")||'<option value="">Belum ada hasil</option>';
+  if(H_PAKET&&kode.some(x=>x.k===H_PAKET))sp.value=H_PAKET;H_PAKET=sp.value||null;
+  if(!H_PAKET){$("h-kelas").innerHTML="";$("h-isi").innerHTML='<div class="card kosong">Belum ada hasil siswa untuk saringan ini.</div>';return}
+  const semua=D.H.filter(h=>h.ujian===H_PAKET),kls=[...new Set(semua.map(h=>h.kelas))].sort(urutID),sk=$("h-kelas"),vk=sk.value;
+  sk.innerHTML='<option value="">Semua kelas</option>'+kls.map(k=>`<option${k===vk?" selected":""}>${esc(k)}</option>`).join("");
+  const K=sk.value,A=semua.filter(h=>!K||h.kelas===K),p=PK[H_PAKET],v=A.map(h=>h.nilai),kkm=KKM();
+  const sesiP=D.sesi.filter(s=>s.ujian===H_PAKET);
+  $("h-isi").innerHTML=`<div class="ubin" style="margin-top:12px">${[[A.length,"siswa mengerjakan",K||`${kls.length} kelas`],[angka(rata(v)),"rata-rata",`median ${angka(median(v))}`],[Math.max(...v),"tertinggi",""],[Math.min(...v),"terendah",""],
+      [angka(v.filter(x=>x>=kkm).length/Math.max(1,v.length)*100,0)+"%","mencapai batas "+kkm,`${v.filter(x=>x>=kkm).length} siswa`],[sesiP.length,"sesi",sesiP.length?`${tgl(sesiP[sesiP.length-1].mulai)} – ${tgl(sesiP[0].sampai)}`:"" ]]
+      .map(([a,b,c])=>`<div><b>${a}</b><span>${b}</span><em>${c}</em></div>`).join("")}</div>
+    <div class="grid2" style="margin-top:12px">
+      <div class="card grafik"><h3>Bagaimana sebaran nilainya?</h3><p class="sub">Banyak siswa per rentang nilai${K?" · "+esc(K):""}</p><div id="h-sebar"></div></div>
+      <div class="card grafik"><h3>Kelas mana yang tertinggal?</h3><p class="sub">Rata-rata nilai per kelas, dari yang terendah</p><div id="h-kelasbar"></div></div>
+    </div>
+    <div class="card grafik"><h3>Soal mana yang paling sulit?</h3><p class="sub">Persentase siswa menjawab benar per butir, diwarnai tingkat berpikirnya. Butir &lt; 30% sangat sulit, &gt; 85% sangat mudah.</p><div id="h-butir"><p class="kosong">Memuat jawaban per butir…</p></div></div>
+    <div class="grid2">
+      <div class="card grafik"><h3>Apakah soal HOTS memang lebih sulit?</h3><p class="sub">Rata-rata persentase benar per tingkat berpikir</p><div id="h-kog"></div></div>
+      <div class="card grafik"><h3>Sub-materi mana yang perlu diperkuat?</h3><p class="sub">Persentase benar per sub-materi, dari yang terlemah</p><div id="h-sub"></div></div>
+    </div>`;
+  // sebaran
+  const rg=[...Array(10)].map((_,i)=>i*10);
+  $("h-sebar").innerHTML=grafikKolom(rg.map(a=>{const n=v.filter(x=>a===90?x>=90:x>=a&&x<a+10).length;return {label:a===90?"90–100":`${a}–${a+9}`,nilai:n,warna:a+10<=kkm-15?"var(--kurang)":a+10<=kkm?"var(--cukup)":"var(--baik)",tip:`<b>Nilai ${a===90?"90–100":a+"–"+(a+9)}</b><br>${n} siswa`}}),{aria:"sebaran nilai",tinggi:190,nLabel:10})+
+    `<div class="legenda"><span><i style="background:var(--kurang)"></i>jauh di bawah batas</span><span><i style="background:var(--cukup)"></i>mendekati batas</span><span><i style="background:var(--baik)"></i>mencapai batas ${kkm}</span></div>`;
+  // per kelas
+  const rk=kls.map(k=>{const a=semua.filter(h=>h.kelas===k).map(h=>h.nilai);return {k,r:rata(a),n:a.length,t:KELAS_N[k]||0}}).sort((a,b)=>a.r-b.r),rAll=rata(semua.map(h=>h.nilai));
+  $("h-kelasbar").innerHTML=`<div style="position:relative">${grafikBH(rk.map(x=>({label:x.k,nilai:x.r,warna:x.r>=kkm?"var(--baik)":x.r>=kkm-15?"var(--cukup)":"var(--kurang)",tip:`<b>${esc(x.k)}</b><br>rata-rata ${angka(x.r)} · ${x.n}${x.t?" dari "+x.t:""} siswa`})),{maks:100})}</div>
+    <p class="kecil muted" style="margin-top:6px">Rata-rata semua kelas: <b>${angka(rAll)}</b>. Warna: hijau ≥ ${kkm}, emas ${kkm-15}–${kkm-1}, merah di bawahnya.</p>`;
+  // butir
+  try{const B=await butir(H_PAKET);if(H_PAKET!==$("h-paket").value)return;
+    const rows=B.baris.filter(r=>!K||r[1]===K),kisi=B.kisi.length?B.kisi:p.kisi,n=kisi.length||p.n_soal,pb=persenButir(rows,n);
+    $("h-butir").innerHTML=grafikKolom(pb.map((x,i)=>{const b=kisi[i]||{},g=kog(b),w=g.k==="HOTS"?"var(--hots)":g.k==="MOTS"?"var(--mots)":g.k==="LOTS"?"var(--lots)":"var(--tanpa)";
+      return {label:String(i+1),nilai:x||0,warna:w,tip:`<b>Soal ${i+1}</b> · ${g.c?"C"+g.c:g.k}<br>${angka(x,0)}% benar<br>${esc(b.sub||"")}`}}),{maks:100,aria:"persen benar per butir",lebar:1180,tinggi:230,nLabel:40,fmtSumbu:g=>g+"%"})+legKog()+
+      (()=>{const sulit=pb.map((x,i)=>[x,i]).filter(([x])=>x!=null&&x<30),mudah=pb.map((x,i)=>[x,i]).filter(([x])=>x!=null&&x>85);
+        return `<p class="small" style="margin-top:8px">${sulit.length?`<b>Sangat sulit</b> (&lt; 30%): soal ${sulit.map(([,i])=>i+1).join(", ")}. `:""}${mudah.length?`<b>Sangat mudah</b> (&gt; 85%): soal ${mudah.map(([,i])=>i+1).join(", ")}.`:""}${!sulit.length&&!mudah.length?"Tidak ada butir yang sangat sulit atau sangat mudah.":""}</p>`})();
+    const pk={};kisi.forEach((b,i)=>{const g=kog(b).k;if(pb[i]!=null)(pk[g]=pk[g]||[]).push(pb[i])});
+    $("h-kog").innerHTML=grafikBH(KOG.filter(([k])=>pk[k]).map(([k,l,w])=>({label:k,nilai:rata(pk[k]),warna:w,tip:`<b>${l}</b><br>${pk[k].length} butir · rata-rata ${angka(rata(pk[k]),0)}% benar`})),{maks:100,fmt:x=>angka(x,0)+"%"})+
+      `<p class="kecil muted" style="margin-top:6px">Wajar bila HOTS lebih rendah dari LOTS. Bila HOTS justru paling tinggi, periksa apakah label kisi-kisinya sudah tepat.</p>`;
+    const ps={};kisi.forEach((b,i)=>{if(pb[i]!=null)(ps[b.sub||"(tanpa sub-materi)"]=ps[b.sub||"(tanpa sub-materi)"]||[]).push(pb[i])});
+    $("h-sub").innerHTML=grafikBH(Object.entries(ps).map(([s,a])=>({label:s,nilai:rata(a),warna:rata(a)>=70?"var(--baik)":rata(a)>=40?"var(--cukup)":"var(--kurang)",tip:`<b>${esc(s)}</b><br>${a.length} butir · ${angka(rata(a),0)}% benar`})).sort((a,b)=>a.nilai-b.nilai).slice(0,12),{maks:100,fmt:x=>angka(x,0)+"%"});
+  }catch(e){$("h-butir").innerHTML=`<p class="kosong">Gagal memuat jawaban per butir: ${esc(e.message)}</p>`}
+}
+const median=a=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
+$("h-paket").onchange=()=>{H_PAKET=$("h-paket").value;$("h-kelas").value="";gHasil()};$("h-kelas").onchange=()=>gHasil();
+
+/* ================= Perkembangan Siswa ================= */
+function gSiswa(){
+  const H=hasilTersaring(),kls=Object.keys(KELAS_N).sort(urutID),sk=$("g-kelas"),vk=sk.value||lsGet("kur_kelas","");
+  sk.innerHTML=kls.map(k=>`<option${k===vk?" selected":""}>${esc(k)}</option>`).join("");const K=sk.value;lsSet("kur_kelas",K);
+  const A=H.filter(h=>h.kelas===K),siswaK=D.siswa.filter(s=>s[2]===K).map(([n,nm])=>({nisn:n,nama:nm}));
+  // ujian yang dikerjakan kelas ini, urut waktu
+  const U=[...new Set(A.map(h=>h.ujian))].map(u=>{const a=A.filter(h=>h.ujian===u);return {u,p:PK[u],t:median(a.map(h=>Date.parse(h.waktu))),r:rata(a.map(h=>h.nilai)),n:a.length,
+    rs:rata(D.H.filter(h=>h.ujian===u).map(h=>h.nilai))}}).filter(x=>x.p).sort((a,b)=>a.t-b.t);
+  if(!U.length){$("g-isi").innerHTML=`<div class="card kosong">Kelas ${esc(K)} belum punya hasil untuk saringan ini.</div>`;return}
+  const mapel=[...new Set(U.map(x=>x.p.mapel))].sort(urutID),kkm=KKM();
+  const q=$("g-cari").value.trim().toLowerCase();
+  const baris=siswaK.filter(s=>!q||s.nama.toLowerCase().includes(q)||s.nisn.includes(q)).map(s=>{const hs=A.filter(h=>h.nisn===s.nisn).sort((a,b)=>a.waktu<b.waktu?-1:1);
+    const nil=Object.fromEntries(hs.map(h=>[h.ujian,h.nilai])),ys=U.map(x=>nil[x.u]).filter(x=>x!=null);
+    // perubahan = rata-rata (nilai terakhir − pertama) per mapel yang punya ≥ 2 ujian; tidak membandingkan lintas mapel
+    const dm=mapel.map(m=>{const a=U.filter(x=>x.p.mapel===m&&nil[x.u]!=null).map(x=>nil[x.u]);return a.length>=2?{m,d:a[a.length-1]-a[0],a}:null}).filter(Boolean);
+    return {...s,nil,ys,r:rata(ys),d:dm.length?Math.round(rata(dm.map(x=>x.d))):null,dm,n:ys.length}});
+  const naik=baris.filter(b=>b.d!=null&&b.d>=10).length,turun=baris.filter(b=>b.d!=null&&b.d<=-10).length,belum=baris.filter(b=>!b.n).length;
+  $("g-isi").innerHTML=`<div class="ubin" style="margin-top:12px">${[[siswaK.length,"siswa di "+esc(K),""],[U.length,"ujian dikerjakan",mapel.join(", ")],[angka(rata(A.map(h=>h.nilai))),"rata-rata kelas",""],
+      [naik,"siswa naik ≥ 10 poin","dalam mapel yang sama"],[turun,"siswa turun ≥ 10 poin",""],[belum,"belum pernah mengerjakan",""]].map(([a,b,c])=>`<div><b>${a}</b><span>${b}</span><em>${c}</em></div>`).join("")}</div>
+    <div class="card grafik"><h3>Bagaimana perkembangan kelas ${esc(K)}?</h3><p class="sub">Rata-rata kelas tiap ujian dari waktu ke waktu, per mapel. Garis putus = rata-rata semua kelas untuk ujian yang sama.</p>
+      <div class="grid2" id="g-garis"></div>
+      <div class="legenda"><span><i style="background:var(--seri)"></i>Kelas ${esc(K)}</span><span><i style="background:#fff;border:2px dashed var(--tinta-3)"></i>Semua kelas</span><span><i style="background:var(--cukup);height:2px"></i>Batas tuntas ${kkm}</span></div></div>
+    <div class="card kolom"><div class="kepala"><div><h3>Nilai tiap siswa</h3><p class="small muted">Ketuk nama untuk melihat riwayat lengkapnya. Kolom diurutkan dari ujian terlama.</p></div>
+      <div class="legenda" style="margin:0"><span><span class="sel b">80</span> ≥ ${kkm}</span><span><span class="sel c">65</span> ${kkm-15}–${kkm-1}</span><span><span class="sel k">40</span> &lt; ${kkm-15}</span></div></div>
+      <div class="gulir" style="max-height:620px;overflow:auto"><table><thead style="position:sticky;top:0;z-index:2"><tr><th>Siswa</th>${U.map(x=>`<th class="n" title="${esc(x.p.judul)}">${esc(x.p.mapel.split(" ").map(w=>w[0]).join("").slice(0,4))}<div class="kecil muted" style="font-weight:400">${tglPendek(x.t)}</div></th>`).join("")}<th class="n">Rata-rata</th><th class="n">Tren</th><th class="n" title="Rata-rata perubahan nilai pertama → terakhir di tiap mapel">Perubahan</th></tr></thead><tbody>
+      ${baris.map(b=>`<tr class="klik${G_SISWA===b.nisn?" pilih":""}" data-n="${esc(b.nisn)}"><td><b>${esc(b.nama)}</b><div class="kecil muted">${esc(b.nisn)}</div></td>${U.map(x=>{const v=b.nil[x.u];return `<td class="n">${v==null?'<span class="muted">·</span>':`<span class="sel ${kelasNilai(v)}" data-tip="<b>${esc(x.p.judul)}</b><br>${v} · rata-rata kelas ${angka(x.r)}">${v}</span>`}</td>`}).join("")}
+        <td class="n"><b class="nilai-${kelasNilai(b.r)}">${angka(b.r)}</b></td><td class="n">${garisMini(b.ys)}</td><td class="n">${b.d==null?"–":`<span data-tip="${esc(b.dm.map(x=>`<b>${esc(x.m)}</b>: ${x.a.join(" → ")} (${x.d>0?"+":""}${x.d})`).join("<br>"))}" class="${b.d>0?"tren-naik":b.d<0?"tren-turun":""}">${b.d>0?"▲ +":b.d<0?"▼ ":""}${b.d}</span>`}</td></tr>`).join("")}</tbody></table></div>
+      <p class="kecil muted">Kepala kolom: singkatan mapel + tanggal ujian (arahkan ke kepala kolom untuk judul paket). · = belum mengerjakan.</p></div>
+    <div id="g-rinci"></div>`;
+  $("g-garis").innerHTML=mapel.map(m=>{const uu=U.filter(x=>x.p.mapel===m);return `<div><p class="small" style="margin-bottom:4px"><b>${esc(m)}</b> · ${uu.length} ujian</p>${grafikGaris([
+      {nama:"Semua kelas",warna:"var(--tinta-3)",putus:true,titik:uu.map(x=>({x:x.t,y:x.rs,tip:`<b>${esc(x.p.judul)}</b><br>Semua kelas: ${angka(x.rs)}`}))},
+      {nama:K,warna:"var(--seri)",titik:uu.map(x=>({x:x.t,y:x.r,tip:`<b>${esc(x.p.judul)}</b><br>${tgl(x.t)}<br>${esc(K)}: ${angka(x.r)} (${x.n} siswa)`}))}],{kkm,aria:"perkembangan "+m,tinggi:170})}</div>`}).join("");
+  document.querySelectorAll("#g-isi tr[data-n]").forEach(tr=>tr.onclick=()=>{G_SISWA=tr.dataset.n;rinciSiswa(G_SISWA);document.querySelectorAll("#g-isi tr[data-n]").forEach(x=>x.classList.toggle("pilih",x.dataset.n===G_SISWA))});
+  if(G_SISWA&&siswaK.some(s=>s.nisn===G_SISWA))rinciSiswa(G_SISWA);
+}
+function rinciSiswa(nisn){const s=SISWA[nisn]||{nama:nisn,kelas:""},hs=hasilTersaring().filter(h=>h.nisn===nisn).sort((a,b)=>a.waktu<b.waktu?-1:1),el=$("g-rinci"),kkm=KKM();
+  const mp=[...new Set(hs.map(h=>h.p.mapel))].sort(urutID);
+  el.innerHTML=`<div class="card kolom laci"><div class="kepala"><div><div class="alis">Riwayat siswa · ${esc(s.kelas)}</div><h3>${esc(s.nama)}</h3><p class="small muted">NISN ${esc(nisn)} · ${hs.length} ujian · rata-rata ${angka(rata(hs.map(h=>h.nilai)))}</p></div><button class="ghost mini" id="gr-tutup">Tutup</button></div>
+    <div class="grid2">${mp.map(m=>{const a=hs.filter(h=>h.p.mapel===m);return `<div><p class="small" style="margin-bottom:4px"><b>${esc(m)}</b></p>${grafikGaris([
+      {nama:"Rata-rata ujian",warna:"var(--tinta-3)",putus:true,titik:a.map(h=>{const r=rata(D.H.filter(x=>x.ujian===h.ujian).map(x=>x.nilai));return {x:Date.parse(h.waktu),y:r,tip:`<b>${esc(h.p.judul)}</b><br>rata-rata semua siswa ${angka(r)}`}})},
+      {nama:s.nama,warna:"var(--seri)",titik:a.map(h=>({x:Date.parse(h.waktu),y:h.nilai,tip:`<b>${esc(h.p.judul)}</b><br>${tgl(h.waktu)}<br>Nilai ${h.nilai}`}))}],{kkm,tinggi:160,aria:"riwayat "+m})}</div>`}).join("")}</div>
+    <div class="gulir"><table><thead><tr><th>Tanggal</th><th>Paket</th><th>Mapel</th><th>Jenis</th><th class="n">Nilai</th><th class="n">Rata-rata ujian</th></tr></thead><tbody>${hs.slice().reverse().map(h=>{const r=rata(D.H.filter(x=>x.ujian===h.ujian).map(x=>x.nilai));
+      return `<tr><td>${tgl(h.waktu)}</td><td>${esc(h.p.judul)}</td><td>${esc(h.p.mapel)}</td><td>${esc(h.p.jenisB)}</td><td class="n"><span class="sel ${kelasNilai(h.nilai)}">${h.nilai}</span></td><td class="n">${angka(r)}</td></tr>`}).join("")}</tbody></table></div></div>`;
+  $("gr-tutup").onclick=()=>{G_SISWA=null;el.innerHTML="";document.querySelectorAll("#g-isi tr.pilih").forEach(x=>x.classList.remove("pilih"))};
+  el.scrollIntoView({behavior:"smooth",block:"start"})}
+$("g-kelas").onchange=()=>{G_SISWA=null;gSiswa()};$("g-cari").oninput=()=>gSiswa();
+
+/* ---------------- Mulai ---------------- */
+(()=>{const s=lsGet("kur_saring",null);TAB=lsGet("kur_tab","ringkas");
+  if(s)setTimeout(()=>{["mapel","jenis","guru"].forEach(k=>{const el=$("f-"+k);if(s[k]&&[...el.options].some(o=>o.value===s[k]))el.value=s[k]});if(D)gambar()},0);
+  try{const x=JSON.parse(sessionStorage.getItem(KUNCI_PIN)||"null");if(x&&x.pin&&(x.peran==="kurikulum"||x.peran==="operator")){$("pin").value=x.pin;masuk(x.pin)}}catch(e){}})();
+</script>
+</body>
+</html>
