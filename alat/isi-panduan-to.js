@@ -95,7 +95,7 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
     ["Jumlah paket", "**2 paket = 2 varian dalam satu berkas Word**"],
     ["Jumlah soal", "**5 soal** per varian; **Matematika 3 soal**"],
     ["Bentuk", "Campuran **PG**, **PG Kompleks**, dan **MCMA**"],
-    ["Jenis paket", "**Tryout Umum** (otomatis bila dipasang ke jadwal)"],
+    ["Jenis paket", "**Tryout Umum** — hanya jenis ini yang bisa dipasang ke jadwal; paket Tryout Mandiri tidak ditampilkan"],
     ["Tenggat", "Jumat sebelum minggu pelaksanaan"],
   ], [1.8, 5]),
   KOTAK("saran", "Naskah berisi Paket 1 dan Paket 2", "Naskah yang memuat dua versi soal (judul **Paket 1** dan **Paket 2**) diterbitkan sebagai **satu paket dengan 2 varian**: Paket 1 = Varian A, Paket 2 = Varian B, nomor soal sama (1–5), dan siswa mendapat salah satu varian secara acak. Cara termudah: tab **Tanpa Kisi-kisi** → **Unduh prompt AI** + **Unduh template tanpa kisi-kisi**, lampirkan keduanya bersama naskah ke ChatGPT, lalu tempel prompt. Syaratnya: jumlah soal kedua paket sama dan **bentuk soal pada nomor yang sama harus sama** (mis. nomor 3 sama-sama PG Kompleks). MCMA ditulis sebagai PG Kompleks; tabel pernyataan Benar/Salah sebagai Benar - Salah."),

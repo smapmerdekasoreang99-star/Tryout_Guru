@@ -358,8 +358,8 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
       ${x?`<label class="row small" style="gap:6px"><input type="checkbox" id="lj-batal"${x.batal?" checked":""}> Batalkan TO ini (tetap tercatat, tidak dihitung)</label>`:""}
       <div class="row"><button id="lj-simpan">${x?"Simpan perubahan":"Tambah"}</button>${x&&!x.sesiSimpan.length?'<button class="bahaya mini" id="lj-hapus">Hapus jadwal</button>':""}</div></div>`;
   if(!j){el.innerHTML=`<div><div class="kepala"><h2>Tambah jadwal TO</h2><button class="ghost" id="laci-tutup">Tutup</button></div>${formJadwal(null)}</div>`;ikatJadwal(null);$("laci-tutup").onclick=tutupLaci;return}
-  // kandidat paket: mapel sama, belum diarsipkan; jenis Tryout & tingkat cocok di atas
-  const kand=D.paket.filter(p=>p.mk===j.mk&&!p.arsip).sort((a,b)=>skorPaket(b,j)-skorPaket(a,j)||urutID(b.dibuat,a.dibuat));
+  // kandidat paket: hanya jenis Tryout Umum, mapel sama, belum diarsipkan; tingkat cocok di atas (Tryout Mandiri tidak bisa dipasang)
+  const kand=D.paket.filter(p=>p.mk===j.mk&&!p.arsip&&(p.jenis==="Tryout Umum"||p.kode===j.paketEff)).sort((a,b)=>skorPaket(b,j)-skorPaket(a,j)||urutID(b.dibuat,a.dibuat));
   const saudara=J.filter(x=>x.id!==j.id&&!x.batal&&x.program===j.program&&x.mulai===j.mulai&&x.mk===j.mk&&(j.program==="pilihan"||x.tingkat===j.tingkat));
   const p=j.p;
   el.innerHTML=`<div><div class="kepala"><div><div class="alis">${j.program==="wajib"?"TO Mapel Wajib":"TO Mapel Pilihan"} · ${esc(j.jenis)}</div><h2>${esc(j.mapel)} · ${esc(sasaran(j))}</h2>
@@ -370,7 +370,8 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
       <div class="row tulis" style="align-items:flex-end"><label class="f grow">${p?"Ganti paket":"Pasang paket dari bank soal"}<select id="lp-paket"><option value="">— pilih paket ${esc(j.mapel)} —</option>${kand.map(x=>`<option value="${esc(x.kode)}"${x.kode===j.paketEff?" selected":""}>${esc(x.judul)} · ${tglP(x.dibuat)} · ${esc(namaPendek(x.pemilik))}${x.n_varian>1?` · ${x.n_varian} varian`:""}</option>`).join("")}</select></label>
         <button id="lp-pasang">Pasang</button>${j.paket?'<button class="ghost mini" id="lp-lepas">Lepas</button>':""}</div>
       ${saudara.length?`<label class="row small tulis" style="gap:6px"><input type="checkbox" id="lp-saudara" checked> Pasang juga ke ${saudara.map(x=>esc(sasaran(x))).join(", ")} (mapel &amp; minggu sama)</label>`:""}
-      ${!kand.length?`<p class="small muted">Belum ada paket ${esc(j.mapel)} di bank soal. Guru mengunggah lewat <b>Pustaka Paket → + Upload soal</b>, atau Anda unggahkan atas namanya lewat <a href="admin.html?menu=pustaka&amp;tab=kisi">+ Unggah soal</a>.</p>`:""}
+      ${!kand.length?`<p class="small muted">Belum ada paket <b>Tryout Umum</b> ${esc(j.mapel)} di bank soal. Guru mengunggah lewat <b>Pustaka Paket → + Upload soal</b> dengan jenis Tryout Umum, atau Anda unggahkan atas namanya lewat <a href="admin.html?menu=pustaka&amp;tab=kisi">+ Unggah soal</a>.</p>`:""}
+      ${(()=>{const m=D.paket.filter(p=>p.mk===j.mk&&!p.arsip&&p.jenis!=="Tryout Umum"&&p.kode!==j.paketEff);return m.length?`<p class="small muted">${m.length} paket ${esc(j.mapel)} lain berjenis Tryout Mandiri/lainnya tidak ditampilkan. Bila salah satunya untuk Tryout Umum, minta guru penyusunnya mengubah jenis menjadi <b>Tryout Umum</b> (Pustaka Paket → Ubah judul &amp; keterangan).</p>`:""})()}
       ${p&&p.pemilik!==j.guru_id&&j.guru_id?`<div class="row small tulis" style="gap:6px"><span class="muted">Penyusun paket tercatat ${esc(namaPendek(p.pemilik))}, jadwal menugaskan ${esc(namaPendek(j.guru_id))}.</span><button class="ghost mini" id="lp-penyusun">Jadikan ${esc(namaPendek(j.guru_id))} penyusun</button></div>`:""}
       ${!BACA&&!j.paketEff&&j.guru_id?`<button class="ghost mini tulis" id="lp-wa">Salin pengingat WA untuk ${esc(namaPendek(j.guru_id))}</button>`:""}</div>
     <div class="card kolom"><h3>2. Sesi &amp; link CBT</h3>${j.S.map(s=>kartuSesi(s,j)).join("")||'<p class="small muted">Belum ada sesi.</p>'}
@@ -390,7 +391,7 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
 // TO lain yang dipindah bersama: Wajib = tingkat lain pada tanggal yang sama; Pilihan = kelas 11 lain pada minggu yang sama
 const rekanJadwal=x=>J.filter(y=>y.id!==x.id&&y.program===x.program&&y.mulai===x.mulai&&(x.program==="pilihan"||y.mapel===x.mapel));
 function tutupLaci(){const el=$("laci");if(el)el.remove()}
-function skorPaket(p,j){return (p.jenis==="Tryout Umum"?4:/tryout/i.test(p.jenis||"")?2:0)+((p.tingkat||[]).map(String).includes(String(j.tingkat))||String(p.kelas||"").includes(j.tingkat)?2:0)+(J.some(x=>x.paket===p.kode)?-3:0)}
+function skorPaket(p,j){return ((p.tingkat||[]).map(String).includes(String(j.tingkat))||String(p.kelas||"").includes(j.tingkat)?2:0)+(J.some(x=>x.paket===p.kode)?-3:0)}
 function cekPaket(p,j){const mtk=/^matematika/.test(j.mk),nSoal=mtk?3:5,b=p.bentuk||{},kunci=Object.keys(b).map(x=>x.toUpperCase().replace(/[\s_–-]+/g," "));
   const adaPG=kunci.some(x=>/^(PG|PILIHAN GANDA)$/.test(x)),adaK=kunci.some(x=>/KOMPLEKS|PG ?K|MCMA|KATEGORI|BENAR/.test(x));
   const c=[[p.n_varian>=2,`2 paket (varian): <b>${p.n_varian}</b>`],[p.n_soal===nSoal,`Jumlah soal ${nSoal}: <b>${p.n_soal}</b>`],[adaPG&&adaK,`Campuran PG & PG Kompleks/MCMA: <b>${Object.entries(b).map(([k,n])=>`${esc(k)} ${n}`).join(", ")||"–"}</b>`]];
@@ -455,7 +456,7 @@ function gSoal(){const el=$("tab-soal"),kini=new Date(),s0=senin(kini),batas=tam
   const ming=[...new Set(L.map(j=>isoD(senin(j.d0))))];
   const lepas=D.paket.filter(p=>!p.arsip&&p.jenis==="Tryout Umum"&&!J.some(j=>j.paketEff===p.kode)&&Date.now()-Date.parse(p.dibuat)<45*864e5);
   const g={};J.filter(j=>!j.batal&&j.st!=="pra"&&j.d0<tambahHari(new Date(),1)).forEach(j=>{const x=g[j.guru_id||"-"]=g[j.guru_id||"-"]||{n:0,ok:0,telat:0};x.n++;if(j.paketEff)x.ok++});
-  el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="kepala"><div><h3>Soal yang harus masuk (4 minggu ke depan)</h3><p class="small muted">Tenggat: Jumat sebelum minggu pelaksanaan. Soal yang diunggah guru (jenis Tryout Umum) tinggal dipasang ke jadwalnya — jenisnya otomatis menjadi Tryout Umum saat dipasang. Soal yang dikirim guru lewat WA bisa Anda unggahkan atas nama gurunya.</p></div>
+  el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="kepala"><div><h3>Soal yang harus masuk (4 minggu ke depan)</h3><p class="small muted">Tenggat: Jumat sebelum minggu pelaksanaan. Hanya paket berjenis <b>Tryout Umum</b> yang bisa dipasang ke jadwal; paket Tryout Mandiri (latihan guru) tidak ikut. Soal yang dikirim guru lewat WA bisa Anda unggahkan atas nama gurunya.</p></div>
       <a class="tulis" href="admin.html?menu=pustaka&amp;tab=kisi"><button>+ Unggah soal atas nama guru</button></a></div>
     ${ming.map(m=>{const a=L.filter(j=>isoD(senin(j.d0))===m),t=a[0].tenggat,blm=a.filter(j=>!j.paketEff);
       return `<div style="margin-top:12px"><div class="kepala"><div><b>Minggu ${tglP(tglD(m))} – ${tglP(tambahHari(tglD(m),4))}</b> <span class="small muted">· tenggat ${hariTgl(t)} · ${a.length-blm.length}/${a.length} soal masuk</span></div>
