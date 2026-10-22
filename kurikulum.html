@@ -105,6 +105,7 @@ svg.ch [data-tip]{cursor:default}svg.ch .hit{fill:transparent}svg.ch .hit:hover+
   <nav class="tabs" id="tabs">
     <button data-tab="ringkas" class="on"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l4-4 3 3 5-6"/></svg><span>Ringkasan</span></button>
     <button data-tab="mapel"><svg viewBox="0 0 24 24"><path d="M2 5h7a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H2zM22 5h-7a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h8z"/></svg><span>Analisis Mapel</span></button>
+    <button data-tab="laksana"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/></svg><span>Keterlaksanaan</span></button>
     <button data-tab="paket"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h3v18H6a2 2 0 0 1-2-2zM9 3h4v18H9zM14.5 4.2l3.9-1 3.6 16.6-3.9 1z"/></svg><span>Paket &amp; Kisi-kisi</span></button>
     <button data-tab="sesi"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg><span>Sesi &amp; Pelaksanaan</span></button>
     <button data-tab="hasil"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Hasil &amp; Analisis</span></button>
@@ -142,6 +143,29 @@ svg.ch [data-tip]{cursor:default}svg.ch .hit{fill:transparent}svg.ch .hit:hover+
       <p class="small muted">Hasil belajar dikaitkan ke <b>guru yang mengajar mapel ini di kelas itu</b> (jadwal KBM Data Induk), bukan ke pengunggah paket. Saringan Jenis di atas ikut berlaku; saringan Guru tidak dipakai di tab ini karena semua guru dibandingkan.</p>
     </div>
     <div id="m-isi"></div>
+  </div>
+
+  <!-- ================= Keterlaksanaan Asesmen (22 Okt 2026) ================= -->
+  <div id="tab-laksana" class="hidden">
+    <div class="ubin" id="k-ubin" style="margin-top:12px"></div>
+    <div class="card"><div class="kepala"><h3>Status guru</h3><span class="small muted">Aktif = ada kegiatan ≤ 30 hari · Perlu didorong = pernah, tetapi &gt; 30 hari · Belum mulai = belum ada kegiatan</span></div>
+      <div id="k-status" style="margin-top:10px"></div></div>
+    <div class="card"><h3 style="margin-bottom:10px">Perlu tindak lanjut</h3><div class="temuan" id="k-tindak"></div></div>
+    <div class="card grafik"><h3>Siapa yang rutin berasesmen?</h3><p class="sub">Kegiatan tiap guru per minggu sejak kegiatan pertama semester ini (paket/kisi-kisi diunggah + sesi dibuka). Makin tua warnanya, makin banyak kegiatannya.</p>
+      <div class="gulir" id="k-peta"></div>
+      <div class="legenda" id="k-peta-leg"></div></div>
+    <div class="grid2">
+      <div class="card grafik"><h3>Paket disusun per bulan</h3><p class="sub">Paket soal baru seluruh guru</p><div id="k-paket"></div></div>
+      <div class="card grafik"><h3>Sesi dibuka per bulan</h3><p class="sub">Sesi latihan/tryout/asesmen seluruh guru</p><div id="k-sesi"></div></div>
+    </div>
+    <div class="card grafik"><h3>Mapel mana yang kelasnya sudah dinilai?</h3><p class="sub">Persentase pasangan kelas × mapel di jadwal KBM yang sudah punya hasil semester ini</p><div id="k-mapel"></div></div>
+    <div class="card kolom">
+      <div class="kepala"><div><h3>Keterlaksanaan tiap guru <span class="small muted" id="k-n"></span></h3><p class="small muted">Semua guru pengampu di jadwal KBM, termasuk yang belum memakai aplikasi. Ketuk baris untuk melihat kegiatannya.</p></div>
+        <div class="row"><input type="text" id="k-cari" placeholder="Cari guru atau mapel" style="min-width:220px"><select id="k-urut"><option value="status">Urut: perlu perhatian dulu</option><option value="nama">Urut: nama</option><option value="aktif">Urut: terakhir aktif</option></select></div></div>
+      <div class="gulir"><table id="k-tabel"></table></div>
+      <p class="kecil muted">Hanya kegiatan di Asesmen Merdeka yang tercatat; ulangan di kertas atau aplikasi lain tidak terhitung. Mapel "Kegiatan Sekolah" (wali kelas, upacara) tidak dihitung.</p>
+    </div>
+    <div id="k-rinci"></div>
   </div>
 
   <!-- ================= Paket & Kisi-kisi ================= -->
@@ -338,12 +362,12 @@ $("f-periode").onchange=async()=>{try{toast("Memuat semester "+$("f-periode").se
 
 function gambar(){
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===TAB));
-  ["ringkas","mapel","paket","sesi","hasil","siswa"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
+  ["ringkas","mapel","laksana","paket","sesi","hasil","siswa"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
   const f=F(),aktif=[f.mapel,f.jenis,f.guru&&namaGuru(f.guru)].filter(Boolean);
   $("f-ket").innerHTML=aktif.length?`<span class="pill warn" style="font-size:13px;padding:5px 12px">Disaring: ${aktif.map(esc).join(" · ")}</span> <button class="ghost mini" id="f-hapus">Hapus saringan</button>`:'<span class="small muted">Menampilkan semua mapel, jenis, dan guru</span>';
   if($("f-hapus"))$("f-hapus").onclick=hapusSaringan;
   $("r-saring").textContent=aktif.length?"· hanya untuk "+aktif.join(" · "):"";
-  ({ringkas:gRingkas,mapel:gMapel,paket:gPaket,sesi:gSesi,hasil:gHasil,siswa:gSiswa})[TAB]();
+  ({ringkas:gRingkas,mapel:gMapel,laksana:gLaksana,paket:gPaket,sesi:gSesi,hasil:gHasil,siswa:gSiswa})[TAB]();
 }
 
 /* ================= Ringkasan ================= */
@@ -500,6 +524,93 @@ async function capaianMapel(P,mk){const sub={},kg={};
     $("m-kog").innerHTML=grafikBH(KOG.filter(([k])=>kg[k]).map(([k,l,w])=>({label:k,nilai:rata(kg[k]),warna:w,tip:`<b>${l}</b><br>${kg[k].length} butir · ${angka(rata(kg[k]),0)}% benar`})),{maks:100,fmt:x=>angka(x,0)+"%"})+legKog();
   }catch(e){$("m-sub").innerHTML=`<p class="kosong">Gagal memuat: ${esc(e.message)}</p>`;$("m-kog").innerHTML=""}}
 $("m-mapel").onchange=()=>{M_MK=$("m-mapel").value;M_GURU=null;gMapel()};
+
+/* ================= Keterlaksanaan Asesmen (per guru) =================
+   Guru = pengampu jadwal KBM ∪ penyusun paket ∪ pembuka sesi. Kegiatan = paket/kisi diunggah + sesi dibuka.
+   Status dari kegiatan terakhir (belum ada patokan kurikulum): aktif ≤ 30 hari, perlu didorong > 30 hari, belum mulai. */
+let K_GURU=null;
+const ST_GURU={belum:["Belum mulai","○","var(--kurang)","#F7E4DF"],dorong:["Perlu didorong","◐","var(--cukup)","#FFF6D2"],aktif:["Aktif","●","var(--baik)","#E4EFE7"]};
+const pilSt=k=>{const s=ST_GURU[k];return `<span class="pill" style="background:${s[3]};color:${s[2]}">${s[1]} ${s[0]}</span>`};
+function dataGuru(){
+  const ampu=D.ampu||[],f=F(),mkPilih=f.mapel?(D.paket.find(p=>p.mapel===f.mapel)||{}).mk||null:null;
+  const ids=new Set([...ampu.map(x=>x[0]),...D.paket.map(p=>p.pemilik),...D.kisi_saja.map(k=>k.pemilik),...D.sesi.map(s=>s.oleh)].filter(id=>id&&D.guru[id]));
+  const kini=Date.now(),dari=Date.parse(D.periode.dari),sampai=Date.parse(D.periode.sampai);
+  const G=[...ids].map(id=>{const a=ampu.filter(x=>x[0]===id),pk=D.paket.filter(p=>p.pemilik===id),ks=D.kisi_saja.filter(k=>k.pemilik===id),ss=D.sesi.filter(s=>s.oleh===id);
+    const mapel=[...new Set([...a.map(x=>x[3]),...pk.map(p=>p.mapel)])].sort(urutID),mks=new Set([...a.map(x=>x[2]),...pk.map(p=>p.mk)]);
+    const pasang=a.map(x=>({kelas:x[1],mk:x[2],mapel:x[3],dinilai:D.H.some(h=>h.kelas===x[1]&&h.p&&h.p.mk===x[2])}));
+    const keg=[...pk.map(p=>({t:Date.parse(p.dibuat),j:"paket",x:p})),...ks.map(k=>({t:Date.parse(k.dibuat),j:"kisi",x:k})),...ss.map(s=>({t:Date.parse(s.mulai),j:"sesi",x:s}))].sort((p,q)=>q.t-p.t);
+    const akhir=keg.length?keg[0].t:null,st=!akhir?"belum":kini-akhir<=30*864e5?"aktif":"dorong";
+    const pkSmt=pk.filter(p=>{const t=Date.parse(p.dibuat);return t>=dari&&t<sampai}),jn=j=>pkSmt.filter(p=>j.test(p.jenisB)).length;
+    return {id,nama:namaGuru(id),mapel,mks,pasang,pk,pkSmt,ks,ss,keg,akhir,st,km:komposisi(pk.flatMap(p=>p.kisi)),
+      formatif:jn(/formatif/i),sumatif:jn(/sumatif|asas|pas\b/i),tryout:jn(/tryout|utbk|tka/i),berC:pk.filter(p=>p.kisi.some(b=>kog(b).c)).length,tanpaKisi:pk.filter(p=>p.tanpa_kisi).length}})
+    .filter(g=>!mkPilih||g.mks.has(mkPilih));
+  return {G,mkPilih}}
+function gLaksana(){
+  const {G}=dataGuru(),f=F(),kini=Date.now(),kkm=KKM();
+  const n={aktif:G.filter(g=>g.st==="aktif").length,dorong:G.filter(g=>g.st==="dorong").length,belum:G.filter(g=>g.st==="belum").length};
+  const pasang=G.flatMap(g=>g.pasang),dinilai=pasang.filter(x=>x.dinilai).length;
+  const bulanIni=D.paket.filter(p=>{const d=new Date(p.dibuat),s=new Date();return d.getFullYear()===s.getFullYear()&&d.getMonth()===s.getMonth()&&(!f.mapel||p.mapel===f.mapel)}).length;
+  $("k-ubin").innerHTML=[[G.length,"guru"+(f.mapel?" "+esc(f.mapel):""),"pengampu & penyusun"],[n.aktif,"aktif","ada kegiatan ≤ 30 hari"],[n.dorong,"perlu didorong","kegiatan terakhir > 30 hari"],[n.belum,"belum mulai","belum ada paket/sesi"],
+    [pasang.length?angka(dinilai/pasang.length*100,0)+"%":"–","kelas × mapel dinilai",`${dinilai} dari ${pasang.length} pasangan`],[bulanIni,"paket baru bulan ini",new Date().toLocaleDateString("id-ID",{month:"long",year:"numeric"})]]
+    .map(([a,b,c])=>`<div><b>${a}</b><span>${b}</span><em>${c}</em></div>`).join("");
+  // batang status
+  const tot=G.length||1;
+  $("k-status").innerHTML=`<div class="tumpuk besar">${["aktif","dorong","belum"].map(k=>n[k]?`<i style="flex:${n[k]};background:${ST_GURU[k][2]}" data-tip="<b>${ST_GURU[k][0]}</b><br>${n[k]} guru · ${angka(n[k]/tot*100,0)}%"></i>`:"").join("")}</div>
+    <div class="legenda">${["aktif","dorong","belum"].map(k=>`<span><i style="background:${ST_GURU[k][2]}"></i>${ST_GURU[k][1]} ${ST_GURU[k][0]} <b>${n[k]}</b> (${angka(n[k]/tot*100,0)}%)</span>`).join("")}</div>`;
+  // tindak lanjut
+  const T=[],bel=G.filter(g=>g.st==="belum"&&g.pasang.length),dor=G.filter(g=>g.st==="dorong");
+  if(bel.length){const pm={};bel.forEach(g=>g.mapel.forEach(m=>(pm[m]=pm[m]||[]).push(g.nama.split(",")[0])));
+    T.push(`<b>Belum mulai: ${bel.length} guru</b>, menurut mapel yang diajar:<span style="display:grid;grid-template-columns:max-content 1fr;gap:3px 12px;margin-top:6px">${Object.entries(pm).sort((a,b)=>urutID(a[0],b[0])).map(([m,a])=>`<span class="muted">${esc(m)}</span><span>${a.map(esc).join(", ")}</span>`).join("")}</span>`)}
+  if(dor.length)T.push(`<b>Perlu didorong (${dor.length} guru):</b> ${dor.map(g=>`${esc(g.nama.split(",")[0])} <span class="muted">(terakhir ${tgl(g.akhir)})</span>`).join(" · ")}`);
+  const kb=G.filter(g=>g.st!=="belum"&&g.pasang.some(x=>!x.dinilai));
+  if(kb.length)T.push(`<b>Sudah aktif, tetapi ada kelas yang belum dinilai:</b> ${kb.map(g=>`${esc(g.nama.split(",")[0])} <span class="muted">(${g.pasang.filter(x=>!x.dinilai).map(x=>x.kelas).filter((v,i,a)=>a.indexOf(v)===i).join(", ")})</span>`).join(" · ")}`);
+  const tk=G.filter(g=>g.pk.length&&g.tanpaKisi===g.pk.length);
+  if(tk.length)T.push(`<b>Semua paketnya diunggah tanpa kisi-kisi</b> (tingkat C1–C6 belum tercatat): ${tk.map(g=>`${esc(g.nama.split(",")[0])} (${g.pk.length} paket)`).join(" · ")}`);
+  $("k-tindak").innerHTML=(T.length?T:["Tidak ada yang perlu ditindaklanjuti."]).map(t=>`<p>${t}</p>`).join("");
+  // peta guru × minggu (semester s.d. minggu ini)
+  const kegAll=G.flatMap(g=>g.keg.map(k=>k.t)).filter(t=>t>=Date.parse(D.periode.dari)),w0=minggu(new Date(kegAll.length?Math.min(...kegAll):Date.parse(D.periode.dari)).toISOString()),w1=minggu(new Date(Math.min(kini,Date.parse(D.periode.sampai))).toISOString()),W=[];for(let t=w0;t<=w1;t+=7*864e5)W.push(t);
+  const urutSt={belum:0,dorong:1,aktif:2},GP=G.filter(g=>g.st!=="belum").sort((a,b)=>urutSt[b.st]-urutSt[a.st]||urutID(a.nama,b.nama)),nBelum=G.length-GP.length;
+  const mx=Math.max(1,...GP.flatMap(g=>W.map(w=>g.keg.filter(k=>minggu(new Date(k.t).toISOString())===w).length)));
+  const warna=["#fff","#cde2fb","#86b6ef","#3987e5","#1c5cab","#104281"];
+  $("k-peta").innerHTML=`<table class="peta" style="font-size:12px"><thead><tr><th>Guru</th>${W.map((w,i)=>`<th style="font-weight:500;padding:6px 2px">${i%2===0?tglPendek(w):""}</th>`).join("")}</tr></thead><tbody>${GP.map(g=>`<tr><td style="white-space:nowrap"><span style="color:${ST_GURU[g.st][2]}" title="${ST_GURU[g.st][0]}">${ST_GURU[g.st][1]}</span> ${esc(g.nama.split(",")[0])}</td>${W.map(w=>{
+      const e=g.keg.filter(k=>minggu(new Date(k.t).toISOString())===w),i=e.length?Math.min(5,1+Math.floor((e.length-1)/mx*5)):0;
+      return `<td style="background:${warna[i]};padding:0;min-width:22px;height:24px;border-left:2px solid #fff" ${e.length?`data-tip="<b>${esc(g.nama.split(",")[0])} · minggu ${tglPendek(w)}</b><br>${e.filter(k=>k.j==="paket").length} paket · ${e.filter(k=>k.j==="kisi").length} kisi-kisi · ${e.filter(k=>k.j==="sesi").length} sesi"`:""}></td>`}).join("")}</tr>`).join("")}${nBelum?`<tr><td colspan="${W.length+1}" class="small muted" style="text-align:left">${ST_GURU.belum[1]} ${nBelum} guru lain belum ada kegiatan (lihat tabel di bawah)</td></tr>`:""}</tbody></table>`;
+  $("k-peta-leg").innerHTML=`<span><i style="background:#fff;border:1px solid var(--garis-2)"></i>tidak ada kegiatan</span><span><i style="background:#cde2fb"></i>sedikit</span><span><i style="background:#3987e5"></i>sedang</span><span><i style="background:#104281"></i>banyak</span><span>○ belum mulai · ◐ perlu didorong · ● aktif</span>`;
+  // per bulan
+  const bulan=[];{const d=new Date(D.periode.dari);d.setDate(1);d.setHours(0,0,0,0);const akhir=new Date(Math.min(kini,Date.parse(D.periode.sampai)));while(d<=akhir){bulan.push(new Date(d));d.setMonth(d.getMonth()+1)}}
+  const sb=(t,b)=>{const d=new Date(t);return d.getFullYear()===b.getFullYear()&&d.getMonth()===b.getMonth()},nmB=b=>b.toLocaleDateString("id-ID",{month:"short"});
+  const pkF=D.paket.filter(p=>!f.mapel||p.mapel===f.mapel),ssF=D.sesi.filter(s=>!f.mapel||(PK[s.ujian]||{}).mapel===f.mapel);
+  $("k-paket").innerHTML=grafikKolom(bulan.map(b=>{const a=pkF.filter(p=>sb(p.dibuat,b));return {label:nmB(b),nilai:a.length,tip:`<b>${b.toLocaleDateString("id-ID",{month:"long",year:"numeric"})}</b><br>${a.length} paket · ${new Set(a.map(p=>p.pemilik)).size} guru`}}),{tinggi:170,aria:"paket per bulan"});
+  $("k-sesi").innerHTML=grafikKolom(bulan.map(b=>{const a=ssF.filter(s=>sb(s.mulai,b));return {label:nmB(b),nilai:a.length,tip:`<b>${b.toLocaleDateString("id-ID",{month:"long",year:"numeric"})}</b><br>${a.length} sesi · ${new Set(a.map(s=>s.oleh)).size} guru`}}),{tinggi:170,aria:"sesi per bulan"});
+  // per mapel
+  const pm={};pasang.forEach(x=>{const k=x.mapel.replace(/\s+TL$/i," TL");(pm[k]=pm[k]||{n:0,d:0});pm[k].n++;if(x.dinilai)pm[k].d++});
+  $("k-mapel").innerHTML=grafikBH(Object.entries(pm).map(([m,x])=>({label:m,nilai:x.d/x.n*100,warna:x.d?"var(--seri)":"var(--tanpa)",tip:`<b>${esc(m)}</b><br>${x.d} dari ${x.n} kelas sudah dinilai`})).sort((a,b)=>b.nilai-a.nilai||urutID(a.label,b.label)),{maks:100,fmt:x=>angka(x,0)+"%"});
+  // tabel
+  const q=$("k-cari").value.trim().toLowerCase(),urut=$("k-urut").value;
+  const L=G.filter(g=>!q||g.nama.toLowerCase().includes(q)||g.mapel.join(" ").toLowerCase().includes(q))
+    .sort(urut==="nama"?(a,b)=>urutID(a.nama,b.nama):urut==="aktif"?(a,b)=>(b.akhir||0)-(a.akhir||0):(a,b)=>urutSt[a.st]-urutSt[b.st]||urutID(a.nama,b.nama));
+  $("k-n").textContent=`(${L.length})`;
+  $("k-tabel").innerHTML=`<thead><tr><th>Status</th><th>Guru</th><th>Mapel</th><th style="min-width:130px">Kelas dinilai</th><th class="n" title="Paket semester ini / semua">Paket</th><th class="n">Formatif</th><th class="n">Sumatif</th><th class="n">Tryout</th><th class="n" title="Paket yang kisi-kisinya mencantumkan level C1–C6">Kisi ber-C</th><th class="n">HOTS</th><th class="n">Sesi</th><th>Terakhir aktif</th></tr></thead><tbody>`+
+    (L.map(g=>{const d=g.pasang.filter(x=>x.dinilai).length,t=g.pasang.length;return `<tr class="klik${K_GURU===g.id?" pilih":""}" data-g="${esc(g.id)}"><td>${pilSt(g.st)}</td><td><b>${esc(g.nama)}</b></td><td class="small">${esc(g.mapel.join(", ")||"–")}</td>
+      <td>${t?`<div class="row" style="gap:6px;flex-wrap:nowrap"><span class="tumpuk" style="flex:1;min-width:60px;background:var(--kertas-3)"><i style="flex:${d};background:var(--seri)"></i><i style="flex:${t-d}"></i></span><span class="kecil"><b>${d}</b>/${t}</span></div>`:'<span class="kecil muted">tidak mengajar di jadwal</span>'}</td>
+      <td class="n">${g.pk.length?`<b>${g.pkSmt.length}</b><span class="kecil muted">/${g.pk.length}</span>`:"–"}</td><td class="n">${g.formatif||"–"}</td><td class="n">${g.sumatif||"–"}</td><td class="n">${g.tryout||"–"}</td>
+      <td class="n">${g.pk.length?`${g.berC}/${g.pk.length}`:"–"}</td><td class="n">${g.km.hots==null?"–":angka(g.km.hots,0)+"%"}</td><td class="n">${g.ss.length||"–"}</td><td>${g.akhir?tgl(g.akhir):'<span class="muted">–</span>'}</td></tr>`}).join("")||'<tr><td colspan="12" class="kosong">Tidak ada guru.</td></tr>')+"</tbody>";
+  document.querySelectorAll("#k-tabel tr[data-g]").forEach(tr=>tr.onclick=()=>{K_GURU=K_GURU===tr.dataset.g?null:tr.dataset.g;document.querySelectorAll("#k-tabel tr[data-g]").forEach(x=>x.classList.toggle("pilih",x.dataset.g===K_GURU));rinciLaksana(G.find(g=>g.id===K_GURU))});
+  rinciLaksana(G.find(g=>g.id===K_GURU),true);
+}
+function rinciLaksana(g,diam){const el=$("k-rinci");if(!g){el.innerHTML="";return}
+  const kel={};g.pasang.forEach(x=>{(kel[x.mapel]=kel[x.mapel]||[]).push(x)});
+  const ket=k=>k.j==="paket"?`Mengunggah paket <b>${esc(k.x.judul)}</b> <span class="muted">(${esc(k.x.jenisB)}, ${k.x.n_soal} butir${k.x.tanpa_kisi?", tanpa kisi-kisi":""})</span>`:k.j==="kisi"?`Mengunggah kisi-kisi <b>${esc(k.x.judul)}</b> <span class="muted">(soal belum)</span>`:
+    `Membuka sesi <b>${esc((PK[k.x.ujian]||{}).judul||k.x.ujian)}</b> <span class="muted">untuk ${k.x.kelas.map(esc).join(", ")} · ${k.x.n_hasil} siswa mengerjakan</span>`;
+  el.innerHTML=`<div class="card kolom laci"><div class="kepala"><div><div class="alis">Keterlaksanaan · ${pilSt(g.st)}</div><h3 style="margin-top:4px">${esc(g.nama)}</h3><p class="small muted">${esc(g.mapel.join(", ")||"–")} · ${g.pk.length} paket · ${g.ss.length} sesi semester ini · terakhir aktif ${g.akhir?tgl(g.akhir):"belum pernah"}</p></div><button class="ghost mini" id="kr-tutup">Tutup</button></div>
+    <div class="grid2">
+      <div><p class="small" style="margin-bottom:6px"><b>Kelas yang diajar</b></p>${Object.entries(kel).map(([m,a])=>`<p class="small" style="margin:6px 0 4px">${esc(m)}</p><div class="row" style="gap:6px">${a.map(x=>`<span class="pill ${x.dinilai?"good":""}" title="${x.dinilai?"sudah ada hasil":"belum ada hasil"}">${x.dinilai?"✓":"·"} ${esc(x.kelas)}</span>`).join("")}</div>`).join("")||'<p class="small muted">Tidak tercatat mengajar di jadwal KBM.</p>'}
+        <p class="kecil muted" style="margin-top:8px">✓ = sudah ada hasil semester ini.</p></div>
+      <div><p class="small" style="margin-bottom:6px"><b>Riwayat kegiatan</b></p><div style="max-height:320px;overflow:auto">${g.keg.length?`<table><tbody>${g.keg.slice(0,40).map(k=>`<tr><td style="white-space:nowrap;width:1%">${tgl(k.t)}<div class="kecil muted">${jam(k.t)}</div></td><td class="small">${ket(k)}</td></tr>`).join("")}</tbody></table>`:'<p class="small muted">Belum ada kegiatan di Asesmen Merdeka.</p>'}</div></div>
+    </div></div>`;
+  $("kr-tutup").onclick=()=>{K_GURU=null;el.innerHTML="";document.querySelectorAll("#k-tabel tr.pilih").forEach(x=>x.classList.remove("pilih"))};
+  if(!diam)el.scrollIntoView({behavior:"smooth",block:"start"})}
+$("k-cari").oninput=()=>gLaksana();$("k-urut").onchange=()=>gLaksana();
 
 /* ================= Paket & Kisi-kisi ================= */
 function gPaket(){
