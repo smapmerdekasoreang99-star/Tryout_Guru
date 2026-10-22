@@ -126,6 +126,7 @@ svg.ch .sumbu{stroke:var(--garis-2);stroke-width:1}svg.ch .kisi{stroke:var(--gar
   <nav class="tabs" id="tabs">
     <button data-tab="minggu" class="on"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Minggu Ini</span></button>
     <button data-tab="kalender"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h2M12 14h2M16 14h2M8 17h2M12 17h2"/></svg><span>Kalender</span></button>
+    <button data-tab="paket"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Paket per Periode</span></button>
     <button data-tab="soal"><svg viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M9 14l2 2 4-4"/></svg><span>Pengumpulan Soal</span></button>
     <button data-tab="sesi"><svg viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Sesi &amp; Link</span></button>
     <button data-tab="rekap"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>Rekap &amp; Laporan</span></button>
@@ -133,6 +134,7 @@ svg.ch .sumbu{stroke:var(--garis-2);stroke-width:1}svg.ch .kisi{stroke:var(--gar
 
   <div id="tab-minggu"></div>
   <div id="tab-kalender" class="hidden"></div>
+  <div id="tab-paket" class="hidden"></div>
   <div id="tab-soal" class="hidden"></div>
   <div id="tab-sesi" class="hidden"></div>
   <div id="tab-rekap" class="hidden"></div>
@@ -255,8 +257,8 @@ function siapkan(){
   $("k-info").textContent=`${new Set(w.map(j=>j.mulai)).size} TO Mapel Wajib · ${new Set(p.map(j=>j.mulai)).size} minggu TO Mapel Pilihan · data per ${new Date(D.sekarang).toLocaleString("id-ID",{...WIB,day:"numeric",month:"long",hour:"2-digit",minute:"2-digit"})}`;
 }
 function gambar(){document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===TAB));
-  ["minggu","kalender","soal","sesi","rekap"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
-  ({minggu:gMinggu,kalender:gKalender,soal:gSoal,sesi:gSesi,rekap:gRekap})[TAB]()}
+  ["minggu","kalender","paket","soal","sesi","rekap"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
+  ({minggu:gMinggu,kalender:gKalender,paket:gPaket,soal:gSoal,sesi:gSesi,rekap:gRekap})[TAB]()}
 
 /* ---------------- kartu TO ---------------- */
 const sasaran=j=>j.program==="wajib"?`Kelas ${j.tingkat}`:j.kelas.join(", ");
@@ -268,7 +270,7 @@ function aksiUtama(j){if(BACA)return "";if(j.st==="tunggu"||j.st==="telat")retur
 function kartuTO(j,tglTampil){const d=tglTampil||j.d0;
   return `<div class="to-k" data-buka="${j.id}"><div class="to-tgl"><span>${HARI[d.getDay()].slice(0,3)}</span><b>${d.getDate()}</b><span>${d.toLocaleDateString("id-ID",{month:"short"})}</span></div>
     <div><div class="jdl">${esc(j.mapel)} <span class="muted" style="font-weight:500">· ${esc(sasaran(j))}${j.jenis==="Tryout UTBK"?" · UTBK":""}</span></div>
-      <div class="ket">${j.program==="wajib"?`Mapel Wajib${j.jam_ke?` · jam ke-${j.jam_ke}`:""}`:`Mapel Pilihan · ${tglP(j.d0)}–${tglP(j.d1)}`} · ${esc(namaPendek(j.guru_id))}${j.p?` · <b>${esc(j.p.judul)}</b>`:""}${j.S.length||j.H.length?` · ${j.nisn.size}/${j.target} siswa`:""}</div>
+      <div class="ket">${j.program==="wajib"?`Mapel Wajib${j.jam_ke?` · jam ke-${j.jam_ke}`:""}`:`Mapel Pilihan · ${tglP(j.d0)}–${tglP(j.d1)}`} · ${esc(namaPendek(j.guru_id))}${j.p?` · <b>${esc(j.p.judul)}</b>`:""}${j.S.length||j.H.length?` · ${j.nisn.size}/${targetLaksana(j)||j.target} siswa`:""}</div>
       ${alur(j)}</div>
     <div class="row" style="justify-content:flex-end">${pilSt(j.st)}${aksiUtama(j)}</div></div>`}
 // urutan TO: tanggal → Wajib dulu → tingkat/kelas naik
@@ -279,7 +281,7 @@ function kartuGrup(a){const j0=a[0],d=j0.d0,guru=[...new Set(a.map(j=>namaPendek
   return `<div class="to-g"><div class="to-tgl"><span>${HARI[d.getDay()].slice(0,3)}</span><b>${d.getDate()}</b><span>${d.toLocaleDateString("id-ID",{month:"short"})}</span></div>
     <div><div class="jdl" style="font-weight:700">${esc(j0.mapel)} <span class="muted" style="font-weight:500">· ${j0.program==="wajib"?`Mapel Wajib${j0.jam_ke?` · jam ke-${j0.jam_ke}`:""}`:`Mapel Pilihan · ${tglP(j0.d0)}–${tglP(j0.d1)}`} · ${esc(guru)}</span></div>
       ${a.map(j=>`<div class="baris" data-buka="${j.id}"><b class="small">${esc(sasaran(j))}${j.jenis==="Tryout UTBK"?" · UTBK":""}</b>
-        <span class="info small muted">${j.p?esc(j.p.judul):j.st==="tunggu"||j.st==="telat"?"soal belum masuk · tenggat "+tglP(j.tenggat):"—"}${j.S.length||j.H.length?` · <b style="color:var(--ink)">${j.nisn.size}/${j.target}</b> siswa`:""}${alur(j)}</span>
+        <span class="info small muted">${j.p?esc(j.p.judul):j.st==="tunggu"||j.st==="telat"?"soal belum masuk · tenggat "+tglP(j.tenggat):"—"}${j.S.length||j.H.length?` · <b style="color:var(--ink)">${j.nisn.size}/${targetLaksana(j)||j.target}</b> siswa`:""}${alur(j)}</span>
         <span class="row" style="justify-content:flex-end;flex-wrap:nowrap">${pilSt(j.st)}${aksiUtama(j)}</span></div>`).join("")}</div></div>`}
 function ikatBuka(el){el.querySelectorAll("[data-buka]").forEach(x=>x.onclick=e=>{e.stopPropagation();bukaLaci(+x.dataset.buka)})}
 
@@ -290,7 +292,7 @@ function gMinggu(){const el=$("tab-minggu"),kini=new Date(),s0=senin(kini),s1=ta
   if(!ini.length){const nx=aktif.filter(j=>j.d0>=s1).sort((a,b)=>a.d0-b.d0)[0];if(nx){const a=senin(nx.d0);ini=pekan(a,tambahHari(a,7));judulIni="TO berikutnya"}}
   const depan=pekan(n0,n1),jumat=tambahHari(s0,4);
   // angka semester
-  const sdh=J.filter(j=>!j.batal&&j.st!=="pra"&&j.d1<kini),selesai=sdh.filter(j=>j.st==="selesai"),tgt=selesai.reduce((a,j)=>a+j.target,0),ikut=selesai.reduce((a,j)=>a+j.nisn.size,0);
+  const sdh=J.filter(j=>!j.batal&&j.st!=="pra"&&j.d1<kini),selesai=sdh.filter(j=>j.st==="selesai"),tgt=selesai.reduce((a,j)=>a+targetLaksana(j),0),ikut=selesai.reduce((a,j)=>a+j.nisn.size,0);
   const nil=selesai.flatMap(j=>j.H.map(h=>h[3])),soalDepan=depan.filter(j=>j.paketEff).length;
   const urut=URUT_TO;
   // Pilihan: satu minggu, kelompokkan per mapel
@@ -337,7 +339,7 @@ function gKalender(){const el=$("tab-kalender"),kini=isoD(new Date()),L=J.filter
   el.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{PROG=b.dataset.p;lsSet("to_prog",PROG);gKalender()});
   ikatBuka(el);if($("kal-tambah"))$("kal-tambah").onclick=()=>bukaLaci(null);
 }
-const selKal=j=>`<div class="sel-to st-${j.st}" data-buka="${j.id}" data-tip="<b>${esc(j.mapel)}</b> · ${esc(sasaran(j))}<br>${j.program==="wajib"?hariTgl(j.d0):`${tglP(j.d0)}–${tglP(j.d1)}`}<br>${ST[j.st][0]}${j.p?`<br>${esc(j.p.judul)}`:""}${j.H.length?`<br>${j.nisn.size}/${j.target} siswa · rata-rata ${angka(j.rata)}`:""}">${esc(singkat(j.mapel))}<small>${j.jenis==="Tryout UTBK"?"UTBK":ST[j.st][1]}</small></div>`;
+const selKal=j=>`<div class="sel-to st-${j.st}" data-buka="${j.id}" data-tip="<b>${esc(j.mapel)}</b> · ${esc(sasaran(j))}<br>${j.program==="wajib"?hariTgl(j.d0):`${tglP(j.d0)}–${tglP(j.d1)}`}<br>${ST[j.st][0]}${j.p?`<br>${esc(j.p.judul)}`:""}${j.H.length?`<br>${j.nisn.size}/${targetLaksana(j)||j.target} siswa · rata-rata ${angka(j.rata)}`:""}">${esc(singkat(j.mapel))}<small>${j.jenis==="Tryout UTBK"?"UTBK":ST[j.st][1]}</small></div>`;
 
 /* ================= Laci rincian TO ================= */
 function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci");
@@ -476,6 +478,98 @@ function gSesi(){const el=$("tab-sesi"),kini=Date.now();
   el.innerHTML=`<div style="margin-top:12px"></div>${blok("Sedang berlangsung",jalan,"Bagikan link atau tampilkan QR di kelas. Siswa masuk hanya dengan NISN.")}${blok("Terjadwal",jadwal,"Link sudah bisa dibagikan sebelum waktunya; siswa baru bisa mengerjakan saat sesi dibuka.")}${blok("Selesai (15 terakhir)",selesai)}`;
   ikatSesi(el,null)}
 
+// sesi dianggap terlaksana bila ada hasil atau dibuka ≥ 15 menit (sesi yang langsung ditutup = uji coba)
+const sesiNyata=x=>x.n_hasil>0||x.T1-x.T0>=15*60000;
+const laksana=j=>j.S.some(sesiNyata)||j.H.length>0;
+// TO terlaksana di satu kelas: ada sesi untuk kelas itu atau hasil dari kelas itu
+const laksanaK=(j,k)=>j.S.some(x=>sesiNyata(x)&&x.kelas.includes(k))||j.H.some(h=>h[1]===k);
+const targetLaksana=j=>j.kelas.filter(k=>laksanaK(j,k)).reduce((a,k)=>a+(KELAS_N[k]||0),0);
+/* ================= Paket per Periode (22 Okt 2026) =================
+   Folder otomatis: Program → Periode (3 TO Wajib / 5 minggu Pilihan) → TO (tanggal × mapel) → sasaran. Periode berjalan terbuka. */
+let PP_PROG=lsGet("to_ppprog","wajib");
+const garisMini=(ys,w=84,h=22)=>{ys=ys.filter(y=>y!=null);if(ys.length<2)return "";const sx=i=>2+(w-4)*i/(ys.length-1),sy=y=>2+(h-4)*(1-y/100);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><path d="${ys.map((y,i)=>(i?"L":"M")+sx(i).toFixed(1)+","+sy(y).toFixed(1)).join(" ")}" fill="none" stroke="var(--seri)" stroke-width="1.6"/><circle cx="${sx(ys.length-1)}" cy="${sy(ys[ys.length-1])}" r="2.5" fill="var(--seri)"/></svg>`};
+function ringkasPeriode(p,prog){const L=J.filter(j=>j.program===prog&&!j.batal&&p.tgl.includes(j.mulai)),kini=isoD(new Date());
+  const ada=L.filter(j=>j.paketEff).length,dihitung=L.filter(j=>j.st!=="pra"),sel=dihitung.filter(j=>j.st==="selesai"),tgt=sel.reduce((a,j)=>a+targetLaksana(j),0),ikut=sel.reduce((a,j)=>a+j.nisn.size,0),v=sel.flatMap(j=>j.H.map(h=>h[3]));
+  const st=p.sampai<kini?(L.every(j=>j.st==="pra")?"pra":L.some(laksana)?"lalu":"lewat"):p.dari<=kini?"jalan":"nanti";
+  return {L,ada,tgt,ikut,rata:rata(v),st}}
+function gPaket(){const el=$("tab-paket"),P=periodeList(PP_PROG),kini=isoD(new Date());
+  const buka=(P.find(p=>p.dari<=kini&&p.sampai>=kini)||P.find(p=>p.dari>kini)||P[P.length-1]||{}).no;
+  const stLb={lalu:["✓ selesai","st-selesai"],lewat:["– terlewat (tidak ada TO di aplikasi)","st-lewat"],jalan:["◕ berjalan","st-jalan"],nanti:["○ akan datang","st-tunggu"],pra:["· sebelum aplikasi","st-pra"]};
+  el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="kepala"><div class="prog"><button data-pp="wajib" class="${PP_PROG==="wajib"?"on":""}">TO Mapel Wajib</button><button data-pp="pilihan" class="${PP_PROG==="pilihan"?"on":""}">TO Mapel Pilihan</button></div>
+      <span class="small muted">Satu periode = ${PP_PROG==="wajib"?"3 TO (BI · MTK · BIng)":"5 minggu TO Mapel Pilihan"}. Paket otomatis masuk folder periodenya saat dipasang ke jadwal.</span></div></div>
+    ${P.map(p=>{const R=ringkasPeriode(p,PP_PROG),[lb,cl]=stLb[R.st],grp=grupTO(R.L);
+      return `<details class="card" style="padding:0" ${p.no===buka?"open":""}><summary style="list-style:none;cursor:pointer;padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <span style="font-family:Fraunces,Georgia,serif;font-size:18px;font-weight:600">Periode ${p.no}</span><span class="small muted">${tglP(tglD(p.dari))} – ${tglP(tglD(p.sampai))}</span><span class="st ${cl}">${lb}</span>
+          <span class="small" style="margin-left:auto">${R.ada}/${R.L.length} soal terpasang${R.tgt?` · partisipasi <b>${angka(R.ikut/R.tgt*100,0)}%</b> · rata-rata <b class="nil ${kelasNilai(R.rata)}">${angka(R.rata)}</b>`:""}</span></summary>
+        <div style="padding:0 18px 16px"><div class="gulir"><table><thead><tr><th>${PP_PROG==="wajib"?"Tanggal":"Minggu"}</th><th>Mapel</th><th>Sasaran &amp; status</th><th>Paket soal</th><th>Penyusun</th><th class="n">Hasil</th></tr></thead><tbody>
+        ${grp.map(a=>{const j0=a[0],pk=[...new Set(a.map(j=>j.p&&j.p.judul).filter(Boolean))],ik=a.reduce((s,j)=>s+j.nisn.size,0),tg=a.reduce((s,j)=>s+targetLaksana(j),0),v=a.flatMap(j=>j.H.map(h=>h[3]));
+          return `<tr><td style="white-space:nowrap">${PP_PROG==="wajib"?hariTgl(j0.d0):`${tglP(j0.d0)}–${tglP(j0.d1)}`}</td><td><b>${esc(j0.mapel)}</b></td>
+            <td><div class="row" style="gap:4px">${a.map(j=>`<span class="st st-${j.st}" data-buka="${j.id}" style="cursor:pointer" title="${ST[j.st][0]}">${ST[j.st][1]} ${esc(sasaran(j))}${j.jenis==="Tryout UTBK"?" · UTBK":""}</span>`).join("")}</div></td>
+            <td class="small">${pk.length?pk.map(esc).join("<br>"):'<span class="muted">—</span>'}</td><td class="small">${esc([...new Set(a.map(j=>namaPendek(j.guru_id)))].join(", "))}</td>
+            <td class="n small">${ik?`${ik}/${tg}<div><b class="nil ${kelasNilai(rata(v))}">${angka(rata(v))}</b></div>`:"–"}</td></tr>`}).join("")}</tbody></table></div>
+          ${R.st!=="nanti"&&R.st!=="pra"?`<div class="row" style="margin-top:8px"><button class="ghost mini" data-rekap="${p.no}">Rekap periode ini</button></div>`:""}</div></details>`}).join("")||'<div class="card kosong">Belum ada jadwal.</div>'}`;
+  el.querySelectorAll("[data-pp]").forEach(b=>b.onclick=()=>{PP_PROG=b.dataset.pp;lsSet("to_ppprog",PP_PROG);gPaket()});
+  el.querySelectorAll("[data-rekap]").forEach(b=>b.onclick=()=>{R_PROG=PP_PROG;R_PER=+b.dataset.rekap;R_MODE="satu";TAB="rekap";gambar()});
+  ikatBuka(el)}
+
+/* ================= Rekap antar periode ================= */
+let R_MODE=lsGet("to_rmode","satu"),R_MP="";
+function dataAntar(P){const sasOk=j=>!R_SAS||(R_PROG==="wajib"?j.tingkat===R_SAS:j.kelas.includes(R_SAS)),mpOk=j=>!R_MP||j.mapel===R_MP;
+  // periode yang sudah punya hasil atau sudah lewat (bukan "sebelum aplikasi")
+  const kini=isoD(new Date());
+  const PP=P.map(p=>({p,L:J.filter(j=>j.program===R_PROG&&!j.batal&&j.st!=="pra"&&p.tgl.includes(j.mulai)&&sasOk(j)&&mpOk(j))})).filter(x=>x.L.some(laksana));
+  const kelasSemua=[...new Set(PP.flatMap(x=>x.L.flatMap(j=>j.kelas)))].filter(k=>!R_SAS||R_PROG==="wajib"||k===R_SAS).sort(urutID);
+  const kelas=kelasSemua.filter(k=>PP.some(x=>x.L.some(j=>j.kelas.includes(k)&&laksanaK(j,k)))),tanpa=kelasSemua.filter(k=>!kelas.includes(k));
+  const siswa=D.siswa.filter(s=>kelas.includes(s[2])).map(([nisn,nama,k])=>{
+    const per=PP.map(x=>{const rr=x.L.filter(j=>j.kelas.includes(k)&&laksanaK(j,k));const v=rr.map(j=>{const h=j.H.filter(h=>h[0]===nisn);return h.length?h[h.length-1][3]:null});
+      const n=v.filter(y=>y!=null);return {r:rata(n),ikut:n.length,wajib:rr.length}});
+    const ys=per.map(x=>x.r),ada=ys.filter(y=>y!=null),wajib=per.reduce((a,x)=>a+x.wajib,0),ikut=per.reduce((a,x)=>a+x.ikut,0);
+    const tiga=ada.slice(-3),turun=tiga.length===3&&tiga[0]>tiga[1]&&tiga[1]>tiga[2],bawah=ada.length>=2&&ada.every(y=>y<KKM()),jarang=wajib>=3&&ikut/wajib<.5;
+    return {nisn,nama,kelas:k,per,ys,d:ada.length>=2?ada[ada.length-1]-ada[0]:null,dAkhir:ada.length>=2?ada[ada.length-1]-ada[ada.length-2]:null,wajib,ikut,turun,bawah,jarang}});
+  return {PP,kelas,siswa,tanpa}}
+function isiAntar(P){const el=$("r-isi"),{PP,kelas,siswa,tanpa}=dataAntar(P),kkm=KKM();
+  if(!PP.length){el.innerHTML='<div class="card kosong">Belum ada periode yang punya hasil.</div>';return}
+  const kol=PP.map(x=>"P"+x.p.no),nilaiK=(k,i)=>{const a=siswa.filter(s=>s.kelas===k).map(s=>s.per[i]),n=a.flatMap(x=>x.r==null?[]:[x.r]),w=a.reduce((s,x)=>s+x.wajib,0),ik=a.reduce((s,x)=>s+x.ikut,0);return {r:rata(n),p:w?ik/w*100:null}};
+  const perl=[["turun","Turun dua periode berturut-turut",s=>s.turun],["bawah",`Selalu di bawah batas ${kkm}`,s=>s.bawah],["jarang","Sering tidak ikut (< 50% TO)",s=>s.jarang]];
+  const mapelL=[...new Set(J.filter(j=>j.program===R_PROG&&!j.batal).map(j=>j.mapel))].sort(urutID);
+  el.innerHTML=`<div class="card kolom"><div class="row" style="align-items:flex-end"><label class="f">Mapel<select id="r-mp"><option value="">Semua mapel</option>${mapelL.map(m=>`<option${m===R_MP?" selected":""}>${esc(m)}</option>`).join("")}</select></label>
+      <span class="small muted grow">Satu titik = rata-rata nilai siswa di satu periode${R_MP?" untuk "+esc(R_MP):" (semua mapel periode itu)"}. ${PP.length} periode: ${PP.map(x=>`P${x.p.no} ${tglP(tglD(x.p.dari))}–${tglP(tglD(x.p.sampai))}`).join(" · ")}.</span></div></div>
+    <div class="ubin">${(()=>{const naik=siswa.filter(s=>s.d!=null&&s.d>=10).length,turun=siswa.filter(s=>s.d!=null&&s.d<=-10).length,akh=PP.length>1?[rata(siswa.map(s=>s.per[PP.length-1].r).filter(x=>x!=null)),rata(siswa.map(s=>s.per[PP.length-2].r).filter(x=>x!=null))]:null;
+      return [[PP.length,"periode",kol.join(" · ")],[akh?angka(akh[0]):angka(rata(siswa.map(s=>s.per[0].r).filter(x=>x!=null))),"rata-rata periode terakhir",akh?`periode sebelumnya ${angka(akh[1])} (${akh[0]-akh[1]>=0?"▲ +":"▼ "}${angka(akh[0]-akh[1])})`:""],
+        [naik,"siswa naik ≥ 10 poin","periode pertama → terakhir"],[turun,"siswa turun ≥ 10 poin",""],[perl.reduce((a,[,,f])=>a+siswa.filter(f).length,0),"catatan perlu perhatian","lihat daftar di bawah"]]})().map(([a,b,c])=>`<div><b>${a}</b><span>${b}</span><em>${c}</em></div>`).join("")}</div>
+    <div class="card grafik"><h3>Kelas × periode</h3><p class="sub">Rata-rata nilai tiap kelas per periode; di bawahnya partisipasi. Garis kecil = arah perkembangan.</p>
+      <div class="gulir"><table><thead><tr><th>Kelas</th>${kol.map(k=>`<th class="n">${k}</th>`).join("")}<th class="n">Tren</th><th class="n">Perubahan</th></tr></thead><tbody>
+      ${kelas.map(k=>{const v=PP.map((_,i)=>nilaiK(k,i)),ys=v.map(x=>x.r),ad=ys.filter(y=>y!=null),d=ad.length>=2?ad[ad.length-1]-ad[0]:null;
+        return `<tr><td><b>${esc(k)}</b></td>${v.map(x=>`<td class="n">${x.r==null?'<span class="muted">–</span>':`<span class="nil ${kelasNilai(x.r)}">${angka(x.r)}</span>`}<div class="kecil muted">${x.p==null?"":angka(x.p,0)+"%"}</div></td>`).join("")}
+          <td class="n">${garisMini(ys)}</td><td class="n">${d==null?"–":`<span class="${d>0?"nilai-b":d<0?"nilai-k":""}" style="font-weight:700;color:${d>0?"var(--baik)":d<0?"var(--kurang)":"inherit"}">${d>0?"▲ +":d<0?"▼ ":""}${angka(d)}</span>`}</td></tr>`}).join("")}</tbody></table></div>
+      ${tanpa.length?`<p class="small muted" style="margin-top:8px">Belum pernah melaksanakan TO ${R_PROG==="wajib"?"Mapel Wajib":"Mapel Pilihan"}${R_MP?" "+esc(R_MP):""} di aplikasi: <b>${tanpa.map(esc).join(", ")}</b>.</p>`:""}</div>
+    <div class="card grafik"><h3>Mapel × periode</h3><p class="sub">Rata-rata tiap mapel per periode${R_SAS?" · "+(R_PROG==="wajib"?"kelas "+R_SAS:R_SAS):""}</p><div class="multi">${mapelL.filter(m=>!R_MP||m===R_MP).map(m=>{const t=PP.map((x,i)=>{const h=x.L.filter(j=>j.mapel===m).flatMap(j=>j.H.filter(h=>!R_SAS||R_PROG==="wajib"||h[1]===R_SAS).map(h=>h[3]));return {i,y:rata(h),tip:`<b>${esc(m)} · P${x.p.no}</b><br>rata-rata ${angka(rata(h))} (${h.length} nilai)`}});
+      return t.some(x=>x.y!=null)?`<div><p class="small" style="margin-bottom:2px"><b>${esc(m)}</b></p>${grafikGaris([{warna:"var(--seri)",titik:t}],{label:kol,kkm,tinggi:150,aria:"mapel "+m})}</div>`:""}).join("")||'<p class="kosong">Belum ada hasil.</p>'}</div></div>
+    <div class="card kolom"><h3>Siswa perlu perhatian</h3>${perl.map(([k,l,f])=>{const a=siswa.filter(f);return `<details${a.length?"":" "}><summary class="small" style="cursor:pointer"><b>${l}</b> · ${a.length} siswa</summary><div class="gulir" style="margin:6px 0"><table><tbody>${a.map(s=>`<tr><td><b>${esc(s.nama)}</b></td><td>${esc(s.kelas)}</td><td class="small">${s.per.map((x,i)=>`${kol[i]}: ${x.r==null?"–":angka(x.r)}`).join(" · ")}</td><td class="small">ikut ${s.ikut}/${s.wajib}</td></tr>`).join("")||'<tr><td class="muted">Tidak ada.</td></tr>'}</tbody></table></div></details>`}).join("")}</div>
+    <div class="card kolom"><div class="kepala"><h3>Siswa × periode <span class="small muted">(${siswa.length})</span></h3><div class="row"><input type="text" id="ra-cari" placeholder="Cari nama atau NISN" style="min-width:200px"><select id="ra-urut"><option value="kelas">Urut: kelas &amp; nama</option><option value="turun">Urut: penurunan terbesar</option><option value="naik">Urut: kenaikan terbesar</option></select></div></div>
+      <div class="gulir" style="max-height:620px;overflow:auto"><table><thead style="position:sticky;top:0;z-index:2"><tr><th>Nama</th><th>Kelas</th>${kol.map(k=>`<th class="n">${k}</th>`).join("")}<th class="n">Tren</th><th class="n">Δ terakhir</th><th class="n">Perubahan</th><th class="n">Ikut</th></tr></thead><tbody id="ra-siswa"></tbody></table></div>
+      <p class="kecil muted">Δ terakhir = periode terakhir dibanding sebelumnya. Perubahan = periode terakhir dibanding pertama. – = tidak ada nilai di periode itu.</p></div>`;
+  const isi=()=>{const q=($("ra-cari").value||"").trim().toLowerCase(),u=$("ra-urut").value;
+    const L=siswa.filter(s=>!q||s.nama.toLowerCase().includes(q)||s.nisn.includes(q)).sort(u==="turun"?(a,b)=>(a.d??99)-(b.d??99):u==="naik"?(a,b)=>(b.d??-99)-(a.d??-99):(a,b)=>urutID(a.kelas,b.kelas)||urutID(a.nama,b.nama));
+    const dd=x=>x==null?"–":`<span style="font-weight:700;color:${x>0?"var(--baik)":x<0?"var(--kurang)":"inherit"}">${x>0?"▲ +":x<0?"▼ ":""}${angka(x)}</span>`;
+    $("ra-siswa").innerHTML=L.map(s=>`<tr><td><b>${esc(s.nama)}</b>${s.turun||s.bawah||s.jarang?' <span class="st st-telat" title="perlu perhatian">!</span>':""}</td><td>${esc(s.kelas)}</td>${s.per.map(x=>`<td class="n">${x.r==null?'<span class="muted">–</span>':`<span class="nil ${kelasNilai(x.r)}">${angka(x.r,0)}</span>`}</td>`).join("")}
+      <td class="n">${garisMini(s.ys)}</td><td class="n">${dd(s.dAkhir)}</td><td class="n">${dd(s.d)}</td><td class="n small">${s.ikut}/${s.wajib}</td></tr>`).join("")};
+  $("ra-cari").oninput=isi;$("ra-urut").onchange=isi;isi();
+  $("r-mp").onchange=()=>{R_MP=$("r-mp").value;isiAntar(P)}}
+async function unduhAntar(P){const {PP,kelas,siswa}=dataAntar(P);if(!PP.length)throw new Error("Belum ada periode yang punya hasil");const kol=PP.map(x=>"P"+x.p.no),kkm=KKM();
+  const judul=`TO TKA ${R_PROG==="wajib"?"Mapel Wajib":"Mapel Pilihan"} — perkembangan antar periode`,sub=`Semester ${D.periode.nama}${R_SAS?" · "+(R_PROG==="wajib"?"Kelas "+R_SAS:R_SAS):""}${R_MP?" · "+R_MP:""}`;
+  const merah=v=>typeof v==="number"&&v<kkm?{warna:XL.merah,tebal:true}:null,r1=v=>v==null?"":Math.round(v*10)/10;
+  const nama=`Perkembangan_TO_TKA_${R_PROG}${R_SAS?"_"+R_SAS:""}${R_MP?"_"+potongNama(R_MP):""}_${tglBerkas()}.xlsx`;
+  await unduhBukuXLSX({namaBerkas:nama,judulBuku:judul,lembar:[
+    {nama:"Siswa x periode",judul,sub,info:[["Periode",PP.map(x=>`P${x.p.no}: ${tglP(tglD(x.p.dari))}–${tglP(tglD(x.p.sampai))}`).join(" · ")],["Batas tuntas",String(kkm)]],beku:2,
+     kolom:[{t:"No",w:5},{t:"Nama",w:30},{t:"Kelas",w:8},...kol.map(k=>({t:k,w:8,fmt:"0.0",rata:"center"})),{t:"Δ terakhir",w:10,fmt:"0.0"},{t:"Perubahan",w:10,fmt:"0.0"},{t:"Ikut",w:7},{t:"Catatan",w:32,bungkus:true}],
+     baris:siswa.map((s,i)=>[i+1,s.nama,s.kelas,...s.per.map(x=>r1(x.r)),r1(s.dAkhir),r1(s.d),`${s.ikut}/${s.wajib}`,[s.turun?"turun 2 periode":"",s.bawah?"selalu di bawah batas":"",s.jarang?"sering tidak ikut":""].filter(Boolean).join("; ")]),
+     warnaSel:(b,j)=>j>=3&&j<3+kol.length?merah(b[j]):null},
+    {nama:"Kelas x periode",judul:"Rata-rata & partisipasi kelas per periode",sub,beku:1,melintang:false,
+     kolom:[{t:"Kelas",w:9,tebal:true},...kol.flatMap(k=>[{t:k+" rata-rata",w:10,fmt:"0.0"},{t:k+" ikut %",w:9}])],
+     baris:kelas.map(k=>[k,...PP.flatMap((_,i)=>{const a=siswa.filter(s=>s.kelas===k).map(s=>s.per[i]),n=a.flatMap(x=>x.r==null?[]:[x.r]),w=a.reduce((s,x)=>s+x.wajib,0),ik=a.reduce((s,x)=>s+x.ikut,0);return [r1(rata(n)),w?Math.round(ik/w*100):""]})])}]});
+  return nama}
 /* ================= Rekap & Laporan ================= */
 let R_PROG=lsGet("to_rprog","wajib"),R_PER=null,R_SAS="";
 function periodeList(prog){const L=J.filter(j=>j.program===prog&&!j.batal),t=[...new Set(L.map(j=>j.mulai))].sort(),n=prog==="wajib"?3:5,P=[];
@@ -485,23 +579,25 @@ function gRekap(){const el=$("tab-rekap"),P=periodeList(R_PROG),kini=isoD(new Da
   const per=P[R_PER-1];
   const sasaranL=R_PROG==="wajib"?["10","11","12"].filter(t=>J.some(j=>j.program==="wajib"&&j.tingkat===t)):[...new Set(J.filter(j=>j.program==="pilihan").flatMap(j=>j.kelas))].sort(urutID);
   el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="row" style="align-items:flex-end;justify-content:space-between">
-      <div class="row" style="align-items:flex-end"><div class="prog"><button data-rp="wajib" class="${R_PROG==="wajib"?"on":""}">Mapel Wajib</button><button data-rp="pilihan" class="${R_PROG==="pilihan"?"on":""}">Mapel Pilihan</button></div>
-        <label class="f">Periode<select id="r-per">${P.map(p=>`<option value="${p.no}"${p.no===R_PER?" selected":""}>Periode ${p.no} · ${tglP(tglD(p.dari))}–${tglP(tglD(p.sampai))}</option>`).join("")}</select></label>
+      <div class="row" style="align-items:flex-end"><div class="prog"><button data-rm="satu" class="${R_MODE==="satu"?"on":""}">Satu periode</button><button data-rm="antar" class="${R_MODE==="antar"?"on":""}">Antar periode</button></div><div class="prog"><button data-rp="wajib" class="${R_PROG==="wajib"?"on":""}">Mapel Wajib</button><button data-rp="pilihan" class="${R_PROG==="pilihan"?"on":""}">Mapel Pilihan</button></div>
+        <label class="f${R_MODE==="antar"?" hidden":""}">Periode<select id="r-per">${P.map(p=>`<option value="${p.no}"${p.no===R_PER?" selected":""}>Periode ${p.no} · ${tglP(tglD(p.dari))}–${tglP(tglD(p.sampai))}</option>`).join("")}</select></label>
         <label class="f">${R_PROG==="wajib"?"Tingkat":"Kelas"}<select id="r-sas"><option value="">Semua</option>${sasaranL.map(x=>`<option value="${x}"${x===R_SAS?" selected":""}>${R_PROG==="wajib"?"Kelas "+x:x}</option>`).join("")}</select></label>
         <label class="f">Batas tuntas<input type="number" id="r-kkm" min="0" max="100" value="${KKM()}" style="width:90px"></label></div>
       <div class="row"><button class="ghost" id="r-xlsx">Unduh Excel</button><button id="r-cetak">Cetak laporan</button></div></div>
-    <p class="small muted">Satu periode = ${R_PROG==="wajib"?"3 TO Mapel Wajib (satu putaran BI · MTK · BIng)":"5 TO Mapel Pilihan (satu putaran mapel peminatan)"}.</p></div><div id="r-isi"></div>`;
+    <p class="small muted">Satu periode = ${R_PROG==="wajib"?"3 TO Mapel Wajib (satu putaran BI · MTK · BIng)":"5 TO Mapel Pilihan (satu putaran mapel peminatan)"}.${R_MODE==="antar"?" Antar periode: perkembangan kelas dan tiap siswa dari periode ke periode.":""}</p></div><div id="r-isi"></div>`;
+  el.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{R_MODE=b.dataset.rm;lsSet("to_rmode",R_MODE);gRekap()});
   el.querySelectorAll("[data-rp]").forEach(b=>b.onclick=()=>{R_PROG=b.dataset.rp;lsSet("to_rprog",R_PROG);R_PER=null;R_SAS="";gRekap()});
   $("r-per").onchange=()=>{R_PER=+$("r-per").value;gRekap()};$("r-sas").onchange=()=>{R_SAS=$("r-sas").value;gRekap()};
-  $("r-kkm").oninput=()=>{const v=parseInt($("r-kkm").value,10);if(v>=0&&v<=100){lsSet("to_kkm",v);isiRekap(per,P)}};
-  $("r-xlsx").onclick=e=>jalankanUnduh(e.target,()=>unduhRekap(per));$("r-cetak").onclick=()=>cetakRekap(per,P);
-  isiRekap(per,P)}
+  $("r-kkm").oninput=()=>{const v=parseInt($("r-kkm").value,10);if(v>=0&&v<=100){lsSet("to_kkm",v);R_MODE==="antar"?isiAntar(P):isiRekap(per,P)}};
+  $("r-xlsx").onclick=e=>jalankanUnduh(e.target,()=>R_MODE==="antar"?unduhAntar(P):unduhRekap(per));$("r-cetak").onclick=()=>cetakRekap(per,P);
+  $("r-cetak").classList.toggle("hidden",R_MODE==="antar");
+  if(R_MODE==="antar")isiAntar(P);else isiRekap(per,P)}
 function dataRekap(per){if(!per)return null;const L=J.filter(j=>j.program===R_PROG&&!j.batal&&j.st!=="pra"&&per.tgl.includes(j.mulai)&&(!R_SAS||(R_PROG==="wajib"?j.tingkat===R_SAS:j.kelas.includes(R_SAS))));
   // kolom TO: Wajib = per tanggal (mapel sama untuk semua tingkat); Pilihan = per minggu × mapel
   const kol=[];L.forEach(j=>{const k=R_PROG==="wajib"?j.mulai:j.mulai+"|"+j.mapel;if(!kol.some(x=>x.k===k))kol.push({k,mapel:j.mapel,tgl:j.mulai,jenis:j.jenis})});kol.sort((a,b)=>urutID(a.k,b.k));
   const kelas=[...new Set(L.flatMap(j=>j.kelas))].filter(k=>!R_SAS||R_PROG==="wajib"||k===R_SAS).sort(urutID);
   const siswa=D.siswa.filter(s=>kelas.includes(s[2])).map(([nisn,nama,k])=>{const nil={};kol.forEach(c=>{const j=L.find(x=>(R_PROG==="wajib"?x.mulai:x.mulai+"|"+x.mapel)===c.k&&x.kelas.includes(k));
-      if(!j)return;const h=j.H.filter(h=>h[0]===nisn).sort((a,b)=>a[4]<b[4]?1:-1)[0];nil[c.k]=h?h[3]:j.d1<new Date()||j.H.length?null:undefined});
+      if(!j)return;const h=j.H.filter(h=>h[0]===nisn).sort((a,b)=>a[4]<b[4]?1:-1)[0];nil[c.k]=h?h[3]:laksanaK(j,k)?null:undefined});
     const v=Object.values(nil).filter(x=>x!=null),wajib=Object.keys(nil).length;return {nisn,nama,kelas:k,nil,rata:rata(v),ikut:v.length,wajib}});
   return {L,kol,kelas,siswa}}
 function isiRekap(per,P){const el=$("r-isi");const R=dataRekap(per);if(!R||!R.L.length){el.innerHTML='<div class="card kosong">Belum ada TO pada periode ini.</div>';return}
@@ -570,6 +666,10 @@ function cetakRekap(per,P){const R=dataRekap(per);if(!R||!R.L.length)return toas
     <h2>Rekap per kelas</h2><table><thead><tr><th class="l">Kelas</th><th>Siswa</th>${kol.map(c=>`<th>${kl(c)}</th>`).join("")}<th>Rata-rata</th><th>Partisipasi</th></tr></thead><tbody>
     ${kelas.map(k=>{const S2=siswa.filter(s=>s.kelas===k),vv=S2.flatMap(s=>Object.values(s.nil).filter(x=>x!=null)),sl=S2.reduce((a,s)=>a+s.wajib,0);
       return `<tr><td class="l"><b>${esc(k)}</b></td><td>${S2.length}</td>${kol.map(c=>{const n=S2.map(s=>s.nil[c.k]).filter(x=>x!=null),r=n.length?rata(n):null;return `<td style="background:${warna(r)}">${r==null?"–":angka(r)}</td>`}).join("")}<td><b>${angka(rata(vv))}</b></td><td>${sl?Math.round(vv.length/sl*100)+"%":"–"}</td></tr>`}).join("")}</tbody></table>
+    ${(()=>{const pv=P[per.no-2];if(!pv)return "";const R0=dataRekap(pv);if(!R0||!R0.L.length)return "";
+      const rk=(RR,k)=>{const a=RR.siswa.filter(s=>s.kelas===k).flatMap(s=>Object.values(s.nil).filter(x=>x!=null));return rata(a)};
+      return `<h2>Dibanding periode sebelumnya (Periode ${pv.no}, ${tglP(tglD(pv.dari))}–${tglP(tglD(pv.sampai))})</h2><table><thead><tr><th class="l">Kelas</th><th>Periode ${pv.no}</th><th>Periode ${per.no}</th><th>Perubahan</th></tr></thead><tbody>${kelas.map(k=>{const a=rk(R0,k),b=rk(R,k),d=a!=null&&b!=null?b-a:null;
+        return `<tr><td class="l"><b>${esc(k)}</b></td><td>${angka(a)}</td><td>${angka(b)}</td><td style="color:${d>0?"#2F7A4C":d<0?"#A8432E":"inherit"};font-weight:700">${d==null?"–":(d>0?"▲ +":d<0?"▼ ":"")+angka(d)}</td></tr>`}).join("")}</tbody></table>`})()}
     <h2>Nilai siswa</h2><table><thead><tr><th>No</th><th class="l">Nama</th><th>Kelas</th>${kol.map(c=>`<th>${kl(c)}</th>`).join("")}<th>Rata-rata</th></tr></thead><tbody>
     ${siswa.map((s,i)=>`<tr><td>${i+1}</td><td class="l">${esc(s.nama)}</td><td>${esc(s.kelas)}</td>${kol.map(c=>{const x=s.nil[c.k];return `<td style="background:${x==null?"":warna(x)}">${x===undefined?"·":x===null?"TH":x}</td>`}).join("")}<td><b>${angka(s.rata)}</b></td></tr>`).join("")}</tbody></table>
     <p class="kecil">TH = tidak mengerjakan · · = TO tidak untuk kelas itu · Warna: hijau ≥ ${kkm}, kuning ${kkm-15}–${kkm-1}, merah di bawahnya.</p>

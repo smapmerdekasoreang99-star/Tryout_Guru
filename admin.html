@@ -290,7 +290,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       <select id="pk-kelas" aria-label="Kelas"><option value="">Semua kelas</option><option value="10">Kelas 10</option><option value="11">Kelas 11</option><option value="12">Kelas 12</option></select>
       <select id="pk-jenis" aria-label="Jenis"></select>
       <select id="pk-semester" aria-label="Semester"></select>
-      <select id="pk-grup" aria-label="Kelompokkan"><option value="kelas">Kelompok: kelas</option><option value="mapel">Kelompok: mata pelajaran</option><option value="jenis">Kelompok: jenis</option><option value="guru">Kelompok: guru</option><option value="semester">Kelompok: semester</option><option value="">Tanpa kelompok</option></select>
+      <select id="pk-grup" aria-label="Kelompokkan"><option value="kelas">Kelompok: kelas</option><option value="mapel">Kelompok: mata pelajaran</option><option value="jenis">Kelompok: jenis</option><option value="guru">Kelompok: guru</option><option value="semester">Kelompok: semester</option><option value="periode">Kelompok: periode TO</option><option value="">Tanpa kelompok</option></select>
       <select id="pk-urut" aria-label="Urutkan"><option value="diubah">Urut: terakhir diubah</option><option value="dibuat">Urut: terbaru dibuat</option><option value="judul">Urut: judul A–Z</option><option value="kode">Urut: kode</option><option value="mapel">Urut: mapel</option></select>
     </div>
     <div class="chips" id="pk-status"></div>
@@ -2350,7 +2350,9 @@ const pkUrutSemester=(a,b)=>pkNilaiSemester(b)-pkNilaiSemester(a)||a.localeCompa
 
 async function muatPustaka(){const el=$("pk-daftar");if(!PK.length)el.innerHTML='<p class="muted">Memuat…</p>';
   // PIN pengawas tidak boleh membaca kisi-kisi: daftar tetap tampil dari paket terbit saja
-  const [kisi,paket]=await Promise.all([rpc("tka_list_kisi",{p_pin:PIN()}).catch(()=>null),rpc("tka_list_paket",{p_pin:PIN()}).catch(e=>({galat:e.message}))]);
+  const [kisi,paket,top]=await Promise.all([rpc("tka_list_kisi",{p_pin:PIN()}).catch(()=>null),rpc("tka_list_paket",{p_pin:PIN()}).catch(e=>({galat:e.message})),rpc("to_paket_periode",{p_pin:PIN()}).catch(()=>null)]);
+  // paket TO → program & periode (jadwal Koordinator TO TKA)
+  TO_PERIODE={};if(top){const rg={};(top.periode||[]).forEach(x=>rg[x.periode+"|"+x.program+"|"+x.no]=x);(top.paket||[]).forEach(x=>{if(!TO_PERIODE[x.kode])TO_PERIODE[x.kode]={...x,rentang:rg[x.periode+"|"+x.program+"|"+x.no]}})}
   if(paket&&paket.galat){PK=[];pkKartuPulang();el.innerHTML=`<p style="color:var(--bad)">${esc(paket.galat)}</p>`;return}
   const peta=new Map();
   (kisi||[]).forEach(k=>peta.set(k.kode,{kisi:k,paket:null}));
@@ -2382,7 +2384,17 @@ function pkCocokStatus(o,s){if(s==="arsip")return o.arsip;if(o.arsip)return fals
   if(s==="darurat")return o.darurat;if(s==="kosong")return o.tahap==="aktif"&&o.paket.n_peserta===0;if(s==="kurang")return pkKurang(o);return o.tahap===s}
 function pkPilihan(sel,semua,daftar,nilai){if(nilai&&!daftar.includes(nilai))daftar=[nilai,...daftar];
   sel.innerHTML=`<option value="">${semua}</option>`+daftar.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");sel.value=nilai||""}
+let TO_PERIODE={};
+const pkTglPendek=d=>{const [y,m,h]=String(d).split("-").map(Number);return new Date(y,m-1,h).toLocaleDateString("id-ID",{day:"numeric",month:"short"})};
+const pkNamaSmt=p=>{const [a,b,c]=String(p).split("-");return (c==="1"?"Ganjil ":"Genap ")+a+"/"+b};
 function pkKelompok(o){const g=PKF.grup;
+  // Kelompok periode TO (22 Okt 2026): terbaru di atas; Wajib sebelum Pilihan; paket Tryout yang belum dipasang & paket non-TO terpisah
+  if(g==="periode"){const t=TO_PERIODE[o.kode];
+    if(t){const n=String(t.periode).replace(/-/g,""),r=t.rentang;
+      return ["0"+String(999999999-Number(n)).padStart(9,"0")+(t.program==="wajib"?"a":"b")+String(99-t.no).padStart(2,"0"),
+        `TO Mapel ${t.program==="wajib"?"Wajib":"Pilihan"} · Periode ${t.no}${r?` · ${pkTglPendek(r.dari)}–${pkTglPendek(r.sampai)}`:""} · ${pkNamaSmt(t.periode)}`]}
+    if(/tryout/i.test(o.info.jenis||""))return ["1","Tryout belum dipasang ke jadwal TO"];
+    return ["2","Bukan paket TO (formatif, sumatif, dan lainnya)"]}
   if(g==="kelas"){const t=pkTingkat(o);return t.length===1?["1"+t[0],"Kelas "+t[0]]:t.length?["2","Lintas tingkat"]:["3","Kelas belum diisi"]}
   if(g==="mapel"){const m=String(o.mapel||"").trim().replace(/\s+/g," ");return m?["0"+pkKunciMapel(m),m]:["1","Mata pelajaran belum diisi"]}
   if(g==="jenis"){const j=o.info.jenis,i=TKA.info.JENIS.indexOf(j);return j?[(i<0?"1":"0"+i)+j,j]:["2","Jenis belum diisi"]}
@@ -2419,7 +2431,7 @@ function renderPustaka(){const I=TKA.info;
   if(!hasil.length){el.innerHTML='<p class="muted">Tidak ada paket yang cocok. Hapus kata pencarian, pilih <b>Semua</b>, atau ganti saringan di atas.</p>';PK_BUKA=null;return}
   if(PK_BUKA&&!hasil.some(o=>o.kode===PK_BUKA))PK_BUKA=null;
   const g=new Map();hasil.forEach(o=>{const [k,l]=pkKelompok(o);if(!g.has(k))g.set(k,{l,isi:[]});g.get(k).isi.push(o)});
-  const lg={kelas:"Tingkat peserta",mapel:"Mata pelajaran",jenis:"Jenis",guru:"Guru penyusun",semester:"Semester"}[PKF.grup];
+  const lg={kelas:"Tingkat peserta",mapel:"Mata pelajaran",jenis:"Jenis",guru:"Guru penyusun",semester:"Semester",periode:"Periode TO"}[PKF.grup];
   el.innerHTML=[...g.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([k,v])=>`<section class="pk-grup">${v.l?`<header class="pk-grup-k"><div><span class="lbl">${lg}</span><h3>${esc(v.l)}</h3></div><span class="jml">${v.isi.length} paket</span></header>`:""}${v.isi.map(pkBaris).join("")}</section>`).join("");
   if(PK_BUKA)pkKartuKe(PK_BUKA)}
 
