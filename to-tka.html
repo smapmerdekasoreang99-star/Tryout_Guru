@@ -5,17 +5,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Koordinator TO TKA — SMA Plus Merdeka Soreang</title>
+<title>Koordinator Tryout Umum — SMA Plus Merdeka Soreang</title>
 <meta name="robots" content="noindex">
 <link rel="stylesheet" href="assets/dasar.css?v=3">
 <link rel="icon" href="assets/ikon-32.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script>window.XL_APLIKASI = "TO TKA";</script>
+<script>window.XL_APLIKASI = "Tryout Umum";</script>
 <script src="assets/simpan.js?v=3"></script>
 <script src="assets/kepala-excel.js?v=1"></script>
 <script src="assets/excel.js?v=4"></script>
 <style>
-/* Koordinator TO TKA (22 Okt 2026, RENCANA_TO_TKA.md): jadwal TO Mapel Wajib & Pilihan, pengumpulan soal guru, sesi + link CBT,
+/* Koordinator Tryout Umum (22 Okt 2026, RENCANA_TO_TKA.md): jadwal TO Mapel Wajib & Pilihan, pengumpulan soal guru, sesi + link CBT,
    rekap & laporan per periode. Gaya sama dengan pas.html / kurikulum.html. Grafik dibuat sendiri (HTML/SVG). */
 :root{--bg:var(--kertas);--card:#fff;--ink:var(--tinta);--muted:var(--tinta-2);--line:var(--garis);
   --seri:#2a78d6;--baik:#2F7A4C;--cukup:#B7862A;--kurang:#A8432E;
@@ -107,20 +107,20 @@ svg.ch .sumbu{stroke:var(--garis-2);stroke-width:1}svg.ch .kisi{stroke:var(--gar
 </style>
 </head>
 <body>
-<header class="top"><img src="assets/logo.png" alt=""><div><div class="t">Tryout TKA</div><div class="sub">Koordinator — jadwal, pengumpulan soal, sesi &amp; link CBT, rekap per periode</div></div>
+<header class="top"><img src="assets/logo.png" alt=""><div><div class="t">Tryout Umum</div><div class="sub">Koordinator — TO Mapel Wajib &amp; Pilihan: jadwal, soal dari guru, sesi &amp; link CBT, rekap per periode</div></div>
   <div class="kanan"><a href="Panduan_Koordinator_TO_TKA.pdf" target="_blank" rel="noopener" title="Panduan langkah demi langkah (PDF)">📘 Panduan</a><a href="admin.html?menu=pustaka&amp;tab=kisi" class="tulis" title="Unggah soal TO atas nama guru penyusun">+ Unggah soal</a><a href="index.html?guru" id="ke-menu" class="hidden">Menu utama</a><button id="btn-keluar" class="hidden">Keluar</button></div></header>
 <div class="wrap">
 
 <div class="card" id="kartu-pin" style="max-width:520px;margin:40px auto">
-  <h2 style="margin-bottom:6px">Masuk koordinator TO TKA</h2>
-  <p class="small muted" style="margin-bottom:12px">Kelola jadwal TO Mapel Wajib &amp; Pilihan, pantau soal dari guru, buka sesi dan bagikan link CBT, lalu rekap hasil per periode.</p>
+  <h2 style="margin-bottom:6px">Masuk koordinator Tryout Umum</h2>
+  <p class="small muted" style="margin-bottom:12px"><b>Tryout Umum</b> = tryout yang diatur koordinator untuk banyak kelas (berbeda dengan <b>Tryout Mandiri</b> yang dibuka guru di kelasnya). Kelola jadwal TO Mapel Wajib &amp; Pilihan, pantau soal dari guru, buka sesi dan bagikan link CBT, lalu rekap hasil per periode.</p>
   <div class="row"><input type="password" id="pin" placeholder="PIN koordinator" autocomplete="off" style="flex:1"><button id="btn-pin">Masuk</button></div>
   <p class="small" id="pin-pesan" style="margin-top:8px"></p>
 </div>
 
 <section id="v-isi" class="hidden">
   <div class="kepala" style="margin-top:8px">
-    <div><div class="alis" id="k-periode"></div><h2 id="k-judul">Tryout TKA</h2><p class="small muted" id="k-info"></p></div>
+    <div><div class="alis" id="k-periode"></div><h2 id="k-judul">Tryout Umum</h2><p class="small muted" id="k-info"></p></div>
     <div class="row"><select id="f-periode"></select><button class="ghost mini" id="btn-muat">Muat ulang</button></div>
   </div>
   <nav class="tabs" id="tabs">
@@ -197,7 +197,9 @@ function grafikGaris(seri,o={}){const semua=seri.flatMap(s=>s.titik);if(!semua.l
   document.addEventListener("scroll",()=>tp.classList.remove("on"),true)})();
 
 /* ---------------- masuk & data ---------------- */
-let PIN="",D=null,TAB=lsGet("to_tab","minggu"),PROG=lsGet("to_prog","wajib"),PK={},S={},J=[],SISWA={},KELAS_N={},BACA=false;
+const TAB_ADA=["minggu","kalender","paket","soal","sesi","rekap"],TAB_HASH=location.hash.slice(1);
+if(TAB_ADA.includes(TAB_HASH))history.replaceState(null,"",location.pathname+location.search);
+let PIN="",D=null,TAB=TAB_ADA.includes(TAB_HASH)?TAB_HASH:lsGet("to_tab","minggu"),PROG=lsGet("to_prog","wajib"),PK={},S={},J=[],SISWA={},KELAS_N={},BACA=false;
 const KUNCI_PIN="tka_v2_pin";
 async function masuk(pin){$("pin-pesan").textContent="Memeriksa PIN…";
   try{D=await rpc("to_data",{p_pin:pin,p_periode:$("f-periode").value||null});PIN=pin;
@@ -211,11 +213,13 @@ async function muatUlang(diam){try{D=await rpc("to_data",{p_pin:PIN,p_periode:$(
 $("btn-muat").onclick=async e=>{const b=e.target;b.disabled=true;b.textContent="Memuat…";await muatUlang();b.disabled=false;b.textContent="Muat ulang"};
 $("f-periode").onchange=()=>muatUlang(true);
 document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{TAB=b.dataset.tab;lsSet("to_tab",TAB);gambar();scrollTo({top:0,behavior:"smooth"})});
+// ke halaman unggah: bawa tab asal supaya Batal/Kembali pulang ke tab yang sama
+document.addEventListener("click",e=>{const a=e.target.closest('a[href^="admin.html"]');if(a)a.href=a.getAttribute("href").replace(/&dari=[a-z]+/,"")+"&dari="+TAB},true);
 const namaGuru=id=>(id&&D.guru[id])||"—";
 const namaPendek=id=>namaGuru(id).split(",")[0];
 
-/* Status satu TO (baris jadwal). Sesi = yang dibuka lewat halaman ini (j.sesi) + sesi lain yang cocok (paket semapel, kelas sama,
-   tanggal ±3 hari) — supaya TO yang dibuka guru dari menu Latihan/Tryout tetap terhitung. */
+/* Status satu TO (baris jadwal). Sesi = HANYA yang dibuka lewat halaman ini (j.sesi). Sesi yang dibuka guru dari menu
+   Latihan/Tryout (termasuk koordinator dengan PIN guru) adalah tryout mandiri dan tidak dihitung di sini (keputusan user 22 Okt 2026). */
 const ALUR=["tunggu","siap","jadwal","jalan","selesai"];
 const ST={tunggu:["Menunggu soal","○"],telat:["Soal terlambat","!"],siap:["Soal siap","◔"],jadwal:["Sesi terjadwal","◑"],jalan:["Berlangsung","◕"],selesai:["Selesai","●"],lewat:["Terlewat","–"],batal:["Dibatalkan","×"],pra:["Sebelum aplikasi","·"]};
 const pilSt=k=>`<span class="st st-${k}">${ST[k][1]} ${ST[k][0]}</span>`;
@@ -224,22 +228,16 @@ function siapkan(){
   SISWA={};KELAS_N={};D.siswa.forEach(([n,nm,k])=>{SISWA[n]={nama:nm,kelas:k};KELAS_N[k]=(KELAS_N[k]||0)+1});
   BACA=D.peran==="kurikulum";document.body.classList.toggle("baca",BACA);
   J=D.jadwal.map(j=>({...j,d0:tglD(j.mulai),d1:tglD(j.akhir),sesiSimpan:j.sesi||[],S:[]}));
-  // sesi tersimpan
-  const dipakai=new Set();J.forEach(j=>j.sesiSimpan.forEach(id=>{if(S[id]){j.S.push(S[id]);dipakai.add(id)}}));
-  // sesi lain yang cocok → TO terdekat
-  D.sesi.filter(s=>!dipakai.has(s.id)).forEach(s=>{const p=PK[s.ujian];if(!p)return;const t=tglD(new Date(s.T0).toLocaleDateString("en-CA",WIB));
-    let best=null,bd=99;J.forEach(j=>{if(j.mk!==p.mk||!j.kelas.some(k=>s.kelas.includes(k)))return;
-      // 22 Okt 2026: latihan guru di kelas yang sama tidak ikut dihitung — TO berpaket: paket harus sama; TO tanpa paket: paket harus berjenis Tryout
-      if(j.paket?s.ujian!==j.paket:!/tryout/i.test(p.jenis||""))return;const dd=t<j.d0?(j.d0-t)/864e5:t>j.d1?(t-j.d1)/864e5:0;if(dd<=3&&dd<bd){bd=dd;best=j}});
-    if(best){best.S.push(s);s.cocok=true}});
+  // sesi Tryout Umum (dibuka dari halaman ini)
+  J.forEach(j=>j.sesiSimpan.forEach(id=>{if(S[id])j.S.push(S[id])}));
   const kini=Date.now();
-  // TO sebelum aplikasi dipakai untuk TO (sesi/hasil pertama) tidak dihitung sebagai "terlewat"
-  const awal=[...D.sesi.map(x=>x.T0),...D.hasil.map(h=>Date.parse(h[4]))];window.APP0=awal.length?senin(new Date(Math.min(...awal))):null;
+  // TO sebelum koordinator membuka sesi pertama dari halaman ini tidak dihitung sebagai "terlewat"
+  const awal=J.flatMap(j=>j.S.map(x=>x.T0));window.APP0=awal.length?senin(new Date(Math.min(...awal))):null;
   J.forEach(j=>{j.S.sort((a,b)=>a.T0-b.T0);j.paketEff=j.paket||(j.S[0]&&j.S[0].ujian)||null;j.p=PK[j.paketEff]||null;
     j.target=j.kelas.reduce((a,k)=>a+(KELAS_N[k]||0),0);j.guru=namaGuru(j.guru_id);
     j.tenggat=tambahHari(senin(j.d0),-3);   // Jumat sebelum minggu pelaksanaan
-    const ids=new Set(j.S.map(s=>s.id)),r0=tambahHari(j.d0,-3).getTime(),r1=tambahHari(j.d1,4).getTime();
-    j.H=D.hasil.filter(h=>j.kelas.includes(h[1])&&(h[5]?ids.has(h[5]):(h[2]===j.paketEff&&Date.parse(h[4])>=r0&&Date.parse(h[4])<r1)));
+    const ids=new Set(j.S.map(s=>s.id));
+    j.H=D.hasil.filter(h=>h[5]&&ids.has(h[5])&&j.kelas.includes(h[1]));   // hanya hasil dari sesi Tryout Umum
     j.nisn=new Set(j.H.map(h=>h[0]));j.rata=rata(j.H.map(h=>h[3]));
     const akhirHari=tambahHari(j.d1,1).getTime(),lewatHari=kini>=akhirHari;
     if(j.batal)j.st="batal";
@@ -320,7 +318,7 @@ function gMinggu(){const el=$("tab-minggu"),kini=new Date(),s0=senin(kini),s1=ta
   if($("m-wa-semua"))$("m-wa-semua").onclick=()=>salin(teksPengingat(belumSoal),"Pengingat untuk semua guru disalin — tempel di grup WA guru");
 }
 function teksPengingat(L){const g={};L.forEach(j=>(g[j.guru_id||"-"]=g[j.guru_id||"-"]||[]).push(j));
-  return `Assalamu'alaikum Bapak/Ibu. Pengingat soal *TO TKA* untuk minggu ${tglP(senin(L[0].d0))}–${tglP(tambahHari(senin(L[0].d0),4))}, mohon diunggah ke Asesmen Merdeka (Pustaka Paket, jenis *Tryout TKA*) paling lambat *${hariTgl(L[0].tenggat)}*:\n`+
+  return `Assalamu'alaikum Bapak/Ibu. Pengingat soal *Tryout Umum* untuk minggu ${tglP(senin(L[0].d0))}–${tglP(tambahHari(senin(L[0].d0),4))}, mohon diunggah ke Asesmen Merdeka (Pustaka Paket, jenis *Tryout TKA*) paling lambat *${hariTgl(L[0].tenggat)}*:\n`+
     Object.entries(g).map(([id,a])=>`• ${namaGuru(id)}: ${[...new Set(a.map(j=>j.mapel))].join(", ")} (${a.map(j=>j.program==="wajib"?`kelas ${j.tingkat}, ${hariTgl(j.d0)}`:j.kelas.join("/")).join("; ")})`).join("\n")+
     `\nFormat: 2 paket (2 varian dalam 1 berkas), 5 soal per paket (Matematika 3 soal), campuran PG, PG Kompleks, dan MCMA. Terima kasih.`}
 
@@ -416,11 +414,10 @@ function kartuSesi(s,j){const kini=Date.now(),st=s.T0>kini?"jadwal":s.T1>kini?"j
   return `<div class="kolom" style="gap:6px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff" data-sesi="${s.id}">
     <div class="row" style="justify-content:space-between"><span>${pilSt(st)} <span class="small">${esc(waktu(s.mulai))} – ${esc(waktu(s.sampai))}</span></span><span class="small muted">${s.durasi} menit · ${s.n_hasil}/${s.kelas.reduce((a,k)=>a+(KELAS_N[k]||0),0)} selesai</span></div>
     <div class="row" style="justify-content:space-between"><span><span class="kecil muted">Kode</span> <span class="kodebesar">${esc(s.kode)}</span></span><span class="small">${esc(s.kelas.join(", "))}</span></div>
-    ${s.cocok?`<p class="kecil muted">Dibuka oleh ${esc(s.oleh_nama||s.oleh)} dari menu Latihan/Tryout — dihitung untuk TO ini.</p>`:""}
     ${st!=="selesai"?`<div class="row"><button class="ghost mini" data-salin-link="${s.id}">Salin link</button><button class="ghost mini" data-wa="${s.id}" data-j="${j.id}">Salin pesan WA</button><button class="ghost mini" data-qr="${s.id}">QR layar penuh</button>
       ${milik?`<button class="ghost mini" data-ubah="${s.id}">Ubah waktu</button>${st==="jalan"?`<button class="bahaya mini" data-tutup="${s.id}">Tutup sekarang</button>`:`<button class="bahaya mini" data-batal="${s.id}">Batalkan</button>`}`:""}</div>`:""}
     <div class="hidden" id="ubah-${s.id}"><div class="row"><label class="f">Dibuka<input type="datetime-local" id="um-${s.id}" value="${keLokal(new Date(s.mulai))}"${s.T0<=kini?" disabled":""}></label><label class="f">Ditutup<input type="datetime-local" id="ua-${s.id}" value="${keLokal(new Date(s.sampai))}"></label><button class="mini" data-simpan-ubah="${s.id}" style="align-self:flex-end">Simpan</button></div></div></div>`}
-function teksWA(s,j){return `*TO TKA ${j.mapel}*${j.jenis==="Tryout UTBK"?" (UTBK)":""} — ${s.kelas.join(", ")}\n🗓️ ${waktu(s.mulai)} s.d. ${waktu(s.sampai)} WIB\n⏱️ ${s.durasi} menit\n\nBuka: ${linkCBT(s.kode)}\nMasuk dengan *NISN* (kode akses sudah otomatis: ${s.kode}).\nKerjakan dengan jujur, semangat! 💪`}
+function teksWA(s,j){return `*Tryout Umum ${j.mapel}*${j.jenis==="Tryout UTBK"?" (UTBK)":""} — ${s.kelas.join(", ")}\n🗓️ ${waktu(s.mulai)} s.d. ${waktu(s.sampai)} WIB\n⏱️ ${s.durasi} menit\n\nBuka: ${linkCBT(s.kode)}\nMasuk dengan *NISN* (kode akses sudah otomatis: ${s.kode}).\nKerjakan dengan jujur, semangat! 💪`}
 function ikatSesi(el,j0){const cari=id=>{const s=S[id];const j=j0||J.find(x=>x.S.some(y=>y.id===id));return [s,j]};
   el.querySelectorAll("[data-salin-link]").forEach(b=>b.onclick=e=>{e.stopPropagation();salin(linkCBT(S[+b.dataset.salinLink].kode),"Link CBT disalin")});
   el.querySelectorAll("[data-wa]").forEach(b=>b.onclick=e=>{e.stopPropagation();const [s,j]=cari(+b.dataset.wa);salin(teksWA(s,j),"Pesan WA disalin — tempel di grup kelas")});
@@ -433,7 +430,7 @@ function ikatSesi(el,j0){const cari=id=>{const s=S[id];const j=j0||J.find(x=>x.S
   el.querySelectorAll("[data-batal]").forEach(b=>b.onclick=async e=>{e.stopPropagation();if(!confirm("Batalkan sesi ini? Kode dan link tidak berlaku lagi."))return;
     try{await rpc("to_sesi_ubah",{p_pin:PIN,p_sesi:+b.dataset.batal,p_mulai:null,p_akhir:null,p_aksi:"batal"});toast("Sesi dibatalkan");await muatUlang(true);if(j0)bukaLaci(j0.id)}catch(er){toast(er.message,6000)}})}
 function layarQR(s,j){const m=document.createElement("div");m.className="qr-modal";
-  m.innerHTML=`<div style="font-size:20px;font-weight:700">TO TKA ${esc(j.mapel)} · ${esc(s.kelas.join(", "))}</div><div class="qr" id="qr-isi"></div><div class="kodebesar" style="font-size:40px;color:#fff">${esc(s.kode.replace(/(\d{3})(\d{3})/,"$1 $2"))}</div>
+  m.innerHTML=`<div style="font-size:20px;font-weight:700">Tryout Umum ${esc(j.mapel)} · ${esc(s.kelas.join(", "))}</div><div class="qr" id="qr-isi"></div><div class="kodebesar" style="font-size:40px;color:#fff">${esc(s.kode.replace(/(\d{3})(\d{3})/,"$1 $2"))}</div>
     <div>Pindai, lalu masuk dengan NISN · ${esc(waktu(s.mulai))} – ${esc(waktu(s.sampai))}</div><button class="ghost" id="qr-tutup">Tutup</button>`;
   document.body.appendChild(m);try{new QRCode($("qr-isi"),{text:linkCBT(s.kode),width:420,height:420,correctLevel:QRCode.CorrectLevel.L})}catch(e){$("qr-isi").textContent=linkCBT(s.kode)}
   $("qr-tutup").onclick=()=>m.remove();m.onclick=e=>{if(e.target===m)m.remove()}}
@@ -566,9 +563,9 @@ function isiAntar(P){const el=$("r-isi"),{PP,kelas,siswa,tanpa}=dataAntar(P),kkm
   $("ra-cari").oninput=isi;$("ra-urut").onchange=isi;isi();
   $("r-mp").onchange=()=>{R_MP=$("r-mp").value;isiAntar(P)}}
 async function unduhAntar(P){const {PP,kelas,siswa}=dataAntar(P);if(!PP.length)throw new Error("Belum ada periode yang punya hasil");const kol=PP.map(x=>"P"+x.p.no),kkm=KKM();
-  const judul=`TO TKA ${R_PROG==="wajib"?"Mapel Wajib":"Mapel Pilihan"} — perkembangan antar periode`,sub=`Semester ${D.periode.nama}${R_SAS?" · "+(R_PROG==="wajib"?"Kelas "+R_SAS:R_SAS):""}${R_MP?" · "+R_MP:""}`;
+  const judul=`Tryout Umum ${R_PROG==="wajib"?"Mapel Wajib":"Mapel Pilihan"} — perkembangan antar periode`,sub=`Semester ${D.periode.nama}${R_SAS?" · "+(R_PROG==="wajib"?"Kelas "+R_SAS:R_SAS):""}${R_MP?" · "+R_MP:""}`;
   const merah=v=>typeof v==="number"&&v<kkm?{warna:XL.merah,tebal:true}:null,r1=v=>v==null?"":Math.round(v*10)/10;
-  const nama=`Perkembangan_TO_TKA_${R_PROG}${R_SAS?"_"+R_SAS:""}${R_MP?"_"+potongNama(R_MP):""}_${tglBerkas()}.xlsx`;
+  const nama=`Perkembangan_Tryout_Umum_${R_PROG}${R_SAS?"_"+R_SAS:""}${R_MP?"_"+potongNama(R_MP):""}_${tglBerkas()}.xlsx`;
   await unduhBukuXLSX({namaBerkas:nama,judulBuku:judul,lembar:[
     {nama:"Siswa x periode",judul,sub,info:[["Periode",PP.map(x=>`P${x.p.no}: ${tglP(tglD(x.p.dari))}–${tglP(tglD(x.p.sampai))}`).join(" · ")],["Batas tuntas",String(kkm)]],beku:2,
      kolom:[{t:"No",w:5},{t:"Nama",w:30},{t:"Kelas",w:8},...kol.map(k=>({t:k,w:8,fmt:"0.0",rata:"center"})),{t:"Δ terakhir",w:10,fmt:"0.0"},{t:"Perubahan",w:10,fmt:"0.0"},{t:"Ikut",w:7},{t:"Catatan",w:32,bungkus:true}],
@@ -640,9 +637,9 @@ function isiRekap(per,P){const el=$("r-isi");const R=dataRekap(per);if(!R||!R.L.
   $("r-cari").oninput=isiSiswa;isiSiswa()}
 const median=a=>{if(!a.length)return null;const s=[...a].sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
 async function unduhRekap(per){const R=dataRekap(per);if(!R||!R.L.length)throw new Error("Belum ada TO pada periode ini");const {kol,kelas,siswa}=R,kkm=KKM();
-  const judul=`TO TKA ${R_PROG==="wajib"?"Mapel Wajib":"Mapel Pilihan"} — Periode ${per.no}`,sub=`${tglP(tglD(per.dari))}–${tglP(tglD(per.sampai))} · Semester ${D.periode.nama}${R_SAS?" · "+(R_PROG==="wajib"?"Kelas "+R_SAS:R_SAS):""}`;
+  const judul=`Tryout Umum ${R_PROG==="wajib"?"Mapel Wajib":"Mapel Pilihan"} — Periode ${per.no}`,sub=`${tglP(tglD(per.dari))}–${tglP(tglD(per.sampai))} · Semester ${D.periode.nama}${R_SAS?" · "+(R_PROG==="wajib"?"Kelas "+R_SAS:R_SAS):""}`;
   const kl=c=>`${c.mapel} ${tglP(tglD(c.tgl))}`,merah=v=>typeof v==="number"&&v<kkm?{warna:XL.merah,tebal:true}:null;
-  const nama=`Rekap_TO_TKA_${R_PROG}_P${per.no}${R_SAS?"_"+R_SAS:""}_${tglBerkas()}.xlsx`;
+  const nama=`Rekap_Tryout_Umum_${R_PROG}_P${per.no}${R_SAS?"_"+R_SAS:""}_${tglBerkas()}.xlsx`;
   await unduhBukuXLSX({namaBerkas:nama,judulBuku:judul,lembar:[
     {nama:"Nilai siswa",judul,sub,info:[["Batas tuntas",String(kkm)],["Keterangan","TH = tidak mengerjakan · – = TO tidak untuk kelas itu"]],beku:2,
      kolom:[{t:"No",w:5},{t:"Nama",w:30},{t:"Kelas",w:8},{t:"NISN",w:13},...kol.map(c=>({t:kl(c),w:12,rata:"center"})),{t:"Rata-rata",w:10,fmt:"0.0",tebal:true,rata:"center"},{t:"Ikut",w:7,rata:"center"}],
@@ -659,7 +656,7 @@ async function unduhRekap(per){const R=dataRekap(per);if(!R||!R.L.length)throw n
 function cetakRekap(per,P){const R=dataRekap(per);if(!R||!R.L.length)return toast("Belum ada TO pada periode ini");const {kol,kelas,siswa}=R,kkm=KKM(),v=siswa.flatMap(s=>Object.values(s.nil).filter(x=>x!=null)),slot=siswa.reduce((a,s)=>a+s.wajib,0);
   const w=window.open("","_blank");if(!w)return toast("Jendela cetak diblokir peramban. Izinkan pop-up untuk halaman ini.",6000);
   const kl=c=>`${singkat(c.mapel)}<br><span style="font-weight:400">${tglP(tglD(c.tgl))}</span>`,warna=x=>x==null?"":x>=kkm?"#E4EFE7":x>=kkm-15?"#FFF6D2":"#F7E4DF";
-  const judul=`Laporan TO TKA ${R_PROG==="wajib"?"Mapel Wajib":"Mapel Pilihan"} — Periode ${per.no}`;
+  const judul=`Laporan Tryout Umum ${R_PROG==="wajib"?"Mapel Wajib":"Mapel Pilihan"} — Periode ${per.no}`;
   w.document.write(`<!doctype html><html lang="id"><head><meta charset="utf-8"><title>${esc(judul)}</title><style>
     @page{size:A4;margin:12mm}*{box-sizing:border-box}body{font-family:"Segoe UI",Arial,sans-serif;color:#221E17;margin:0;font-size:10pt}
     .alat{position:sticky;top:0;background:#1D2A3A;color:#fff;padding:10px 14px;display:flex;gap:10px;align-items:center}.alat button{background:#C29433;color:#1D2A3A;border:0;border-radius:6px;padding:8px 14px;font-weight:700;cursor:pointer}
@@ -681,7 +678,7 @@ function cetakRekap(per,P){const R=dataRekap(per);if(!R||!R.L.length)return toas
     <h2>Nilai siswa</h2><table><thead><tr><th>No</th><th class="l">Nama</th><th>Kelas</th>${kol.map(c=>`<th>${kl(c)}</th>`).join("")}<th>Rata-rata</th></tr></thead><tbody>
     ${siswa.map((s,i)=>`<tr><td>${i+1}</td><td class="l">${esc(s.nama)}</td><td>${esc(s.kelas)}</td>${kol.map(c=>{const x=s.nil[c.k];return `<td style="background:${x==null?"":warna(x)}">${x===undefined?"·":x===null?"TH":x}</td>`}).join("")}<td><b>${angka(s.rata)}</b></td></tr>`).join("")}</tbody></table>
     <p class="kecil">TH = tidak mengerjakan · · = TO tidak untuk kelas itu · Warna: hijau ≥ ${kkm}, kuning ${kkm-15}–${kkm-1}, merah di bawahnya.</p>
-    <div class="ttd"><div>Soreang, ${new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})}<br>Koordinator TO TKA<br><br><br><br>Puspa Adiyuka Nurzanah, S.Pd.</div></div></div></body></html>`);
+    <div class="ttd"><div>Soreang, ${new Date().toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"})}<br>Koordinator Tryout Umum<br><br><br><br>Puspa Adiyuka Nurzanah, S.Pd.</div></div></div></body></html>`);
   w.document.close()}
 
 /* ---------------- mulai ---------------- */

@@ -8,16 +8,16 @@
      node alat/buat-panduan.js
      node alat/buat-panduan.js --pas   (Panduan Asesmen Bersama untuk operator & pengawas; isi di alat/isi-panduan-pas.js)
      node alat/buat-panduan.js --kurikulum   (Panduan Pantau Kurikulum; isi di alat/isi-panduan-kurikulum.js)
-     node alat/buat-panduan.js --to   (Panduan Koordinator TO TKA; isi di alat/isi-panduan-to.js)
+     node alat/buat-panduan.js --to   (Panduan Tryout Umum; isi di alat/isi-panduan-to.js)
    Ubah isi panduan di sini bila tampilan atau aturan aplikasi berubah, lalu jalankan ulang. */
 "use strict";
 const fs = require("fs"), path = require("path"), os = require("os"), { spawn } = require("child_process");
 
-const PAS = process.argv.includes("--pas"), KUR = process.argv.includes("--kurikulum"), TO = process.argv.includes("--to");   // --to: Panduan Koordinator TO TKA (alat/isi-panduan-to.js)   // --kurikulum: Panduan Pantau Kurikulum (alat/isi-panduan-kurikulum.js)
-const SUBJUDUL = TO ? "Jadwal, soal dari guru, sesi & link CBT, serta rekap per periode — langkah demi langkah" : KUR ? "Cara membaca informasi dan grafik pemantauan asesmen sekolah" : PAS ? "Menyiapkan, mengawasi, dan menyelesaikan ujian bersama (PAS, tryout bersama)" : "Menyusun paket soal, membuka latihan/tryout, dan membaca hasil";
-const UNTUK = TO ? "koordinator TO TKA (dan operator)" : KUR ? "tim kurikulum (dan operator)" : PAS ? "operator/kurikulum dan pengawas ruang" : "guru, operator/kurikulum, dan pengawas";
+const PAS = process.argv.includes("--pas"), KUR = process.argv.includes("--kurikulum"), TO = process.argv.includes("--to");   // --to: Panduan Tryout Umum (alat/isi-panduan-to.js)   // --kurikulum: Panduan Pantau Kurikulum (alat/isi-panduan-kurikulum.js)
+const SUBJUDUL = TO ? "Tryout Umum: jadwal, soal dari guru, sesi & link CBT, serta rekap per periode — langkah demi langkah" : KUR ? "Cara membaca informasi dan grafik pemantauan asesmen sekolah" : PAS ? "Menyiapkan, mengawasi, dan menyelesaikan ujian bersama (PAS, tryout bersama)" : "Menyusun paket soal, membuka latihan/tryout, dan membaca hasil";
+const UNTUK = TO ? "koordinator Tryout Umum (dan operator)" : KUR ? "tim kurikulum (dan operator)" : PAS ? "operator/kurikulum dan pengawas ruang" : "guru, operator/kurikulum, dan pengawas";
 const AKAR = path.join(__dirname, ".."), NAMA = TO ? "Panduan_Koordinator_TO_TKA" : KUR ? "Panduan_Pantau_Kurikulum" : PAS ? "Panduan_Asesmen_Bersama" : "Panduan_Guru_Asesmen_Merdeka";
-const JUDUL = TO ? "Panduan Koordinator TO TKA" : KUR ? "Panduan Pantau Kurikulum" : PAS ? "Panduan Asesmen Bersama" : "Panduan Guru Asesmen Merdeka", VERSI = TO ? "22 Oktober 2026" : KUR ? "22 Oktober 2026" : PAS ? "21 Oktober 2026" : "15 Oktober 2026";
+const JUDUL = TO ? "Panduan Tryout Umum (Koordinator)" : KUR ? "Panduan Pantau Kurikulum" : PAS ? "Panduan Asesmen Bersama" : "Panduan Guru Asesmen Merdeka", VERSI = TO ? "22 Oktober 2026" : KUR ? "22 Oktober 2026" : PAS ? "21 Oktober 2026" : "15 Oktober 2026";
 
 /* ================= Isi panduan =================
    Blok: H1/H2/H3 (judul, dinomori otomatis), P (paragraf), UL/OL (daftar), TB (tabel: kepala, baris, lebar relatif),
@@ -49,7 +49,7 @@ const ISI = TO ? require("./isi-panduan-to")({ H1, H2, H3, P, UL, OL, TB, KOTAK,
     ["**PIN pengawas**", "Pengawas", "Menu **Kontrol Pelaksanaan** (layar ruang Asesmen Bersama) dan **NISN Siswa** (semua kelas)."],
     ["**PIN operator / kurikulum**", "Admin · operator", "Khusus mengelola Asesmen Bersama. Menu **Asesmen Bersama** (termasuk tab **Hasil Siswa**), **Kontrol Pelaksanaan**, **NISN Siswa**, **Admin** (data siswa, PIN guru, cadangan, arsip semester)."],
     ["**PIN kurikulum**", "Kurikulum", "Hanya melihat: menu **Pantau Kurikulum** (semua paket & kisi-kisi dengan tingkat C1–C6/HOTS, sesi per kelas, hasil & analisis butir, perkembangan siswa — semua guru dan kelas). Tidak bisa membuka sesi atau mengubah data."],
-    ["**PIN koordinator TO TKA**", "Koordinator TO", "Langsung ke halaman **TO TKA**: jadwal TO Mapel Wajib & Pilihan, soal dari guru (pasang paket ke jadwal), buka sesi + link CBT/QR/teks WA, rekap & laporan per periode. Hanya untuk paket yang dipasang di jadwal TO. Bisa **unggah soal mapel TO atas nama guru penyusun** (tombol + Unggah soal → halaman Upload soal dengan bilah pilihan guru); tidak bisa membuka menu lain."],
+    ["**PIN koordinator Tryout Umum**", "Koordinator", "Langsung ke halaman **Tryout Umum**: jadwal TO Mapel Wajib & Pilihan, soal dari guru (pasang paket ke jadwal), buka sesi + link CBT/QR/teks WA, rekap & laporan per periode. Hanya untuk paket yang dipasang di jadwal TO. Bisa **unggah soal mapel TO atas nama guru penyusun** (tombol + Unggah soal → halaman Upload soal dengan bilah pilihan guru); tidak bisa membuka menu lain."],
     ["PIN guru bersama (peralihan)", "pil kuning PIN guru bersama", "Seperti guru, tetapi paket dan sesi tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator."],
   ], [1.7, 1.2, 3.6]),
   H2("Menu"),
@@ -62,7 +62,7 @@ const ISI = TO ? require("./isi-panduan-to")({ H1, H2, H3, P, UL, OL, TB, KOTAK,
     ["**Asesmen Bersama**", "Ujian bersama (PAS, tryout bersama): peserta per ruang, jadwal, folder soal, **hasil siswa** (dasbor hasil khusus paket di folder soal), terbitkan, cetak.", "operator"],
     ["**Kontrol Pelaksanaan**", "Layar ruang untuk pengawas: kode ruang, siswa terkunci/tidak aktif, buka kunci, jeda, pesan.", "operator, pengawas"],
     ["**Pantau Kurikulum**", "Pemantauan seluruh sekolah dengan grafik (PIN kurikulum langsung masuk ke halaman ini). Tab **Keterlaksanaan**: status tiap guru (aktif / perlu didorong / belum mulai), peta kegiatan mingguan, dan daftar tindak lanjut. Tab **Analisis Mapel**: per mapel & per guru — kelas yang diajar vs sudah diuji, rata-rata kelas tiap guru, perkembangan hasil belajar, kualitas soal (HOTS). Tab lain: paket soal per jenis & tanggal unggah, komposisi LOTS/MOTS/HOTS dan C1–C6 dari kisi-kisi, sesi yang dibuka per kelas, sebaran nilai, analisis butir, sub-materi terlemah, perkembangan tiap kelas & siswa.", "kurikulum, operator"],
-    ["**TO TKA**", "Koordinator Tryout TKA: kalender TO Mapel Wajib (BI·MTK·BIng bergiliran) dan Mapel Pilihan kelas 11, status soal tiap guru (tenggat Jumat), buka sesi dan bagikan link CBT, rekap nilai & laporan per periode (Excel dan cetak).", "koordinator, operator"],
+    ["**Tryout Umum**", "Tryout yang diatur koordinator untuk banyak kelas: kalender TO Mapel Wajib (BI·MTK·BIng bergiliran) dan Mapel Pilihan kelas 11, status soal tiap guru (tenggat Jumat), buka sesi dan bagikan link CBT, rekap nilai & laporan per periode (Excel dan cetak).", "koordinator, operator"],
     ["**Admin**", "Data siswa, PIN guru, impor kode hasil, cadangan, arsip semester.", "operator"],
   ], [1.4, 3.6, 1.6]),
   H2("Istilah yang dipakai"),
@@ -202,6 +202,7 @@ const ISI = TO ? require("./isi-panduan-to")({ H1, H2, H3, P, UL, OL, TB, KOTAK,
 
   /* ============================ 4 ============================ */
   H1("Latihan / Tryout"),
+  KOTAK("info", "Tryout Mandiri dan Tryout Umum", "Sesi yang Anda buka dari menu ini adalah **Tryout Mandiri**: latihan atau tryout di kelas Anda sendiri. **Tryout Umum** adalah tryout yang diatur koordinator (Bu Puspa) untuk banyak kelas — TO Mapel Wajib dan TO Mapel Pilihan — dari halaman Tryout Umum. Keduanya dicatat terpisah, termasuk di Pantau Kurikulum."),
   P("**Menu utama → Latihan / Tryout** (dulu *Sesi Ujian*) menampilkan **sesi Anda** (yang Anda buka, atau untuk paket yang Anda susun; operator melihat semua) yang **sedang dibuka**, yang **terjadwal**, dan yang **ditutup dalam 12 jam terakhir**, diperbarui otomatis tiap 20 detik. Sesi yang lebih lama tetap terlihat di Dasbor Hasil (kartu *Sesi ujian untuk paket ini*)."),
   H2("Membuka latihan / tryout"),
   P("Tekan **+ Buka latihan / tryout**, lalu isi:"),

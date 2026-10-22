@@ -1,16 +1,18 @@
-/* Isi Panduan Koordinator TO TKA (22 Okt 2026): halaman to-tka.html untuk Bu Puspa.
+/* Isi Panduan Koordinator Tryout Umum (22 Okt 2026): halaman to-tka.html untuk Bu Puspa.
    Dipakai oleh buat-panduan.js dengan pilihan --to:  node alat/buat-panduan.js --to */
 "use strict";
 module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
   /* ============================ 1 ============================ */
-  H1("Mengenal Halaman TO TKA"),
-  P("Halaman **TO TKA** membantu koordinator mengelola Tryout TKA dari awal sampai laporan: jadwal **TO Mapel Wajib** dan **TO Mapel Pilihan**, memantau soal dari guru, membuka sesi dan membagikan **link CBT**, lalu merekap nilai **per periode**."),
+  H1("Mengenal Halaman Tryout Umum"),
+  KOTAK("info", "Tryout Umum dan Tryout Mandiri",
+    "**Tryout Umum** = tryout yang diatur koordinator untuk banyak kelas (TO Mapel Wajib dan TO Mapel Pilihan), dibuka dari halaman ini dengan PIN koordinator. **Tryout Mandiri** = latihan/tryout yang dibuka guru di kelasnya sendiri lewat menu **Latihan / Tryout** dengan PIN guru — termasuk Bu Puspa saat mengajar Bahasa Indonesia di kelasnya. Keduanya dicatat terpisah: rekap di halaman ini hanya berisi Tryout Umum."),
+  P("Halaman **Tryout Umum** membantu koordinator mengelola Tryout TKA dari awal sampai laporan: jadwal **TO Mapel Wajib** dan **TO Mapel Pilihan**, memantau soal dari guru, membuka sesi dan membagikan **link CBT**, lalu merekap nilai **per periode**."),
   H2("Cara masuk"),
   OL("Buka Asesmen Merdeka, ketuk **Masuk guru / pengawas**.",
-    "Ketik **PIN koordinator** lalu **Masuk**. Halaman TO TKA langsung terbuka.",
+    "Ketik **PIN koordinator** lalu **Masuk**. Halaman Tryout Umum langsung terbuka.",
     "Selesai bekerja, tekan **Keluar** di pojok kanan atas."),
   KOTAK("info", "Dua PIN Bu Puspa",
-    "**PIN koordinator** untuk halaman TO TKA (semua mapel TO). **PIN pribadi guru** untuk pekerjaan sebagai guru Bahasa Indonesia (Latihan/Tryout, Dasbor, Pustaka). Keduanya boleh dipakai bergantian."),
+    "**PIN koordinator** untuk halaman Tryout Umum (semua mapel TO). **PIN pribadi guru** untuk pekerjaan sebagai guru Bahasa Indonesia (Latihan/Tryout, Dasbor, Pustaka). Keduanya boleh dipakai bergantian."),
   H2("Enam tab"),
   TB(["Tab", "Dipakai untuk"], [
     ["**Minggu Ini**", "Halaman pembuka: TO minggu ini, soal yang harus masuk Jumat ini, tombol tindakan cepat."],
@@ -100,11 +102,12 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
   H2("Bila guru mengunggah sendiri"),
   P("Guru masuk dengan PIN pribadinya → **Pustaka Paket → + Upload soal** (dengan kisi-kisi: Langkah 1 kisi-kisi, Langkah 2 soal; atau tab **Tanpa Kisi-kisi**). Paket baru muncul di **Pengumpulan Soal → Paket TO baru yang belum dipasang**; ketuk untuk memasangnya ke TO berikutnya."),
   H2("Bila soal dikirim lewat WA: unggah atas nama guru"),
-  OL("Di halaman TO TKA tekan **+ Unggah soal**.",
+  OL("Di halaman Tryout Umum tekan **+ Unggah soal**.",
     "Di bilah atas, pilih **Mengunggah atas nama guru penyusun** (mis. Yeni Isnaeni).",
     "Unggah berkas Word seperti biasa (dengan atau tanpa kisi-kisi). Pilihan mapel hanya berisi mapel TO.",
     "Tekan **Terbitkan ke bank soal**. Paket tercatat atas nama guru itu dan berjenis Tryout TKA.",
-    "Kembali lewat **‹ TO TKA**, lalu **Pasang soal** pada jadwalnya."),
+    "Kembali lewat **‹ Tryout Umum**, lalu **Pasang soal** pada jadwalnya."),
+  P("Tidak jadi mengunggah? Tekan **‹ Batal, kembali ke …** di bilah atas. Anda kembali ke tab tempat Anda menekan + Unggah soal (mis. Pengumpulan Soal)."),
   KOTAK("awas", "Kode paket sudah dipakai",
     "Bila muncul pesan **\"Kode … sudah dipakai paket milik …\"**, berarti kode ujian di berkas Word sama dengan paket guru lain. Ganti kode di Word (mis. tambahkan -P2), lalu unggah lagi. Ini mencegah soal guru lain tertimpa."),
   H2("Tab Pengumpulan Soal"),
@@ -123,8 +126,8 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
     ["**Tutup sekarang**", "Mengakhiri sesi yang sedang berjalan; jawaban yang tersimpan dikumpulkan."],
     ["**Batalkan**", "Menghapus sesi yang belum dimasuki siswa; kode tidak berlaku lagi."],
   ], [1.8, 5]),
-  KOTAK("info", "Sesi yang dibuka guru",
-    "Bila guru membuka TO dari menu Latihan/Tryout-nya sendiri, sesi itu tetap tercatat di jadwal TO (tertulis \"Dibuka oleh … dari menu Latihan/Tryout\"). Pengaturannya tetap dipegang guru tersebut."),
+  KOTAK("info", "Hanya sesi Tryout Umum",
+    "Halaman ini hanya menghitung sesi yang dibuka **dari halaman Tryout Umum**. Sesi yang dibuka guru dari menu Latihan / Tryout (termasuk Bu Puspa dengan PIN guru) adalah **Tryout Mandiri** dan tidak ikut di jadwal, partisipasi, maupun rekap Tryout Umum — walaupun paketnya sama."),
 
   /* ============================ 7 ============================ */
   H1("Paket per Periode"),
@@ -173,7 +176,7 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
     ["Saya salah memasang paket.", "Buka rincian TO → **Lepas**, lalu pasang paket yang benar."],
     ["Ada libur di hari TO.", "Rincian TO → **Ubah jadwal**: geser tanggal, atau centang **Batalkan TO ini**."],
     ["Mengapa TO Juli–Agustus bertanda \"Sebelum aplikasi\"?", "TO itu dilaksanakan sebelum aplikasi dipakai untuk TO, jadi tidak dihitung di angka dan rekap."],
-    ["Sesi TO terbuka (mis. 14 hari) dan guru lain membuka latihan di kelas yang sama. Bermasalah?", "Tidak. Sesi TO memakai kode (sudah ada di link CBT), jadi siswa yang membuka link TO pasti masuk TO; latihan guru memakai kode lain atau jalur NISN saja. Rekap TO hanya menghitung sesi paket TO (paket yang dipasang, atau paket berjenis Tryout), jadi nilai latihan tidak tercampur. Hanya bila guru memakai **paket yang sama** dengan TO, siswa yang sudah mengerjakan TO tidak bisa mengulang (satu hasil per paket)."],
+    ["Sesi Tryout Umum terbuka (mis. 14 hari) dan guru membuka Tryout Mandiri di kelas yang sama. Bermasalah?", "Tidak. Sesi Tryout Umum memakai kode (sudah ada di link CBT), jadi siswa yang membuka link pasti masuk Tryout Umum; Tryout Mandiri guru memakai kode lain atau jalur NISN saja. Rekap Tryout Umum hanya menghitung sesi yang dibuka dari halaman ini, jadi nilai Tryout Mandiri tidak tercampur. Hanya bila guru memakai **paket yang sama** dengan TO, siswa yang sudah mengerjakan TO tidak bisa mengulang (satu hasil per paket)."],
     ["Siswa ingin melihat pembahasan.", "Saat membuka sesi, centang **Tampilkan jawaban & pembahasan**."],
     ["Tanggal TO berubah mengikuti kalender kurikulum. Apakah periodenya kacau?", "Tidak. Periode dihitung dari **urutan TO** (Wajib: TO ke-1–3 = Periode 1, dst.; Pilihan: setiap 5 minggu), jadi menukar atau menggeser hari tidak mengubah isi periode. Cukup ubah tanggal TO di Kalender."],
   ], [2.4, 4.6]),

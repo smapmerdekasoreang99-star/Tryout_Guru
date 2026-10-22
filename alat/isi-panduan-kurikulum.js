@@ -11,18 +11,19 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) => [
   OL("Buka Asesmen Merdeka, ketuk **Masuk guru / pengawas**.",
     "Ketik **PIN kurikulum** lalu **Masuk**. Halaman Pantau Kurikulum langsung terbuka (tanpa menu).",
     "Tombol **Keluar** di pojok kanan atas untuk mengakhiri. PIN berlaku selama peramban terbuka."),
-  P("Operator juga bisa membuka halaman ini lewat ubin **Pantau Kurikulum** di Menu utama. Tautan **TO TKA** di kepala halaman membuka jadwal dan rekap Tryout TKA koordinator (hanya melihat)."),
-  H2("Delapan tab"),
-  TB(["Tab", "Menjawab pertanyaan"], [
+  P("Operator juga bisa membuka halaman ini lewat ubin **Pantau Kurikulum** di Menu utama. Tautan **Tryout Umum** di kepala halaman membuka jadwal dan rekap Tryout Umum koordinator (hanya melihat)."),
+  H2("Empat menu, delapan tab"),
+  P("Menu utama ada empat. Menu yang berisi lebih dari satu halaman menampilkan **tab di bawahnya** (garis emas menandai tab yang sedang dibuka); tiap menu mengingat tab terakhir yang Anda buka."),
+  TB(["Menu → tab", "Menjawab pertanyaan"], [
     ["**Ringkasan**", "Bagaimana gambaran asesmen sekolah secara umum? Apa temuan terpentingnya?"],
-    ["**Guru & Paket**", "Siapa saja guru yang sudah mengunggah soal dan melatih siswa? Paket apa yang disusun tiap guru, dan bagaimana hasil siswanya?"],
-    ["**Analisis Mapel**", "Untuk satu mata pelajaran: guru mana yang kelasnya sudah dinilai, bagaimana hasil belajarnya, dan bagaimana kualitas soalnya?"],
-    ["**Keterlaksanaan**", "Guru mana yang sudah aktif berasesmen, mana yang perlu didorong, dan siapa yang perlu ditindaklanjuti?"],
-    ["**Paket & Kisi-kisi**", "Paket apa saja yang disusun, kapan diunggah, dan apakah soalnya sudah HOTS (C4–C6)?"],
-    ["**Sesi & Pelaksanaan**", "Sesi apa yang dibuka, di kelas mana, kapan, dan berapa siswa yang mengerjakan?"],
-    ["**Hasil & Analisis**", "Untuk satu paket: bagaimana sebaran nilai, kelas mana yang tertinggal, soal dan sub-materi mana yang sulit?"],
-    ["**Perkembangan Siswa**", "Untuk satu kelas: apakah nilai kelas dan tiap siswa naik dari waktu ke waktu?"],
-  ], [1.6, 5]),
+    ["**Guru** → Guru & Paket", "Siapa saja guru yang sudah mengunggah soal dan melatih siswa? Paket apa yang disusun tiap guru, dan bagaimana hasil siswanya?"],
+    ["**Guru** → Keterlaksanaan", "Guru mana yang sudah aktif berasesmen, mana yang perlu didorong, dan siapa yang perlu ditindaklanjuti?"],
+    ["**Paket & Sesi** → Paket & Kisi-kisi", "Paket apa saja yang disusun, kapan diunggah, dan apakah soalnya sudah HOTS (C4–C6)?"],
+    ["**Paket & Sesi** → Sesi & Pelaksanaan", "Sesi apa yang dibuka, di kelas mana, kapan, dan berapa siswa yang mengerjakan?"],
+    ["**Hasil Siswa** → Hasil & Analisis", "Untuk satu paket: bagaimana sebaran nilai, kelas mana yang tertinggal, soal dan sub-materi mana yang sulit?"],
+    ["**Hasil Siswa** → Analisis Mapel", "Untuk satu mata pelajaran: guru mana yang kelasnya sudah dinilai, bagaimana hasil belajarnya, dan bagaimana kualitas soalnya?"],
+    ["**Hasil Siswa** → Perkembangan Siswa", "Untuk satu kelas: apakah nilai kelas dan tiap siswa naik dari waktu ke waktu?"],
+  ], [2.2, 5]),
 
   /* ============================ 2 ============================ */
   H1("Bahasa Visual yang Dipakai"),
@@ -49,6 +50,7 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) => [
   TB(["Saringan", "Keterangan"], [
     ["**Semester**", "Sesi dan hasil dibatasi semester terpilih. Paket dan kisi-kisi selalu ditampilkan semuanya (tanggal unggah tetap terlihat)."],
     ["**Mapel → Jenis → Guru**", "Bertingkat: setelah memilih mapel, pilihan Jenis dan Guru hanya berisi yang ada di mapel itu. Daftar Guru berisi **guru penyusun paket**; guru pengampu yang belum menyusun paket terlihat di tab Analisis Mapel dan Keterlaksanaan."],
+    ["**Kegiatan**", "**Tryout Umum** (diatur koordinator untuk banyak kelas, dari halaman Tryout Umum) atau **Tryout Mandiri** (dibuka guru di kelasnya lewat menu Latihan / Tryout, termasuk koordinator dengan PIN guru). Riwayat sesi dan hasil siswa memberi label kategori ini. Keaktifan guru di tab Guru & Paket dan Keterlaksanaan dihitung dari Tryout Mandiri."],
     ["**Batas tuntas**", "Untuk pewarnaan dan hitungan ≥ batas."],
   ], [1.6, 5]),
   KOTAK("saran", "Perhatikan lencana kuning \"Disaring\"",
@@ -89,24 +91,6 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) => [
   KOTAK("info", "Siswa dilatih", "Dihitung dari siswa berbeda yang mengerjakan paket guru itu, ditambah siswa yang mengumpulkan di sesi yang dibuka guru itu (mis. guru memakai paket guru lain). Status aktif mengikuti kegiatan terakhir: unggah paket/kisi-kisi atau membuka sesi dalam 30 hari."),
 
   /* ============================ 4 ============================ */
-  H1("Analisis Mapel"),
-  P("Pilih **Mata pelajaran** di kotak atas. Tab ini membandingkan **semua guru pengampu** mapel itu (dari jadwal KBM Data Induk), termasuk yang belum memakai aplikasi."),
-  KOTAK("info", "Hasil dikaitkan ke guru pengampu kelas",
-    "Nilai siswa kelas X untuk mapel M dihitung sebagai hasil **guru yang mengajar M di kelas X** menurut jadwal KBM, bukan guru yang mengunggah paket. Jadi bila Bu A menyusun soal tryout dan kelas Pak B mengerjakannya, hasilnya masuk ke Pak B sebagai guru kelas itu."),
-  TB(["Bagian", "Cara membaca"], [
-    ["**Angka utama**", "Guru pengampu, **kelas sudah diuji** (mis. 1/12 = baru 1 dari 12 rombel yang punya hasil), paket, % HOTS, sesi, rata-rata, % tuntas."],
-    ["**Temuan**", "Guru dengan rata-rata kelas tertinggi/terendah, guru yang kelasnya belum punya hasil, pengampu yang belum menyusun paket, guru yang hasil kelasnya naik/turun."],
-    ["**Perbandingan guru**", "Kelas diajar · batang kelas sudah diuji · paket · tingkat berpikir soal · HOTS · sesi · siswa dinilai · rata-rata · ≥ batas · **Tren** (garis kecil rata-rata kelasnya dari ujian ke ujian) · terakhir aktif. **Ketuk baris** untuk kartu rincian guru."],
-    ["**Kartu guru**", "Hasil per kelas yang diajar (\"belum\" = belum ada hasil), paket yang disusun, dan sesi yang dibuka."],
-    ["**Guru × kelas**", "Baris = guru, kolom = kelas. Angka berwarna = rata-rata kelas itu; \"belum\" = diajar tetapi belum ada hasil; abu-abu = tidak diajar guru itu."],
-    ["**Rata-rata kelas tiap guru**", "Batang hijau/emas/merah menurut batas tuntas."],
-    ["**Perkembangan hasil belajar tiap guru**", "Garis biru = rata-rata kelas guru itu per ujian; **garis putus abu-abu** = rata-rata semua kelas untuk ujian yang sama; garis emas putus = batas tuntas. Garis biru di atas garis abu-abu = kelasnya di atas rata-rata sekolah."],
-    ["**Kualitas soal dari waktu ke waktu**", "Titik = % HOTS tiap paket menurut tanggal unggah. Garis naik = soal guru makin HOTS."],
-    ["**Materi yang perlu diperkuat**", "12 sub-materi dengan persentase benar terendah, gabungan semua paket mapel itu."],
-    ["**Capaian menurut tingkat berpikir**", "Rata-rata % benar butir LOTS, MOTS, HOTS di mapel itu."],
-  ], [2, 5]),
-
-  /* ============================ 5 ============================ */
   H1("Keterlaksanaan Asesmen"),
   P("Gambaran apakah setiap guru sudah melaksanakan asesmen di Asesmen Merdeka. **Kegiatan** = mengunggah paket atau kisi-kisi, atau membuka sesi."),
   TB(["Status", "Arti"], [
@@ -163,6 +147,24 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) => [
   ], [2, 2.7, 2.4]),
 
   /* ============================ 9 ============================ */
+  H1("Analisis Mapel"),
+  P("Pilih **Mata pelajaran** di kotak atas. Tab ini membandingkan **semua guru pengampu** mapel itu (dari jadwal KBM Data Induk), termasuk yang belum memakai aplikasi."),
+  KOTAK("info", "Hasil dikaitkan ke guru pengampu kelas",
+    "Nilai siswa kelas X untuk mapel M dihitung sebagai hasil **guru yang mengajar M di kelas X** menurut jadwal KBM, bukan guru yang mengunggah paket. Jadi bila Bu A menyusun soal tryout dan kelas Pak B mengerjakannya, hasilnya masuk ke Pak B sebagai guru kelas itu."),
+  TB(["Bagian", "Cara membaca"], [
+    ["**Angka utama**", "Guru pengampu, **kelas sudah diuji** (mis. 1/12 = baru 1 dari 12 rombel yang punya hasil), paket, % HOTS, sesi, rata-rata, % tuntas."],
+    ["**Temuan**", "Guru dengan rata-rata kelas tertinggi/terendah, guru yang kelasnya belum punya hasil, pengampu yang belum menyusun paket, guru yang hasil kelasnya naik/turun."],
+    ["**Perbandingan guru**", "Kelas diajar · batang kelas sudah diuji · paket · tingkat berpikir soal · HOTS · sesi · siswa dinilai · rata-rata · ≥ batas · **Tren** (garis kecil rata-rata kelasnya dari ujian ke ujian) · terakhir aktif. **Ketuk baris** untuk kartu rincian guru."],
+    ["**Kartu guru**", "Hasil per kelas yang diajar (\"belum\" = belum ada hasil), paket yang disusun, dan sesi yang dibuka."],
+    ["**Guru × kelas**", "Baris = guru, kolom = kelas. Angka berwarna = rata-rata kelas itu; \"belum\" = diajar tetapi belum ada hasil; abu-abu = tidak diajar guru itu."],
+    ["**Rata-rata kelas tiap guru**", "Batang hijau/emas/merah menurut batas tuntas."],
+    ["**Perkembangan hasil belajar tiap guru**", "Garis biru = rata-rata kelas guru itu per ujian; **garis putus abu-abu** = rata-rata semua kelas untuk ujian yang sama; garis emas putus = batas tuntas. Garis biru di atas garis abu-abu = kelasnya di atas rata-rata sekolah."],
+    ["**Kualitas soal dari waktu ke waktu**", "Titik = % HOTS tiap paket menurut tanggal unggah. Garis naik = soal guru makin HOTS."],
+    ["**Materi yang perlu diperkuat**", "12 sub-materi dengan persentase benar terendah, gabungan semua paket mapel itu."],
+    ["**Capaian menurut tingkat berpikir**", "Rata-rata % benar butir LOTS, MOTS, HOTS di mapel itu."],
+  ], [2, 5]),
+
+  /* ============================ 5 ============================ */
   H1("Perkembangan Siswa"),
   P("Pilih **Kelas**. Saringan Mapel/Jenis/Guru di atas ikut membatasi ujian yang dihitung."),
   TB(["Bagian", "Cara membaca"], [

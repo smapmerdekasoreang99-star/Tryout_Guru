@@ -228,11 +228,11 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   </div>
   <div class="pin-cek"><i aria-hidden="true"></i>Memeriksa PIN…</div>
   <div id="pin-status" class="small" style="margin-top:6px"></div><div id="hak-menu" class="notice hidden"></div>
-  <!-- Koordinator TO TKA (22 Okt 2026): unggah soal mapel TO atas nama guru penyusun -->
+  <!-- Koordinator Tryout Umum (22 Okt 2026): unggah soal mapel TO atas nama guru penyusun -->
   <div id="ko-bar" class="notice hidden" style="margin-top:8px"><div class="row" style="align-items:flex-end;gap:10px">
     <label class="grow small"><b>Mengunggah atas nama guru penyusun</b><select id="ko-penyusun"><option value="">— pilih guru penyusun —</option></select></label>
-    <a href="to-tka.html" class="small">‹ Kembali ke TO TKA</a></div>
-    <p class="small muted" style="margin:6px 0 0">Soal tercatat atas nama guru ini dan otomatis berjenis <b>Tryout TKA</b>. Hanya mapel jadwal TO; 2 paket = 2 varian dalam satu berkas. Setelah terbit, pasang paketnya ke jadwal di halaman TO TKA.</p></div>
+    <a href="to-tka.html" id="ko-kembali"><button type="button" class="ghost">‹ Batal, kembali ke Tryout Umum</button></a></div>
+    <p class="small muted" style="margin:6px 0 0">Soal tercatat atas nama guru ini dan otomatis berjenis <b>Tryout TKA</b>. Hanya mapel jadwal TO; 2 paket = 2 varian dalam satu berkas. Setelah terbit, pasang paketnya ke jadwal di halaman Tryout Umum.</p></div>
   <div id="sinkron-info" class="small" style="margin-top:6px"></div>
 </div>
 <nav class="tabs tab-ikon" id="tabs"><button data-tab="daftar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5a2 2 0 0 1 2-2h3v18H6a2 2 0 0 1-2-2zM9 3h4v18H9zM14.5 4.2l3.9-1 3.4 16.6-3.9.9z"/></svg><span>Pustaka Paket</span></button><button data-tab="kisi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg><span>Langkah 1 · Kisi-kisi</span></button><button data-tab="unggah"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg><span>Langkah 2 · Soal</span></button><button data-tab="darurat"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0zM12 9v4M12 17h.01"/></svg><span>Tanpa Kisi-kisi</span></button><button data-tab="siswa"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg><span>Data Siswa</span></button><button data-tab="guru" class="op-only"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="m10.8 12.2 9.2-9.2M17 6l3 3M14 9l2 2"/></svg><span>PIN Guru</span></button><button data-tab="impor"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span>Impor Kode Hasil</span></button><button data-tab="cadangan"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg><span>Cadangan</span></button><button data-tab="bantuan"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/></svg><span>Bantuan</span></button></nav>
@@ -1638,7 +1638,7 @@ const SB=(()=>{const c=window.TKA_SUPABASE||{};const u=(c.url||"").trim().replac
 const $=id=>document.getElementById(id);
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-/* Koordinator TO TKA (22 Okt 2026): unggah lewat fungsi pendamping (mapel TO, atas nama guru penyusun yang dipilih di bilah atas) */
+/* Koordinator Tryout Umum (22 Okt 2026): unggah lewat fungsi pendamping (mapel TO, atas nama guru penyusun yang dipilih di bilah atas) */
 const KO_FN={tka_get_kisi:"to_get_kisi",tka_simpan_kisi:"to_unggah_kisi",tka_terbitkan:"to_unggah_paket",tka_terbitkan_darurat:"to_unggah_tanpa_kisi"};
 async function rpc(fn,args){
   if(typeof PERAN!=="undefined"&&PERAN==="koordinator"&&KO_FN[fn]){
@@ -2086,7 +2086,11 @@ function cekHakMenu(peran){const I=MENU_INFO[MENU],boleh=I.peran.includes(peran)
   // koordinator: hanya Upload soal (dengan & tanpa kisi-kisi), tanpa daftar Pustaka
   const ko=peran==="koordinator";$("ko-bar").classList.toggle("hidden",!ko);
   if(ko){const b=document.querySelector('#tabs button[data-tab="daftar"]');if(b)b.classList.add("hidden");const on=document.querySelector("#tabs button.on");if(!on||on.dataset.tab==="daftar")bukaTab("kisi");
-    document.querySelectorAll('.nav-link a[href="index.html?guru"]').forEach(a=>{a.href="to-tka.html";a.textContent="‹ TO TKA"});muatKoordinator()}
+    const TAB_NAMA={minggu:"Minggu Ini",kalender:"Kalender",paket:"Paket per Periode",soal:"Pengumpulan Soal",sesi:"Sesi & Link",rekap:"Rekap & Laporan"},
+      dari=new URLSearchParams(location.search).get("dari"),tab=TAB_NAMA[dari]?dari:"soal",pulang="to-tka.html#"+tab;
+    $("ko-kembali").href=pulang;$("ko-kembali").querySelector("button").textContent="‹ Batal, kembali ke "+TAB_NAMA[tab];
+    document.querySelectorAll('.nav-link a[href="index.html?guru"]').forEach(a=>{a.href=pulang;a.textContent="‹ Tryout Umum"});
+    document.querySelectorAll('.nav-link a[href="index.html"]').forEach(a=>a.classList.add("hidden"));muatKoordinator()}
   el.classList.toggle("hidden",boleh);if(!boleh)el.innerHTML=`Menu <b>${I.judul}</b> hanya untuk ${I.peran.includes("guru")?"PIN guru atau operator":"PIN operator/kurikulum"}. <a href="index.html?guru">Kembali ke menu utama</a>`}
 
 /* ---------- guru & PIN (operator) ----------
@@ -2365,7 +2369,7 @@ const pkUrutSemester=(a,b)=>pkNilaiSemester(b)-pkNilaiSemester(a)||a.localeCompa
 async function muatPustaka(){const el=$("pk-daftar");if(!PK.length)el.innerHTML='<p class="muted">Memuat…</p>';
   // PIN pengawas tidak boleh membaca kisi-kisi: daftar tetap tampil dari paket terbit saja
   const [kisi,paket,top]=await Promise.all([rpc("tka_list_kisi",{p_pin:PIN()}).catch(()=>null),rpc("tka_list_paket",{p_pin:PIN()}).catch(e=>({galat:e.message})),rpc("to_paket_periode",{p_pin:PIN()}).catch(()=>null)]);
-  // paket TO → program & periode (jadwal Koordinator TO TKA)
+  // paket TO → program & periode (jadwal Koordinator Tryout Umum)
   TO_PERIODE={};if(top){const rg={};(top.periode||[]).forEach(x=>rg[x.periode+"|"+x.program+"|"+x.no]=x);(top.paket||[]).forEach(x=>{if(!TO_PERIODE[x.kode])TO_PERIODE[x.kode]={...x,rentang:rg[x.periode+"|"+x.program+"|"+x.no]}})}
   if(paket&&paket.galat){PK=[];pkKartuPulang();el.innerHTML=`<p style="color:var(--bad)">${esc(paket.galat)}</p>`;return}
   const peta=new Map();
@@ -2566,7 +2570,7 @@ window.addEventListener("DOMContentLoaded",()=>{
     try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});document.documentElement.classList.remove("pin-otomatis");MASUK=j;setPeran(j.peran);cekHakMenu(j.peran);
       try{sessionStorage.setItem("tka_v2_pin",JSON.stringify({pin:PIN(),peran:j.peran}))}catch(e){}
       $("pin-baris").classList.add("hidden");$("pin-card").classList.add("masuk");
-      $("pin-status").innerHTML=`<span class="pill good">PIN benar · ${esc(j.nama)}</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — unggah paket, kelola paket sendiri (data siswa hanya lihat)":j.peran==="koordinator"?"koordinator TO TKA — unggah soal mapel TO atas nama guru penyusun":"pengawas — hanya lihat"}</span>`+
+      $("pin-status").innerHTML=`<span class="pill good">PIN benar · ${esc(j.nama)}</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — unggah paket, kelola paket sendiri (data siswa hanya lihat)":j.peran==="koordinator"?"koordinator Tryout Umum — unggah soal mapel TO atas nama guru penyusun":"pengawas — hanya lihat"}</span>`+
         (j.bersama?' <span class="pill warn">PIN guru bersama</span> Paket yang diunggah dengan PIN ini tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator.':"")+
         (j.peran==="operator"&&j.guru_tanpa_pin?` <span class="pill warn">${j.guru_tanpa_pin} guru belum punya PIN pribadi</span> — menu <b>Admin → PIN Guru</b>.`:"");
       $("pin-status").insertAdjacentHTML("beforeend",' <a href="#" id="pin-ganti" class="small">Ganti PIN</a>');$("pin-ganti").onclick=ev=>{ev.preventDefault();$("pin-baris").classList.remove("hidden");$("pin-card").classList.remove("masuk");$("pin").focus()};
