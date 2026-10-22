@@ -173,6 +173,7 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
     ["Saya salah memasang paket.", "Buka rincian TO → **Lepas**, lalu pasang paket yang benar."],
     ["Ada libur di hari TO.", "Rincian TO → **Ubah jadwal**: geser tanggal, atau centang **Batalkan TO ini**."],
     ["Mengapa TO Juli–Agustus bertanda \"Sebelum aplikasi\"?", "TO itu dilaksanakan sebelum aplikasi dipakai untuk TO, jadi tidak dihitung di angka dan rekap."],
+    ["Sesi TO terbuka (mis. 14 hari) dan guru lain membuka latihan di kelas yang sama. Bermasalah?", "Tidak. Sesi TO memakai kode (sudah ada di link CBT), jadi siswa yang membuka link TO pasti masuk TO; latihan guru memakai kode lain atau jalur NISN saja. Rekap TO hanya menghitung sesi paket TO (paket yang dipasang, atau paket berjenis Tryout), jadi nilai latihan tidak tercampur. Hanya bila guru memakai **paket yang sama** dengan TO, siswa yang sudah mengerjakan TO tidak bisa mengulang (satu hasil per paket)."],
     ["Siswa ingin melihat pembahasan.", "Saat membuka sesi, centang **Tampilkan jawaban & pembahasan**."],
     ["Tanggal TO berubah mengikuti kalender kurikulum. Apakah periodenya kacau?", "Tidak. Periode dihitung dari **urutan TO** (Wajib: TO ke-1–3 = Periode 1, dst.; Pilihan: setiap 5 minggu), jadi menukar atau menggeser hari tidak mengubah isi periode. Cukup ubah tanggal TO di Kalender."],
   ], [2.4, 4.6]),

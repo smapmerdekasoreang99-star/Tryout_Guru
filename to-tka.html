@@ -228,7 +228,9 @@ function siapkan(){
   const dipakai=new Set();J.forEach(j=>j.sesiSimpan.forEach(id=>{if(S[id]){j.S.push(S[id]);dipakai.add(id)}}));
   // sesi lain yang cocok → TO terdekat
   D.sesi.filter(s=>!dipakai.has(s.id)).forEach(s=>{const p=PK[s.ujian];if(!p)return;const t=tglD(new Date(s.T0).toLocaleDateString("en-CA",WIB));
-    let best=null,bd=99;J.forEach(j=>{if(j.mk!==p.mk||!j.kelas.some(k=>s.kelas.includes(k)))return;const dd=t<j.d0?(j.d0-t)/864e5:t>j.d1?(t-j.d1)/864e5:0;if(dd<=3&&dd<bd){bd=dd;best=j}});
+    let best=null,bd=99;J.forEach(j=>{if(j.mk!==p.mk||!j.kelas.some(k=>s.kelas.includes(k)))return;
+      // 22 Okt 2026: latihan guru di kelas yang sama tidak ikut dihitung — TO berpaket: paket harus sama; TO tanpa paket: paket harus berjenis Tryout
+      if(j.paket?s.ujian!==j.paket:!/tryout/i.test(p.jenis||""))return;const dd=t<j.d0?(j.d0-t)/864e5:t>j.d1?(t-j.d1)/864e5:0;if(dd<=3&&dd<bd){bd=dd;best=j}});
     if(best){best.S.push(s);s.cocok=true}});
   const kini=Date.now();
   // TO sebelum aplikasi dipakai untuk TO (sesi/hasil pertama) tidak dihitung sebagai "terlewat"
