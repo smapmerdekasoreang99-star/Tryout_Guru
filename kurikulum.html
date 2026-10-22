@@ -113,13 +113,13 @@ svg.ch [data-tip]{cursor:default}svg.ch .hit{fill:transparent}svg.ch .hit:hover+
     <label class="f">Jenis<select id="f-jenis"></select></label>
     <label class="f">Guru<select id="f-guru"></select></label>
     <label class="f">Batas tuntas<input type="number" id="f-kkm" min="0" max="100" style="width:90px"></label>
-    <span class="small muted grow" id="f-ket" style="text-align:right"></span>
+    <span class="grow" id="f-ket" style="text-align:right"></span>
   </div>
 
   <!-- ================= Ringkasan ================= -->
   <div id="tab-ringkas">
     <div class="ubin" id="r-ubin" style="margin-top:12px"></div>
-    <div class="card"><h3 style="margin-bottom:10px">Temuan utama</h3><div class="temuan" id="r-temuan"></div></div>
+    <div class="card"><h3 style="margin-bottom:10px">Temuan utama <span class="small muted" id="r-saring" style="font-family:inherit;font-weight:500"></span></h3><div class="temuan" id="r-temuan"></div></div>
     <div class="grid2">
       <div class="card grafik"><h3>Seberapa tinggi tingkat berpikir soal kita?</h3><p class="sub">Komposisi tingkat kognitif butir soal per mapel (dari kisi-kisi). HOTS = C4–C6 / Reasoning.</p><div id="r-kog"></div></div>
       <div class="card grafik"><h3>Jenis paket apa saja yang disusun?</h3><p class="sub">Jumlah paket soal per jenis asesmen</p><div id="r-jenis"></div></div>
@@ -310,7 +310,9 @@ const cocokPaket=p=>{const f=F();return p&&(!f.mapel||p.mapel===f.mapel)&&(!f.je
 const paketTersaring=()=>D.paket.filter(cocokPaket);
 const hasilTersaring=()=>D.H.filter(h=>cocokPaket(h.p));
 const sesiTersaring=()=>D.sesi.filter(s=>cocokPaket(PK[s.ujian]));
-["f-mapel","f-jenis","f-guru"].forEach(id=>$(id).onchange=()=>{lsSet("kur_saring",F());gambar()});
+// Saringan tidak diingat antar-kunjungan (22 Okt 2026: saringan Jenis yang terbawa membuat paket baru seolah tidak ada)
+["f-mapel","f-jenis","f-guru"].forEach(id=>$(id).onchange=()=>gambar());
+function hapusSaringan(){["f-mapel","f-jenis","f-guru"].forEach(id=>$(id).value="");gambar()}
 $("f-kkm").value=lsGet("kur_kkm",75);$("f-kkm").oninput=()=>{lsSet("kur_kkm",KKM());if(D)gambar()};
 $("f-periode").onchange=async()=>{try{toast("Memuat semester "+$("f-periode").selectedOptions[0].textContent+"…");D=await rpc("kur_data",{p_pin:PIN,p_periode:$("f-periode").value});BUTIR={};siapkan();gambar()}catch(e){toast(e.message,6000)}};
 
@@ -318,7 +320,9 @@ function gambar(){
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.tab===TAB));
   ["ringkas","paket","sesi","hasil","siswa"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==TAB));
   const f=F(),aktif=[f.mapel,f.jenis,f.guru&&namaGuru(f.guru)].filter(Boolean);
-  $("f-ket").textContent=aktif.length?"Disaring: "+aktif.join(" · "):"Semua mapel, jenis, dan guru";
+  $("f-ket").innerHTML=aktif.length?`<span class="pill warn" style="font-size:13px;padding:5px 12px">Disaring: ${aktif.map(esc).join(" · ")}</span> <button class="ghost mini" id="f-hapus">Hapus saringan</button>`:'<span class="small muted">Menampilkan semua mapel, jenis, dan guru</span>';
+  if($("f-hapus"))$("f-hapus").onclick=hapusSaringan;
+  $("r-saring").textContent=aktif.length?"· hanya untuk "+aktif.join(" · "):"";
   ({ringkas:gRingkas,paket:gPaket,sesi:gSesi,hasil:gHasil,siswa:gSiswa})[TAB]();
 }
 
@@ -368,7 +372,7 @@ function gRingkas(){
   $("r-guru").innerHTML=`<thead><tr><th>Guru</th><th>Mapel</th><th class="n">Paket</th><th class="n">Butir</th><th style="min-width:180px">Tingkat berpikir soal</th><th class="n">HOTS</th><th class="n">Sesi</th><th class="n">Kelas</th><th class="n">Hasil siswa</th><th class="n">Rata-rata</th><th>Unggah terakhir</th></tr></thead><tbody>`+
     G.map(x=>`<tr class="klik" data-g="${esc(x.g)}"><td><b>${esc(x.nama)}</b></td><td>${esc(x.mapel)}</td><td class="n">${x.n}</td><td class="n">${x.soal}</td><td>${batangKog(x.km)}</td><td class="n">${x.km.hots==null?"–":angka(x.km.hots,0)+"%"}</td>
       <td class="n">${x.sesi||"–"}</td><td class="n">${x.kelas||"–"}</td><td class="n">${x.hasil||"–"}</td><td class="n"><span class="nilai-${kelasNilai(x.r)}">${angka(x.r)}</span></td><td>${tgl(x.akhir)}</td></tr>`).join("")+"</tbody>";
-  document.querySelectorAll("#r-guru [data-g]").forEach(tr=>tr.onclick=()=>{if(tr.dataset.g!=="—"){$("f-guru").value=tr.dataset.g;lsSet("kur_saring",F())}TAB="paket";gambar()});
+  document.querySelectorAll("#r-guru [data-g]").forEach(tr=>tr.onclick=()=>{if(tr.dataset.g!=="—")$("f-guru").value=tr.dataset.g;TAB="paket";gambar()});
 }
 
 /* ================= Paket & Kisi-kisi ================= */
@@ -537,8 +541,7 @@ function rinciSiswa(nisn){const s=SISWA[nisn]||{nama:nisn,kelas:""},hs=hasilTers
 $("g-kelas").onchange=()=>{G_SISWA=null;gSiswa()};$("g-cari").oninput=()=>gSiswa();
 
 /* ---------------- Mulai ---------------- */
-(()=>{const s=lsGet("kur_saring",null);TAB=lsGet("kur_tab","ringkas");
-  if(s)setTimeout(()=>{["mapel","jenis","guru"].forEach(k=>{const el=$("f-"+k);if(s[k]&&[...el.options].some(o=>o.value===s[k]))el.value=s[k]});if(D)gambar()},0);
+(()=>{TAB=lsGet("kur_tab","ringkas");try{localStorage.removeItem("kur_saring")}catch(e){}
   try{const x=JSON.parse(sessionStorage.getItem(KUNCI_PIN)||"null");if(x&&x.pin&&(x.peran==="kurikulum"||x.peran==="operator")){$("pin").value=x.pin;masuk(x.pin)}}catch(e){}})();
 </script>
 </body>
