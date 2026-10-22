@@ -307,11 +307,7 @@ function siapkan(){
   SISWA={};KELAS_N={};D.siswa.forEach(([n,nm,k])=>{SISWA[n]={nama:nm,kelas:k};KELAS_N[k]=(KELAS_N[k]||0)+1});
   D.H=D.hasil.map(([nisn,kelas,ujian,nilai,waktu,sesi])=>({nisn,kelas:kelas||(SISWA[nisn]||{}).kelas||"—",ujian,nilai,waktu,sesi,p:PK[ujian]}));
   // pilihan saringan (dipertahankan)
-  const isi=(id,daftar,semua)=>{const el=$(id),v=el.value;el.innerHTML=`<option value="">${semua}</option>`+daftar.map(x=>`<option value="${esc(x[0])}">${esc(x[1])}</option>`).join("");if(daftar.some(x=>x[0]===v))el.value=v};
-  const semuaPaket=[...D.paket,...D.kisi_saja];
-  isi("f-mapel",[...new Set(semuaPaket.map(p=>p.mapel).filter(Boolean))].sort(urutID).map(m=>[m,m]),"Semua mapel");
-  isi("f-jenis",[...new Set(semuaPaket.map(p=>p.jenisB))].sort(urutID).map(j=>[j,j]),"Semua jenis");
-  isi("f-guru",[...new Map(semuaPaket.filter(p=>p.pemilik).map(p=>[p.pemilik,p.guru])).entries()].sort((a,b)=>urutID(a[1],b[1])),"Semua guru");
+  isiSaringan();
   const per=$("f-periode");if(!per.options.length){const k=D.periode.kode,[y1,y2,s]=k.split("-").map(Number),L=[];let a=y1,b=y2,c=s;
     for(let i=0;i<4;i++){L.push([`${a}-${b}-${c}`,`${a}/${b} ${c===1?"Ganjil":"Genap"}`]);if(c===2)c=1;else{c=2;a--;b--}}
     per.innerHTML=L.map(x=>`<option value="${x[0]}">${x[1]}</option>`).join("");per.value=k}
@@ -325,8 +321,18 @@ const paketTersaring=()=>D.paket.filter(cocokPaket);
 const hasilTersaring=()=>D.H.filter(h=>cocokPaket(h.p));
 const sesiTersaring=()=>D.sesi.filter(s=>cocokPaket(PK[s.ujian]));
 // Saringan tidak diingat antar-kunjungan (22 Okt 2026: saringan Jenis yang terbawa membuat paket baru seolah tidak ada)
-["f-mapel","f-jenis","f-guru"].forEach(id=>$(id).onchange=()=>{if(id==="f-mapel")M_MK=null;gambar()});
-function hapusSaringan(){["f-mapel","f-jenis","f-guru"].forEach(id=>$(id).value="");gambar()}
+["f-mapel","f-jenis","f-guru"].forEach(id=>$(id).onchange=()=>{if(id==="f-mapel")M_MK=null;isiSaringan();gambar()});
+/* Saringan bertingkat (22 Okt 2026): Mapel → Jenis → Guru. Pilihan Jenis hanya yang ada di mapel terpilih, pilihan Guru hanya
+   penyusun paket di mapel & jenis terpilih. Pilihan yang tidak lagi ada dikembalikan ke "Semua". */
+function isiSaringan(){
+  const isi=(id,daftar,semua)=>{const el=$(id),v=el.value;el.innerHTML=`<option value="">${semua}</option>`+daftar.map(x=>`<option value="${esc(x[0])}">${esc(x[1])}</option>`).join("");el.value=daftar.some(x=>x[0]===v)?v:""};
+  const semua=[...D.paket,...D.kisi_saja];
+  isi("f-mapel",[...new Set(semua.map(p=>p.mapel).filter(Boolean))].sort(urutID).map(m=>[m,m]),"Semua mapel");
+  const m=$("f-mapel").value,dalamMapel=semua.filter(p=>!m||p.mapel===m);
+  isi("f-jenis",[...new Set(dalamMapel.map(p=>p.jenisB))].sort(urutID).map(j=>[j,j]),m?"Semua jenis "+m:"Semua jenis");
+  const j=$("f-jenis").value,dalamJenis=dalamMapel.filter(p=>!j||p.jenisB===j);
+  isi("f-guru",[...new Map(dalamJenis.filter(p=>p.pemilik).map(p=>[p.pemilik,p.guru])).entries()].sort((a,b)=>urutID(a[1],b[1])),m?"Semua guru "+m:"Semua guru")}
+function hapusSaringan(){["f-mapel","f-jenis","f-guru"].forEach(id=>$(id).value="");M_MK=null;isiSaringan();gambar()}
 $("f-kkm").value=lsGet("kur_kkm",75);$("f-kkm").oninput=()=>{lsSet("kur_kkm",KKM());if(D)gambar()};
 $("f-periode").onchange=async()=>{try{toast("Memuat semester "+$("f-periode").selectedOptions[0].textContent+"…");D=await rpc("kur_data",{p_pin:PIN,p_periode:$("f-periode").value});BUTIR={};siapkan();gambar()}catch(e){toast(e.message,6000)}};
 
@@ -386,7 +392,7 @@ function gRingkas(){
   $("r-guru").innerHTML=`<thead><tr><th>Guru</th><th>Mapel</th><th class="n">Paket</th><th class="n">Butir</th><th style="min-width:180px">Tingkat berpikir soal</th><th class="n">HOTS</th><th class="n">Sesi</th><th class="n">Kelas</th><th class="n">Hasil siswa</th><th class="n">Rata-rata</th><th>Unggah terakhir</th></tr></thead><tbody>`+
     G.map(x=>`<tr class="klik" data-g="${esc(x.g)}"><td><b>${esc(x.nama)}</b></td><td>${esc(x.mapel)}</td><td class="n">${x.n}</td><td class="n">${x.soal}</td><td>${batangKog(x.km)}</td><td class="n">${x.km.hots==null?"–":angka(x.km.hots,0)+"%"}</td>
       <td class="n">${x.sesi||"–"}</td><td class="n">${x.kelas||"–"}</td><td class="n">${x.hasil||"–"}</td><td class="n"><span class="nilai-${kelasNilai(x.r)}">${angka(x.r)}</span></td><td>${tgl(x.akhir)}</td></tr>`).join("")+"</tbody>";
-  document.querySelectorAll("#r-guru [data-g]").forEach(tr=>tr.onclick=()=>{if(tr.dataset.g!=="—")$("f-guru").value=tr.dataset.g;TAB="paket";gambar()});
+  document.querySelectorAll("#r-guru [data-g]").forEach(tr=>tr.onclick=()=>{if(tr.dataset.g!=="—"){isiSaringan();$("f-guru").value=tr.dataset.g}TAB="paket";gambar()});
 }
 
 /* ================= Analisis Mapel: per mapel & per guru =================
