@@ -48,7 +48,7 @@ const ISI = KUR ? require("./isi-panduan-kurikulum")({ H1, H2, H3, P, UL, OL, TB
     ["**PIN pengawas**", "Pengawas", "Menu **Kontrol Pelaksanaan** (layar ruang Asesmen Bersama) dan **NISN Siswa** (semua kelas)."],
     ["**PIN operator / kurikulum**", "Admin · operator", "Khusus mengelola Asesmen Bersama. Menu **Asesmen Bersama** (termasuk tab **Hasil Siswa**), **Kontrol Pelaksanaan**, **NISN Siswa**, **Admin** (data siswa, PIN guru, cadangan, arsip semester)."],
     ["**PIN kurikulum**", "Kurikulum", "Hanya melihat: menu **Pantau Kurikulum** (semua paket & kisi-kisi dengan tingkat C1–C6/HOTS, sesi per kelas, hasil & analisis butir, perkembangan siswa — semua guru dan kelas). Tidak bisa membuka sesi atau mengubah data."],
-    ["**PIN koordinator TO TKA**", "Koordinator TO", "Langsung ke halaman **TO TKA**: jadwal TO Mapel Wajib & Pilihan, soal dari guru (pasang paket ke jadwal), buka sesi + link CBT/QR/teks WA, rekap & laporan per periode. Hanya untuk paket yang dipasang di jadwal TO; tidak bisa membuka menu lain."],
+    ["**PIN koordinator TO TKA**", "Koordinator TO", "Langsung ke halaman **TO TKA**: jadwal TO Mapel Wajib & Pilihan, soal dari guru (pasang paket ke jadwal), buka sesi + link CBT/QR/teks WA, rekap & laporan per periode. Hanya untuk paket yang dipasang di jadwal TO. Bisa **unggah soal mapel TO atas nama guru penyusun** (tombol + Unggah soal → halaman Upload soal dengan bilah pilihan guru); tidak bisa membuka menu lain."],
     ["PIN guru bersama (peralihan)", "pil kuning PIN guru bersama", "Seperti guru, tetapi paket dan sesi tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator."],
   ], [1.7, 1.2, 3.6]),
   H2("Menu"),

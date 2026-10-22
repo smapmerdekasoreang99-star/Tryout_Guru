@@ -108,7 +108,7 @@ svg.ch .sumbu{stroke:var(--garis-2);stroke-width:1}svg.ch .kisi{stroke:var(--gar
 </head>
 <body>
 <header class="top"><img src="assets/logo.png" alt=""><div><div class="t">Tryout TKA</div><div class="sub">Koordinator — jadwal, pengumpulan soal, sesi &amp; link CBT, rekap per periode</div></div>
-  <div class="kanan"><a href="index.html?guru" id="ke-menu" class="hidden">Menu utama</a><button id="btn-keluar" class="hidden">Keluar</button></div></header>
+  <div class="kanan"><a href="admin.html?menu=pustaka&amp;tab=kisi" class="tulis" title="Unggah soal TO atas nama guru penyusun">+ Unggah soal</a><a href="index.html?guru" id="ke-menu" class="hidden">Menu utama</a><button id="btn-keluar" class="hidden">Keluar</button></div></header>
 <div class="wrap">
 
 <div class="card" id="kartu-pin" style="max-width:520px;margin:40px auto">
@@ -367,7 +367,7 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
       <div class="row tulis" style="align-items:flex-end"><label class="f grow">${p?"Ganti paket":"Pasang paket dari bank soal"}<select id="lp-paket"><option value="">— pilih paket ${esc(j.mapel)} —</option>${kand.map(x=>`<option value="${esc(x.kode)}"${x.kode===j.paketEff?" selected":""}>${esc(x.judul)} · ${tglP(x.dibuat)} · ${esc(namaPendek(x.pemilik))}${x.n_varian>1?` · ${x.n_varian} varian`:""}</option>`).join("")}</select></label>
         <button id="lp-pasang">Pasang</button>${j.paket?'<button class="ghost mini" id="lp-lepas">Lepas</button>':""}</div>
       ${saudara.length?`<label class="row small tulis" style="gap:6px"><input type="checkbox" id="lp-saudara" checked> Pasang juga ke ${saudara.map(x=>esc(sasaran(x))).join(", ")} (mapel &amp; minggu sama)</label>`:""}
-      ${!kand.length?`<p class="small muted">Belum ada paket ${esc(j.mapel)} di bank soal. Guru mengunggah lewat <b>Pustaka Paket → + Upload soal</b> (jenis Tryout TKA).</p>`:""}
+      ${!kand.length?`<p class="small muted">Belum ada paket ${esc(j.mapel)} di bank soal. Guru mengunggah lewat <b>Pustaka Paket → + Upload soal</b>, atau Anda unggahkan atas namanya lewat <a href="admin.html?menu=pustaka&amp;tab=kisi">+ Unggah soal</a>.</p>`:""}
       ${p&&p.pemilik!==j.guru_id&&j.guru_id?`<div class="row small tulis" style="gap:6px"><span class="muted">Penyusun paket tercatat ${esc(namaPendek(p.pemilik))}, jadwal menugaskan ${esc(namaPendek(j.guru_id))}.</span><button class="ghost mini" id="lp-penyusun">Jadikan ${esc(namaPendek(j.guru_id))} penyusun</button></div>`:""}
       ${!BACA&&!j.paketEff&&j.guru_id?`<button class="ghost mini tulis" id="lp-wa">Salin pengingat WA untuk ${esc(namaPendek(j.guru_id))}</button>`:""}</div>
     <div class="card kolom"><h3>2. Sesi &amp; link CBT</h3>${j.S.map(s=>kartuSesi(s,j)).join("")||'<p class="small muted">Belum ada sesi.</p>'}
@@ -448,7 +448,8 @@ function gSoal(){const el=$("tab-soal"),kini=new Date(),s0=senin(kini),batas=tam
   const ming=[...new Set(L.map(j=>isoD(senin(j.d0))))];
   const lepas=D.paket.filter(p=>!p.arsip&&/tryout/i.test(p.jenis||"")&&!J.some(j=>j.paketEff===p.kode)&&Date.now()-Date.parse(p.dibuat)<45*864e5);
   const g={};J.filter(j=>!j.batal&&j.st!=="pra"&&j.d0<tambahHari(new Date(),1)).forEach(j=>{const x=g[j.guru_id||"-"]=g[j.guru_id||"-"]||{n:0,ok:0,telat:0};x.n++;if(j.paketEff)x.ok++});
-  el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="kepala"><div><h3>Soal yang harus masuk (4 minggu ke depan)</h3><p class="small muted">Tenggat: Jumat sebelum minggu pelaksanaan. Soal yang diunggah guru (jenis Tryout TKA) tinggal dipasang ke jadwalnya.</p></div></div>
+  el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="kepala"><div><h3>Soal yang harus masuk (4 minggu ke depan)</h3><p class="small muted">Tenggat: Jumat sebelum minggu pelaksanaan. Soal yang diunggah guru (jenis Tryout TKA) tinggal dipasang ke jadwalnya. Soal yang dikirim guru lewat WA bisa Anda unggahkan atas nama gurunya.</p></div>
+      <a class="tulis" href="admin.html?menu=pustaka&amp;tab=kisi"><button>+ Unggah soal atas nama guru</button></a></div>
     ${ming.map(m=>{const a=L.filter(j=>isoD(senin(j.d0))===m),t=a[0].tenggat,blm=a.filter(j=>!j.paketEff);
       return `<div style="margin-top:12px"><div class="kepala"><div><b>Minggu ${tglP(tglD(m))} – ${tglP(tambahHari(tglD(m),4))}</b> <span class="small muted">· tenggat ${hariTgl(t)} · ${a.length-blm.length}/${a.length} soal masuk</span></div>
         ${!BACA&&blm.length?`<button class="ghost mini" data-wa-minggu="${m}">Salin pengingat WA (${new Set(blm.map(j=>j.guru_id)).size} guru)</button>`:""}</div>
