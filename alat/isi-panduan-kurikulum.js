@@ -12,9 +12,10 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) => [
     "Ketik **PIN kurikulum** lalu **Masuk**. Halaman Pantau Kurikulum langsung terbuka (tanpa menu).",
     "Tombol **Keluar** di pojok kanan atas untuk mengakhiri. PIN berlaku selama peramban terbuka."),
   P("Operator juga bisa membuka halaman ini lewat ubin **Pantau Kurikulum** di Menu utama. Tautan **TO TKA** di kepala halaman membuka jadwal dan rekap Tryout TKA koordinator (hanya melihat)."),
-  H2("Tujuh tab"),
+  H2("Delapan tab"),
   TB(["Tab", "Menjawab pertanyaan"], [
     ["**Ringkasan**", "Bagaimana gambaran asesmen sekolah secara umum? Apa temuan terpentingnya?"],
+    ["**Guru & Paket**", "Siapa saja guru yang sudah mengunggah soal dan melatih siswa? Paket apa yang disusun tiap guru, dan bagaimana hasil siswanya?"],
     ["**Analisis Mapel**", "Untuk satu mata pelajaran: guru mana yang kelasnya sudah dinilai, bagaimana hasil belajarnya, dan bagaimana kualitas soalnya?"],
     ["**Keterlaksanaan**", "Guru mana yang sudah aktif berasesmen, mana yang perlu didorong, dan siapa yang perlu ditindaklanjuti?"],
     ["**Paket & Kisi-kisi**", "Paket apa saja yang disusun, kapan diunggah, dan apakah soalnya sudah HOTS (C4–C6)?"],
@@ -75,6 +76,17 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) => [
   ], [2.1, 2.6, 2.4]),
   H2("Tabel Per guru"),
   P("Satu baris per guru penyusun: paket, butir, batang tingkat berpikir, % HOTS, sesi, kelas yang diuji, hasil siswa, rata-rata, dan unggah terakhir. **Ketuk baris** untuk melihat paket guru itu di tab Paket & Kisi-kisi."),
+
+  /* ============================ 3b ============================ */
+  H1("Guru & Paket"),
+  P("Tab ini menelusur dari guru ke hasil siswa: **pilih guru → pilih paket soalnya → lihat hasil tiap siswa**. **Semua guru pengampu** (jadwal KBM) tampil, termasuk yang belum mengunggah soal, sehingga terlihat siapa yang aktif."),
+  TB(["Bagian", "Cara membaca"], [
+    ["**Empat angka**", "Jumlah guru, guru yang sudah mengunggah soal, guru yang sudah melatih siswa (paketnya dikerjakan siswa atau membuka sesi), dan guru yang belum mulai."],
+    ["**Daftar guru (kiri)**", "Dikelompokkan per mapel, dengan keterangan \"x/y aktif\" per mapel. Tiap guru: jumlah **paket · sesi · siswa dilatih**, status **● Aktif / ◐ Perlu didorong / ○ Belum mulai**, dan tanggal terakhir aktif. Urutan bisa diganti: paling aktif dulu, belum mulai dulu, atau nama."],
+    ["**Kartu guru (kanan)**", "Kelas yang diajar, ringkasan keaktifan, dan **daftar paket soal** yang disusun: tanggal unggah, jenis, butir & varian, tingkat berpikir, sesi, jumlah siswa, rata-rata."],
+    ["**Hasil siswa**", "Ketuk paket: angka utama, **tabel tiap siswa** (nama, kelas, NISN, nilai berwarna, waktu kumpul, sesi & guru pembuka), dan **Belum mengerjakan** (siswa kelas sasaran sesi yang belum punya hasil). Saringan **Kelas**, tombol **Analisis lengkap** (ke tab Hasil & Analisis), dan **Unduh Excel**."],
+  ], [2, 5]),
+  KOTAK("info", "Siswa dilatih", "Dihitung dari siswa berbeda yang mengerjakan paket guru itu, ditambah siswa yang mengumpulkan di sesi yang dibuka guru itu (mis. guru memakai paket guru lain). Status aktif mengikuti kegiatan terakhir: unggah paket/kisi-kisi atau membuka sesi dalam 30 hari."),
 
   /* ============================ 4 ============================ */
   H1("Analisis Mapel"),
