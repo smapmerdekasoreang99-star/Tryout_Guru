@@ -339,7 +339,7 @@ const keTab=t=>{TAB=t;SUB_AKHIR[grupDari(t)]=t;lsSet("kur_tab",TAB);gambar();scr
 document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>keTab(SUB_AKHIR[b.dataset.grup]||GRUP[b.dataset.grup][0][0]));
 
 const namaGuru=(id,cad)=>(id&&D.guru[id])||cad||id||"—";
-const jenisBaku=j=>!j?"Lainnya":/^TO_?TKA$/i.test(j)?"Tryout TKA":j;
+const jenisBaku=j=>j||"Lainnya";
 const tingkatPaket=p=>(Array.isArray(p.tingkat)&&p.tingkat.length?p.tingkat:[String(p.kelas||"").match(/\d+/)?.[0]||String(p.kelas||"")]).join(", ");
 let PK={},SISWA={},KELAS_N={};
 function siapkan(){
