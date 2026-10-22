@@ -8,15 +8,16 @@
      node alat/buat-panduan.js
      node alat/buat-panduan.js --pas   (Panduan Asesmen Bersama untuk operator & pengawas; isi di alat/isi-panduan-pas.js)
      node alat/buat-panduan.js --kurikulum   (Panduan Pantau Kurikulum; isi di alat/isi-panduan-kurikulum.js)
+     node alat/buat-panduan.js --to   (Panduan Koordinator TO TKA; isi di alat/isi-panduan-to.js)
    Ubah isi panduan di sini bila tampilan atau aturan aplikasi berubah, lalu jalankan ulang. */
 "use strict";
 const fs = require("fs"), path = require("path"), os = require("os"), { spawn } = require("child_process");
 
-const PAS = process.argv.includes("--pas"), KUR = process.argv.includes("--kurikulum");   // --kurikulum: Panduan Pantau Kurikulum (alat/isi-panduan-kurikulum.js)
-const SUBJUDUL = KUR ? "Cara membaca informasi dan grafik pemantauan asesmen sekolah" : PAS ? "Menyiapkan, mengawasi, dan menyelesaikan ujian bersama (PAS, tryout bersama)" : "Menyusun paket soal, membuka latihan/tryout, dan membaca hasil";
-const UNTUK = KUR ? "tim kurikulum (dan operator)" : PAS ? "operator/kurikulum dan pengawas ruang" : "guru, operator/kurikulum, dan pengawas";
-const AKAR = path.join(__dirname, ".."), NAMA = KUR ? "Panduan_Pantau_Kurikulum" : PAS ? "Panduan_Asesmen_Bersama" : "Panduan_Guru_Asesmen_Merdeka";
-const JUDUL = KUR ? "Panduan Pantau Kurikulum" : PAS ? "Panduan Asesmen Bersama" : "Panduan Guru Asesmen Merdeka", VERSI = KUR ? "22 Oktober 2026" : PAS ? "21 Oktober 2026" : "15 Oktober 2026";
+const PAS = process.argv.includes("--pas"), KUR = process.argv.includes("--kurikulum"), TO = process.argv.includes("--to");   // --to: Panduan Koordinator TO TKA (alat/isi-panduan-to.js)   // --kurikulum: Panduan Pantau Kurikulum (alat/isi-panduan-kurikulum.js)
+const SUBJUDUL = TO ? "Jadwal, soal dari guru, sesi & link CBT, serta rekap per periode — langkah demi langkah" : KUR ? "Cara membaca informasi dan grafik pemantauan asesmen sekolah" : PAS ? "Menyiapkan, mengawasi, dan menyelesaikan ujian bersama (PAS, tryout bersama)" : "Menyusun paket soal, membuka latihan/tryout, dan membaca hasil";
+const UNTUK = TO ? "koordinator TO TKA (dan operator)" : KUR ? "tim kurikulum (dan operator)" : PAS ? "operator/kurikulum dan pengawas ruang" : "guru, operator/kurikulum, dan pengawas";
+const AKAR = path.join(__dirname, ".."), NAMA = TO ? "Panduan_Koordinator_TO_TKA" : KUR ? "Panduan_Pantau_Kurikulum" : PAS ? "Panduan_Asesmen_Bersama" : "Panduan_Guru_Asesmen_Merdeka";
+const JUDUL = TO ? "Panduan Koordinator TO TKA" : KUR ? "Panduan Pantau Kurikulum" : PAS ? "Panduan Asesmen Bersama" : "Panduan Guru Asesmen Merdeka", VERSI = TO ? "22 Oktober 2026" : KUR ? "22 Oktober 2026" : PAS ? "21 Oktober 2026" : "15 Oktober 2026";
 
 /* ================= Isi panduan =================
    Blok: H1/H2/H3 (judul, dinomori otomatis), P (paragraf), UL/OL (daftar), TB (tabel: kepala, baris, lebar relatif),
@@ -27,7 +28,7 @@ const TB = (kepala, baris, lebar) => ({ t: "tb", kepala, baris, lebar: lebar || 
 const KOTAK = (jenis, judul, ...isi) => ({ t: "kotak", jenis, judul, isi });
 const STAT = (ket, ...a) => ({ t: "stat", a, ket });
 
-const ISI = KUR ? require("./isi-panduan-kurikulum")({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) : PAS ? require("./isi-panduan-pas")({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) : [
+const ISI = TO ? require("./isi-panduan-to")({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) : KUR ? require("./isi-panduan-kurikulum")({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) : PAS ? require("./isi-panduan-pas")({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) : [
   /* ============================ 1 ============================ */
   H1("Mengenal Asesmen Merdeka"),
   P("Asesmen Merdeka adalah aplikasi ujian berbasis web sekolah untuk ulangan harian, penilaian tengah/akhir semester, dan tryout TKA/UTBK. Guru menyusun soal di Word, aplikasi mengubahnya menjadi ujian di HP siswa, menilainya otomatis di server, lalu menyajikan rekap nilai, analisis butir soal, dan rekomendasi tindak lanjut."),
