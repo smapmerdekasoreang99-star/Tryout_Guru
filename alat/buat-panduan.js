@@ -15,7 +15,7 @@ const fs = require("fs"), path = require("path"), os = require("os"), { spawn } 
 
 const PAS = process.argv.includes("--pas"), KUR = process.argv.includes("--kurikulum"), TO = process.argv.includes("--to");   // --to: Panduan Tryout Umum (alat/isi-panduan-to.js)   // --kurikulum: Panduan Pantau Kurikulum (alat/isi-panduan-kurikulum.js)
 const SUBJUDUL = TO ? "Tryout Umum: jadwal, soal dari guru, sesi & link CBT, serta rekap per periode — langkah demi langkah" : KUR ? "Cara membaca informasi dan grafik pemantauan asesmen sekolah" : PAS ? "Menyiapkan, mengawasi, dan menyelesaikan ujian bersama (PAS, tryout bersama)" : "Menyusun paket soal, membuka latihan/tryout, dan membaca hasil";
-const UNTUK = TO ? "koordinator Tryout Umum (dan operator)" : KUR ? "tim kurikulum (dan operator)" : PAS ? "operator/kurikulum dan pengawas ruang" : "guru, operator/kurikulum, dan pengawas";
+const UNTUK = TO ? "koordinator Tryout Umum (dan kurikulum)" : KUR ? "tim kurikulum" : PAS ? "kurikulum, operator, dan pengawas ruang" : "guru, kurikulum, operator, dan pengawas";
 const AKAR = path.join(__dirname, ".."), NAMA = TO ? "Panduan_Koordinator_TO_TKA" : KUR ? "Panduan_Pantau_Kurikulum" : PAS ? "Panduan_Asesmen_Bersama" : "Panduan_Guru_Asesmen_Merdeka";
 const JUDUL = TO ? "Panduan Tryout Umum (Koordinator)" : KUR ? "Panduan Pantau Kurikulum" : PAS ? "Panduan Asesmen Bersama" : "Panduan Guru Asesmen Merdeka", VERSI = TO ? "22 Oktober 2026" : KUR ? "22 Oktober 2026" : PAS ? "21 Oktober 2026" : "15 Oktober 2026";
 
@@ -32,7 +32,7 @@ const ISI = TO ? require("./isi-panduan-to")({ H1, H2, H3, P, UL, OL, TB, KOTAK,
   /* ============================ 1 ============================ */
   H1("Mengenal Asesmen Merdeka"),
   P("Asesmen Merdeka adalah aplikasi ujian berbasis web sekolah untuk ulangan harian, penilaian tengah/akhir semester, dan tryout TKA/UTBK. Guru menyusun soal di Word, aplikasi mengubahnya menjadi ujian di HP siswa, menilainya otomatis di server, lalu menyajikan rekap nilai, analisis butir soal, dan rekomendasi tindak lanjut."),
-  P("Panduan ini untuk **guru** (menyusun paket, membuka sesi, membaca hasil), **pengawas** (memantau ruang ujian), dan **operator/kurikulum**. Bagian 2–3 tentang menyusun dan mengelola paket; bagian 4 tentang pelaksanaan ujian; bagian 5 tentang membaca hasil."),
+  P("Panduan ini untuk **guru** (menyusun paket, membuka sesi, membaca hasil), **pengawas** (memantau ruang ujian), serta **kurikulum** dan **operator**. Bagian 2–3 tentang menyusun dan mengelola paket; bagian 4 tentang pelaksanaan ujian; bagian 5 tentang membaca hasil."),
   H2("Alur kerja dari soal sampai nilai"),
   OL("**Kisi-kisi** — isi Template Kisi-kisi di Word, unggah di **Pustaka Paket → + Upload soal → Langkah 1**. Aplikasi membuatkan **Template Soal** yang nomor, varian, bentuk, dan indikatornya sudah terisi.",
     "**Soal** — isi pertanyaan, pilihan, kunci, dan pembahasan di Template Soal, unggah di **Langkah 2**, periksa pratinjau, lalu **Terbitkan ke bank soal**.",
@@ -86,7 +86,7 @@ const ISI = TO ? require("./isi-panduan-to")({ H1, H2, H3, P, UL, OL, TB, KOTAK,
   TB(["Baris", "Cara mengisi"], [
     ["**Kode ujian**", "Unik untuk setiap paket. Huruf besar, angka, dan strip, 3–31 karakter, tanpa spasi (spasi diubah menjadi strip). Contoh: KIM-STO-01. Kode sama = memperbarui paket yang sama."],
     ["Judul, Mata pelajaran, Kelas, Materi", "Isi nama mapel saja (mis. Kimia), sesuai daftar mapel Data Induk. Saat diunggah, mapel bisa dipilih ulang: guru yang mengampu **satu** mapel langsung terisi mapelnya (terkunci); guru yang mengampu beberapa mapel memilih di antara mapel yang diampunya (menurut jadwal KBM; Upacara, Tahsin, dan kegiatan sekolah lain tidak dihitung)."],
-    ["**Jenis**", "Pilih salah satu: Asesmen Formatif / Asesmen Sumatif / **Tryout Mandiri** (tryout di kelas Anda) / **Tryout Umum** (soal untuk jadwal koordinator — hanya jenis ini yang bisa dipasang Bu Puspa). Kosong atau tidak dikenali = **Asesmen Formatif**. Latihan dibaca sebagai Asesmen Formatif; ulangan harian, PTS, PAS, SAS sebagai Asesmen Sumatif; ASAS, TKA, UTBK, SNBT dikenali. Daftar jenis ditentukan sistem dan hanya bertambah bila operator membuat asesmen baru di Asesmen Bersama (paket naskahnya otomatis berjenis nama asesmen itu)."],
+    ["**Jenis**", "Pilih salah satu: Asesmen Formatif / Asesmen Sumatif / **Tryout Mandiri** (tryout di kelas Anda) / **Tryout Umum** (soal untuk jadwal koordinator — hanya jenis ini yang bisa dipasang Bu Puspa). Kosong atau tidak dikenali = **Asesmen Formatif**. Latihan dibaca sebagai Asesmen Formatif; ulangan harian, PTS, PAS, SAS sebagai Asesmen Sumatif; tulisan lama seperti TKA, UTBK, SNBT, ASAS dibaca sebagai Tryout Mandiri. Daftar jenis ditentukan sistem dan hanya bertambah bila kurikulum/operator membuat asesmen baru di Asesmen Bersama (paket naskahnya otomatis berjenis nama asesmen itu)."],
     ["**Tingkat peserta**", "Kelas yang mengerjakan, mis. 12 atau 10–12. Kosong = ditebak dari isian Kelas."],
     ["**Cakupan materi**", "Hanya bila materinya dari kelas lain, mis. tryout TKA kelas 12 dengan materi 10–12. Kosongkan bila sama."],
     ["**Semester**", "Mis. Ganjil 2026/2027. Kosong = otomatis dari tanggal (Juli–Desember Ganjil, Januari–Juni Genap)."],
@@ -275,6 +275,7 @@ const ISI = TO ? require("./isi-panduan-to")({ H1, H2, H3, P, UL, OL, TB, KOTAK,
   /* ============================ 5 ============================ */
   H1("Dasbor Hasil"),
   P("**Menu utama → Dasbor Hasil**. Dasbor membuka ujian yang terakhir Anda lihat di perangkat ini (atau yang dipilih dari Pustaka Paket / tombol Hasil di kartu sesi)."),
+  KOTAK("info", "Hasil Tryout Umum dan PAS", "Paket yang Anda susun tetap bisa Anda lihat hasilnya di Dasbor, walaupun sesinya dibuka orang lain: **Tryout Umum** (dibuka koordinator/kurikulum) dan **PAS** (Asesmen Bersama). Hasil tersimpan per kode paket, jadi semua fitur dasbor berlaku sama seperti Tryout Mandiri, Asesmen Formatif, dan Sumatif."),
   H2("Memilih ujian"),
   P("Kartu **Ujian yang ditampilkan** berisi judul, jenis, tanda kisi-kisi otomatis, kode, mapel, tingkat, jumlah soal, penyusun, status, dan kemajuan *hasil/peserta*. Tekan **Ganti ujian** untuk membuka daftar: kotak cari, pilihan urut, chip status (**Semua** = semua yang tidak diarsipkan, **Sedang dibuka**, **Selesai**, **Siap dibuka**, **Arsip**), dan daftar per mata pelajaran. Esc menutup daftar; Enter di kotak cari memilih hasil pertama."),
   H2("Bilah status, sesi, dan peserta"),
@@ -364,7 +365,7 @@ const ISI = TO ? require("./isi-panduan-to")({ H1, H2, H3, P, UL, OL, TB, KOTAK,
 
   /* ============================ 7 ============================ */
   H1("Untuk Operator"),
-  P("Menu **Admin** (hanya PIN operator/kurikulum) berisi tab berikut:"),
+  P("Menu **Admin** (hanya PIN operator) berisi tab berikut:"),
   TB(["Tab", "Isi"], [
     ["**Data Siswa**", "**Tarik dari data induk** (sumber yang tersimpan di server) atau unggah Excel/CSV Dapodik (semua sheet dibaca) → periksa **Pemetaan kolom** → **Simpan ke server**. Centang *nonaktifkan siswa yang tidak ada dalam data ini* untuk siswa keluar (peringatan bila > 20% siswa terdampak). **Tambah / ubah satu siswa** untuk mutasi; per baris: ubah, nonaktifkan/aktifkan, hapus. Siswa nonaktif tidak bisa masuk ujian; riwayat nilainya tetap."],
     ["**PIN Guru**", "**Tarik guru dari Data Induk** → **Buat PIN untuk guru yang belum punya** → bagikan **Kartu PIN** (Bagikan ke WhatsApp, Unduh PNG, Unduh XLSX). **Ubah PIN…** melalui empat langkah (pilih aksi, alasan, ketik ID guru, PIN operator) dan tercatat. Setelah semua guru memegang PIN pribadi: **Matikan PIN guru bersama**."],

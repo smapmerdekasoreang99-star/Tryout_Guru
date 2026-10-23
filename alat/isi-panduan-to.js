@@ -9,7 +9,7 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
   P("Halaman **Tryout Umum** membantu koordinator mengelola Tryout Umum (TKA, dan UTBK untuk kelas 12 semester 2) dari awal sampai laporan: jadwal **TO Mapel Wajib** dan **TO Mapel Pilihan**, memantau soal dari guru, membuka sesi dan membagikan **link CBT**, lalu merekap nilai **per periode**."),
   H2("Cara masuk"),
   OL("Buka Asesmen Merdeka, ketuk **Masuk guru / pengawas**.",
-    "Ketik **PIN koordinator** lalu **Masuk**. Halaman Tryout Umum langsung terbuka.",
+    "Ketik **PIN koordinator** lalu **Masuk**. Halaman Tryout Umum langsung terbuka. (Kurikulum masuk dengan PIN kurikulum → Menu utama → **Tryout Umum**; haknya sama dengan koordinator.)",
     "Selesai bekerja, tekan **Keluar** di pojok kanan atas."),
   KOTAK("info", "Dua PIN Bu Puspa",
     "**PIN koordinator** untuk halaman Tryout Umum (semua mapel TO). **PIN pribadi guru** untuk pekerjaan sebagai guru Bahasa Indonesia (Latihan/Tryout, Dasbor, Pustaka). Keduanya boleh dipakai bergantian."),
@@ -84,7 +84,7 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
   H2("Mengubah atau menambah jadwal"),
   KOTAK("saran", "TO ditukar karena kegiatan sekolah",
     "Contoh: Rabu dipakai kegiatan Agustusan, TO minggu ini pindah ke Kamis dan TO minggu depan (seharusnya Kamis) menjadi Rabu. Buka TO minggu ini → **Ubah jadwal** → ganti tanggal ke Kamis → **Simpan perubahan**. Lalu buka TO minggu depan → ganti ke Rabu → **Simpan**. Dua langkah saja; kelas 10, 11, 12 ikut pindah. **Periode tidak berubah** karena periode dihitung dari urutan TO, bukan tanggal. Bila sesinya sudah telanjur dibuat, ubah juga waktunya di bagian **Sesi & link**."),
-  UL("Di bagian bawah laci: **Ubah jadwal** (tanggal, jam ke-, mapel, jenis TKA/UTBK, kelas sasaran, guru penyusun, catatan). Centang **Batalkan TO ini** untuk libur mendadak.",
+  UL("Di bagian bawah laci: **Ubah jadwal** (tanggal, jam ke-, mapel, sasaran TKA/UTBK, kelas sasaran, guru penyusun, catatan). Centang **Batalkan TO ini** untuk libur mendadak.",
     "Pilihan **Terapkan … juga ke kelas lain** (sudah tercentang) memindahkan TO yang sama untuk semua tingkat pada tanggal itu (Wajib), atau semua kelas 11 pada minggu itu (Pilihan), sekali simpan.",
     "**+ Tambah jadwal** (di tab Kalender) untuk TO baru, misalnya **jadwal Mapel Pilihan semester 2**. Untuk Pilihan, isi tanggal Senin sampai Jumat minggu itu dan satu kelas (mis. 11-1)."),
 

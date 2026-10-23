@@ -28,7 +28,7 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
 
   /* ============================ 2 ============================ */
   H1("Menyiapkan Asesmen"),
-  P("Masuk dengan PIN operator, buka **Menu utama → Asesmen Bersama**. Ketik nama asesmen di kotak atas, lalu **Buat asesmen**. Ketuk nama asesmen di daftar untuk membuka ruang kerjanya. Ruang kerja punya tab **Ringkasan & Terbit · Peserta & Ruang · Jadwal · Folder Soal · Hasil Siswa · Pantau · Cetak**."),
+  P("Masuk dengan PIN kurikulum atau PIN operator, buka **Menu utama → Asesmen Bersama**. Ketik nama asesmen di kotak atas, lalu **Buat asesmen**. Ketuk nama asesmen di daftar untuk membuka ruang kerjanya. Ruang kerja punya tab **Ringkasan & Terbit · Peserta & Ruang · Jadwal · Folder Soal · Hasil Siswa · Pantau · Cetak**."),
   H2("Peserta & Ruang"),
   OL("Tekan **Unduh template peserta**. Template sudah berisi semua siswa aktif (NISN, nama, kelas).",
     "Isi kolom **Ruang** (mis. R01) dan **Kelompok** (mis. 10, 11-IPA, 12-IPS). Siswa yang kolom Ruang-nya kosong tidak ikut.",
