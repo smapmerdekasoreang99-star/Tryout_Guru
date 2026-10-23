@@ -49,6 +49,8 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu
 .saring{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .saring select{min-width:150px}
 .gulir{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+/* daftar panjang: tinggi dibatasi, gulir di dalam kotak, judul kolom tetap terlihat (23 Okt 2026) */
+.gulir.tinggi{max-height:min(560px,70vh);overflow:auto}.gulir.tinggi thead th{position:sticky;top:0;z-index:2}
 table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
 th{background:var(--kertas-3);text-align:left;font-size:12px;color:var(--tinta-2);padding:8px 10px;white-space:nowrap;border-bottom:1px solid var(--line)}
 td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}tbody tr:last-child td{border-bottom:0}
@@ -189,7 +191,7 @@ svg.ch [data-tip]{cursor:default}svg.ch .hit{fill:transparent}svg.ch .hit:hover+
     <div class="card kolom">
       <div class="kepala"><div><h3>Daftar paket soal <span class="small muted" id="p-n"></span></h3><p class="small muted">Ketuk baris untuk melihat kisi-kisi lengkap dan tingkat kesulitannya.</p></div>
         <input type="text" id="p-cari" placeholder="Cari judul, kode, atau guru" style="min-width:260px"></div>
-      <div class="gulir"><table id="p-tabel"></table></div>
+      <div class="gulir tinggi"><table id="p-tabel"></table></div>
       <div class="legenda" id="p-legenda"></div>
     </div>
     <div class="card kolom laci hidden" id="p-rinci"></div>
