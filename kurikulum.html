@@ -325,7 +325,7 @@ const KUNCI_PIN="tka_v2_pin";
 async function masuk(pin){$("pin-pesan").textContent="Memeriksa PIN…";
   try{D=await rpc("kur_data",{p_pin:pin,p_periode:$("f-periode").value||null});PIN=pin;
     try{sessionStorage.setItem(KUNCI_PIN,JSON.stringify({pin,peran:D.peran}))}catch(e){}
-    $("kartu-pin").classList.add("hidden");$("v-isi").classList.remove("hidden");$("ke-menu").classList.toggle("hidden",D.peran==="kurikulum");$("btn-keluar").classList.remove("hidden");siapkan();gambar()}
+    $("kartu-pin").classList.add("hidden");$("v-isi").classList.remove("hidden");$("ke-menu").classList.remove("hidden");$("btn-keluar").classList.remove("hidden");siapkan();gambar()}
   catch(e){$("pin-pesan").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 $("btn-pin").onclick=()=>masuk($("pin").value.trim());$("pin").onkeydown=e=>{if(e.key==="Enter")$("btn-pin").click()};
 $("btn-keluar").onclick=()=>{try{sessionStorage.removeItem(KUNCI_PIN)}catch(e){}location.href="index.html?guru"};

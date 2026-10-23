@@ -226,7 +226,7 @@ const pilSt=k=>`<span class="st st-${k}">${ST[k][1]} ${ST[k][0]}</span>`;
 function siapkan(){
   PK={};D.paket.forEach(p=>PK[p.kode]=p);S={};D.sesi.forEach(s=>{s.T0=Date.parse(s.mulai);s.T1=Date.parse(s.sampai);S[s.id]=s});
   SISWA={};KELAS_N={};D.siswa.forEach(([n,nm,k])=>{SISWA[n]={nama:nm,kelas:k};KELAS_N[k]=(KELAS_N[k]||0)+1});
-  BACA=D.peran==="kurikulum";document.body.classList.toggle("baca",BACA);
+  BACA=false;document.body.classList.toggle("baca",BACA);
   J=D.jadwal.map(j=>({...j,d0:tglD(j.mulai),d1:tglD(j.akhir),sesiSimpan:j.sesi||[],S:[]}));
   // sesi Tryout Umum (dibuka dari halaman ini)
   J.forEach(j=>j.sesiSimpan.forEach(id=>{if(S[id])j.S.push(S[id])}));

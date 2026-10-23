@@ -180,3 +180,7 @@ Keterangan paket (baris di tabel INFORMASI UJIAN; template kosong: tombol *Unduh
 - Kunci tidak pernah dikirim ke HP siswa; penilaian di server. PIN: pribadi guru, operator, pengawas, darurat (dan guru bersama selama peralihan).
 - Proyek gratis Supabase dijeda bila 7 hari tanpa aktivitas → *Restore* sehari sebelum ujian.
 - Diuji ujung-ke-ujung dengan PostgreSQL lokal dan tiruan browser (kisi → template → soal → terbit → data siswa CSV Dapodik → login NISN/tgl lahir → satu hasil → reset → tamu → kode akses → dasbor belum/riwayat → menu utama → tiga PIN → daftar siswa → peruntukan kelas/siswa: tolak login, belum mengerjakan, editor). Tombol "Kembali ke menu utama" tersedia di halaman hasil uji coba. Pembacaan **Excel (.xlsx)** memakai pustaka SheetJS dari CDN dan belum diuji di sini; bila gagal, simpan sebagai CSV. Belum diuji di Supabase/GitHub sungguhan — uji dengan berkas contoh dulu.
+
+**Kurikulum = koordinator semua asesmen** (23 Okt 2026): menu Kurikulum berkelompok — Pantauan & koordinasi (Pantau Kurikulum, Tryout Umum: penuh),
+Asesmen Bersama (PAS: Asesmen Bersama & Kontrol Pelaksanaan, penuh seperti operator), Kegiatan guru (Latihan/Tryout, Dasbor, Pustaka, NISN: semua guru, hanya melihat).
+Operator: Asesmen Bersama, Kontrol Pelaksanaan, NISN Siswa, Admin. Admin (data siswa, PIN guru, cadangan) tetap operator saja. Migrasi 20261023100000.

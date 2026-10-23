@@ -5,13 +5,18 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) => [
   /* ============================ 1 ============================ */
   H1("Mengenal Pantau Kurikulum"),
   P("**Pantau Kurikulum** adalah halaman khusus kurikulum untuk melihat seluruh kegiatan asesmen di Asesmen Merdeka: paket soal yang disusun guru, tingkat berpikir soal (C1–C6 / HOTS), sesi yang dibuka di setiap kelas, hasil dan analisis siswa, perkembangan siswa, serta keterlaksanaan asesmen tiap guru. Semua guru, semua mapel, dan semua kelas terlihat."),
-  KOTAK("info", "Hanya melihat",
-    "Dengan PIN kurikulum, halaman ini **tidak bisa mengubah apa pun**: tidak bisa membuka sesi, mengubah paket, atau menghapus hasil. Aman dibuka kapan saja, termasuk saat ujian berlangsung."),
+  KOTAK("info", "Halaman pantauan",
+    "Halaman Pantau Kurikulum **tidak mengubah apa pun**: tidak membuka sesi, mengubah paket, atau menghapus hasil. Aman dibuka kapan saja, termasuk saat ujian berlangsung. Pengelolaan Tryout Umum dan Asesmen Bersama dilakukan di menunya masing-masing."),
   H2("Cara masuk"),
   OL("Buka Asesmen Merdeka, ketuk **Masuk guru / pengawas**.",
-    "Ketik **PIN kurikulum** lalu **Masuk**. Halaman Pantau Kurikulum langsung terbuka (tanpa menu).",
+    "Ketik **PIN kurikulum** lalu **Masuk**. Menu utama Kurikulum tampil; ketuk **Pantau Kurikulum**.",
     "Tombol **Keluar** di pojok kanan atas untuk mengakhiri. PIN berlaku selama peramban terbuka."),
-  P("Operator juga bisa membuka halaman ini lewat ubin **Pantau Kurikulum** di Menu utama. Tautan **Tryout Umum** di kepala halaman membuka jadwal dan rekap Tryout Umum koordinator (hanya melihat)."),
+  TB(["Kelompok menu Kurikulum", "Isi", "Hak"], [
+    ["**Pantauan & koordinasi**", "Pantau Kurikulum · Tryout Umum", "Pantau: melihat. Tryout Umum: mengelola penuh seperti koordinator (jadwal, pasang soal, sesi & link, unggah atas nama guru)."],
+    ["**Asesmen Bersama (PAS)**", "Asesmen Bersama · Kontrol Pelaksanaan", "Mengelola penuh seperti operator."],
+    ["**Kegiatan guru**", "Latihan / Tryout · Dasbor Hasil · Pustaka Paket · NISN Siswa", "Semua guru, hanya melihat (tidak membuka sesi atau mengunggah atas nama sendiri, agar keaktifan guru tetap terhitung benar)."],
+  ], [1.6, 2.2, 3.4]),
+  P("Tautan **Tryout Umum** dan **Menu utama** di kepala halaman membawa Anda ke menu lain tanpa memasukkan PIN lagi. Menu **Admin** (data siswa, PIN guru, cadangan) tetap milik operator."),
   H2("Empat menu, delapan tab"),
   P("Menu utama ada empat. Menu yang berisi lebih dari satu halaman menampilkan **tab di bawahnya** (garis emas menandai tab yang sedang dibuka); tiap menu mengingat tab terakhir yang Anda buka."),
   TB(["Menu → tab", "Menjawab pertanyaan"], [

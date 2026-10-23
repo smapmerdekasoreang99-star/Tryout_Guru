@@ -97,12 +97,12 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
 </style>
 </head>
 <body>
-<header class="top"><img src="assets/logo.png" alt=""><div><div class="t">Asesmen Bersama</div><div class="sub">Asesmen Merdeka — halaman operator</div></div>
-  <div class="kanan"><a href="Panduan_Asesmen_Bersama.pdf" target="_blank" rel="noopener" title="Panduan operator & pengawas (PDF)">📘 Panduan</a><a href="index.html?guru">Menu utama</a><a href="admin.html">Admin</a><button id="btn-keluar" class="hidden">Keluar</button></div></header>
+<header class="top"><img src="assets/logo.png" alt=""><div><div class="t">Asesmen Bersama</div><div class="sub">Asesmen Merdeka — operator &amp; kurikulum</div></div>
+  <div class="kanan"><a href="Panduan_Asesmen_Bersama.pdf" target="_blank" rel="noopener" title="Panduan operator & pengawas (PDF)">📘 Panduan</a><a href="index.html?guru">Menu utama</a><a href="admin.html" id="ke-admin">Admin</a><button id="btn-keluar" class="hidden">Keluar</button></div></header>
 <div class="wrap">
 
 <div class="card" id="kartu-pin">
-  <div class="row"><label class="f grow">PIN operator<input type="password" id="pin" autocomplete="off"></label><button id="btn-pin" style="align-self:flex-end">Masuk</button></div>
+  <div class="row"><label class="f grow">PIN operator / kurikulum<input type="password" id="pin" autocomplete="off"></label><button id="btn-pin" style="align-self:flex-end">Masuk</button></div>
   <p class="small muted" id="pin-pesan" style="margin-top:8px">Halaman ini khusus operator/kurikulum. Pengawas memakai <b>Menu → Kontrol Pelaksanaan</b>.</p>
 </div>
 
@@ -293,9 +293,9 @@ let PIN="",A=null,TAB="ringkas",HARI=null,GURU=null,PAKET=null,PRATINJAU=null;
 async function masuk(pin){
   $("pin-pesan").textContent="Memeriksa PIN…";
   try{const j=await rpc("tka_masuk_guru",{p_pin:pin});
-    if(j.peran!=="operator"){$("pin-pesan").innerHTML=`PIN ini milik <b>${esc(j.nama)}</b> (${esc(j.peran)}). Halaman Asesmen Bersama khusus <b>operator</b>. Pengawas memakai Menu → Kontrol Pelaksanaan.`;return}
+    if(j.peran!=="operator"&&j.peran!=="kurikulum"){$("pin-pesan").innerHTML=`PIN ini milik <b>${esc(j.nama)}</b> (${esc(j.peran)}). Halaman Asesmen Bersama khusus <b>operator atau kurikulum</b>. Pengawas memakai Menu → Kontrol Pelaksanaan.`;return}
     PIN=pin;try{sessionStorage.setItem("tka_v2_pin",JSON.stringify({pin,peran:j.peran}))}catch(e){}
-    $("kartu-pin").classList.add("hidden");$("btn-keluar").classList.remove("hidden");
+    $("kartu-pin").classList.add("hidden");$("btn-keluar").classList.remove("hidden");$("ke-admin").classList.toggle("hidden",j.peran!=="operator");
     const id=+(new URLSearchParams(location.search).get("id")||0);if(id)buka(id);else muatDaftar();
   }catch(e){$("pin-pesan").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 $("btn-pin").onclick=()=>masuk($("pin").value.trim());
@@ -574,8 +574,8 @@ const ST_NASKAH={belum:["Belum diunggah","bad"],diunggah:["Diunggah","warn"],dit
 async function gSoal(){
   const ns=A.naskah;$("s-progres").textContent=`${ns.filter(n=>n.status==="terkunci").length} / ${ns.length} terkunci`;
   if(!GURU||!PAKET){$("t-naskah").innerHTML='<tr><td colspan="6" class="muted">Memuat daftar guru dan paket…</td></tr>';
-    try{const [g,p]=await Promise.all([rpc("mtd_admin_guru",{p_pin:PIN}),rpc("tka_list_paket",{p_pin:PIN})]);
-      GURU=(g.guru||[]).filter(x=>x.aktif).map(x=>({id:x.id,nama:x.nama})).sort((a,b)=>a.nama.localeCompare(b.nama,"id"));PAKET=p}catch(e){toast(e.message)}}
+    try{const [g,p]=await Promise.all([rpc("tka_daftar_penyusun",{p_pin:PIN}),rpc("tka_list_paket",{p_pin:PIN})]);
+      GURU=(g||[]).map(x=>({id:x.id,nama:x.nama})).sort((a,b)=>a.nama.localeCompare(b.nama,"id"));PAKET=p}catch(e){toast(e.message)}}
   const opsiGuru=sel=>`<option value="">— belum —</option>`+(GURU||[]).map(g=>`<option value="${esc(g.id)}" ${g.id===sel?"selected":""}>${esc(g.nama)}</option>`).join("");
   const opsiPaket=(n)=>{const cocok=p=>(p.mapel||"").toLowerCase().includes(n.mapel.toLowerCase().split(" ")[0])||(p.judul||"").toLowerCase().includes(n.mapel.toLowerCase());
     const L=(PAKET||[]).filter(p=>!p.arsip).sort((a,b)=>(cocok(b)-cocok(a))||String(b.diubah).localeCompare(String(a.diubah)));

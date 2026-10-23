@@ -9,7 +9,7 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
   P("Panduan ini untuk **operator/kurikulum** (bagian 2–5 dan 7) dan **pengawas ruang** (bagian 6). Cara guru menyusun paket soal ada di *Panduan Guru Asesmen Merdeka*."),
   H2("Siapa memakai apa"),
   TB(["Peran", "PIN", "Halaman", "Tugas"], [
-    ["**Operator / kurikulum**", "PIN operator", "**Menu utama → Asesmen Bersama**", "Membuat asesmen, mengunggah peserta & jadwal, memasang paket, menerbitkan, mencetak kartu/kode, memantau semua ruang, membuat susulan, membaca hasil."],
+    ["**Kurikulum / operator**", "PIN kurikulum atau PIN operator", "**Menu utama → Asesmen Bersama**", "Membuat asesmen, mengunggah peserta & jadwal, memasang paket, menerbitkan, mencetak kartu/kode, memantau semua ruang, membuat susulan, membaca hasil."],
     ["**Pengawas ruang**", "PIN pengawas", "**Menu utama → Kontrol Pelaksanaan**", "Menampilkan kode akses ruang, memantau siswa di ruangnya, membuka kunci, jeda, pesan, menandai tidak hadir."],
     ["**Guru mapel**", "PIN guru", "Pustaka Paket", "Menyusun dan mengunggah paket soal mapelnya. Paket dipasang operator di Folder Soal."],
     ["**Siswa**", "—", "Halaman siswa (alamat biasa)", "Masuk dengan **NISN + kode ruang** (atau pindai QR di layar pengawas)."],

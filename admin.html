@@ -148,6 +148,8 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .ars-kerja input[type=text],.ars-kerja input[type=password]{max-width:380px}
 @media (max-width:760px){.pk-isi{grid-template-columns:1fr}.pk-mapel{position:static;flex-direction:row;overflow-x:auto;padding:0 0 8px;border-bottom:1px solid var(--line)}.pk-mapel .lbl{display:none}.pk-mapel button{flex:none}.pk-baris{grid-template-columns:1fr auto;gap:10px}.pk-st{grid-column:1}.pk-aksi{grid-column:2;grid-row:1/span 2;align-self:center}}.pe-list{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:8px;margin-top:6px;background:#fff}.pe-row{display:block;padding:4px 8px;border-bottom:1px solid var(--line);font-size:14px}.pe-row:last-child{border-bottom:0}
 .peran-guru .op-only,.peran-pengawas .op-only{display:none!important}.peran-pengawas .tulis-only{display:none!important}
+/* kurikulum (23 Okt 2026): Pustaka semua guru hanya melihat */
+.peran-kurikulum .tulis-only,.peran-kurikulum #btn-pk-upload{display:none!important}
 .notice.op-note{background:var(--emas-muda);color:var(--emas-teks);border-color:var(--emas)}
 /* Freeze pane tabel data (table[data-beku]): wadah bergulir dua arah, judul di atas & kolom identitas di kiri tetap terlihat */
 .fz-wadah { overflow: auto; max-height: calc(100vh - 150px); -webkit-overflow-scrolling: touch; }
@@ -731,7 +733,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   // teks bebas (Word, nama lama) → jenis baku; tidak dikenali → Asesmen Formatif. Tryout TKA/ASAS/UTBK lama → Tryout Mandiri;
   // koordinator selalu Tryout Umum (server juga menetapkannya)
   function normJenis(s) {
-    if (typeof PERAN !== 'undefined' && PERAN === 'koordinator') return 'Tryout Umum';
+    if (typeof modeKO === 'function' && modeKO()) return 'Tryout Umum';
     s = String(s || '').trim().replace(/\s+/g, ' '); if (!s) return JENIS_BAWAAN;
     const l = s.toLowerCase();
     return JENIS.find(j => j.toLowerCase() === l) || (/\bumum\b/.test(l) ? 'Tryout Umum' : /\b(tka|utbk|snbt|asas|tryout|to|mandiri)\b/.test(l) ? 'Tryout Mandiri'
@@ -1641,9 +1643,11 @@ const $=id=>document.getElementById(id);
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2500)}
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 /* Koordinator Tryout Umum (22 Okt 2026): unggah lewat fungsi pendamping (mapel TO, atas nama guru penyusun yang dipilih di bilah atas) */
+// mode koordinator Tryout Umum: PIN koordinator, atau PIN kurikulum yang datang dari halaman Tryout Umum (?dari=)
+function modeKO(){return typeof PERAN!=="undefined"&&(PERAN==="koordinator"||(PERAN==="kurikulum"&&new URLSearchParams(location.search).has("dari")))}
 const KO_FN={tka_get_kisi:"to_get_kisi",tka_simpan_kisi:"to_unggah_kisi",tka_terbitkan:"to_unggah_paket",tka_terbitkan_darurat:"to_unggah_tanpa_kisi"};
 async function rpc(fn,args){
-  if(typeof PERAN!=="undefined"&&PERAN==="koordinator"&&KO_FN[fn]){
+  if(modeKO()&&KO_FN[fn]){
     if(fn!=="tka_get_kisi"){const g=(args&&args.p_penyusun)||$("ko-penyusun").value;if(!g){$("ko-penyusun").focus();throw new Error("Pilih guru penyusun di bilah atas (Mengunggah atas nama guru penyusun)")}args={...args,p_penyusun:g}}
     fn=KO_FN[fn]}
   return rpcAsli(fn,args)}
@@ -1894,7 +1898,7 @@ const mapelDikenal=m=>MAPEL.some(o=>o.nama.toLowerCase()===String(m||"").trim().
 /* Mapel yang diampu guru (21 Okt 2026): dari tka_masuk_guru.mapel_saya (jadwal KBM, tanpa Kegiatan Sekolah).
    null = tidak dibatasi (operator, guru tanpa mapel di jadwal). TL disamakan dengan mapel induknya. */
 const mapelKunci=m=>String(m||"").trim().replace(/\s+/g," ").toLowerCase().replace(/ tl$/,"");
-const mapelSaya=()=>PERAN==="koordinator"?(KO_MAPEL.length?KO_MAPEL:null):PERAN==="guru"&&MASUK&&Array.isArray(MASUK.mapel_saya)&&MASUK.mapel_saya.length?MASUK.mapel_saya:null;
+const mapelSaya=()=>modeKO()?(KO_MAPEL.length?KO_MAPEL:null):PERAN==="guru"&&MASUK&&Array.isArray(MASUK.mapel_saya)&&MASUK.mapel_saya.length?MASUK.mapel_saya:null;
 let KO_MAPEL=[];
 async function muatKoordinator(){try{KO_MAPEL=(await rpc("to_unggah_info",{p_pin:PIN()})).mapel||[]}catch(e){KO_MAPEL=[]}
   try{const L=await rpc("tka_daftar_penyusun",{p_pin:PIN()}),sel=$("ko-penyusun"),v=sel.value;
@@ -1962,7 +1966,7 @@ async function muatPenyusunDarurat(){const sel=$("d-penyusun");const diri=MASUK&
   try{const L=await rpc("tka_daftar_penyusun",{p_pin:pin});D_GURU_DIMUAT=pin+"|"+(diri?diri.id:"");
     sel.innerHTML='<option value="">— pilih guru penyusun —</option>'+L.map(g=>`<option value="${esc(g.id)}">${esc(g.nama)}</option>`).join("");
     if(diri&&L.some(g=>g.id===diri.id)){sel.value=diri.id;sel.disabled=true;$("d-penyusun-ket").innerHTML=`Paket tercatat atas nama Anda (<b>${esc(diri.nama)}</b>), karena masuk dengan PIN pribadi.`}else sel.disabled=false;
-    if(PERAN==="koordinator"&&$("ko-penyusun").value&&!sel.value)sel.value=$("ko-penyusun").value;   // ikut bilah koordinator
+    if(modeKO()&&$("ko-penyusun").value&&!sel.value)sel.value=$("ko-penyusun").value;   // ikut bilah koordinator
   }catch(e){sel.innerHTML='<option value="">— PIN belum benar —</option>'}}
 async function terbitDarurat(){if(!DPAKET)return;const pd=PIN()||$("pin-d").value.trim();if(!pd){toast("Isi PIN dulu");return}const p=DPAKET;
   if(!$("d-mapel").value){toast("Pilih mata pelajaran dulu");$("d-mapel").focus();return}p.mapel=$("d-mapel").value;
@@ -2078,15 +2082,19 @@ async function simpanSatu(){const nisn=$("e-nisn").value.replace(/\D/g,""),nama=
 const MENU=(()=>{const m=new URLSearchParams(location.search).get("menu");return ["soal","pustaka","admin"].includes(m)?m:"soal"})();
 const MENU_INFO={
   // Struktur menu 21 Okt 2026: Upload soal ada di dalam Pustaka Paket (alamat lama ?menu=soal langsung ke Langkah 1)
-  soal:{judul:"Pustaka Paket",sub:"Bank soal per jenis, upload soal dengan atau tanpa kisi-kisi",tab:["daftar","kisi","unggah","darurat"],buka:"kisi",peran:["operator","guru","koordinator"]},
-  pustaka:{judul:"Pustaka Paket",sub:"Bank soal per jenis, upload soal dengan atau tanpa kisi-kisi",tab:["daftar","kisi","unggah","darurat"],peran:["operator","guru","koordinator"]},
+  soal:{judul:"Pustaka Paket",sub:"Bank soal per jenis, upload soal dengan atau tanpa kisi-kisi",tab:["daftar","kisi","unggah","darurat"],buka:"kisi",peran:["operator","guru","koordinator","kurikulum"]},
+  pustaka:{judul:"Pustaka Paket",sub:"Bank soal per jenis, upload soal dengan atau tanpa kisi-kisi",tab:["daftar","kisi","unggah","darurat"],peran:["operator","guru","koordinator","kurikulum"]},
   admin:{judul:"Admin",sub:"Data siswa, PIN guru, impor kode hasil, cadangan, bantuan",tab:["siswa","guru","impor","cadangan","bantuan"],peran:["operator"]}};
 function pasangMenu(){const I=MENU_INFO[MENU];document.title=I.judul+" · Asesmen Merdeka — SMA Plus Merdeka Soreang";$("hd-judul").textContent=I.judul;$("hd-sub").textContent="Asesmen Merdeka · "+I.sub;
   document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("hidden",!I.tab.includes(b.dataset.tab)));$("tabs").classList.toggle("hidden",I.tab.length<2);const t=new URLSearchParams(location.search).get("tab");bukaTab(I.tab.includes(t)?t:I.buka||I.tab[0])}
 // Menu yang bukan untuk peran ini: isi disembunyikan dan diberi keterangan
 function cekHakMenu(peran){const I=MENU_INFO[MENU],boleh=I.peran.includes(peran),el=$("hak-menu");document.body.classList.toggle("tanpa-hak",!boleh);
   // koordinator: hanya Upload soal (dengan & tanpa kisi-kisi), tanpa daftar Pustaka
-  const ko=peran==="koordinator";$("ko-bar").classList.toggle("hidden",!ko);
+  const ko=modeKO();$("ko-bar").classList.toggle("hidden",!ko);
+  // kurikulum dari menu Kegiatan guru: Pustaka semua guru, hanya melihat (tanpa tab upload)
+  if(peran==="kurikulum"&&!ko){["kisi","unggah","darurat"].forEach(t=>{const b=document.querySelector('#tabs button[data-tab="'+t+'"]');if(b)b.classList.add("hidden")});
+    $("tabs").classList.add("hidden");bukaTab("daftar");
+    const k=document.querySelector("#tab-daftar .card > p.muted");if(k)k.innerHTML="Bank soal <b>semua guru</b>, dikelompokkan menurut jenis — hanya melihat. Klik baris untuk rinciannya; <b>Coba soal</b> membuka soal tanpa menyimpan hasil."}
   if(ko){const b=document.querySelector('#tabs button[data-tab="daftar"]');if(b)b.classList.add("hidden");const on=document.querySelector("#tabs button.on");if(!on||on.dataset.tab==="daftar")bukaTab("kisi");
     const TAB_NAMA={minggu:"Minggu Ini",kalender:"Kalender",paket:"Paket per Periode",soal:"Pengumpulan Soal",sesi:"Sesi & Link",rekap:"Rekap & Laporan"},
       dari=new URLSearchParams(location.search).get("dari"),tab=TAB_NAMA[dari]?dari:"soal",pulang="to-tka.html#"+tab;
@@ -2572,7 +2580,7 @@ window.addEventListener("DOMContentLoaded",()=>{
     try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});document.documentElement.classList.remove("pin-otomatis");MASUK=j;setPeran(j.peran);cekHakMenu(j.peran);
       try{sessionStorage.setItem("tka_v2_pin",JSON.stringify({pin:PIN(),peran:j.peran}))}catch(e){}
       $("pin-baris").classList.add("hidden");$("pin-card").classList.add("masuk");
-      $("pin-status").innerHTML=`<span class="pill good">PIN benar · ${esc(j.nama)}</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — unggah paket, kelola paket sendiri (data siswa hanya lihat)":j.peran==="koordinator"?"koordinator Tryout Umum — unggah soal mapel TO atas nama guru penyusun":"pengawas — hanya lihat"}</span>`+
+      $("pin-status").innerHTML=`<span class="pill good">PIN benar · ${esc(j.nama)}</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — unggah paket, kelola paket sendiri (data siswa hanya lihat)":j.peran==="koordinator"?"koordinator Tryout Umum — unggah soal mapel TO atas nama guru penyusun":j.peran==="kurikulum"?(modeKO()?"kurikulum — unggah soal Tryout Umum atas nama guru penyusun":"kurikulum — melihat bank soal semua guru"):"pengawas — hanya lihat"}</span>`+
         (j.bersama?' <span class="pill warn">PIN guru bersama</span> Paket yang diunggah dengan PIN ini tidak tercatat atas nama siapa pun. Mintalah PIN pribadi kepada operator.':"")+
         (j.peran==="operator"&&j.guru_tanpa_pin?` <span class="pill warn">${j.guru_tanpa_pin} guru belum punya PIN pribadi</span> — menu <b>Admin → PIN Guru</b>.`:"");
       $("pin-status").insertAdjacentHTML("beforeend",' <a href="#" id="pin-ganti" class="small">Ganti PIN</a>');$("pin-ganti").onclick=ev=>{ev.preventDefault();$("pin-baris").classList.remove("hidden");$("pin-card").classList.remove("masuk");$("pin").focus()};

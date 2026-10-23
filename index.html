@@ -102,6 +102,8 @@ code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;word-break
 .mi:hover{transform:translateY(-2px);box-shadow:var(--bayang-2);border-color:var(--emas);background:#fff}.mi:focus-visible{outline:3px solid var(--kuning);outline-offset:2px}
 .mi-ik{flex:none;width:50px;height:50px;border-radius:13px;background:var(--gelap);color:var(--emas);display:flex;align-items:center;justify-content:center;box-shadow:0 6px 14px -8px rgba(29,42,58,.7)}
 .mi-ik svg{width:25px;height:25px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mi-judul{grid-column:1/-1;display:grid;gap:2px;margin:10px 2px -4px;padding-bottom:6px;border-bottom:1px solid var(--line)}.mi-judul:first-of-type{margin-top:0}
+.mi-judul b{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--emas-tua,#8a6a1f)}.mi-judul span{font-size:13px;color:var(--muted)}
 .mi-tx{display:grid;gap:3px;min-width:0}.mi-tx b{font-size:16.5px;color:var(--gelap)}.mi-tx span{font-size:13px;color:var(--muted);line-height:1.45}
 .m-sambut{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;background:linear-gradient(160deg,var(--gelap-2),var(--gelap));color:#fff;border-radius:16px;padding:20px 22px;margin:12px 0 4px;border-bottom:4px solid var(--emas);position:relative;overflow:hidden}
 .m-sambut:before{content:"";position:absolute;right:-50px;bottom:-70px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(220,192,110,.25),rgba(220,192,110,0) 70%)}
@@ -429,16 +431,20 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
     <div class="m-sambut"><div><span class="lbl">Menu utama · Asesmen Merdeka</span><h2 id="m-halo">Selamat datang</h2><div id="m-info" class="small"></div></div>
       <div class="m-kanan"><span class="pill" id="m-peran"></span></div></div>
     <div class="menu">
-      <!-- Struktur menu 21 Okt 2026 (RENCANA_MENU_TRYOUT.md). Guru: Latihan/Tryout, Dasbor, Pustaka, NISN.
-           Operator: Asesmen Bersama (dengan Hasil Siswa), Kontrol Pelaksanaan, NISN Siswa, Admin. Pengawas: Kontrol Pelaksanaan, NISN. -->
-      <button class="mi" data-peran="guru" id="mi-sesi"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg></span><span class="mi-tx"><b>Latihan / Tryout</b><span>Tryout Mandiri di kelas Anda — buka latihan atau tryout: dengan kode akses atau cukup NISN, sekarang atau terjadwal</span></span></button>
-      <a class="mi" data-peran="operator" id="mi-pas" href="pas.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11M15 9v11"/></svg></span><span class="mi-tx"><b>Asesmen Bersama</b><span>Peserta per ruang, jadwal, folder soal, terbitkan, cetak kartu &amp; daftar hadir</span></span></a>
-      <a class="mi" data-peran="operator pengawas" id="mi-ruang" href="ruang.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h7"/></svg></span><span class="mi-tx"><b>Kontrol Pelaksanaan</b><span>Layar ruang: kode akses ruang, siswa terkunci/tidak aktif, buka kunci, jeda, pesan ke layar</span></span></a>
-      <button class="mi" data-peran="guru" id="mi-dasbor"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="mi-tx"><b>Dasbor Hasil</b><span>Rekap nilai, analisis butir, belum mengerjakan, riwayat siswa, unduh Excel</span></span></button>
-      <a class="mi" data-peran="guru" id="mi-pustaka" href="admin.html?menu=pustaka"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h3v18H6a2 2 0 0 1-2-2zM9 3h4v18H9zM14.5 4.2l3.9-1 3.4 16.6-3.9.9z"/></svg></span><span class="mi-tx"><b>Pustaka Paket</b><span>Paket Anda &amp; teman semapel per jenis; upload soal dengan atau tanpa kisi-kisi</span></span></a>
-      <a class="mi" data-peran="operator" id="mi-to" href="to-tka.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 15l2.5 2.5L16 12"/></svg></span><span class="mi-tx"><b>Tryout Umum</b><span>Koordinator: jadwal TO Mapel Wajib &amp; Pilihan, soal dari guru, sesi &amp; link CBT, rekap per periode</span></span></a>
-      <a class="mi" data-peran="kurikulum operator" id="mi-kurikulum" href="kurikulum.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 20h18M5 20V11M10 20V6M15 20v-9M20 20V4"/><circle cx="5" cy="8" r="1.5"/><circle cx="10" cy="3.5" r="1.5"/></svg></span><span class="mi-tx"><b>Pantau Kurikulum</b><span>Paket &amp; kisi-kisi (C1–C6/HOTS), sesi per kelas, hasil, perkembangan siswa — semua guru &amp; kelas</span></span></a>
-      <button class="mi" data-peran="guru operator pengawas" id="mi-siswa"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="8" r="4"/><path d="M3.5 21a7.5 7.5 0 0 1 12.2-5.8M17 17l2 2 3.5-3.5"/></svg></span><span class="mi-tx"><b>NISN Siswa</b><span>Cari NISN siswa yang lupa NISN-nya (guru: kelas yang Anda ampu)</span></span></button>
+      <!-- Struktur menu 23 Okt 2026: Kurikulum = koordinator semua asesmen (Pantau, Tryout Umum, Asesmen Bersama, pantau kegiatan guru).
+           Guru: Latihan/Tryout, Dasbor, Pustaka, NISN. Operator: Asesmen Bersama, Kontrol Pelaksanaan, NISN Siswa, Admin.
+           Pengawas: Kontrol Pelaksanaan, NISN. Urutan baris = urutan tampil tiap peran. -->
+      <div class="mi-judul" data-peran="kurikulum"><b>Pantauan &amp; koordinasi</b><span>Perkembangan asesmen sekolah dan Tryout Umum</span></div>
+      <a class="mi" data-peran="kurikulum" id="mi-kurikulum" href="kurikulum.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 20h18M5 20V11M10 20V6M15 20v-9M20 20V4"/><circle cx="5" cy="8" r="1.5"/><circle cx="10" cy="3.5" r="1.5"/></svg></span><span class="mi-tx"><b>Pantau Kurikulum</b><span>Paket &amp; kisi-kisi (C1–C6/HOTS), sesi per kelas, hasil, perkembangan siswa — semua guru &amp; kelas</span></span></a>
+      <a class="mi" data-peran="kurikulum" id="mi-to" href="to-tka.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 15l2.5 2.5L16 12"/></svg></span><span class="mi-tx"><b>Tryout Umum</b><span>Koordinator: jadwal TO Mapel Wajib &amp; Pilihan, soal dari guru, sesi &amp; link CBT, rekap per periode</span></span></a>
+      <div class="mi-judul" data-peran="kurikulum"><b>Asesmen Bersama (PAS)</b><span>Penyiapan asesmen dan kontrol pelaksanaan di ruang</span></div>
+      <a class="mi" data-peran="operator kurikulum" id="mi-pas" href="pas.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11M15 9v11"/></svg></span><span class="mi-tx"><b>Asesmen Bersama</b><span>Peserta per ruang, jadwal, folder soal, terbitkan, cetak kartu &amp; daftar hadir</span></span></a>
+      <a class="mi" data-peran="operator kurikulum pengawas" id="mi-ruang" href="ruang.html"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M8 21h8M12 17v4M7 8h4M7 12h7"/></svg></span><span class="mi-tx"><b>Kontrol Pelaksanaan</b><span>Layar ruang: kode akses ruang, siswa terkunci/tidak aktif, buka kunci, jeda, pesan ke layar</span></span></a>
+      <div class="mi-judul" data-peran="kurikulum"><b>Kegiatan guru</b><span>Pantau Tryout Mandiri, hasil, dan bank soal semua guru (hanya melihat)</span></div>
+      <button class="mi" data-peran="guru kurikulum" id="mi-sesi"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h3M8 17h6"/></svg></span><span class="mi-tx"><b>Latihan / Tryout</b><span>Tryout Mandiri di kelas Anda — buka latihan atau tryout: dengan kode akses atau cukup NISN, sekarang atau terjadwal</span></span></button>
+      <button class="mi" data-peran="guru kurikulum" id="mi-dasbor"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><span class="mi-tx"><b>Dasbor Hasil</b><span>Rekap nilai, analisis butir, belum mengerjakan, riwayat siswa, unduh Excel</span></span></button>
+      <a class="mi" data-peran="guru kurikulum" id="mi-pustaka" href="admin.html?menu=pustaka"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h3v18H6a2 2 0 0 1-2-2zM9 3h4v18H9zM14.5 4.2l3.9-1 3.4 16.6-3.9.9z"/></svg></span><span class="mi-tx"><b>Pustaka Paket</b><span>Paket Anda &amp; teman semapel per jenis; upload soal dengan atau tanpa kisi-kisi</span></span></a>
+      <button class="mi" data-peran="guru operator kurikulum pengawas" id="mi-siswa"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="8" r="4"/><path d="M3.5 21a7.5 7.5 0 0 1 12.2-5.8M17 17l2 2 3.5-3.5"/></svg></span><span class="mi-tx"><b>NISN Siswa</b><span>Cari NISN siswa yang lupa NISN-nya (guru: kelas yang Anda ampu)</span></span></button>
       <a class="mi" data-peran="operator" id="mi-admin" href="admin.html?menu=admin"><span class="mi-ik" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 4.5 6v5.5c0 4.6 3.2 8.1 7.5 9.5 4.3-1.4 7.5-4.9 7.5-9.5V6z"/><circle cx="12" cy="11" r="2.2"/><path d="M12 13.2V16"/></svg></span><span class="mi-tx"><b>Admin</b><span>Data siswa, PIN guru, impor kode hasil, cadangan, bantuan</span></span></a>
     </div>
     <div class="card hidden" id="v-ujicoba"><h2>Uji coba soal</h2><p class="muted small">Paket mana pun di bank soal bisa dicoba tanpa membuka sesi. Hasil <b>tidak disimpan</b>. Kunci &amp; pembahasan tersedia di halaman hasil bila Anda penyusun paketnya.</p>
@@ -919,7 +925,11 @@ function tombolMuat(id,fn,status){const b=document.getElementById(id);if(!b)retu
     toast(gagal?"Gagal memuat ulang — lihat pesan di halaman":"Diperbarui pukul "+j)}}
 /* ---------- Menu utama / pengawas ---------- */
 function setPeran(p){PERAN=p||"";const kelola=PERAN==="operator"||PERAN==="guru";document.body.classList.toggle("lihat",!kelola);document.body.classList.toggle("bukan-op",PERAN!=="operator");document.body.classList.toggle("peran-guru",PERAN==="guru");$("m-peran").textContent=PERAN==="operator"?"Admin · operator":PERAN==="guru"?"Guru":PERAN==="kurikulum"?"Kurikulum":PERAN==="koordinator"?"Koordinator Tryout Umum":"Pengawas";
-  document.querySelectorAll(".menu [data-peran]").forEach(x=>x.classList.toggle("hidden",!x.dataset.peran.split(" ").includes(PERAN)))}
+  document.querySelectorAll(".menu [data-peran]").forEach(x=>x.classList.toggle("hidden",!x.dataset.peran.split(" ").includes(PERAN)));
+  // kurikulum memantau kegiatan semua guru: keterangan ubin menyesuaikan (teks guru disimpan untuk peran lain)
+  const KET_KUR={"mi-sesi":"Tryout Mandiri semua guru: sesi yang sedang dan pernah dibuka di tiap kelas","mi-dasbor":"Hasil semua paket guru: rekap nilai, analisis butir, belum mengerjakan, unduh Excel",
+    "mi-pustaka":"Bank soal semua guru per jenis (hanya melihat)","mi-siswa":"Cari NISN siswa semua kelas"};
+  Object.entries(KET_KUR).forEach(([id,t])=>{const sp=document.querySelector("#"+id+" .mi-tx span");if(!sp)return;if(sp.dataset.asal===undefined)sp.dataset.asal=sp.textContent;sp.textContent=PERAN==="kurikulum"?t:sp.dataset.asal})}
 let SESI_URL=qs.get("sesi");   // admin.html → index.html?guru&sesi=KODE: langsung ke form buka sesi untuk paket itu
 let DASBOR_URL=qs.get("dasbor"),UJI_URL=qs.get("ujicoba"),G_DASBOR="";   // Pustaka paket → Hasil / Coba soal
 // Mode tanam (21 Okt 2026): Dasbor Hasil dimuat di tab Hasil Siswa Asesmen Bersama (pas.html, iframe).
@@ -930,8 +940,8 @@ if(TANAM){document.documentElement.classList.add("tanam");
   addEventListener("DOMContentLoaded",()=>document.querySelectorAll("#v-guru h2").forEach(h=>{if(h.textContent.trim()==="Dasbor guru")h.textContent="Dasbor hasil"}))}
 async function masukMenu(pin){$("m-msg").textContent="Memeriksa…";
   try{const j=await rpc("tka_masuk_guru",{p_pin:pin});
-    // kurikulum & koordinator Tryout Umum hanya punya satu halaman: langsung ke sana sebelum menu sempat tampil
-    const satu={kurikulum:"kurikulum.html",koordinator:"to-tka.html"}[j.peran];if(satu){ssSet(CFG.lsPin,{pin,peran:j.peran});$("m-msg").textContent="Membuka halaman…";location.replace(satu);return true}
+    // koordinator Tryout Umum hanya punya satu halaman: langsung ke sana sebelum menu sempat tampil (kurikulum punya menu sejak 23 Okt 2026)
+    const satu={koordinator:"to-tka.html"}[j.peran];if(satu){ssSet(CFG.lsPin,{pin,peran:j.peran});$("m-msg").textContent="Membuka halaman…";location.replace(satu);return true}
     PIN=pin;GURU=j;setPeran(j.peran);ssSet(CFG.lsPin,{pin,peran:j.peran});$("m-login").classList.add("hidden");$("m-main").classList.remove("hidden");$("m-msg").textContent="";
     aksiHd();$("m-halo").textContent="Selamat datang, "+String(j.nama).split(",")[0];
     $("m-info").innerHTML=`${j.n_siswa} siswa aktif terdaftar`+(j.bersama?'<br><span class="pill warn">PIN guru bersama</span> Mintalah PIN pribadi kepada operator: sesi dan paket yang Anda buat dengan PIN bersama tidak tercatat atas nama Anda.':"");
@@ -1186,9 +1196,10 @@ const jam=t=>new Date(t).toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-di
 const tglJam=t=>{const d=new Date(t);return (d.toDateString()===new Date().toDateString()?"hari ini":d.toLocaleDateString("id-ID",{weekday:"short",day:"numeric",month:"short"}))+" "+jam(t)};
 const kodeTampil=k=>String(k||"").replace(/^(\d{3})(\d{3})$/,"$1 $2");
 const ringkasPeserta=p=>TKA_PESERTA.ringkas(p).replace(/^Kelas: /,"Kelas ");
-async function bukaSesi(o){o=o||{};show("v-sesi");$("btn-se-baru").classList.toggle("hidden",PERAN==="pengawas");await muatSesi();
+const lihatSaja=()=>PERAN==="pengawas"||PERAN==="kurikulum";
+async function bukaSesi(o){o=o||{};show("v-sesi");$("btn-se-baru").classList.toggle("hidden",lihatSaja());await muatSesi();
   clearInterval(SE_TIMER);SE_TIMER=setInterval(()=>{if($("v-sesi").classList.contains("hidden")){clearInterval(SE_TIMER);return}muatSesi(true)},20000);
-  if(o.paket&&PERAN!=="pengawas")bukaFormSesi(o.paket)}
+  if(o.paket&&!lihatSaja())bukaFormSesi(o.paket)}
 async function muatSesi(diam){if(!diam)$("se-info").textContent="Memuat…";
   try{const j=await rpc("tka_sesi_daftar",{p_pin:PIN});SESI=j.sesi||[];
     if(!(diam&&document.activeElement&&document.activeElement.matches("#se-daftar [data-menit], #se-daftar [data-aw]")))renderSesi();if(SE_PANTAU)muatPantau(SE_PANTAU,true);$("se-info").textContent="Diperbarui "+jam(new Date())}
@@ -1228,7 +1239,7 @@ function panelAwas(s){const w={...awasAtur(s.atur),...SE_AWAS_DRAFT};
     `<p class="se-cat">Siswa yang sedang mengerjakan memakai angka baru paling lambat 1 menit setelah disimpan; kode buka langsung berlaku. Hitungan keluar yang sudah terjadi tidak dihapus.</p></div>`}
 function renderSesi(){const el=$("se-daftar");
   if(SE_PANTAU&&!SESI.some(s=>s.id===SE_PANTAU))SE_PANTAU=null;
-  if(!SESI.length){el.innerHTML=`<div class="card"><p class="muted" style="margin:0">${PERAN==="guru"?"Belum ada sesi Anda (yang Anda buka, atau untuk paket yang Anda susun)":"Belum ada sesi"} yang terbuka atau ditutup dalam 12 jam terakhir.${PERAN!=="pengawas"?" Tekan <b>Buka latihan / tryout</b> untuk memulai.":""}</p></div>`;return}
+  if(!SESI.length){el.innerHTML=`<div class="card"><p class="muted" style="margin:0">${PERAN==="guru"?"Belum ada sesi Anda (yang Anda buka, atau untuk paket yang Anda susun)":"Belum ada sesi"} yang terbuka atau ditutup dalam 12 jam terakhir.${!lihatSaja()?" Tekan <b>Buka latihan / tryout</b> untuk memulai.":""}</p></div>`;return}
   const jadwal=SESI.filter(s=>s.buka&&s.terjadwal),buka=SESI.filter(s=>s.buka&&!s.terjadwal),tutup=SESI.filter(s=>!s.buka);
   const kepala=(j,n,k)=>`<div class="se-kel"><h3>${j} (${n})</h3><p>${k}</p></div>`;
   el.innerHTML=(buka.length?kepala("Sedang dibuka",buka.length,"Siswa peserta bisa masuk sekarang.")+buka.map(kartuSesi).join(""):"")+(jadwal.length?kepala("Terjadwal",jadwal.length,"Belum bisa dimasuki siswa; terbuka sendiri pada jam mulainya dan tertutup sendiri pada jam sampai.")+jadwal.map(kartuSesi).join(""):"")+(tutup.length?kepala("Ditutup dalam 12 jam terakhir",tutup.length,"Siswa tidak bisa masuk lagi; hasil tetap tersimpan di Dasbor Hasil. Termasuk jadwal yang dibatalkan.")+tutup.map(kartuSesi).join(""):"");
