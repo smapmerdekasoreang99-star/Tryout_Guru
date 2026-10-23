@@ -87,6 +87,14 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK }) => [
   UL("Di bagian bawah laci: **Ubah jadwal** (tanggal, jam ke-, mapel, sasaran TKA/UTBK, kelas sasaran, guru penyusun, catatan). Centang **Batalkan TO ini** untuk libur mendadak.",
     "Pilihan **Terapkan … juga ke kelas lain** (sudah tercentang) memindahkan TO yang sama untuk semua tingkat pada tanggal itu (Wajib), atau semua kelas 11 pada minggu itu (Pilihan), sekali simpan.",
     "**+ Tambah jadwal** (di tab Kalender) untuk TO baru, misalnya **jadwal Mapel Pilihan semester 2**. Untuk Pilihan, isi tanggal Senin sampai Jumat minggu itu dan satu kelas (mis. 11-1)."),
+  H2("Mengisi kalender lewat Excel"),
+  P("Untuk banyak jadwal sekaligus (misalnya kalender satu semester dari kurikulum), pakai dua tombol di tab **Kalender**:"),
+  OL("Pilih semesternya di kanan atas, lalu tekan **⬇ Unduh template**. Berkas Excel berisi lembar **TO Mapel Wajib** dan **TO Mapel Pilihan** yang sudah terisi jadwal semester itu, lembar **Petunjuk**, dan **Daftar guru**.",
+    "Ubah di Excel: ganti tanggal, jam ke-, kelas, mapel, guru; tambah baris baru dengan **kolom ID dikosongkan**; tulis **Ya** di kolom **Batal** untuk TO yang batal. Kolom **Kelas**: tulis tingkat (10, 11, 12) untuk semua kelas di tingkat itu, atau daftar kelas (11-1, 11-2).",
+    "Tekan **⬆ Unggah kalender** dan pilih berkasnya. Muncul **Pratinjau perubahan**: jumlah baris baru, berubah, dan tetap, serta baris yang salah beserta alasannya.",
+    "Bila ada baris salah, betulkan di Excel lalu unggah lagi (tidak ada yang tersimpan selama masih ada yang salah). Bila sudah benar, tekan **Simpan … perubahan**."),
+  KOTAK("awas", "Jangan ubah kolom ID",
+    "ID menghubungkan baris Excel dengan jadwal di aplikasi (beserta soal dan sesinya). Jadwal yang barisnya dihapus dari Excel **tidak ikut terhapus** — untuk membatalkan, pakai kolom Batal. Bila tanggal TO yang sudah punya sesi diubah, sesinya tidak ikut pindah; ubah waktunya di tab Sesi & Link."),
 
   /* ============================ 5 ============================ */
   H1("Soal dari Guru"),

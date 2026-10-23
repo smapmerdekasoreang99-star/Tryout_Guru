@@ -332,12 +332,14 @@ function gKalender(){const el=$("tab-kalender"),kini=isoD(new Date()),L=J.filter
     isi=`<table class="kal"><thead><tr><th></th>${mg.map(t=>{const d=tglD(t);return `<th class="${t===ini?"ini":""}"><span>${d.getDate()} ${d.toLocaleDateString("id-ID",{month:"short"})}</span><div class="kecil muted" style="font-weight:500">minggu</div></th>`}).join("")}</tr></thead><tbody>
       ${kl.map(k=>`<tr><td class="lb">${esc(k)}</td>${mg.map(x=>{const j=L.find(y=>y.mulai===x&&y.kelas.includes(k));return `<td>${j?selKal(j):'<div class="sel-kosong" title="Tidak ada TO"></div>'}</td>`}).join("")}</tr>`).join("")}</tbody></table>`}
   el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="kepala"><div class="prog" role="tablist"><button data-p="wajib" class="${PROG==="wajib"?"on":""}">TO Mapel Wajib</button><button data-p="pilihan" class="${PROG==="pilihan"?"on":""}">TO Mapel Pilihan</button></div>
-      <button class="ghost tulis" id="kal-tambah">+ Tambah jadwal</button></div>
+      <div class="row tulis" style="gap:6px"><button class="ghost" id="kal-template" title="Excel berisi jadwal semester ini — ubah, tambah, atau tandai batal, lalu unggah kembali">⬇ Unduh template</button><button class="ghost" id="kal-unggah" title="Unggah template kalender yang sudah diisi">⬆ Unggah kalender</button><input type="file" id="kal-file" accept=".xlsx,.xls" hidden><button class="ghost" id="kal-tambah">+ Tambah jadwal</button></div></div>
     <p class="small muted">${PROG==="wajib"?"Bahasa Indonesia · Matematika · Bahasa Inggris bergiliran tiap minggu, hari bergiliran Senin→Jumat, untuk semua tingkat. Kelas 10 kini TKA.":"Kelas 11 sesuai peminatan; mapel bergiliran tiap minggu, dikerjakan di jam pelajaran masing-masing kelas (Senin–Jumat)."} Ketuk kotak untuk rincian, memasang soal, membuka sesi, atau mengubah jadwal.</p>
     ${L.length?`<div style="overflow-x:auto">${isi}</div>`:'<p class="kosong">Belum ada jadwal untuk semester ini. Tekan "+ Tambah jadwal".</p>'}
     <div class="legenda">${["tunggu","telat","siap","jadwal","jalan","selesai","lewat","pra","batal"].map(k=>pilSt(k)).join(" ")}<span><span class="sel-kosong" style="display:inline-block;min-width:22px;height:14px"></span> tidak ada TO</span></div></div>`;
   el.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{PROG=b.dataset.p;lsSet("to_prog",PROG);gKalender()});
   ikatBuka(el);if($("kal-tambah"))$("kal-tambah").onclick=()=>bukaLaci(null);
+  if($("kal-template")){$("kal-template").onclick=e=>jalankanUnduh(e.target,unduhTemplateKalender);$("kal-unggah").onclick=()=>$("kal-file").click();
+    $("kal-file").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(f)await bacaKalender(f)}}
 }
 const selKal=j=>`<div class="sel-to st-${j.st}" data-buka="${j.id}" data-tip="<b>${esc(j.mapel)}</b> · ${esc(sasaran(j))}<br>${j.program==="wajib"?hariTgl(j.d0):`${tglP(j.d0)}–${tglP(j.d1)}`}<br>${ST[j.st][0]}${j.p?`<br>${esc(j.p.judul)}`:""}${j.H.length?`<br>${j.nisn.size}/${targetLaksana(j)||j.target} siswa · rata-rata ${angka(j.rata)}`:""}">${esc(singkat(j.mapel))}<small>${j.jenis==="Tryout UTBK"?"UTBK":ST[j.st][1]}</small></div>`;
 
@@ -391,6 +393,119 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
 // TO lain yang dipindah bersama: Wajib = tingkat lain pada tanggal yang sama; Pilihan = kelas 11 lain pada minggu yang sama
 const rekanJadwal=x=>J.filter(y=>y.id!==x.id&&y.program===x.program&&y.mulai===x.mulai&&(x.program==="pilihan"||y.mapel===x.mapel));
 function tutupLaci(){const el=$("laci");if(el)el.remove()}
+/* ---------------- Kalender lewat Excel (23 Okt 2026) ----------------
+   Unduh template = jadwal semester terpilih (kolom ID terisi) + petunjuk + daftar guru. Koordinator mengubah, menambah baris
+   (ID dikosongkan), atau menandai Batal, lalu mengunggahnya. Pratinjau menunjukkan baris baru / berubah / galat sebelum disimpan
+   lewat to_jadwal_simpan. Jadwal yang tidak ada di berkas tidak dihapus. */
+const KAL_KOLOM=["ID","Program","Tanggal mulai","Tanggal akhir","Jam ke","Kelas","Mapel","Sasaran","Guru penyusun","Catatan","Batal"];
+const kelasTingkat=t=>Object.keys(KELAS_N).filter(k=>k.split("-")[0]===String(t)).sort(urutID);
+function teksKelas(j){const semua=kelasTingkat(j.tingkat);return j.program==="wajib"&&semua.length&&semua.join()===[...j.kelas].sort(urutID).join()?String(j.tingkat):j.kelas.join(", ")}
+const tglXL=iso=>iso?waktuXL(iso+"T00:00:00"):null;
+async function unduhTemplateKalender(){
+  const urut=(a,b)=>a.mulai.localeCompare(b.mulai)||urutID(a.tingkat,b.tingkat)||urutID(a.kelas[0],b.kelas[0]);
+  const baris=p=>D.jadwal.filter(j=>j.program===p).sort(urut).map(j=>[j.id,p==="wajib"?"Wajib":"Pilihan",tglXL(j.mulai),tglXL(j.akhir),j.jam_ke||"",teksKelas(j),j.mapel,
+    j.jenis==="Tryout UTBK"?"UTBK":"TKA",j.guru_id&&D.guru[j.guru_id]||"",j.catatan||"",j.batal?"Ya":""]);
+  const kolom=[{t:"ID",w:7,rata:"center"},{t:"Program",w:10},{t:"Tanggal mulai",w:14,fmt:"dd/mm/yyyy",rata:"center"},{t:"Tanggal akhir",w:14,fmt:"dd/mm/yyyy",rata:"center"},
+    {t:"Jam ke",w:8,rata:"center"},{t:"Kelas",w:22,bungkus:true},{t:"Mapel",w:22},{t:"Sasaran",w:10,rata:"center"},{t:"Guru penyusun",w:32},{t:"Catatan",w:26,bungkus:true},{t:"Batal",w:8,rata:"center"}];
+  const info=[["Semester",D.periode.nama],["Cara pakai","Ubah sel seperlunya. Baris baru: kosongkan kolom ID. Lihat lembar Petunjuk."]];
+  await unduhBukuXLSX({namaBerkas:"Template_Kalender_Tryout_Umum_"+D.periode.kode+".xlsx",judulBuku:"Kalender Tryout Umum",lembar:[
+    {nama:"TO Mapel Wajib",judul:"Kalender TO Mapel Wajib",sub:"Semester "+D.periode.nama,info,kolom,baris:baris("wajib"),beku:1},
+    {nama:"TO Mapel Pilihan",judul:"Kalender TO Mapel Pilihan",sub:"Semester "+D.periode.nama,info,kolom,baris:baris("pilihan"),beku:1},
+    {nama:"Petunjuk",judul:"Petunjuk mengisi kalender",sub:"Unggah kembali lewat tombol ⬆ Unggah kalender di tab Kalender",kolom:[{t:"Kolom",w:18,tebal:true},{t:"Isi",w:90,bungkus:true}],baris:[
+      ["ID","Nomor jadwal dari aplikasi. Jangan diubah. Kosongkan untuk baris baru. Jadwal yang barisnya dihapus dari berkas TIDAK ikut terhapus — pakai kolom Batal."],
+      ["Program","Wajib (BI · MTK · BIng, semua tingkat) atau Pilihan (mapel peminatan kelas 11). Tidak bisa diubah untuk ID yang sudah ada."],
+      ["Tanggal mulai","Tanggal TO. Format tanggal Excel atau tulis 27/07/2026."],
+      ["Tanggal akhir","Wajib: sama dengan tanggal mulai (boleh dikosongkan). Pilihan: akhir minggu (kosong = mulai + 4 hari). Paling lama 14 hari."],
+      ["Jam ke","Jam pelajaran (Wajib). Boleh kosong."],
+      ["Kelas","Tingkat (10, 11, 12) untuk semua kelas di tingkat itu, atau daftar kelas dipisah koma: 11-1, 11-2."],
+      ["Mapel","Nama mapel seperti di aplikasi, mis. Bahasa Indonesia, Matematika, Bahasa Inggris, Biologi."],
+      ["Sasaran","TKA (bawaan) atau UTBK (kelas 12 semester 2)."],
+      ["Guru penyusun","Nama guru seperti di lembar Daftar guru (cukup nama tanpa gelar). Boleh kosong."],
+      ["Catatan","Bebas, mis. ditukar karena kegiatan sekolah."],
+      ["Batal","Tulis Ya bila TO ini batal (libur, kegiatan sekolah)."]]},
+    {nama:"Daftar guru",judul:"Daftar guru",sub:"Salin nama ke kolom Guru penyusun",kolom:[{t:"Nama guru",w:40},{t:"ID",w:10}],
+     baris:Object.entries(D.guru).sort((a,b)=>urutID(a[1],b[1])).map(([id,n])=>[n,id])}]})}
+
+async function muatSheetJS(){if(window.XLSX)return window.XLSX;
+  await new Promise((ok,gagal)=>{const sc=document.createElement("script");sc.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";sc.onload=ok;sc.onerror=()=>gagal(new Error("Pustaka pembaca Excel tidak bisa dimuat. Periksa sambungan internet."));document.head.appendChild(sc)});
+  return window.XLSX}
+const p2=n=>String(n).padStart(2,"0");
+function bacaTgl(v,X){if(v===""||v==null)return null;
+  if(v instanceof Date){const d=new Date(v.getTime()+12*36e5);return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`}
+  if(typeof v==="number"){const c=X.SSF.parse_date_code(v);return c?`${c.y}-${p2(c.m)}-${p2(c.d)}`:"?"}
+  const t=String(v).trim();let m=t.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);if(m)return `${m[1]}-${p2(m[2])}-${p2(m[3])}`;
+  m=t.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);if(m)return `${m[3]}-${p2(m[2])}-${p2(m[1])}`;return "?"}
+const tglSah=x=>!!x&&x!=="?"&&!isNaN(tglD(x))&&isoD(tglD(x))===x;   // 31/02 ditolak, bukan digeser ke Maret
+const sederhana=t=>String(t||"").toLowerCase().split(",")[0].replace(/\s+/g," ").trim();
+function cariGuru(t){const q=String(t||"").trim();if(!q)return {id:null};if(D.guru[q.toUpperCase()])return {id:q.toUpperCase()};
+  const E=Object.entries(D.guru),s=sederhana(q);let c=E.filter(([,n])=>n.toLowerCase().trim()===q.toLowerCase());if(!c.length)c=E.filter(([,n])=>sederhana(n)===s);if(!c.length)c=E.filter(([,n])=>sederhana(n).startsWith(s));
+  return c.length===1?{id:c[0][0]}:{galat:c.length?`nama guru "${q}" cocok dengan ${c.length} guru — tulis lebih lengkap`:`guru "${q}" tidak dikenal (lihat lembar Daftar guru)`}}
+function bacaKelas(t){const tk=String(t||"").split(/[,;\s]+/).map(x=>x.trim().toUpperCase()).filter(Boolean),R={X:"10",XI:"11",XII:"12"},hasil=[],galat=[];
+  tk.forEach(x=>{const ting=R[x]||(/^\d{1,2}$/.test(x)?x:null);
+    if(ting){const k=kelasTingkat(ting);if(k.length)hasil.push(...k);else galat.push("tingkat "+x+" tidak punya kelas")}
+    else if(KELAS_N[x])hasil.push(x);else galat.push("kelas "+x+" tidak dikenal")});
+  return {kelas:[...new Set(hasil)].sort(urutID),galat}}
+
+async function bacaKalender(file){let X;try{X=await muatSheetJS()}catch(e){toast(e.message,6000);return}
+  let wb;try{wb=X.read(await file.arrayBuffer(),{type:"array",cellDates:true})}catch(e){toast("Berkas tidak bisa dibaca sebagai Excel",6000);return}
+  const hasil=[],galat=[],lama=Object.fromEntries(D.jadwal.map(j=>[j.id,j]));
+  for(const nm of wb.SheetNames){const rows=X.utils.sheet_to_json(wb.Sheets[nm],{header:1,defval:"",raw:true});
+    let h=-1,ke={};for(let i=0;i<Math.min(rows.length,40);i++){const r=rows[i].map(x=>String(x).trim().toLowerCase());if(r.includes("program")&&r.includes("tanggal mulai")&&r.includes("mapel")){h=i;KAL_KOLOM.forEach(k=>ke[k]=r.indexOf(k.toLowerCase()));break}}
+    if(h<0)continue;
+    for(let i=h+1;i<rows.length;i++){const r=rows[i],tempat=`${nm} baris ${i+1}`;
+      // sel kosong di template tertulis "–"; baris keterangan di bawah tabel (Diunduh … dari …) dilewati
+      const v=k=>{const x=ke[k]>=0?r[ke[k]]:"";return typeof x==="string"&&/^[\s–—-]*$/.test(x)?"":x};
+      if(["Program","Tanggal mulai","Kelas","Mapel"].every(k=>String(v(k)).trim()===""))continue;
+      const g=[],idT=String(v("ID")).trim(),id=idT?parseInt(idT,10):null,progT=String(v("Program")).toLowerCase(),
+        program=/wajib/.test(progT)?"wajib":/pilih/.test(progT)?"pilihan":null,mulai=bacaTgl(v("Tanggal mulai"),X);
+      if(!program)g.push("Program harus Wajib atau Pilihan");
+      if(!tglSah(mulai))g.push("Tanggal mulai tidak terbaca");
+      let akhir=bacaTgl(v("Tanggal akhir"),X);if(!akhir&&tglSah(mulai))akhir=program==="pilihan"?isoD(tambahHari(tglD(mulai),4)):mulai;
+      if(!tglSah(akhir))g.push("Tanggal akhir tidak terbaca");else if(tglSah(mulai)&&(akhir<mulai||(tglD(akhir)-tglD(mulai))/864e5>13))g.push("Rentang tanggal harus 1–14 hari");
+      const jamT=String(v("Jam ke")).trim(),jam=jamT?parseInt(jamT,10):null;if(jamT&&!(jam>=1&&jam<=12))g.push("Jam ke harus angka 1–12");
+      const kl=bacaKelas(v("Kelas"));g.push(...kl.galat);if(!kl.kelas.length&&!kl.galat.length)g.push("Kelas harus diisi");
+      const mapel=String(v("Mapel")).trim().replace(/\s+/g," ");if(!mapel)g.push("Mapel harus diisi");
+      const jenis=/utbk/i.test(String(v("Sasaran")))?"Tryout UTBK":"Tryout TKA";
+      const gr=cariGuru(v("Guru penyusun"));if(gr.galat)g.push(gr.galat);
+      const catatan=String(v("Catatan")).trim(),batal=/^(ya|y|batal|1|true|x|v)$/i.test(String(v("Batal")).trim());
+      const L=id?lama[id]:null;
+      if(idT&&!(id>0))g.push("ID harus angka (kosongkan untuk baris baru)");
+      else if(id&&!L)g.push(`ID ${id} tidak ada di semester ${D.periode.nama} (pilih semester yang benar, atau kosongkan ID untuk baris baru)`);
+      else if(L&&program&&L.program!==program)g.push("Program tidak bisa diubah untuk jadwal yang sudah ada");
+      const b={id:L?L.id:null,program,mulai,akhir,jam_ke:jam,kelas:kl.kelas,mapel,jenis,guru_id:gr.id||null,catatan,batal,periode:null,tingkat:L?L.tingkat:(kl.kelas[0]||"").split("-")[0]};
+      if(!g.length&&!L){const ganda=D.jadwal.find(j=>j.program===program&&j.mulai===mulai&&tka_mk(j.mapel)===tka_mk(mapel)&&j.kelas.some(k=>kl.kelas.includes(k)));
+        if(ganda)g.push(`Sudah ada jadwal yang sama (ID ${ganda.id}). Isi kolom ID dengan ${ganda.id} bila ingin mengubahnya`);
+        else if(hasil.some(x=>!x.b.id&&x.b.program===program&&x.b.mulai===mulai&&tka_mk(x.b.mapel)===tka_mk(mapel)&&x.b.kelas.some(k=>kl.kelas.includes(k))))g.push("Baris ganda di berkas ini")}
+      if(L&&hasil.some(x=>x.b.id===L.id))g.push(`ID ${L.id} muncul lebih dari sekali`);
+      if(g.length){galat.push({tempat,g});continue}
+      let ubah=[];if(L){const sama=(a,c)=>String(a??"")===String(c??"");
+        if(!sama(L.mulai,b.mulai)||!sama(L.akhir,b.akhir))ubah.push("tanggal");if(!sama(L.jam_ke,b.jam_ke))ubah.push("jam ke");
+        if([...L.kelas].sort(urutID).join()!==b.kelas.join())ubah.push("kelas");if(L.mapel!==b.mapel)ubah.push("mapel");if(L.jenis!==b.jenis)ubah.push("sasaran");
+        if(!sama(L.guru_id,b.guru_id))ubah.push("guru");if(!sama(L.catatan||"",b.catatan))ubah.push("catatan");if(!!L.batal!==b.batal)ubah.push(b.batal?"dibatalkan":"batal dicabut")}
+      hasil.push({tempat,b,L,ubah})}}
+  if(!hasil.length&&!galat.length){toast("Tidak ada baris jadwal yang terbaca. Pakai berkas dari tombol ⬇ Unduh template.",7000);return}
+  pratinjauKalender(hasil,galat)}
+const tka_mk=m=>String(m||"").toLowerCase().replace(/\s+/g," ").trim();
+
+function pratinjauKalender(hasil,galat){let el=$("laci");
+  if(!el){el=document.createElement("div");el.id="laci";el.className="laci";document.body.appendChild(el);el.onclick=e=>{if(e.target===el)tutupLaci()}}
+  const baru=hasil.filter(x=>!x.L),ubah=hasil.filter(x=>x.L&&x.ubah.length),sama=hasil.filter(x=>x.L&&!x.ubah.length),simpan=[...baru,...ubah];
+  const pindahSesi=ubah.filter(x=>x.ubah.includes("tanggal")&&(x.L.sesi||[]).length);
+  const tgl=b=>b.program==="wajib"||b.mulai===b.akhir?hariTgl(tglD(b.mulai)):`${tglP(tglD(b.mulai))} – ${tglP(tglD(b.akhir))}`;
+  const baris=x=>`<tr><td style="white-space:nowrap">${tgl(x.b)}<div class="kecil muted">${x.b.program==="wajib"?"Wajib":"Pilihan"}${x.b.jenis==="Tryout UTBK"?" · UTBK":""}</div></td><td><b>${esc(x.b.mapel)}</b>${x.b.batal?' <span class="st st-batal">batal</span>':""}</td>
+    <td class="small">${esc(teksKelas({...x.b,tingkat:x.b.tingkat}))}</td><td class="small">${esc(x.b.guru_id?namaGuru(x.b.guru_id):"—")}</td><td class="small">${x.L?"ID "+x.L.id+": "+esc(x.ubah.join(", ")):"baru"}</td></tr>`;
+  el.innerHTML=`<div><div class="kepala"><div><div class="alis">Unggah kalender</div><h2>Pratinjau perubahan</h2><p class="small muted">Semester ${esc(D.periode.nama)} · belum ada yang disimpan</p></div><button class="ghost" id="pk-tutup">Tutup</button></div>
+    <div class="row" style="gap:6px;margin:8px 0"><span class="pill">${baru.length} baru</span><span class="pill">${ubah.length} berubah</span><span class="pill">${sama.length} tetap</span>${galat.length?`<span class="pill" style="background:var(--s-telat);color:var(--s-telat-t)">${galat.length} baris salah</span>`:""}</div>
+    ${galat.length?`<div class="card kolom"><h3>Perlu dibetulkan di Excel</h3><p class="small muted">Betulkan baris berikut lalu unggah lagi. Tidak ada yang disimpan selama masih ada baris salah.</p><ul class="small">${galat.map(x=>`<li><b>${esc(x.tempat)}</b>: ${esc(x.g.join("; "))}</li>`).join("")}</ul></div>`:""}
+    ${simpan.length?`<div class="card kolom"><h3>Akan disimpan</h3><div class="gulir"><table><thead><tr><th>Tanggal</th><th>Mapel</th><th>Kelas</th><th>Guru</th><th>Perubahan</th></tr></thead><tbody>${simpan.map(baris).join("")}</tbody></table></div>
+      ${pindahSesi.length?`<p class="small" style="margin-top:8px">⚠ ${pindahSesi.length} jadwal yang tanggalnya berubah sudah punya sesi. Sesi tidak ikut pindah — ubah waktunya di tab Sesi &amp; Link.</p>`:""}</div>`:`<p class="kosong">${galat.length?"":"Tidak ada perubahan: isi berkas sama dengan jadwal di aplikasi."}</p>`}
+    <p class="small muted">Jadwal yang tidak ada di berkas tidak dihapus. Untuk membatalkan TO, tulis <b>Ya</b> di kolom Batal.</p>
+    <div class="row" style="margin-top:10px"><button id="pk-simpan" ${galat.length||!simpan.length?"disabled":""}>Simpan ${simpan.length} perubahan</button><button class="ghost" id="pk-batal">Batal</button></div></div>`;
+  $("pk-tutup").onclick=$("pk-batal").onclick=tutupLaci;
+  $("pk-simpan").onclick=async e=>{const t=e.target;t.disabled=true;t.textContent="Menyimpan…";
+    try{const r=await rpc("to_jadwal_simpan",{p_pin:PIN,p_rows:simpan.map(x=>x.b),p_hapus:[]});tutupLaci();toast(`Kalender tersimpan: ${baru.length} baru, ${ubah.length} berubah`+(pindahSesi.length?". Sesi yang sudah dibuat tidak ikut pindah.":""),7000);await muatUlang(true)}
+    catch(er){t.disabled=false;t.textContent=`Simpan ${simpan.length} perubahan`;toast(er.message,7000)}}}
+
 function skorPaket(p,j){return ((p.tingkat||[]).map(String).includes(String(j.tingkat))||String(p.kelas||"").includes(j.tingkat)?2:0)+(J.some(x=>x.paket===p.kode)?-3:0)}
 function cekPaket(p,j){const mtk=/^matematika/.test(j.mk),nSoal=mtk?3:5,b=p.bentuk||{},kunci=Object.keys(b).map(x=>x.toUpperCase().replace(/[\s_–-]+/g," "));
   const adaPG=kunci.some(x=>/^(PG|PILIHAN GANDA)$/.test(x)),adaK=kunci.some(x=>/KOMPLEKS|PG ?K|MCMA|KATEGORI|BENAR/.test(x));
