@@ -724,9 +724,9 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   }
   const kids = (el, ns, name) => Array.from(el.childNodes).filter(n => n.nodeType === 1 && n.localName === name && n.namespaceURI === ns);
   // ---- Keterangan paket (meta.info): jenis, semester, guru penyusun, tingkat peserta, cakupan materi ----
-  // Jenis ditentukan sistem (20 Okt 2026; 22 Okt: Tryout Mandiri & Tryout Umum): 4 pilihan tetap + Nama Asesmen dari PAS / Ujian Bersama
+  // Jenis ditentukan sistem (20 Okt 2026; 22 Okt: Tryout Mandiri & Tryout Umum; 23 Okt: Asesmen Diagnostik): 5 pilihan tetap + Nama Asesmen dari PAS / Ujian Bersama
   // (dimuat lewat tka_jenis_daftar → setJenis). Server juga menjaganya (pemicu tka_jenis_ikut_daftar).
-  const JENIS_DASAR = ['Asesmen Formatif', 'Asesmen Sumatif', 'Tryout Mandiri', 'Tryout Umum'];
+  const JENIS_DASAR = ['Asesmen Diagnostik', 'Asesmen Formatif', 'Asesmen Sumatif', 'Tryout Mandiri', 'Tryout Umum'];
   const JENIS_BAWAAN = 'Asesmen Formatif';
   const JENIS = JENIS_DASAR.slice();
   function setJenis(a) { JENIS.length = 0; JENIS.push(...JENIS_DASAR, ...(a || []).filter(j => j && !JENIS_DASAR.includes(j))); }
@@ -736,7 +736,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     if (typeof modeKO === 'function' && modeKO()) return 'Tryout Umum';
     s = String(s || '').trim().replace(/\s+/g, ' '); if (!s) return JENIS_BAWAAN;
     const l = s.toLowerCase();
-    return JENIS.find(j => j.toLowerCase() === l) || (/\bumum\b/.test(l) ? 'Tryout Umum' : /\b(tka|utbk|snbt|asas|tryout|to|mandiri)\b/.test(l) ? 'Tryout Mandiri'
+    return JENIS.find(j => j.toLowerCase() === l) || (/diagnos/.test(l) ? 'Asesmen Diagnostik' : /\bumum\b/.test(l) ? 'Tryout Umum' : /\b(tka|utbk|snbt|asas|tryout|to|mandiri)\b/.test(l) ? 'Tryout Mandiri'
       : /formatif|latihan/.test(l) ? 'Asesmen Formatif' : /sumatif|ulangan|semester|\b(uh|pts|sts|pas|sas|pat|sat)\b/.test(l) ? 'Asesmen Sumatif' : JENIS_BAWAAN);
   }
   // "12", "XII", "10–12", "X s.d. XII", "10, 12" → ["12"], ["10","11","12"], ["10","12"]
@@ -1404,7 +1404,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   }
   function barisInfo(kvf, i) {
     i = i || {}; const f = (root.TKA && root.TKA.info) ? root.TKA.info.fmtTingkat : a => (a || []).join(', ');
-    return [kvf('Jenis (Asesmen Formatif / Asesmen Sumatif / Tryout Mandiri / Tryout Umum; kosongkan = Asesmen Formatif)', i.jenis || ''),
+    return [kvf('Jenis (Asesmen Diagnostik / Asesmen Formatif / Asesmen Sumatif / Tryout Mandiri / Tryout Umum; kosongkan = Asesmen Formatif)', i.jenis || ''),
       kvf('Tingkat peserta (kelas yang mengerjakan, mis. 12 atau 10–12)', f(i.tingkat)),
       kvf('Cakupan materi (kelas asal materi bila berbeda, mis. 10–12; kosongkan bila sama)', f(i.cakupan)),
       kvf('Semester (mis. Ganjil 2026/2027; kosongkan = otomatis)', i.semester || ''),
