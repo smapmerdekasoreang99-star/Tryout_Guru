@@ -338,7 +338,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
         <p>Saat soal sudah jadi dalam bentuk lain dan waktunya mepet, sehingga tidak sempat mengikuti Langkah 1 (kisi-kisi) dan Langkah 2 (template soal). Bila waktunya cukup, tetap gunakan Langkah 1 &amp; 2: hasil analisisnya lebih rapi.</p>
         <h4>Cara 1 — Pindahkan sendiri</h4>
         <ol><li>Tekan <b>Unduh template tanpa kisi-kisi</b> dan buka di Microsoft Word.</li>
-          <li>Isi tabel <b>INFORMASI UJIAN</b>: kode ujian yang unik (mis. <code>BIN-PAS-01</code>), judul, mapel, kelas, durasi, jumlah varian (biasanya 1).</li>
+          <li>Isi tabel <b>INFORMASI UJIAN</b>: kode ujian yang unik (mis. <code>BIN-PAS-01</code>), judul, mapel, kelas, durasi (boleh kosong: otomatis jumlah soal × 3 menit), jumlah varian (biasanya 1).</li>
           <li>Untuk <b>setiap soal</b>, salin satu tabel kosong yang sesuai bentuknya, lalu isi: Nomor, Varian (A), Bentuk, Level (<i>Knowing</i> / <i>Applying</i> / <i>Reasoning</i>), Kompetensi, Indikator, Pertanyaan, pilihan jawaban, Kunci, dan Pembahasan. Jangan mengubah tulisan di kolom kiri.</li>
           <li>Soal yang memakai satu teks/tabel/grafik bersama: tulis teksnya sekali di tabel <b>TEKS BACAAN</b> (kode T1, T2, …) dan isi kode itu pada baris <i>Kode teks</i> soal-soalnya.</li>
           <li>Simpan sebagai .docx, lalu unggah di kotak di bawah.</li></ol>
@@ -1002,6 +1002,9 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
 
   // ---------------- membangun paket ----------------
   const LET = 'ABCDEFGH', LOW = 'abcdefgh';
+  // Durasi kosong → jumlah soal × 3 menit (25 Okt 2026), dibatasi 5–300 menit seperti lama pengerjaan sesi.
+  const durasiBawaan = n => Math.min(300, Math.max(5, n * 3));
+  const pesanDurasi = (n, d) => `Durasi kosong — diisi otomatis ${n} soal × 3 menit = ${d} menit. Lama pengerjaan tetap bisa diubah saat membuka sesi.`;
   const BENTUK_LABEL = { PG: 'PG', PGK: 'PG Kompleks', KATEGORI: 'Benar - Salah', JODOH: 'Menjodohkan', ISIAN: 'Isian' };
   function normBentuk(raw) {
     const r = String(raw || '').toUpperCase().replace(/[^A-Z]/g, '');
@@ -1033,8 +1036,8 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     const H = (t, k) => F(t, k).html;
     const kode = T(info, 'kode ujian').toUpperCase().replace(/\s+/g, '-');
     if (!/^[A-Z0-9][A-Z0-9-]{2,30}$/.test(kode)) errors.push(`Kode ujian "${kode}" tidak valid: huruf besar/angka/strip, 3–31 karakter, tanpa spasi (contoh KIM-STO-01).`);
-    const durasi = parseInt(T(info, 'durasi'), 10);
-    if (!(durasi > 0)) errors.push('Durasi (menit) harus angka > 0.');
+    const durasiT = T(info, 'durasi'); let durasi = parseInt(durasiT, 10);
+    if (durasiT && !(durasi > 0)) errors.push('Durasi (menit) harus angka > 0, atau kosongkan agar diisi otomatis (jumlah soal × 3 menit).');
     const nvar = parseInt(T(info, 'jumlah varian') || '1', 10);
     if (!(nvar >= 1 && nvar <= 4)) errors.push('Jumlah varian harus 1–4.');
     const teks = {};
@@ -1059,13 +1062,18 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
       if (!bentuk) { errors.push(`${id}: Bentuk "${T(t, 'bentuk')}" tidak dikenal (PG/PGK/KATEGORI/JODOH/ISIAN).`); return; }
       const q = { bentuk, stimulus: H(t, 'stimulus'), pertanyaan: H(t, 'pertanyaan'), pembahasan: H(t, 'pembahasan') };
       if (!T(t, 'pertanyaan')) {
-        if (T(t, 'stimulus')) { q.pertanyaan = q.stimulus; q.stimulus = ''; if (bentuk !== 'KATEGORI' && bentuk !== 'JODOH') warnings.push(`${id}: Pertanyaan kosong — isi Perintah soal dipakai sebagai pertanyaan.`); }
+        if (T(t, 'stimulus')) { const bergambar = /<img/i.test(q.stimulus); q.pertanyaan = q.stimulus; q.stimulus = ''; if (bentuk !== 'KATEGORI' && bentuk !== 'JODOH') warnings.push(`${id}: Pertanyaan kosong — isi Perintah soal dipakai sebagai pertanyaan.` + (bergambar ? ' Perintah soal berisi gambar: pastikan kalimat pertanyaan yang di naskah asli terletak di bawah gambar tidak hilang (tulis di baris Pertanyaan).' : '')); }
         else errors.push(`${id}: Pertanyaan kosong (isi Pertanyaan atau Perintah soal).`);
       }
       if (!T(t, 'pembahasan')) warnings.push(`${id}: Pembahasan kosong.`);
       const kunciT = T(t, 'kunci');
       if (bentuk === 'PG' || bentuk === 'PGK') {
         const opsi = []; for (const L of 'ABCDE') { const h = H(t, 'pilihan ' + L.toLowerCase()); const tx = T(t, 'pilihan ' + L.toLowerCase()); if (tx) opsi.push([h, false]); else break; }
+        // Rumus (Word Equation) sering hilang saat naskah dikonversi AI: pilihan tinggal tanda "-" atau kosong di tengah (25 Okt 2026)
+        const sisa = [...'ABCDE'].slice(opsi.length + 1).filter(L => T(t, 'pilihan ' + L.toLowerCase()));
+        if (sisa.length) warnings.push(`${id}: Pilihan ${'ABCDE'[opsi.length]} kosong padahal Pilihan ${sisa.join(', ')} terisi; pilihan sesudah yang kosong diabaikan. Bila naskah asli memakai rumus (Equation), kemungkinan rumusnya hilang saat konversi.`);
+        const hanyaTanda = opsi.map((o, i) => /^[\s\-−–—+±.,:;=()]*$/.test(T(t, 'pilihan ' + LOW[i])) ? LET[i] : '').filter(Boolean);
+        if (hanyaTanda.length) warnings.push(`${id}: Pilihan ${hanyaTanda.join(', ')} hanya berisi tanda tanpa angka/huruf — kemungkinan rumus (Equation) hilang saat konversi. Bandingkan dengan naskah asli.`);
         if (opsi.length < 2) errors.push(`${id}: minimal 2 pilihan (Pilihan A, B, ...) tanpa baris kosong di antaranya.`);
         const letters = kunciT.toUpperCase().split(/[,\s;/]+/).filter(Boolean);
         if (!letters.length) errors.push(`${id}: Kunci kosong.`);
@@ -1117,6 +1125,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     const nos = Object.keys(soalMap).map(Number).sort((a, b) => a - b);
     const n = nos.length ? nos[nos.length - 1] : 0;
     if (!n) errors.push('Tidak ada tabel SOAL yang terbaca.');
+    if (!(durasi > 0) && !durasiT && n) { durasi = durasiBawaan(n); warnings.push(pesanDurasi(n, durasi)); }
     for (let i = 1; i <= n; i++) if (!soalMap[i]) errors.push(`Nomor ${i} tidak ada (nomor harus berurutan 1..${n}).`);
     const soal = [], blueprint = [];
     for (let i = 1; i <= n; i++) {
@@ -1152,7 +1161,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     if (!info) errors.push('Tabel INFORMASI UJIAN tidak ditemukan.');
     const kode = T(info, 'kode ujian').toUpperCase().replace(/\s+/g, '-');
     if (!/^[A-Z0-9][A-Z0-9-]{2,30}$/.test(kode)) errors.push(`Kode ujian "${kode}" tidak valid: huruf besar/angka/strip, 3–31 karakter, tanpa spasi (contoh KIM-STO-01).`);
-    const durasi = parseInt(T(info, 'durasi'), 10); if (!(durasi > 0)) errors.push('Durasi (menit) harus angka > 0.');
+    const durasiT = T(info, 'durasi'); let durasi = parseInt(durasiT, 10); if (durasiT && !(durasi > 0)) errors.push('Durasi (menit) harus angka > 0, atau kosongkan agar diisi otomatis (jumlah soal × 3 menit).');
     const nvar = parseInt(T(info, 'jumlah varian') || '1', 10); if (!(nvar >= 1 && nvar <= 4)) errors.push('Jumlah varian harus 1–4.');
     // tabel kisi: GRID yang barisnya memuat kolom "No" dan "Indikator"
     const hdrIdx = cells => { const h = cells.map(c => c.text.toLowerCase()); return { no: h.findIndex(x => /^no\.?$|^nomor/.test(x)), sub: h.findIndex(x => /kompetensi|materi/.test(x)), ind: h.findIndex(x => /indikator/.test(x)), lvl: h.findIndex(x => /level|kesulitan|kognitif/.test(x)), bnt: h.findIndex(x => /bentuk/.test(x)), tks: h.findIndex(x => /teks|bacaan|wacana/.test(x)) }; };
@@ -1183,6 +1192,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     const n = blueprint.length ? blueprint[blueprint.length - 1].no : 0;
     for (let i = 1; i <= n; i++) if (!blueprint.some(b => b.no === i)) errors.push(`Kisi-kisi: nomor ${i} tidak ada (harus berurutan 1..${n}).`);
     if (!n) errors.push('Kisi-kisi kosong.');
+    if (!(durasi > 0) && !durasiT && n) { durasi = durasiBawaan(n); warnings.push(pesanDurasi(n, durasi)); }
     const teksList = [...new Set(blueprint.map(b => b.teks).filter(Boolean))];
     const kisi = { kode, judul: T(info, 'judul') || kode, mapel: T(info, 'mata pelajaran'), kelas: T(info, 'kelas'), materi: T(info, 'materi'),
       durasi: durasi || 60, n_soal: n, n_varian: nvar || 1, meta: { data_umum: H(info, 'data/rumus umum'), petunjuk: H(info, 'petunjuk'), blueprint, teks: teksList, info: infoDariTabel(k => T(info, k), T(info, 'kelas')) } };
@@ -1376,7 +1386,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     let x = para('TEMPLATE SOAL — TANPA KISI-KISI', { b: true, sz: 28, color: '3B5670', after: 40 });
     x += para('Untuk soal yang sudah jadi tanpa kisi-kisi; diunggah dengan PIN guru di Pustaka Paket → Tanpa Kisi-kisi. Kisi-kisi akan disusun otomatis oleh aplikasi dari isian tabel soal, sehingga baris Kompetensi, Indikator, dan Level harus diisi dengan sungguh-sungguh.', { i: true, color: '5A6473' });
     x += heading('KETENTUAN');
-    ['Isi tabel INFORMASI UJIAN (kode ujian unik, durasi, jumlah varian 1–4).',
+    ['Isi tabel INFORMASI UJIAN (kode ujian unik, durasi, jumlah varian 1–4). Durasi boleh dikosongkan: aplikasi mengisinya otomatis jumlah soal × 3 menit.',
      'Satu tabel = satu soal untuk satu varian. Salin tabel kosong yang sesuai bentuknya sebanyak yang diperlukan. Nomor berurutan mulai 1; untuk 2 varian, setiap nomor punya tabel varian A dan B.',
      'WAJIB: Nomor, Varian (A–D), Bentuk (PG / PG Kompleks / Benar - Salah / Menjodohkan / Isian), Level (Knowing / Applying / Reasoning), Perintah soal atau Pertanyaan, Pilihan/Pernyataan/Kiri–Kanan, Kunci, Pembahasan. SEBAIKNYA: Kompetensi/Materi/Sub-materi dan Indikator (untuk analisis hasil).',
      'Kode teks: isi (mis. T1) hanya bila soal mengacu ke TEKS BACAAN bersama; teksnya ditulis pada tabel TEKS BACAAN dengan kode yang sama.',
@@ -1393,6 +1403,8 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
      'LEVEL memakai tepat salah satu dari: Knowing (mengingat/memahami), Applying (menerapkan), Reasoning (menganalisis/mengevaluasi/mencipta). Bila naskah memakai C1–C6 atau Mudah/Sedang/Sukar, petakan: C1–C2 → Knowing, C3 → Applying, C4–C6 → Reasoning; Mudah → Knowing, Sedang → Applying, Sukar → Reasoning (kecuali jelas bukan penalaran).',
      'KUNCI mengikuti format: PG "B"; PG Kompleks "A, C, E"; Benar - Salah "Benar, Salah, Benar, Benar, Salah" sesuai urutan pernyataan; Menjodohkan "1-d, 2-c, 3-e, 4-a"; Isian nilai kunci + Toleransi (angka) + Jawaban alternatif dipisah "|". Kunci harus merujuk pada pilihan yang benar-benar ada.',
      'KOMPETENSI dan INDIKATOR: ambil dari naskah bila ada; bila tidak ada, tuliskan sub-materi dan indikator yang wajar dari isi soal (bukan dikosongkan). Nomor harus berurutan 1..N tanpa lompatan; Varian diisi A bila hanya satu varian.',
+     'SOAL DENGAN GAMBAR DI TENGAH (teks pengantar → gambar → kalimat pertanyaan): teks pengantar dan gambarnya masuk ke Perintah soal; kalimat pertanyaan yang ada di bawah gambar masuk ke Pertanyaan. Tidak boleh ada kalimat naskah yang hilang.',
+     'RUMUS (Word Equation/pecahan bersusun): salin sebagai Equation Word apa adanya. Bila tidak bisa, tulis dalam satu baris dengan kurung dan garis miring, mis. (100 × 4,2 × 2 × 8)/40 atau −(a + b)/(2c); aplikasi menampilkannya sebagai pecahan bersusun. Jangan pernah membiarkan pilihan hanya berisi tanda "-".',
      'Jangan menambahkan kolom, catatan, nomor halaman, atau teks lain di dalam tabel selain isian yang diminta. Jangan mengubah struktur menjadi daftar/paragraf biasa.'].forEach((t, i) => x += para(`${i + 1}. ${t}`));
     x += heading('INFORMASI UJIAN');
     x += table(W, [titleRow('INFORMASI UJIAN', '3B5670'), kv('Kode ujian', ''), kv('Judul', ''), kv('Mata pelajaran', ''), kv('Kelas', ''), kv('Materi', ''), ...barisInfo(kv, {}), kv('Durasi (menit)', ''), kv('Jumlah varian', '1'), kv('Data/rumus umum', ''), kv('Petunjuk umum', '')]);
@@ -1765,6 +1777,15 @@ Kamu akan memindahkan naskah soal terlampir ke dalam format Template_Soal_Tanpa_
    - Tabel data (mis. tabel tahun/nilai) harus tetap menjadi TABEL WORD SUNGGUHAN yang diletakkan di dalam sel "Isi" (teks bacaan) atau sel "Perintah soal". JANGAN mengubahnya menjadi teks dengan tanda "|", tab, atau daftar.
    - Semua tabel data tersebut diberi gaya "Table Grid" (border penuh pada semua sel) dan baris pertamanya dijadikan baris judul (tebal), agar terbaca jelas saat dicetak.
    - Grafik/gambar: sisipkan sebagai gambar PNG/JPG (≤ 300 KB) di dalam sel yang sama.
+   - SOAL DENGAN GAMBAR DI TENGAH (teks pengantar → gambar → kalimat pertanyaan, mis. "Perhatikan gambar berikut: [gambar] Gambar yang menunjukkan reaksi eksoterm adalah ...."):
+     teks pengantar + gambar → sel "Perintah soal" (urutan tetap); kalimat pertanyaan di BAWAH gambar → sel "Pertanyaan". Kalimat sesudah gambar SERING HILANG — pastikan ikut dipindahkan.
+
+6a. RUMUS / EQUATION (pecahan bersusun, akar, pangkat) — SERING HILANG
+   - Bila naskah memakai Equation Word, salin Equation itu apa adanya ke sel yang sama (jangan dihapus, jangan diganti gambar kosong).
+   - Bila kamu tidak bisa menyalin Equation, tulis ulang dalam SATU BARIS teks biasa dengan kurung dan garis miring:
+     pecahan → (pembilang)/(penyebut), mis. −(100 × 4,2 × 2 × 8)/40 ; pangkat → 10^23 atau x^(2) ; akar → √(x + 1).
+     Aplikasi otomatis menampilkannya sebagai pecahan bersusun dan pangkat.
+   - Pilihan jawaban TIDAK BOLEH hanya berisi tanda "-" atau kosong. Bandingkan setiap pilihan dengan naskah asli sebelum menyerahkan.
 
 7. LEVEL — tepat salah satu dari: Knowing / Applying / Reasoning
    - Knowing = mengingat/memahami; Applying = menerapkan; Reasoning = menganalisis/mengevaluasi/mencipta.
@@ -1780,11 +1801,11 @@ Kamu akan memindahkan naskah soal terlampir ke dalam format Template_Soal_Tanpa_
    - Ambil dari naskah bila ada. Bila tidak ada, tuliskan sub-materi dan indikator yang wajar dari isi soal — jangan dikosongkan. Pembahasan singkat wajib ada.
 
 10. INFORMASI UJIAN
-   - Kode ujian: huruf besar/angka/strip tanpa spasi, mis. TKA-BI-2026-PA. Durasi dalam menit (angka). Jumlah varian = 1 bila hanya satu versi soal (Varian tiap soal = A); bila naskah berisi dua/tiga versi (Paket 1, Paket 2, …) lihat bagian 10a.
+   - Kode ujian: huruf besar/angka/strip tanpa spasi, mis. TKA-BI-2026-PA. Durasi dalam menit (angka); bila naskah tidak menyebut durasi, isi jumlah NOMOR soal × 3 (mis. 10 nomor → 30), bukan jumlah tabel. Jumlah varian = 1 bila hanya satu versi soal (Varian tiap soal = A); bila naskah berisi dua/tiga versi (Paket 1, Paket 2, …) lihat bagian 10a.
    - Nomor soal berurutan 1..N tanpa lompatan.
    - Baris Jenis, Tingkat peserta, Cakupan materi, Semester, dan Guru penyusun pada tabel INFORMASI UJIAN: isi bila diketahui dari naskah; boleh dikosongkan.
 
-10a. NASKAH BERISI "PAKET 1" DAN "PAKET 2" (atau Paket A/B, Versi 1/2) = SATU PAKET DENGAN DUA VARIAN
+10a. NASKAH BERISI "PAKET 1" DAN "PAKET 2" (atau Paket A/B, Versi 1/2, Varian 1/2) = SATU PAKET DENGAN DUA VARIAN
    - Jangan membuat dua berkas dan jangan menomori 1..10. Hasilnya SATU berkas, SATU tabel INFORMASI UJIAN, Jumlah varian = 2 (3 bila ada Paket 3).
    - Paket 1 → Varian A, Paket 2 → Varian B (Paket 3 → Varian C). Soal ke-n Paket 1 dan soal ke-n Paket 2 memakai NOMOR YANG SAMA (n),
      masing-masing dalam tabelnya sendiri: Nomor 1 Varian A, Nomor 1 Varian B, Nomor 2 Varian A, Nomor 2 Varian B, dst.
@@ -1805,6 +1826,9 @@ Kamu akan memindahkan naskah soal terlampir ke dalam format Template_Soal_Tanpa_
    [ ] Level hanya Knowing/Applying/Reasoning
    [ ] bila ada Paket 1 & 2: Jumlah varian = 2, setiap nomor punya Varian A dan B dengan bentuk yang sama
    [ ] tabel data tetap tabel, bukan teks "|", dan bergaris (Table Grid)
+   [ ] setiap rumus/Equation ada (Equation Word, atau teks (pembilang)/(penyebut)); tidak ada pilihan yang hanya berisi "-"
+   [ ] soal bergambar: kalimat pertanyaan di bawah gambar ada di sel Pertanyaan
+   [ ] Durasi terisi (jumlah nomor × 3 bila naskah tidak menyebut)
 
 12. BILA KAMU TIDAK BISA MEMBUAT BERKAS .DOCX
    Tuliskan isi setiap tabel dalam format di bawah (satu blok per tabel, label persis seperti kolom kiri template) agar guru bisa menyalinnya ke template secara manual:
