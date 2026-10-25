@@ -329,8 +329,9 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <div class="dr-siap">
       <div class="dr-opsi"><span class="dr-no">1</span><div><b>Pindahkan sendiri (manual)</b><p>Unduh templatenya, lalu salin setiap soal ke tabel yang sesuai bentuknya (PG, PG Kompleks, Benar–Salah, Menjodohkan, Isian). Di dalam template sudah ada ketentuan dan contoh format kunci.</p>
         <button class="btn-unduh" data-fmt="docx" id="btn-d-template">Unduh template tanpa kisi-kisi</button></div></div>
-      <div class="dr-opsi"><span class="dr-no">2</span><div><b>Dengan bantuan AI</b><p>Unggah <b>template tanpa kisi-kisi</b> dan <b>naskah soal</b> Anda ke ChatGPT / Gemini / Claude, lalu tempelkan prompt ini. AI akan mengisi template dan memberikan berkas Word yang siap diunggah.</p>
-        <span class="row"><button class="btn-unduh" data-fmt="txt" id="btn-d-prompt">Unduh prompt AI</button><button class="ghost mini" id="btn-d-salin">Salin prompt</button></span></div></div>
+      <div class="dr-opsi"><span class="dr-no">2</span><div><b>Dengan bantuan AI</b><p>Naskah Word: tekan <b>Siapkan naskah untuk AI</b> lebih dulu, agar rumus (Equation), subskrip, dan superskrip tidak hilang (H₂O, 24°C, pecahan). Lalu unggah <b>template tanpa kisi-kisi</b> dan <b>naskah hasilnya</b> ke ChatGPT / Gemini / Claude, dan tempelkan prompt ini.</p>
+        <span class="row"><button class="btn-unduh" data-fmt="docx" id="btn-d-siap">Siapkan naskah untuk AI</button><input type="file" id="file-d-siap" accept=".docx" class="hidden"><button class="btn-unduh" data-fmt="txt" id="btn-d-prompt">Unduh prompt AI</button><button class="ghost mini" id="btn-d-salin">Salin prompt</button></span>
+        <div id="d-siap-status" class="small" style="margin-top:6px"></div></div></div>
     </div>
     <details class="dr-jelas"><summary>Penjelasan lengkap — baca sebelum upload tanpa kisi-kisi</summary>
       <div class="dr-isi">
@@ -344,7 +345,8 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
           <li>Simpan sebagai .docx, lalu unggah di kotak di bawah.</li></ol>
         <h4>Cara 2 — Dengan bantuan AI</h4>
         <ol><li>Tekan <b>Unduh template tanpa kisi-kisi</b> dan <b>Unduh prompt AI</b> (atau <b>Salin prompt</b>).</li>
-          <li>Buka layanan AI yang bisa membaca dan membuat berkas, misalnya ChatGPT, Gemini, atau Claude. Lampirkan <b>dua berkas</b>: template tanpa kisi-kisi dan naskah soal Anda (Word, PDF, atau foto yang jelas).</li>
+          <li>Bila naskah berupa Word, tekan <b>Siapkan naskah untuk AI</b> dan pilih naskahnya. Aplikasi mengunduh <i>…_siap_AI.docx</i>: rumus Equation menjadi teks satu baris seperti <code>(100 × 4,2 × 2)/8</code> (tampil sebagai pecahan bersusun di aplikasi), subskrip/superskrip menjadi H₂O, 24⁰C, ΔH°f. Tanpa langkah ini ChatGPT menghilangkan rumus dan subskrip.</li>
+          <li>Buka layanan AI yang bisa membaca dan membuat berkas, misalnya ChatGPT, Gemini, atau Claude. Lampirkan <b>dua berkas</b>: template tanpa kisi-kisi dan naskah soal Anda (hasil langkah sebelumnya, PDF, atau foto yang jelas).</li>
           <li>Tempelkan isi prompt, kirim, lalu unduh berkas Word yang dibuat AI.</li>
           <li>Bila AI tidak bisa membuat berkas Word, ia akan menuliskan isi tiap soal dalam format baku; salin isinya ke template secara manual (Cara 1).</li></ol>
         <h4>Wajib diperiksa sebelum terbit (AI bisa keliru)</h4>
@@ -1581,6 +1583,122 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   root.TKA_DOC = { buatTemplateSoal, buatTemplateDarurat, buatKisiDocx, buatKisiKosong, buatNaskahSoal };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
+<script>/* tka_naskah_ai.js — "Siapkan naskah untuk AI" (25 Okt 2026).
+   ChatGPT membangun ulang berkas Word dari teks biasa, sehingga Equation Word, subskrip/superskrip (H₂O, 24⁰C, ΔH°f),
+   dan simbol font Symbol hilang. Modul ini mengubah naskah .docx guru SEBELUM dilampirkan ke AI:
+     subskrip/superskrip → karakter Unicode (₂ ³ ⁺ ⁻ °), Equation → satu baris teks ((pembilang)/(penyebut), √(…), x^(…)),
+     simbol font Symbol → karakter Unicode. Aplikasi menampilkan (a)/(b) sebagai pecahan bersusun dan ^(…) sebagai pangkat.
+   API: NASKAH_AI.siapkan(arrayBuffer, JSZip, DOMParser, XMLSerializer) → Promise<{bytes, n:{sub,sup,rumus,simbol,objek,sisaSub}}> */
+(function (root) {
+  const NS_W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+  const NS_M = 'http://schemas.openxmlformats.org/officeDocument/2006/math';
+  const SUB = { 0: '₀', 1: '₁', 2: '₂', 3: '₃', 4: '₄', 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉', '+': '₊', '-': '₋', '−': '₋', '=': '₌', '(': '₍', ')': '₎',
+    a: 'ₐ', e: 'ₑ', o: 'ₒ', x: 'ₓ', h: 'ₕ', k: 'ₖ', l: 'ₗ', m: 'ₘ', n: 'ₙ', p: 'ₚ', s: 'ₛ', t: 'ₜ', ' ': ' ' };
+  const SUP = { 0: '⁰', 1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹', '+': '⁺', '-': '⁻', '−': '⁻', '–': '⁻', '=': '⁼', '(': '⁽', ')': '⁾',
+    n: 'ⁿ', i: 'ⁱ', o: '°', '°': '°', '⁰': '⁰', ' ': ' ' };
+  // Font Symbol (w:sym / huruf berfont Symbol): kode F0xx atau 0x20–0xFF → Unicode (yang umum di soal IPA/matematika)
+  const SYMBOL = (() => {
+    const m = {}, g = 'ΑΒΧΔΕΦΓΗΙϑΚΛΜΝΟΠΘΡΣΤΥςΩΞΨΖ', k = 'αβχδεφγηιϕκλμνοπθρστυϖωξψζ';
+    for (let i = 0; i < 26; i++) { m[0x41 + i] = g[i]; m[0x61 + i] = k[i]; }
+    Object.assign(m, { 0xA3: '≤', 0xB3: '≥', 0xB9: '≠', 0xBB: '≈', 0xA5: '∞', 0xAC: '←', 0xAD: '↑', 0xAE: '→', 0xAF: '↓', 0xAB: '↔', 0xDB: '⇔', 0xDE: '⇒',
+      0xB0: '°', 0xB1: '±', 0xB4: '×', 0xB8: '÷', 0xD6: '√', 0xB6: '∂', 0xE5: '∑', 0xF2: '∫', 0xD7: '·', 0xA2: '′', 0xB2: '″', 0x2D: '−', 0x2B: '+', 0x3D: '=',
+      0x28: '(', 0x29: ')', 0x5B: '[', 0x5D: ']', 0x2F: '/', 0x7C: '|', 0x25: '%', 0x20: ' ' });
+    return m;
+  })();
+  const peta = (s, tab) => { let o = ''; for (const c of s) { if (!(c in tab)) return null; o += tab[c]; } return o; };
+  const atas = s => { s = s.trim(); if (!s) return ''; return peta(s, SUP) ?? (s.length === 1 ? '^' + s : '^(' + s + ')'); };
+  const bawah = s => { s = s.trim(); if (!s) return ''; return peta(s, SUB) ?? s; };   // huruf tanpa subskrip Unicode (mis. f pada ΔHf) ditulis biasa
+  const grup = (s, paksa) => { s = s.trim(); return (!paksa && /^[\p{L}\p{N}.,°′]+$/u.test(s)) ? s : '(' + s + ')'; };
+
+  function kids(n) { return Array.from(n.childNodes).filter(c => c.nodeType === 1); }
+  function satu(n, nama) { const e = kids(n).find(c => c.localName === nama); return e ? lin(e) : ''; }
+  function semua(n, nama) { return kids(n).filter(c => c.localName === nama).map(lin); }
+  function pr(n, nama, atr) { const p = kids(n).find(c => /Pr$/.test(c.localName)); const e = p && kids(p).find(c => c.localName === nama); if (!e) return null; return e.getAttributeNS(NS_M, atr) ?? e.getAttribute('m:' + atr); }
+  // Equation (OMML) → satu baris teks
+  function lin(n) {
+    const L = n.localName;
+    switch (L) {
+      case 't': return n.textContent;
+      case 'r': return kids(n).filter(c => c.localName === 't').map(c => c.textContent).join('');
+      case 'f': return grup(satu(n, 'num')) + '/' + grup(satu(n, 'den'));
+      case 'sSup': return satu(n, 'e') + atas(satu(n, 'sup'));
+      case 'sSub': return satu(n, 'e') + bawah(satu(n, 'sub'));
+      case 'sSubSup': return satu(n, 'e') + bawah(satu(n, 'sub')) + atas(satu(n, 'sup'));
+      case 'sPre': return bawah(satu(n, 'sub')) + atas(satu(n, 'sup')) + satu(n, 'e');
+      case 'rad': { const d = satu(n, 'deg').trim(); return (d ? (peta(d, SUP) ?? d) : '') + '√' + grup(satu(n, 'e'), !/^[\p{L}\p{N}.,]+$/u.test(satu(n, 'e').trim())); }
+      case 'd': { const b = pr(n, 'begChr', 'val') ?? '(', e = pr(n, 'endChr', 'val') ?? ')', s = pr(n, 'sepChr', 'val') ?? '|'; return b + semua(n, 'e').join(s) + e; }
+      case 'nary': { const c = pr(n, 'chr', 'val') ?? '∫'; return c + bawah(satu(n, 'sub')) + atas(satu(n, 'sup')) + ' ' + satu(n, 'e'); }
+      case 'func': return satu(n, 'fName') + ' ' + satu(n, 'e');
+      case 'limLow': case 'limUpp': return satu(n, 'e') + ' ' + satu(n, 'lim');
+      case 'eqArr': return semua(n, 'e').join('; ');
+      case 'm': return kids(n).filter(c => c.localName === 'mr').map(r => semua(r, 'e').join(' ')).join('; ');
+      case 'oMathPara': return semua(n, 'oMath').join('   ');
+      default: return /Pr$/.test(L) ? '' : kids(n).map(lin).join('');
+    }
+  }
+  function runTeks(doc, rPrAsal, teks) {
+    const r = doc.createElementNS(NS_W, 'w:r');
+    if (rPrAsal) r.appendChild(rPrAsal.cloneNode(true));
+    const t = doc.createElementNS(NS_W, 'w:t'); t.setAttributeNS('http://www.w3.org/XML/1998/namespace', 'xml:space', 'preserve'); t.textContent = teks; r.appendChild(t);
+    return r;
+  }
+  async function siapkan(buf, JSZip, DOMParserImpl, XMLSerializerImpl) {
+    const zip = await JSZip.loadAsync(buf);
+    const n = { sub: 0, sup: 0, rumus: 0, simbol: 0, objek: 0, sisaSub: 0 };
+    const nama = Object.keys(zip.files).filter(f => /^word\/(document|footnotes|endnotes)\.xml$/.test(f));
+    if (!nama.includes('word/document.xml')) throw new Error('Bukan berkas .docx yang valid');
+    for (const f of nama) {
+      const doc = new DOMParserImpl().parseFromString(await zip.file(f).async('string'), 'application/xml');
+      // 1. Equation → teks (oMathPara lebih dulu; oMath yang berdiri sendiri sesudahnya)
+      for (const tag of ['oMathPara', 'oMath']) {
+        for (const m of Array.from(doc.getElementsByTagNameNS(NS_M, tag))) {
+          if (!m.parentNode || (tag === 'oMath' && m.parentNode.localName === 'oMathPara')) continue;
+          const teks = lin(m).replace(/\s+/g, ' ').trim();
+          const rPr = m.getElementsByTagNameNS(NS_W, 'rPr')[0];
+          let rPrBersih = null; if (rPr) { rPrBersih = rPr.cloneNode(true); for (const x of Array.from(rPrBersih.childNodes)) if (x.nodeType === 1 && /^(rFonts|i|iCs)$/.test(x.localName)) rPrBersih.removeChild(x); }
+          if (teks) m.parentNode.replaceChild(runTeks(doc, rPrBersih, teks), m); else m.parentNode.removeChild(m);
+          n.rumus++;
+        }
+      }
+      // 2. simbol font Symbol
+      for (const s of Array.from(doc.getElementsByTagNameNS(NS_W, 'sym'))) {
+        const kode = parseInt(s.getAttributeNS(NS_W, 'char') || s.getAttribute('w:char') || '', 16), c = SYMBOL[kode >= 0xF000 ? kode - 0xF000 : kode];
+        if (!c) continue;
+        const t = doc.createElementNS(NS_W, 'w:t'); t.setAttributeNS('http://www.w3.org/XML/1998/namespace', 'xml:space', 'preserve'); t.textContent = c;
+        s.parentNode.replaceChild(t, s); n.simbol++;
+      }
+      for (const r of Array.from(doc.getElementsByTagNameNS(NS_W, 'r'))) {
+        const rPr = kids(r).find(c => c.localName === 'rPr');
+        if (!rPr) continue;
+        // huruf berfont Symbol yang diketik langsung (mis. D berfont Symbol = Δ)
+        const fonts = kids(rPr).find(c => c.localName === 'rFonts');
+        if (fonts && /^symbol$/i.test(fonts.getAttributeNS(NS_W, 'ascii') || fonts.getAttribute('w:ascii') || '')) {
+          for (const t of kids(r).filter(c => c.localName === 't')) { const o = Array.from(t.textContent).map(c => { const k = c.codePointAt(0); return SYMBOL[k >= 0xF000 ? k - 0xF000 : k] ?? c; }).join(''); if (o !== t.textContent) { t.textContent = o; n.simbol++; } }
+          rPr.removeChild(fonts);
+        }
+        // 3. subskrip / superskrip → Unicode
+        const va = kids(rPr).find(c => c.localName === 'vertAlign'); if (!va) continue;
+        const jenis = va.getAttributeNS(NS_W, 'val') || va.getAttribute('w:val');
+        if (jenis !== 'subscript' && jenis !== 'superscript') continue;
+        const ts = kids(r).filter(c => c.localName === 't'); if (!ts.length) continue;
+        if (jenis === 'subscript') {
+          const hasil = ts.map(t => peta(t.textContent, SUB));
+          if (hasil.some(p => p === null)) { n.sisaSub++; continue; }   // mis. huruf f pada ΔHf: dibiarkan apa adanya
+          ts.forEach((t, i) => t.textContent = hasil[i]); n.sub++;
+        } else {
+          for (const t of ts) { const asli = t.textContent, p = peta(asli, SUP); t.textContent = p ?? (asli.trim() ? '^(' + asli.trim() + ')' : asli); }
+          n.sup++;
+        }
+        rPr.removeChild(va);
+      }
+      n.objek += doc.getElementsByTagNameNS(NS_W, 'object').length;
+      zip.file(f, new XMLSerializerImpl().serializeToString(doc));
+    }
+    return { bytes: await zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE' }), n };
+  }
+  root.NASKAH_AI = { siapkan, lin };
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
 <script>/* tka_peserta.js — editor peruntukan ujian (semua siswa / kelas tertentu / siswa tertentu). Dipakai admin.html & index.html.
    API: TKA_PESERTA.buat(el, {siswa:[{nisn,nama,kelas,aktif}], nilai:{mode,kelas,nisn}}) → {get(), set(v), render()}
         TKA_PESERTA.ringkas(nilai, siswa) → teks ringkas;  TKA_PESERTA.tingkat(kelas) → "10"/"11"/"12"/"" */
@@ -1743,7 +1861,7 @@ async function unduhBiner(nama,bytes,mime){const st=await simpanBerkas(bytes,nam
 /* Prompt AI untuk memindahkan naskah soal ke Template Soal Darurat: prompt yang sudah teruji di sekolah
    (Prompt_Konversi_Soal_ke_Template_Darurat.txt), ditambah catatan baris keterangan INFORMASI UJIAN dan format cadangan (no. 12). */
 const PROMPT_DARURAT=`PROMPT UNTUK ChatGPT / AI — KONVERSI NASKAH SOAL KE TEMPLATE SOAL DARURAT (Asesmen Merdeka)
-Lampirkan DUA berkas: (1) naskah soal asli, (2) Template_Soal_Tanpa_Kisi.docx. Lalu tempel teks di bawah ini.
+Lampirkan DUA berkas: (1) naskah soal (bila Word: berkas hasil tombol "Siapkan naskah untuk AI", …_siap_AI.docx), (2) Template_Soal_Tanpa_Kisi.docx. Lalu tempel teks di bawah ini.
 -----------------------------------------------------------------------------------------------
 
 Kamu akan memindahkan naskah soal terlampir ke dalam format Template_Soal_Tanpa_Kisi.docx terlampir, dan mengembalikannya sebagai SATU berkas Word (.docx). Ikuti aturan berikut dengan ketat; jangan berkreasi di luar aturan. Isi soal, angka, pilihan, dan kunci DISALIN PERSIS dari naskah: jangan dihitung ulang, dibulatkan, diperbaiki, atau diganti. Bila menurutmu ada yang salah di naskah, biarkan apa adanya dan sebutkan di akhir jawaban.
@@ -1781,6 +1899,8 @@ Kamu akan memindahkan naskah soal terlampir ke dalam format Template_Soal_Tanpa_
      teks pengantar + gambar → sel "Perintah soal" (urutan tetap); kalimat pertanyaan di BAWAH gambar → sel "Pertanyaan". Kalimat sesudah gambar SERING HILANG — pastikan ikut dipindahkan.
 
 6a. RUMUS / EQUATION (pecahan bersusun, akar, pangkat) — SERING HILANG
+   - Karakter khusus di naskah (H₂O, CO₂, 24⁰C, ΔH°f, x², Fe³⁺, √, →) dan rumus satu baris seperti (100 × 4,2 × 2)/8 disalin PERSIS, karakter demi karakter. Jangan mengubah ₂ menjadi 2 atau ⁰ menjadi 0.
+   - Bila naskah memakai format subskrip/superskrip Word, tuliskan sebagai karakter Unicode (H₂O, 10²³), bukan angka biasa.
    - Bila naskah memakai Equation Word, salin Equation itu apa adanya ke sel yang sama (jangan dihapus, jangan diganti gambar kosong).
    - Bila kamu tidak bisa menyalin Equation, tulis ulang dalam SATU BARIS teks biasa dengan kurung dan garis miring:
      pecahan → (pembilang)/(penyebut), mis. −(100 × 4,2 × 2 × 8)/40 ; pangkat → 10^23 atau x^(2) ; akar → √(x + 1).
@@ -2623,6 +2743,12 @@ window.addEventListener("DOMContentLoaded",()=>{
   const ds=$("drop-s");ds.ondragover=e=>{e.preventDefault();ds.style.borderColor="var(--acc)"};ds.ondragleave=()=>ds.style.borderColor="";ds.ondrop=e=>{e.preventDefault();ds.style.borderColor="";if(e.dataTransfer.files[0])bacaSiswa(e.dataTransfer.files[0])};
   pasangPustaka();$("btn-dp-batal").onclick=()=>$("daftar-pemilik-card").classList.add("hidden");$("btn-di-batal").onclick=()=>$("daftar-info-card").classList.add("hidden");$("btn-di-simpan").onclick=simpanKeterangan;
   $("btn-d-template").onclick=async e=>{const b=e.currentTarget,t=b.textContent;b.disabled=true;b.textContent="Menyiapkan…";try{unduhBiner("Template_Soal_Tanpa_Kisi.docx",await TKA_DOC.buatTemplateDarurat(JSZip),"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}catch(er){toast("Gagal membuat template: "+er.message)}finally{b.disabled=false;b.textContent=t}};
+  $("btn-d-siap").onclick=()=>$("file-d-siap").click();
+  $("file-d-siap").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;const st=$("d-siap-status");st.textContent="Menyiapkan "+f.name+"…";
+    try{const r=await NASKAH_AI.siapkan(await f.arrayBuffer(),JSZip,DOMParser,XMLSerializer),n=r.n,nm=f.name.replace(/\.docx$/i,"")+"_siap_AI.docx";
+      await unduhBiner(nm,r.bytes,"application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      st.innerHTML=`<span class="pill good">Siap</span> Diubah: ${n.rumus} rumus, ${n.sub} subskrip, ${n.sup} superskrip${n.simbol?`, ${n.simbol} simbol`:""}. Lampirkan <b>${esc(nm)}</b> ke AI, bukan naskah aslinya.`+(n.sisaSub?` ${n.sisaSub} subskrip huruf (mis. f pada ΔHf) ditulis sebagai huruf biasa.`:"")+(n.objek?` <span style="color:var(--bad)">${n.objek} rumus berupa objek lama (Equation 3.0/MathType) tidak bisa diubah: di Word klik dua kali objeknya lalu ubah ke Equation, atau ketik ulang, kemudian siapkan lagi.</span>`:"")}
+    catch(er){st.innerHTML=`<span class="pill bad">Gagal</span> ${esc(er.message)}`}};
   $("btn-d-prompt").onclick=()=>{unduhBiner("Prompt_AI_Template_Darurat.txt",new TextEncoder().encode("\ufeff"+PROMPT_DARURAT.split("\n").join("\r\n")),"text/plain;charset=utf-8")};
   $("btn-d-salin").onclick=async e=>{try{await navigator.clipboard.writeText(PROMPT_DARURAT);e.currentTarget.textContent="Prompt tersalin ✓";setTimeout(()=>$("btn-d-salin").textContent="Salin prompt",1800)}catch(er){toast("Gagal menyalin: "+er.message+" — pakai Unduh prompt AI")}};
   $("btn-k-kosong").onclick=async()=>{try{unduhBiner("Template_Kisi_Kisi.docx",await TKA_DOC.buatKisiKosong(JSZip),"application/vnd.openxmlformats-officedocument.wordprocessingml.document")}catch(e){toast("Gagal membuat dokumen: "+e.message)}};$("btn-dl-tutup").onclick=()=>$("daftar-lihat-card").classList.add("hidden");
