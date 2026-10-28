@@ -377,9 +377,9 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
       ${p&&p.pemilik!==j.guru_id&&j.guru_id?`<div class="row small tulis" style="gap:6px"><span class="muted">Penyusun paket tercatat ${esc(namaPendek(p.pemilik))}, jadwal menugaskan ${esc(namaPendek(j.guru_id))}.</span><button class="ghost mini" id="lp-penyusun">Jadikan ${esc(namaPendek(j.guru_id))} penyusun</button></div>`:""}
       ${!BACA&&!j.paketEff&&j.guru_id?`<button class="ghost mini tulis" id="lp-wa">Salin pengingat WA untuk ${esc(namaPendek(j.guru_id))}</button>`:""}</div>
     <div class="card kolom"><h3>2. Sesi &amp; link CBT</h3>${j.S.map(s=>kartuSesi(s,j)).join("")||'<p class="small muted">Belum ada sesi.</p>'}
-      ${j.paketEff&&!j.batal?`<div class="kolom tulis" style="gap:8px;border-top:1px dashed var(--garis-2);padding-top:10px"><b class="small">${j.S.length?"Buka sesi tambahan":"Buka sesi"}</b>${formSesi(j)}
-        ${saudara.length?`<label class="row small" style="gap:6px"><input type="checkbox" id="ls-saudara"> Buka juga untuk ${saudara.map(x=>esc(sasaran(x))).join(", ")} (satu sesi &amp; link per kelas)</label>`:""}
-        <div class="row"><button id="ls-buka">Buka sesi</button></div></div>`:""}</div>
+      ${j.paketEff&&!j.batal?`<div class="kolom tulis" id="ls-blok" style="gap:8px;border-top:1px dashed var(--garis-2);padding-top:10px">${j.S.length?`<label class="row small" style="gap:6px;align-items:flex-start"><input type="checkbox" id="ls-perlu" style="margin-top:3px"><span style="flex:1;min-width:0"><b>Perlu sesi susulan</b> <span class="kecil muted">— centang hanya bila perlu pintu ujian kedua (siswa sakit, gangguan, jadwal digeser). Sesi di atas tidak berubah.</span></span></label>`:'<b class="small">Buka sesi</b>'}${formSesi(j)}
+        ${saudara.length?`<label class="row small" style="gap:6px"><input type="checkbox" id="ls-saudara"${j.S.length?' data-isi="" disabled':""}> Buka juga untuk ${saudara.map(x=>esc(sasaran(x))).join(", ")} (satu sesi &amp; link per kelas)</label>`:""}
+        <div class="row"><button id="ls-buka"${j.S.length?" disabled":""}>${j.S.length?"Buka sesi susulan":"Buka sesi"}</button></div></div>`:""}</div>
     <div class="card kolom"><h3>3. Hasil</h3>${ringkasHasil(j)}</div>
     ${formJadwal(j)}</div>`;
   $("laci-tutup").onclick=tutupLaci;ikatJadwal(j);ikatSesi(el,j);
@@ -388,7 +388,10 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
   if($("lp-lepas"))$("lp-lepas").onclick=async()=>{try{await rpc("to_pasang",{p_pin:PIN,p_ids:[j.id],p_paket:null});toast("Paket dilepas");await muatUlang(true);bukaLaci(j.id)}catch(e){toast(e.message,6000)}};
   if($("lp-penyusun"))$("lp-penyusun").onclick=async()=>{try{await rpc("to_penyusun",{p_pin:PIN,p_kode:j.paketEff,p_guru:j.guru_id});toast("Penyusun diperbarui");await muatUlang(true);bukaLaci(j.id)}catch(e){toast(e.message,6000)}};
   if($("lp-wa"))$("lp-wa").onclick=()=>salin(teksPengingat([j]),"Pengingat disalin — tempel di WA");
-  if($("ls-buka"))$("ls-buka").onclick=async()=>{const ids=[j.id,...($("ls-saudara")&&$("ls-saudara").checked?saudara.filter(x=>x.paketEff).map(x=>x.id):[])];await bukaSesi(ids,ambilFormSesi());bukaLaci(j.id)};
+  if($("ls-perlu"))$("ls-perlu").onchange=()=>{const on=$("ls-perlu").checked;$("ls-blok").querySelectorAll("[data-isi]").forEach(x=>{x.disabled=!on;if(x.type==="checkbox")x.checked=false;else x.value=on?x.dataset.isi:""});$("ls-buka").disabled=!on};
+  if($("ls-buka"))$("ls-buka").onclick=async()=>{const f=ambilFormSesi(),tabrak=j.S.filter(s=>s.T1>Date.now()&&s.T0<f.akhir.getTime()&&s.T1>f.mulai.getTime());
+    if(tabrak.length&&!confirm(`Sudah ada sesi untuk ${sasaran(j)} pada waktu itu:\n\n${tabrak.map(s=>`• kode ${s.kode}, ${waktu(s.mulai)} – ${waktu(s.sampai)}, ${s.durasi} menit`).join("\n")}\n\nSesi kedua memakai kode lain dan siswa bisa masuk lewat salah satunya. Yakin tetap membuka sesi kedua?`))return;
+    const ids=[j.id,...($("ls-saudara")&&$("ls-saudara").checked?saudara.filter(x=>x.paketEff).map(x=>x.id):[])];await bukaSesi(ids,f);bukaLaci(j.id)};
 }
 // TO lain yang dipindah bersama: Wajib = tingkat lain pada tanggal yang sama; Pilihan = kelas 11 lain pada minggu yang sama
 const rekanJadwal=x=>J.filter(y=>y.id!==x.id&&y.program===x.program&&y.mulai===x.mulai&&(x.program==="pilihan"||y.mapel===x.mapel));
@@ -512,11 +515,13 @@ function cekPaket(p,j){const mtk=/^matematika/.test(j.mk),nSoal=mtk?3:5,b=p.bent
   const c=[[p.n_varian>=2,`2 paket (varian): <b>${p.n_varian}</b>`],[p.n_soal===nSoal,`Jumlah soal ${nSoal}: <b>${p.n_soal}</b>`],[adaPG&&adaK,`Campuran PG & PG Kompleks/MCMA: <b>${Object.entries(b).map(([k,n])=>`${esc(k)} ${n}`).join(", ")||"–"}</b>`]];
   return `<div class="cek">${c.map(([ok,t])=>`<span class="${ok?"ok":"no"}">${ok?"✓":"!"} <span style="color:var(--ink)">${t}</span></span>`).join("")}</div>`}
 function formSesi(j){const pil=j.program==="pilihan",d0=new Date(j.d0),d1=new Date(j.d1);d0.setHours(7,0,0,0);d1.setHours(15,0,0,0);
-  const m=new Date(Math.max(d0.getTime(),Date.now()+60000));m.setSeconds(0,0);
-  return `<div class="row"><label class="f">Dibuka<input type="datetime-local" id="ls-mulai" value="${keLokal(m)}"></label><label class="f">Ditutup<input type="datetime-local" id="ls-akhir" value="${keLokal(d1>m?d1:new Date(m.getTime()+8*36e5))}"></label>
-    <label class="f">Lama mengerjakan (menit)<input type="number" id="ls-durasi" min="5" max="300" value="${lsGet("to_durasi",30)}" style="width:110px"></label></div>
-    <label class="row small" style="gap:6px"><input type="checkbox" id="ls-pemb"> Tampilkan jawaban &amp; pembahasan setelah siswa mengumpulkan</label>
-    <p class="kecil muted">Bawaan: ${pil?"Senin 07.00 – Jumat 15.00 (siswa mengerjakan di jam pelajaran masing-masing)":"sepanjang hari 07.00–15.00"}. Boleh diubah, paling lama dibuka 14 hari.</p>`}
+  const akhirLama=Math.max(0,...j.S.map(s=>s.T1)),durLama=j.S.length?j.S[j.S.length-1].durasi:null;
+  const m=new Date(Math.max(d0.getTime(),Date.now()+60000,akhirLama));m.setSeconds(0,0);if(akhirLama&&m.getTime()===akhirLama&&d1<=m){m.setDate(m.getDate()+1);m.setHours(7,0,0,0);d1.setTime(m.getTime());d1.setHours(15,0,0,0)}
+  const isi=v=>j.S.length?`data-isi="${v}" value="" disabled`:`value="${v}"`;
+  return `<div class="row"><label class="f">Dibuka<input type="datetime-local" id="ls-mulai" ${isi(keLokal(m))}></label><label class="f">Ditutup<input type="datetime-local" id="ls-akhir" ${isi(keLokal(d1>m?d1:new Date(m.getTime()+8*36e5)))}></label>
+    <label class="f">Lama mengerjakan (menit)<input type="number" id="ls-durasi" min="5" max="300" ${isi(durLama||lsGet("to_durasi",30))} style="width:110px"></label></div>
+    <label class="row small" style="gap:6px"><input type="checkbox" id="ls-pemb"${j.S.length?' data-isi="" disabled':""}> Tampilkan jawaban &amp; pembahasan setelah siswa mengumpulkan</label>
+    <p class="kecil muted">${j.S.length?"Isian terbuka setelah <b>Perlu sesi susulan</b> dicentang, terisi usulan: dibuka sesudah sesi sebelumnya ditutup, lama mengerjakan sama dengan sesi sebelumnya. Siswa yang sudah mengerjakan otomatis ditolak.":`Bawaan: ${pil?"Senin 07.00 – Jumat 15.00 (siswa mengerjakan di jam pelajaran masing-masing)":"sepanjang hari 07.00–15.00"}.`} Boleh diubah, paling lama dibuka 14 hari.</p>`}
 const ambilFormSesi=()=>({mulai:new Date($("ls-mulai").value),akhir:new Date($("ls-akhir").value),durasi:+$("ls-durasi").value,pemb:$("ls-pemb").checked});
 async function bukaSesi(ids,f){if(isNaN(f.mulai)||isNaN(f.akhir))return toast("Isi waktu buka dan tutup");lsSet("to_durasi",f.durasi);
   try{const r=await rpc("to_buka",{p_pin:PIN,p_ids:ids,p_mulai:f.mulai.toISOString(),p_akhir:f.akhir.toISOString(),p_durasi:f.durasi,p_atur:{pembahasan:f.pemb}});
