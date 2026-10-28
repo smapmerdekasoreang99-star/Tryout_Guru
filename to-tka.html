@@ -347,7 +347,9 @@ const selKal=j=>`<div class="sel-to st-${j.st}" data-buka="${j.id}" data-tip="<b
 function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci");
   if(!el){el=document.createElement("div");el.id="laci";el.className="laci";document.body.appendChild(el);el.onclick=e=>{if(e.target===el)tutupLaci()}}
   const mapelL=[...new Set([...D.jadwal.map(x=>x.mapel),...D.paket.map(p=>p.mapel)])].sort(urutID),guruL=Object.entries(D.guru).sort((a,b)=>urutID(a[1],b[1]));
-  const formJadwal=x=>`<div class="card kolom tulis"><h3>${x?"Ubah jadwal":"Tambah jadwal"}</h3>
+  const formJadwal=x=>`<div class="card kolom tulis">${x?`<div class="row" style="justify-content:space-between;gap:8px"><h3>Jadwal TO</h3><button class="ghost mini" id="lj-ubah">Ubah jadwal ▾</button></div>
+      <p class="kecil muted" style="margin:0">Mengubah rencana TO di kalender (tanggal, kelas, penyusun soal, catatan, batal). Buka hanya bila jadwal memang berubah.</p>`:"<h3>Tambah jadwal</h3>"}
+      <div class="kolom${x?" hidden":""}" id="lj-isi" style="gap:8px">
       <div class="row">${x?"":`<label class="f">Program<select id="lj-prog"><option value="wajib"${PROG==="wajib"?" selected":""}>Mapel Wajib</option><option value="pilihan"${PROG==="pilihan"?" selected":""}>Mapel Pilihan</option></select></label>`}
         <label class="f">Tanggal mulai<input type="date" id="lj-mulai" value="${x?x.mulai:isoD(new Date())}"></label><label class="f">Tanggal akhir<input type="date" id="lj-akhir" value="${x?x.akhir:isoD(new Date())}"></label>
         <label class="f">Jam ke-<input type="number" id="lj-jam" min="1" max="12" style="width:80px" value="${x&&x.jam_ke?x.jam_ke:""}"></label></div>
@@ -358,7 +360,18 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
       <label class="f">Catatan<input type="text" id="lj-cat" value="${x?esc(x.catatan||""):""}" placeholder="mis. digeser karena libur"></label>
       ${x&&rekanJadwal(x).length?`<label class="row small" style="gap:6px"><input type="checkbox" id="lj-semua" checked> Terapkan tanggal, jam, catatan &amp; batal juga ke ${rekanJadwal(x).map(y=>esc(sasaran(y))).join(", ")} (${x.program==="wajib"?"TO yang sama pada tanggal ini":"semua kelas 11 minggu ini"})</label>`:""}
       ${x?`<label class="row small" style="gap:6px"><input type="checkbox" id="lj-batal"${x.batal?" checked":""}> Batalkan TO ini (tetap tercatat, tidak dihitung)</label>`:""}
-      <div class="row"><button id="lj-simpan">${x?"Simpan perubahan":"Tambah"}</button>${x&&!x.sesiSimpan.length?'<button class="bahaya mini" id="lj-hapus">Hapus jadwal</button>':""}</div></div>`;
+      <div class="row"><button id="lj-simpan">${x?"Simpan perubahan":"Tambah"}</button>${x&&!x.sesiSimpan.length?'<button class="bahaya mini" id="lj-hapus">Hapus jadwal</button>':""}</div>
+      ${x?`<ul class="kecil muted" style="margin:0;padding-left:18px;line-height:1.5">
+        <li><b>Tanggal mulai/akhir &amp; Jam ke-</b>: kapan TO dilaksanakan (Mapel Wajib biasanya satu hari; Mapel Pilihan Senin–Jumat). Dipakai untuk kalender, tenggat soal (Jumat sebelumnya), dan isian awal saat membuka sesi.</li>
+        <li><b>Mapel &amp; Sasaran</b>: mapel TO dan jenisnya (TKA atau UTBK).</li>
+        <li><b>Kelas sasaran</b>: kelas yang mengikuti TO ini, dipisahkan koma.</li>
+        <li><b>Guru penyusun soal</b>: guru yang wajib mengirim soal; dipakai untuk pengingat WA dan tab Pengumpulan Soal.</li>
+        <li><b>Catatan</b>: keterangan bebas, mis. "digeser karena PTS".</li>
+        ${rekanJadwal(x).length?`<li><b>Terapkan juga ke …</b>: perubahan tanggal, jam, catatan &amp; batal ikut berlaku untuk ${rekanJadwal(x).map(y=>esc(sasaran(y))).join(", ")}. Hapus centangnya bila hanya untuk ${esc(sasaran(x))}.</li>`:""}
+        <li><b>Batalkan TO ini</b>: TO tetap tercatat tetapi tidak dihitung di rekap (mis. libur). Bisa dibatalkan kembali dengan melepas centangnya.</li>
+        ${!x.sesiSimpan.length?'<li><b>Hapus jadwal</b>: menghapus jadwal yang salah buat (hanya bila belum pernah dibuka sesi).</li>':""}
+        ${x.S.length?'<li><b>Sesi yang sudah dibuka tidak ikut pindah.</b> Untuk mengubah jam sesinya, pakai <b>Ubah waktu</b> di kartu sesi.</li>':""}
+      </ul>`:""}</div></div>`;
   if(!j){el.innerHTML=`<div><div class="kepala"><h2>Tambah jadwal TO</h2><button class="ghost" id="laci-tutup">Tutup</button></div>${formJadwal(null)}</div>`;ikatJadwal(null);$("laci-tutup").onclick=tutupLaci;return}
   // kandidat paket: hanya jenis Tryout Umum, mapel sama, belum diarsipkan; tingkat cocok di atas (Tryout Mandiri tidak bisa dipasang)
   const kand=D.paket.filter(p=>p.mk===j.mk&&!p.arsip&&(p.jenis==="Tryout Umum"||p.kode===j.paketEff)).sort((a,b)=>skorPaket(b,j)-skorPaket(a,j)||urutID(b.dibuat,a.dibuat));
@@ -369,26 +382,36 @@ function bukaLaci(id){const j=id==null?null:J.find(x=>x.id===id);let el=$("laci"
       <div style="margin-top:6px">${pilSt(j.st)} ${j.st==="tunggu"||j.st==="telat"?`<span class="small muted">tenggat soal ${hariTgl(j.tenggat)}</span>`:""}</div></div><button class="ghost" id="laci-tutup">Tutup</button></div>
     <div class="card kolom"><h3>1. Soal</h3>
       ${p?`<div><b>${esc(p.judul)}</b><div class="small muted">${esc(p.kode)} · diunggah ${tgl(p.dibuat)} · penyusun ${esc(namaGuru(p.pemilik))}${!j.paket?" · terdeteksi dari sesi":""}</div></div>${cekPaket(p,j)}`:'<p class="small muted">Belum ada soal untuk TO ini.</p>'}
-      <div class="row tulis" style="align-items:flex-end"><label class="f grow">${p?"Ganti paket":"Pasang paket dari bank soal"}<select id="lp-paket"><option value="">— pilih paket ${esc(j.mapel)} —</option>${kand.map(x=>`<option value="${esc(x.kode)}"${x.kode===j.paketEff?" selected":""}>${esc(x.judul)} · ${tglP(x.dibuat)} · ${esc(namaPendek(x.pemilik))}${x.n_varian>1?` · ${x.n_varian} varian`:""}</option>`).join("")}</select></label>
+      ${p?`<div class="row tulis" style="gap:8px"><button class="ghost mini" id="lp-ubah">Ganti / lepas paket ▾</button><span class="kecil muted">Buka hanya bila soal TO ini memang mau diganti atau dilepas.</span></div>`:""}
+      <div class="kolom tulis${p?" hidden":""}" id="lp-blok" style="gap:8px">
+      <div class="row tulis" style="align-items:flex-end"><label class="f grow">${p?"Pilih paket pengganti":"Pasang paket dari bank soal"}<select id="lp-paket"><option value="">— pilih paket ${esc(j.mapel)} —</option>${kand.map(x=>`<option value="${esc(x.kode)}"${x.kode===j.paketEff?" selected":""}>${esc(x.judul)} · ${tglP(x.dibuat)} · ${esc(namaPendek(x.pemilik))}${x.n_varian>1?` · ${x.n_varian} varian`:""}</option>`).join("")}</select></label>
         <button id="lp-pasang">Pasang</button>${j.paket?'<button class="ghost mini" id="lp-lepas">Lepas</button>':""}</div>
       ${saudara.length?`<label class="row small tulis" style="gap:6px"><input type="checkbox" id="lp-saudara" checked> Pasang juga ke ${saudara.map(x=>esc(sasaran(x))).join(", ")} (mapel &amp; minggu sama)</label>`:""}
       ${!kand.length?`<p class="small muted">Belum ada paket <b>Tryout Umum</b> ${esc(j.mapel)} di bank soal. Guru mengunggah lewat <b>Pustaka Paket → + Upload soal</b> dengan jenis Tryout Umum, atau Anda unggahkan atas namanya lewat <a href="admin.html?menu=pustaka&amp;tab=kisi">+ Unggah soal</a>.</p>`:""}
       ${(()=>{const m=D.paket.filter(p=>p.mk===j.mk&&!p.arsip&&p.jenis!=="Tryout Umum"&&p.kode!==j.paketEff);return m.length?`<p class="small muted">${m.length} paket ${esc(j.mapel)} lain berjenis Tryout Mandiri/lainnya tidak ditampilkan. Bila salah satunya untuk Tryout Umum, minta guru penyusunnya mengubah jenis menjadi <b>Tryout Umum</b> (Pustaka Paket → Ubah judul &amp; keterangan).</p>`:""})()}
+      <ul class="kecil muted" style="margin:0;padding-left:18px;line-height:1.5">
+        <li><b>Daftar pilihan</b>: paket berjenis <b>Tryout Umum</b> untuk ${esc(j.mapel)} di bank soal; yang tingkatnya cocok ada di urutan atas. Paket Tryout Mandiri (latihan guru) tidak muncul.</li>
+        <li><b>Pasang</b>: menjadikan paket yang dipilih sebagai soal TO ini${p?" (menggantikan paket sekarang)":""}.</li>
+        ${saudara.length?`<li><b>Pasang juga ke …</b>: paket yang sama sekaligus dipasang ke ${saudara.map(x=>esc(sasaran(x))).join(", ")} (mapel &amp; minggu sama). Hapus centangnya bila hanya untuk ${esc(sasaran(j))}.</li>`:""}
+        ${j.paket?`<li><b>Lepas</b>: TO ini kembali tanpa soal (status Menunggu soal). Paketnya tidak terhapus dari bank soal dan bisa dipasang lagi.</li>`:""}
+        ${j.S.length?`<li><b>Sesi yang sudah dibuka tetap memakai soal lama</b>, baik paket diganti maupun dilepas. Agar siswa mengerjakan soal baru: Batalkan sesi lama (sebelum ada siswa yang mengerjakan), lalu buka sesi baru.</li>`:""}
+      </ul></div>
       ${p&&p.pemilik!==j.guru_id&&j.guru_id?`<div class="row small tulis" style="gap:6px"><span class="muted">Penyusun paket tercatat ${esc(namaPendek(p.pemilik))}, jadwal menugaskan ${esc(namaPendek(j.guru_id))}.</span><button class="ghost mini" id="lp-penyusun">Jadikan ${esc(namaPendek(j.guru_id))} penyusun</button></div>`:""}
       ${!BACA&&!j.paketEff&&j.guru_id?`<button class="ghost mini tulis" id="lp-wa">Salin pengingat WA untuk ${esc(namaPendek(j.guru_id))}</button>`:""}</div>
     <div class="card kolom"><h3>2. Sesi &amp; link CBT</h3>${j.S.map(s=>kartuSesi(s,j)).join("")||'<p class="small muted">Belum ada sesi.</p>'}
-      ${j.paketEff&&!j.batal?`<div class="kolom tulis" id="ls-blok" style="gap:8px;border-top:1px dashed var(--garis-2);padding-top:10px">${j.S.length?`<label class="row small" style="gap:6px;align-items:flex-start"><input type="checkbox" id="ls-perlu" style="margin-top:3px"><span style="flex:1;min-width:0"><b>Perlu sesi susulan</b> <span class="kecil muted">— centang hanya bila perlu pintu ujian kedua (siswa sakit, gangguan, jadwal digeser). Sesi di atas tidak berubah.</span></span></label>`:'<b class="small">Buka sesi</b>'}${formSesi(j)}
+      ${j.paketEff&&!j.batal?`<div class="kolom tulis" id="ls-blok" style="gap:8px;border-top:1px dashed var(--garis-2);padding-top:10px">${j.S.length?`<label class="row small" style="gap:6px;align-items:flex-start"><input type="checkbox" id="ls-perlu" style="margin-top:3px"><span style="flex:1;min-width:0"><b>Perlu sesi susulan</b> <span class="kecil muted">— centang hanya bila perlu pintu ujian kedua (siswa sakit, gangguan, jadwal digeser). Sesi di atas tidak berubah.</span></span></label>`:'<b class="small">Buka sesi</b>'}<div class="kolom${j.S.length?" hidden":""}" id="ls-isi" style="gap:8px">${formSesi(j)}
         ${saudara.length?`<label class="row small" style="gap:6px"><input type="checkbox" id="ls-saudara"${j.S.length?' data-isi="" disabled':""}> Buka juga untuk ${saudara.map(x=>esc(sasaran(x))).join(", ")} (satu sesi &amp; link per kelas)</label>`:""}
-        <div class="row"><button id="ls-buka"${j.S.length?" disabled":""}>${j.S.length?"Buka sesi susulan":"Buka sesi"}</button></div></div>`:""}</div>
+        <div class="row"><button id="ls-buka"${j.S.length?" disabled":""}>${j.S.length?"Buka sesi susulan":"Buka sesi"}</button></div></div></div>`:""}</div>
     <div class="card kolom"><h3>3. Hasil</h3>${ringkasHasil(j)}</div>
     ${formJadwal(j)}</div>`;
   $("laci-tutup").onclick=tutupLaci;ikatJadwal(j);ikatSesi(el,j);
-  if($("lp-pasang"))$("lp-pasang").onclick=async()=>{const k=$("lp-paket").value;if(!k)return toast("Pilih paket dulu");const ids=[j.id,...($("lp-saudara")&&$("lp-saudara").checked?saudara.map(x=>x.id):[])];
+  if($("lp-pasang"))$("lp-pasang").onclick=async()=>{const k=$("lp-paket").value;if(!k)return toast("Pilih paket dulu");if(j.S.length&&!confirm("Sesi yang sudah dibuka untuk TO ini tetap memakai soal lama. Lanjutkan?"))return;const ids=[j.id,...($("lp-saudara")&&$("lp-saudara").checked?saudara.map(x=>x.id):[])];
     try{await rpc("to_pasang",{p_pin:PIN,p_ids:ids,p_paket:k});toast(`Paket dipasang ke ${ids.length} jadwal`);await muatUlang(true);bukaLaci(j.id)}catch(e){toast(e.message,6000)}};
-  if($("lp-lepas"))$("lp-lepas").onclick=async()=>{try{await rpc("to_pasang",{p_pin:PIN,p_ids:[j.id],p_paket:null});toast("Paket dilepas");await muatUlang(true);bukaLaci(j.id)}catch(e){toast(e.message,6000)}};
+  if($("lp-lepas"))$("lp-lepas").onclick=async()=>{if(j.S.length&&!confirm("Sesi yang sudah dibuka untuk TO ini tetap memakai soal lama. Lanjutkan?"))return;try{await rpc("to_pasang",{p_pin:PIN,p_ids:[j.id],p_paket:null});toast("Paket dilepas");await muatUlang(true);bukaLaci(j.id)}catch(e){toast(e.message,6000)}};
   if($("lp-penyusun"))$("lp-penyusun").onclick=async()=>{try{await rpc("to_penyusun",{p_pin:PIN,p_kode:j.paketEff,p_guru:j.guru_id});toast("Penyusun diperbarui");await muatUlang(true);bukaLaci(j.id)}catch(e){toast(e.message,6000)}};
+  if($("lp-ubah"))$("lp-ubah").onclick=()=>{const tutup=!$("lp-blok").classList.toggle("hidden");$("lp-ubah").textContent=tutup?"Tutup ▴":"Ganti / lepas paket ▾"};
   if($("lp-wa"))$("lp-wa").onclick=()=>salin(teksPengingat([j]),"Pengingat disalin — tempel di WA");
-  if($("ls-perlu"))$("ls-perlu").onchange=()=>{const on=$("ls-perlu").checked;$("ls-blok").querySelectorAll("[data-isi]").forEach(x=>{x.disabled=!on;if(x.type==="checkbox")x.checked=false;else x.value=on?x.dataset.isi:""});$("ls-buka").disabled=!on};
+  if($("ls-perlu"))$("ls-perlu").onchange=()=>{const on=$("ls-perlu").checked;$("ls-isi").classList.toggle("hidden",!on);$("ls-blok").querySelectorAll("[data-isi]").forEach(x=>{x.disabled=!on;if(x.type==="checkbox")x.checked=false;else x.value=on?x.dataset.isi:""});$("ls-buka").disabled=!on};
   if($("ls-buka"))$("ls-buka").onclick=async()=>{const f=ambilFormSesi(),tabrak=j.S.filter(s=>s.T1>Date.now()&&s.T0<f.akhir.getTime()&&s.T1>f.mulai.getTime());
     if(tabrak.length&&!confirm(`Sudah ada sesi untuk ${sasaran(j)} pada waktu itu:\n\n${tabrak.map(s=>`• kode ${s.kode}, ${waktu(s.mulai)} – ${waktu(s.sampai)}, ${s.durasi} menit`).join("\n")}\n\nSesi kedua memakai kode lain dan siswa bisa masuk lewat salah satunya. Yakin tetap membuka sesi kedua?`))return;
     const ids=[j.id,...($("ls-saudara")&&$("ls-saudara").checked?saudara.filter(x=>x.paketEff).map(x=>x.id):[])];await bukaSesi(ids,f);bukaLaci(j.id)};
@@ -521,7 +544,7 @@ function formSesi(j){const pil=j.program==="pilihan",d0=new Date(j.d0),d1=new Da
   return `<div class="row"><label class="f">Dibuka<input type="datetime-local" id="ls-mulai" ${isi(keLokal(m))}></label><label class="f">Ditutup<input type="datetime-local" id="ls-akhir" ${isi(keLokal(d1>m?d1:new Date(m.getTime()+8*36e5)))}></label>
     <label class="f">Lama mengerjakan (menit)<input type="number" id="ls-durasi" min="5" max="300" ${isi(durLama||lsGet("to_durasi",30))} style="width:110px"></label></div>
     <label class="row small" style="gap:6px"><input type="checkbox" id="ls-pemb"${j.S.length?' data-isi="" disabled':""}> Tampilkan jawaban &amp; pembahasan setelah siswa mengumpulkan</label>
-    <p class="kecil muted">${j.S.length?"Isian terbuka setelah <b>Perlu sesi susulan</b> dicentang, terisi usulan: dibuka sesudah sesi sebelumnya ditutup, lama mengerjakan sama dengan sesi sebelumnya. Siswa yang sudah mengerjakan otomatis ditolak.":`Bawaan: ${pil?"Senin 07.00 – Jumat 15.00 (siswa mengerjakan di jam pelajaran masing-masing)":"sepanjang hari 07.00–15.00"}.`} Boleh diubah, paling lama dibuka 14 hari.</p>`}
+    <p class="kecil muted">${j.S.length?"Usulan otomatis: dibuka sesudah sesi sebelumnya ditutup, lama mengerjakan sama dengan sesi sebelumnya. Siswa yang sudah mengerjakan otomatis ditolak. Lepas centang bila batal.":`Bawaan: ${pil?"Senin 07.00 – Jumat 15.00 (siswa mengerjakan di jam pelajaran masing-masing)":"sepanjang hari 07.00–15.00"}.`} Boleh diubah, paling lama dibuka 14 hari.</p>`}
 const ambilFormSesi=()=>({mulai:new Date($("ls-mulai").value),akhir:new Date($("ls-akhir").value),durasi:+$("ls-durasi").value,pemb:$("ls-pemb").checked});
 async function bukaSesi(ids,f){if(isNaN(f.mulai)||isNaN(f.akhir))return toast("Isi waktu buka dan tutup");lsSet("to_durasi",f.durasi);
   try{const r=await rpc("to_buka",{p_pin:PIN,p_ids:ids,p_mulai:f.mulai.toISOString(),p_akhir:f.akhir.toISOString(),p_durasi:f.durasi,p_atur:{pembahasan:f.pemb}});
@@ -561,6 +584,7 @@ function ringkasHasil(j){if(!j.H.length)return `<p class="small muted">${j.S.len
     ${grafikBH(kk.map(x=>({label:x.k,nilai:x.r||0,warna:x.r==null?"var(--garis-2)":x.r>=KKM()?"var(--baik)":x.r>=KKM()-15?"var(--cukup)":"var(--kurang)",tip:`<b>${esc(x.k)}</b><br>${x.n}/${x.t} siswa · rata-rata ${angka(x.r)}`})),{maks:100,fmt:v=>v?angka(v):"–"})}
     <p class="kecil muted">Rincian per siswa ada di tab Rekap &amp; Laporan.</p>`}
 function ikatJadwal(j){if(!$("lj-simpan"))return;
+  if($("lj-ubah"))$("lj-ubah").onclick=()=>{const buka=!$("lj-isi").classList.toggle("hidden");$("lj-ubah").textContent=buka?"Tutup ▴":"Ubah jadwal ▾"};
   $("lj-simpan").onclick=async()=>{const kelas=$("lj-kelas").value.split(/[,\s]+/).map(x=>x.trim()).filter(Boolean);
     const r={id:j?j.id:null,program:j?j.program:$("lj-prog").value,mulai:$("lj-mulai").value,akhir:$("lj-akhir").value,jam_ke:$("lj-jam").value||null,kelas,mapel:$("lj-mapel").value,
       jenis:$("lj-jenis").value,guru_id:$("lj-guru").value||null,catatan:$("lj-cat").value,batal:j?$("lj-batal").checked:false,periode:j?null:D.periode.kode,tingkat:j?j.tingkat:(kelas[0]||"").split("-")[0]};
