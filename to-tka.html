@@ -650,12 +650,15 @@ function gSesi(){const el=$("tab-sesi"),kini=Date.now();
       <div id="pt-isi" style="padding:0 6px 6px">${pantauAda?"":'<p class="small muted" style="padding:0 12px 12px">Belum ada sesi Tryout Umum yang terbuka, terjadwal, atau ditutup dalam 12 jam terakhir.</p>'}</div></details>`;
   el.innerHTML=`<div style="margin-top:12px"></div>${blok("Sedang berlangsung",jalan,"Bagikan link atau tampilkan QR di kelas. Siswa masuk hanya dengan NISN.")}${pantau}${blok("Terjadwal",jadwal,"Link sudah bisa dibagikan sebelum waktunya; siswa baru bisa mengerjakan saat sesi dibuka.")}${blok("Selesai (15 terakhir)",selesai)}`;
   ikatSesi(el,null);
-  const pasang=()=>{if(!pantauAda||$("pt-frame"))return;$("pt-isi").innerHTML='<iframe id="pt-frame" src="index.html?guru&tanam=1&pantau=to" title="Pantau pelaksanaan Tryout Umum" style="width:100%;min-height:420px;border:0;display:block"></iframe>';
+  const pasang=()=>{if(!pantauAda||$("pt-frame"))return;$("pt-isi").innerHTML='<iframe id="pt-frame" src="index.html?guru&tanam=1&pantau=to" title="Pantau pelaksanaan Tryout Umum" style="width:100%;min-height:160px;border:0;display:block"></iframe>';
     clearInterval(PT_T);PT_T=setInterval(()=>{const f=$("pt-frame");if(!f){clearInterval(PT_T);return}if(TAB!=="sesi"||!$("pt-blok").open)return;
-      try{const h=f.contentDocument.documentElement.scrollHeight;if(h&&Math.abs(h-f.offsetHeight)>8)f.style.height=h+"px"}catch(e){}},700)};
+      try{const h=tinggiIsi(f);if(h&&Math.abs(h-f.offsetHeight)>8)f.style.height=h+"px"}catch(e){}},700)};
   $("pt-blok").addEventListener("toggle",e=>{const o=e.target.open;lsSet("to_pantau",o?"buka":"tutup");$("pt-tanda").textContent=o?"Tutup ▴":"Buka ▾";if(o)pasang()});
   if(pantauBuka)pasang()}
 let PT_T=null;
+// Tinggi iframe = tinggi isi .wrap (bukan scrollHeight dokumen, yang tidak pernah lebih kecil dari tinggi iframe),
+// supaya iframe ikut memendek saat Pantau siswa ditutup (29 Okt 2026).
+const tinggiIsi=f=>{const d=f.contentDocument,w=d.querySelector(".wrap")||d.body;return Math.ceil(w.getBoundingClientRect().bottom+(f.contentWindow.scrollY||0))+16};
 
 // sesi dianggap terlaksana bila ada hasil atau dibuka ≥ 15 menit (sesi yang langsung ditutup = uji coba)
 const sesiNyata=x=>x.n_hasil>0||x.T1-x.T0>=15*60000;
@@ -791,7 +794,7 @@ function pasangAnalisis(L){const box=$("an-isi"),j=L.find(x=>x.id===R_AN);if(!bo
   if(src===AN_SRC&&box.querySelector("iframe"))return;
   AN_SRC=src;box.innerHTML=`<iframe id="an-frame" src="${src}" title="Analisis hasil ${esc(j.mapel)} ${esc(sasaran(j))}" style="width:100%;min-height:640px;border:0;display:block"></iframe>`;
   clearInterval(AN_T);AN_T=setInterval(()=>{const f=$("an-frame");if(!f){clearInterval(AN_T);return}if(TAB!=="rekap")return;
-    try{const h=f.contentDocument.documentElement.scrollHeight;if(h&&Math.abs(h-f.offsetHeight)>8)f.style.height=h+"px"}catch(e){}},700)}
+    try{const h=tinggiIsi(f);if(h&&Math.abs(h-f.offsetHeight)>8)f.style.height=h+"px"}catch(e){}},700)}
 function dataRekap(per){if(!per)return null;const L=J.filter(j=>j.program===R_PROG&&!j.batal&&j.st!=="pra"&&per.tgl.includes(j.mulai)&&(!R_SAS||(R_PROG==="wajib"?j.tingkat===R_SAS:j.kelas.includes(R_SAS))));
   // kolom TO: Wajib = per tanggal (mapel sama untuk semua tingkat); Pilihan = per minggu × mapel
   const kol=[];L.forEach(j=>{const k=R_PROG==="wajib"?j.mulai:j.mulai+"|"+j.mapel;if(!kol.some(x=>x.k===k))kol.push({k,mapel:j.mapel,tgl:j.mulai,jenis:j.jenis})});kol.sort((a,b)=>urutID(a.k,b.k));
