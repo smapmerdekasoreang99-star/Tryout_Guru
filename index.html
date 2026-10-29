@@ -359,6 +359,7 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
 .se-kel{margin:18px 0 8px}.se-kel h3{margin:0}.se-kel p{margin:2px 0 0;font-size:13px;color:var(--muted)}
 /* mode tanam: dasbor di dalam Asesmen Bersama */
 .tanam header.top,.tanam .ds-atur,.tanam #btn-guru-out,.tanam #btn-g-sesi-baru,.tanam .ds-catatan,.tanam #hd-aksi,.tanam .staf{display:none!important}
+.pantau-to #v-sesi>.card.form h2,.pantau-to #v-sesi>.card.form>p,.pantau-to #btn-se-back,.pantau-to #btn-se-baru,.pantau-to #se-form{display:none!important}
 .tanam body{background:transparent}.tanam main,.tanam .wrap{padding-top:0!important;margin-top:0!important}
 /* Rekapitulasi (21 Okt 2026): ringkasan per kelas + sebaran nilai + rentang per kelas.
    Warna status lolos validator dataviz (CVD & kontras): merah #A8432E, emas #B7862A, hijau #2F7A4C. */
@@ -935,6 +936,9 @@ let DASBOR_URL=qs.get("dasbor"),UJI_URL=qs.get("ujicoba"),G_DASBOR="";   // Pust
 // Mode tanam (21 Okt 2026): Dasbor Hasil dimuat di tab Hasil Siswa Asesmen Bersama (pas.html, iframe).
 // ?tanam=1 menyembunyikan kepala & tombol menu; ?hanya=KODE1,KODE2 membatasi pemilih ujian pada paket Folder Soal.
 const TANAM=qs.get("tanam")==="1",HANYA=(qs.get("hanya")||"").toUpperCase().split(",").map(x=>x.trim()).filter(Boolean);
+// ?tanam=1&pantau=to (29 Okt 2026): tab Sesi & Link to-tka.html memuat Sesi ujian ini, hanya sesi Tryout Umum (s.tryout_umum).
+const PANTAU_TO=TANAM&&qs.get("pantau")==="to";
+if(PANTAU_TO)document.documentElement.classList.add("pantau-to");
 const saringHanya=L=>HANYA.length?(L||[]).filter(p=>HANYA.includes(String(p.kode).toUpperCase())):L;
 if(TANAM){document.documentElement.classList.add("tanam");
   addEventListener("DOMContentLoaded",()=>document.querySelectorAll("#v-guru h2").forEach(h=>{if(h.textContent.trim()==="Dasbor guru")h.textContent="Dasbor hasil"}))}
@@ -949,6 +953,7 @@ async function masukMenu(pin){$("m-msg").textContent="Memeriksa…";
     if(SESI_URL){const k=SESI_URL.toUpperCase();SESI_URL=null;bukaSesi({paket:k})}
     else if(DASBOR_URL){G_DASBOR=DASBOR_URL.toUpperCase();DASBOR_URL=null;show("v-guru");$("g-main").classList.add("hidden");loginGuru()}
     else if(UJI_URL){const k=UJI_URL.toUpperCase();UJI_URL=null;mulaiUjiCoba(k)}
+    else if(PANTAU_TO)bukaSesi();
     return true}
   catch(e){$("m-msg").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`;return false}}
 function bukaMenu(){show("v-menu");const sv=ssGet(CFG.lsPin,null);if(PIN&&PERAN){$("m-login").classList.add("hidden");$("m-main").classList.remove("hidden")}
@@ -1202,7 +1207,7 @@ async function bukaSesi(o){o=o||{};show("v-sesi");$("btn-se-baru").classList.tog
   clearInterval(SE_TIMER);SE_TIMER=setInterval(()=>{if($("v-sesi").classList.contains("hidden")){clearInterval(SE_TIMER);return}muatSesi(true)},20000);
   if(o.paket&&!lihatSaja())bukaFormSesi(o.paket)}
 async function muatSesi(diam){if(!diam)$("se-info").textContent="Memuat…";
-  try{const j=await rpc("tka_sesi_daftar",{p_pin:PIN});SESI=j.sesi||[];
+  try{const j=await rpc("tka_sesi_daftar",{p_pin:PIN});SESI=(j.sesi||[]).filter(s=>!PANTAU_TO||s.tryout_umum);
     if(!(diam&&document.activeElement&&document.activeElement.matches("#se-daftar [data-menit], #se-daftar [data-aw]")))renderSesi();if(SE_PANTAU)muatPantau(SE_PANTAU,true);$("se-info").textContent="Diperbarui "+jam(new Date())}
   catch(e){$("se-info").innerHTML=`<span class="pill bad">${esc(e.message)}</span>`}}
 // Keadaan sesi (21 Okt 2026): satu keadaan per kartu. Terjadwal yang ditutup sebelum jam mulai = dibatalkan.
@@ -1217,7 +1222,7 @@ function kartuSesi(s){const m=s.milik,a=[],jadwal=s.buka&&s.terjadwal,batal=seBa
   if(m&&!s.buka&&!batal)a.push(`<span class="se-menit"><button class="ghost" data-a="tambah" title="Untuk siswa yang belum ikut. Siswa yang sudah mengumpulkan tidak bisa mengerjakan ulang.">Buka kembali +</button>${menit}</span>`);
   if(m)a.push(`<button class="ghost" data-a="awas">${SE_AWAS===s.id?"Tutup pengawasan":"Pengawasan"}</button>`);
   if(m)a.push(`<label class="se-sak" title="Siswa yang sudah mengumpulkan boleh melihat kunci dan pembahasan"><span class="saklar"><input type="checkbox" role="switch" data-a="pemb" ${s.atur&&s.atur.pembahasan?"checked":""}><i></i></span>Pembahasan</label>`);
-  a.push(`<button class="soft" data-a="pantau">${SE_PANTAU===s.id?"Tutup pantauan":"Pantau siswa"}</button>`,'<button class="ghost" data-a="hasil">Hasil</button>');
+  a.push(`<button class="soft" data-a="pantau">${SE_PANTAU===s.id?"Tutup pantauan":"Pantau siswa"}</button>`);if(!PANTAU_TO)a.push('<button class="ghost" data-a="hasil">Hasil</button>');
   const adaHasil=s.n_masuk||s.n_selesai;if(m&&!adaHasil)a.push('<button class="ghost" data-a="hapus">Hapus sesi</button>');
   // sesi berisi hasil tidak bisa dihapus (hasil siswa tercatat per sesi); beri tahu pemiliknya supaya tidak mencari tombolnya
   const hilang=jam(new Date(s.sampai).getTime()+12*3600e3);
@@ -1242,6 +1247,7 @@ function panelAwas(s){const w={...awasAtur(s.atur),...SE_AWAS_DRAFT};
     `<p class="se-cat">Siswa yang sedang mengerjakan memakai angka baru paling lambat 1 menit setelah disimpan; kode buka langsung berlaku. Hitungan keluar yang sudah terjadi tidak dihapus.</p></div>`}
 function renderSesi(){const el=$("se-daftar");
   if(SE_PANTAU&&!SESI.some(s=>s.id===SE_PANTAU))SE_PANTAU=null;
+  if(!SESI.length&&PANTAU_TO){el.innerHTML='<div class="card"><p class="muted" style="margin:0">Belum ada sesi Tryout Umum yang terbuka, terjadwal, atau ditutup dalam 12 jam terakhir.</p></div>';return}
   if(!SESI.length){el.innerHTML=`<div class="card"><p class="muted" style="margin:0">${PERAN==="guru"?"Belum ada sesi Anda (yang Anda buka, atau untuk paket yang Anda susun)":"Belum ada sesi"} yang terbuka atau ditutup dalam 12 jam terakhir.${!lihatSaja()?" Tekan <b>Buka latihan / tryout</b> untuk memulai.":""}</p></div>`;return}
   const jadwal=SESI.filter(s=>s.buka&&s.terjadwal),buka=SESI.filter(s=>s.buka&&!s.terjadwal),tutup=SESI.filter(s=>!s.buka);
   const kepala=(j,n,k)=>`<div class="se-kel"><h3>${j} (${n})</h3><p>${k}</p></div>`;
