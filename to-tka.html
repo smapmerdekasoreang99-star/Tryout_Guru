@@ -512,6 +512,7 @@ async function bacaKalender(file){let X;try{X=await muatSheetJS()}catch(e){toast
       else if(id&&!L)g.push(`ID ${id} tidak ada di semester ${D.periode.nama} (pilih semester yang benar, atau kosongkan ID untuk baris baru)`);
       else if(L&&program&&L.program!==program)g.push("Program tidak bisa diubah untuk jadwal yang sudah ada");
       const b={id:L?L.id:null,program,mulai,akhir,jam_ke:jam,kelas:kl.kelas,mapel,jenis,guru_id:gr.id||null,catatan,batal,periode:null,tingkat:L?L.tingkat:(kl.kelas[0]||"").split("-")[0]};
+      if(!g.length&&!L&&periodeTgl(mulai)!==D.periode.kode)g.push(`Tanggal ${tglP(tglD(mulai))} termasuk ${namaPeriode(periodeTgl(mulai))}, sedangkan yang sedang dibuka ${namaPeriode(D.periode.kode)}. Pilih ${namaPeriode(periodeTgl(mulai))} di kanan atas, unduh template-nya, lalu unggah jadwal ini di sana`);
       if(!g.length&&!L){const ganda=D.jadwal.find(j=>j.program===program&&j.mulai===mulai&&tka_mk(j.mapel)===tka_mk(mapel)&&j.kelas.some(k=>kl.kelas.includes(k)));
         if(ganda)g.push(`Sudah ada jadwal yang sama (ID ${ganda.id}). Isi kolom ID dengan ${ganda.id} bila ingin mengubahnya`);
         else if(hasil.some(x=>!x.b.id&&x.b.program===program&&x.b.mulai===mulai&&tka_mk(x.b.mapel)===tka_mk(mapel)&&x.b.kelas.some(k=>kl.kelas.includes(k))))g.push("Baris ganda di berkas ini")}
@@ -524,6 +525,9 @@ async function bacaKalender(file){let X;try{X=await muatSheetJS()}catch(e){toast
       hasil.push({tempat,b,L,ubah})}}
   if(!hasil.length&&!galat.length){toast("Tidak ada baris jadwal yang terbaca. Pakai berkas dari tombol ⬇ Unduh template.",7000);return}
   pratinjauKalender(hasil,galat)}
+// Semester dari tanggal (sama dengan tka_periode di server): Juli–Desember = Ganjil, Januari–Juni = Genap (29 Okt 2026)
+const periodeTgl=s=>{const y=+s.slice(0,4),m=+s.slice(5,7);return m>=7?`${y}-${y+1}-1`:`${y-1}-${y}-2`};
+const namaPeriode=k=>{const [a,b,c]=k.split("-");return `Semester ${c==="1"?"Ganjil":"Genap"} ${a}/${b}`};
 const tka_mk=m=>String(m||"").toLowerCase().replace(/\s+/g," ").trim();
 
 function pratinjauKalender(hasil,galat){let el=$("laci");
@@ -605,11 +609,11 @@ function ikatJadwal(j){if(!$("lj-simpan"))return;
       isi.forEach(e=>{e.disabled=!on;if(!on){if(e.type==="checkbox")e.checked=e.dataset.asli==="true";else e.value=e.dataset.asli}});cek()}}
   $("lj-simpan").onclick=async()=>{const kelas=$("lj-kelas").value.split(/[,\s]+/).map(x=>x.trim()).filter(Boolean);
     const r={id:j?j.id:null,program:j?j.program:$("lj-prog").value,mulai:$("lj-mulai").value,akhir:$("lj-akhir").value,jam_ke:$("lj-jam").value||null,kelas,mapel:$("lj-mapel").value,
-      jenis:$("lj-jenis").value,guru_id:$("lj-guru").value||null,catatan:$("lj-cat").value,batal:j?$("lj-batal").checked:false,periode:j?null:D.periode.kode,tingkat:j?j.tingkat:(kelas[0]||"").split("-")[0]};
+      jenis:$("lj-jenis").value,guru_id:$("lj-guru").value||null,catatan:$("lj-cat").value,batal:j?$("lj-batal").checked:false,periode:j||!tglSah($("lj-mulai").value)?null:periodeTgl($("lj-mulai").value),tingkat:j?j.tingkat:(kelas[0]||"").split("-")[0]};
     // TO ditukar/digeser (mis. kegiatan sekolah): kelas lain pada tanggal yang sama ikut dipindah
     const rows=[r];if(j&&$("lj-semua")&&$("lj-semua").checked)rekanJadwal(j).forEach(y=>rows.push({id:y.id,program:y.program,mulai:r.mulai,akhir:r.akhir,jam_ke:r.jam_ke,kelas:y.kelas,mapel:y.mapel,jenis:y.jenis,guru_id:y.guru_id,catatan:r.catatan,batal:r.batal}));
     const adaSesi=rows.some(x=>{const y=J.find(z=>z.id===x.id);return y&&y.S.some(q=>q.T0>Date.now())&&x.mulai!==y.mulai});
-    try{await rpc("to_jadwal_simpan",{p_pin:PIN,p_rows:rows,p_hapus:[]});if(adaSesi)toast("Jadwal dipindah. Sesi yang sudah dibuat tidak ikut pindah — ubah waktunya di bagian Sesi & link.",7000);else toast(j?"Jadwal diperbarui":"Jadwal ditambahkan");await muatUlang(true);if(j)bukaLaci(j.id);else tutupLaci()}catch(e){toast(e.message,6000)}};
+    try{await rpc("to_jadwal_simpan",{p_pin:PIN,p_rows:rows,p_hapus:[]});if(adaSesi)toast("Jadwal dipindah. Sesi yang sudah dibuat tidak ikut pindah — ubah waktunya di bagian Sesi & link.",7000);else if(!j&&r.periode&&r.periode!==D.periode.kode)toast(`Jadwal ditambahkan ke ${namaPeriode(r.periode)} (sesuai tanggalnya). Pilih semester itu di kanan atas untuk melihatnya.`,8000);else toast(j?"Jadwal diperbarui":"Jadwal ditambahkan");await muatUlang(true);if(j)bukaLaci(j.id);else tutupLaci()}catch(e){toast(e.message,6000)}};
   if($("lj-hapus"))$("lj-hapus").onclick=async()=>{if(!confirm("Hapus jadwal ini?"))return;try{await rpc("to_jadwal_simpan",{p_pin:PIN,p_rows:[],p_hapus:[j.id]});toast("Jadwal dihapus");tutupLaci();await muatUlang(true)}catch(e){toast(e.message,6000)}}}
 
 /* ================= Pengumpulan Soal ================= */
