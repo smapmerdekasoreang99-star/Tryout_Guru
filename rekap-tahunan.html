@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
+<script src="config.js?v=2"></script>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rekap Tahunan — SMA Plus Merdeka Soreang</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="assets/dasar.css?v=3">
+<link rel="icon" href="assets/ikon-32.png">
+<style>
+/* Rekap Tahunan & Tolok Ukur Angkatan (29 Okt 2026, RENCANA_REKAP_TAHUNAN.md; desain disetujui dari contoh tampilan).
+   Data: rk_tolok_daftar, rk_kelas_daftar, rk_jejak (database_tryout). Grafik SVG dibuat sendiri, satu skala per grafik. */
+:root{--ini:#2F5D7C;--ini-muda:#DCE8F1;--lalu:#A39886;--lalu-muda:#ECE6DA;--baik:#2F7A4C;--baik-muda:#E4EFE7;--kurang:#A8432E;--kurang-muda:#F7E4DF}
+*{box-sizing:border-box}html,body{margin:0;background:var(--kertas);color:var(--tinta);font-size:15px;line-height:1.5;font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header.top{background:var(--gelap);color:#fff;padding:10px 16px;border-bottom:4px solid var(--emas);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+header.top img{height:40px}header.top .t{font-weight:700;font-size:17px}header.top .sub{font-size:12px;color:var(--emas)}
+header.top .kanan{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+header.top .kanan a,header.top .kanan button{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5);border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;font-family:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:12px 16px 64px}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif;font-weight:600;margin:0;text-wrap:balance}h2{font-size:21px}h3{font-size:17px}
+p{margin:0}.muted{color:var(--tinta-2)}.small{font-size:13px}.kecil{font-size:12px;color:var(--tinta-3)}.hidden{display:none!important}
+.card{background:#fff;border:1px solid var(--garis);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.isi{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+button{font-family:inherit;font-size:14px;border:0;border-radius:8px;padding:8px 16px;cursor:pointer;background:var(--gelap);color:var(--emas);font-weight:700}
+button.ghost{background:#fff;color:var(--tinta);border:1px solid var(--garis-2)}button:disabled{opacity:.5;cursor:default}
+input,select{padding:8px 10px;font-size:14px;border:1px solid var(--garis-2);border-radius:8px;font-family:inherit;background:#fff;color:var(--tinta);min-height:40px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--tinta-2);font-weight:600}
+.tabs{position:sticky;top:0;z-index:20;display:flex;gap:4px;margin:12px 0;padding:5px;background:rgba(255,255,255,.95);border:1px solid var(--garis-2);border-radius:14px;overflow-x:auto}
+.tabs button{flex:1 0 auto;background:transparent;color:var(--tinta-2);border-radius:10px;padding:9px 14px;font-weight:600;white-space:nowrap}
+.tabs button.on{background:var(--gelap);color:#fff}
+.ubin{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.ubin>div{background:#fff;border:1px solid var(--garis);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.ubin b{font-family:"Fraunces",Georgia,serif;font-size:28px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.15;color:var(--gelap)}
+.ubin span{font-size:13px;color:var(--tinta-2)}
+.naik{color:var(--baik);font-weight:700}.turun{color:var(--kurang);font-weight:700}.tetap{color:var(--tinta-3);font-weight:700}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:14px}
+.gulir{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-variant-numeric:tabular-nums}
+th,td{padding:8px 10px;border-bottom:1px solid var(--garis);text-align:left;white-space:nowrap}
+th{font-size:12px;color:var(--tinta-2);font-weight:600;background:var(--kertas-3)}td.n,th.n{text-align:right}
+.leg{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--tinta-2)}
+.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px}
+svg.ch{width:100%;height:auto;display:block;overflow:visible}svg.ch text{font-family:inherit;font-size:11px;fill:var(--tinta-2)}
+.temuan{display:flex;flex-direction:column;gap:6px;margin:0;padding-left:18px}
+.catatan{background:var(--emas-kabut);border:1px solid var(--garis-2);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--tinta-2)}
+.kosong{padding:24px;text-align:center;color:var(--tinta-2)}
+.daftar-siswa{display:flex;flex-direction:column;border:1px solid var(--garis);border-radius:10px;max-height:300px;overflow:auto}
+.daftar-siswa button{background:#fff;color:var(--tinta);text-align:left;font-weight:500;border-radius:0;border-bottom:1px solid var(--garis);display:flex;justify-content:space-between;gap:10px}
+.daftar-siswa button:hover{background:var(--emas-kabut)}
+.ava{width:52px;height:52px;border-radius:50%;background:var(--ini-muda);color:var(--ini);display:grid;place-items:center;font-family:"Fraunces",Georgia,serif;font-size:20px;font-weight:600;flex:none}
+.langkah{list-style:none;margin:0;padding:0}
+.langkah li{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--garis)}.langkah li:last-child{border-bottom:0}
+.langkah .no{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:13px;background:var(--kertas-3);border:1px solid var(--garis-2);color:var(--tinta-2)}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%) translateY(120%);background:var(--gelap);color:#fff;padding:10px 16px;border-radius:10px;z-index:500;opacity:0;transition:.25s;max-width:calc(100% - 32px)}
+.toast.show{transform:translateX(-50%);opacity:1}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--emas);outline-offset:2px}
+</style>
+</head>
+<body>
+<header class="top"><img src="assets/logo.png" alt=""><div><div class="t">Rekap Tahunan</div><div class="sub">Hasil siswa dari tahun ke tahun · tolok ukur angkatan</div></div>
+  <div class="kanan"><a href="index.html?guru" id="ke-menu">‹ Menu utama</a></div></header>
+<div class="wrap">
+  <div class="card" id="kartu-pin" style="max-width:480px;margin:40px auto">
+    <h2>Masuk Rekap Tahunan</h2>
+    <p class="small muted">Gunakan PIN guru, kurikulum, koordinator, atau operator.</p>
+    <div class="row"><input type="password" id="pin" placeholder="PIN" autocomplete="off" style="flex:1"><button id="btn-pin">Masuk</button></div>
+    <p class="small" id="pin-pesan"></p>
+  </div>
+  <section id="v-isi" class="hidden">
+    <nav class="tabs" id="tabs" role="tablist">
+      <button data-v="tolok" class="on">Tolok ukur angkatan</button><button data-v="kelas">Per kelas</button><button data-v="jejak">Jejak siswa</button><button data-v="tutup">Susun &amp; Tutup Tahun</button>
+    </nav>
+    <main class="isi" id="isi"></main>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function toast(m,ms){const t=$("toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),ms||3400)}
+const SB=(()=>{const c=window.TKA_SUPABASE||{};return c.url&&c.key?c:null})();
+async function rpc(fn,args){if(!SB)throw new Error("Server belum diatur (config.js)");
+  const r=await fetch(`${SB.url}/rest/v1/rpc/${fn}`,{method:"POST",headers:{"Content-Type":"application/json","apikey":SB.key,.../^eyJ[\w-]*\.[\w-]+\.[\w-]*$/.test(SB.key)?{"Authorization":"Bearer "+SB.key}:{}},body:JSON.stringify(args||{})});
+  let j=null;try{j=await r.json()}catch(e){}if(!r.ok)throw new Error((j&&(j.message||j.hint||j.error))||("HTTP "+r.status));return j}
+const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const angka=(x,d=1)=>x==null||isNaN(x)?"–":Number(x).toLocaleString("id-ID",{maximumFractionDigits:d});
+const r1=x=>Math.round(x*10)/10;
+const urutID=(a,b)=>String(a).localeCompare(String(b),"id",{numeric:true});
+const beda=d=>d==null?'<span class="tetap">–</span>':d>0.4?`<span class="naik">▲ +${angka(r1(d))}</span>`:d<-0.4?`<span class="turun">▼ ${angka(r1(d))}</span>`:`<span class="tetap">= ${angka(r1(d))}</span>`;
+const KKM=70,SEM={1:"Ganjil",2:"Genap"};
+
+/* ---------------- data ---------------- */
+let PIN="",PERAN="",T=[],TA=[],V=lsGet("rt_v","tolok"),SERI=lsGet("rt_seri",""),TK=lsGet("rt_tk","10"),BANDING="",SISWA=null,JEJAK=null,JSERI="";
+// Satu "seri" = kegiatan yang sama dari tahun ke tahun; "slot" = titik di dalamnya (periode TO, asesmen, semester).
+function info(r){const p=r.kunci.split("|"),sem=r.periode.split("-")[2],ur=r.urutan??(+p[4]||null);
+  if(r.jenis==="to_umum")return {seri:`to|${p[1]}|${p[2]}`,nama:`TO ${p[1]==="wajib"?"Wajib":"Pilihan"} · ${r.mapel}`,slot:`${sem}|${String(ur).padStart(2,"0")}`,lb:`${SEM[sem]} P${ur}`};
+  if(r.jenis==="asesmen")return {seri:`asesmen|${p[2]}`,nama:`Asesmen Bersama · ${r.mapel}`,slot:`${sem}|${p[1]}`,lb:r.label.split(" · ")[0]};
+  return {seri:r.kunci,nama:r.label,slot:sem,lb:SEM[sem]}}
+const satuan=s=>s.startsWith("matdas")?"level tuntas":s.startsWith("er|")?"sub-level lulus":"nilai";
+const skalaNilai=s=>!(s.startsWith("matdas")||s.startsWith("er|"));
+function siapkan(){T.forEach(r=>Object.assign(r,info(r)));TA=[...new Set(T.map(r=>r.ta))].sort();
+  const ada=[...new Set(T.map(r=>r.seri))];if(!ada.includes(SERI))SERI=ada.find(s=>s.startsWith("to|wajib|matematika"))||ada[0]||"";
+  const tk=[...new Set(T.map(r=>r.tingkat))].sort(urutID);if(!tk.includes(TK))TK=tk[0]||"10";
+  const kini=TA[TA.length-1];if(!BANDING||BANDING===kini||!TA.includes(BANDING))BANDING=TA.length>1?TA[TA.length-2]:""}
+const daftarSeri=()=>{const m=new Map();T.forEach(r=>{if(!m.has(r.seri))m.set(r.seri,r.nama)});
+  const urut=s=>s.startsWith("to|wajib")?0:s.startsWith("to|")?1:s.startsWith("asesmen")?2:s.startsWith("mandiri")?3:4;
+  return [...m].sort((a,b)=>urut(a[0])-urut(b[0])||urutID(a[1],b[1]))};
+const baris=(seri,tk,ta)=>T.filter(r=>r.seri===seri&&r.tingkat===tk&&r.ta===ta).sort((a,b)=>urutID(a.slot,b.slot));
+const persenTuntas=r=>{const s=r.sebaran||[],n=s.reduce((a,b)=>a+b,0);return n?Math.round(100*s.slice(7).reduce((a,b)=>a+b,0)/n):null};
+const gab=(L,f)=>{const a=L.map(f).filter(x=>x!=null);return a.length?a.reduce((x,y)=>x+y,0)/a.length:null};
+// rata-rata berbobot n untuk sub-materi / level dari beberapa slot
+function gabJson(L,k){const o={};L.forEach(r=>Object.entries(r[k]||{}).forEach(([n,v])=>{o[n]=o[n]||{s:0,n:0};o[n].s+=v*r.n;o[n].n+=r.n}));const h={};Object.entries(o).forEach(([n,x])=>h[n]=r1(x.s/x.n));return h}
+
+/* ---------------- grafik ---------------- */
+function grafikRentang(seri,tk){const kini=TA[TA.length-1],A=BANDING?baris(seri,tk,BANDING):[],B=baris(seri,tk,kini),slot=[...new Set([...A,...B].map(r=>r.slot))].sort(urutID);
+  if(!slot.length)return '<p class="kosong">Belum ada data.</p>';
+  const nilai=skalaNilai(seri),mx=nilai?100:Math.max(10,Math.ceil(Math.max(...[...A,...B].map(r=>+r.p75||0),...[...A,...B].map(r=>+r.median||0))*1.25/5)*5);
+  const W=Math.max(720,slot.length*96+60),H=260,kiri=36,kanan=10,atas=16,bawah=34,lb=(W-kiri-kanan)/slot.length,y=v=>atas+(H-atas-bawah)*(1-Math.min(v,mx)/mx);
+  let s=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Sebaran ${esc(satuan(seri))} kelas ${tk}">`;
+  [0,.25,.5,.75,1].forEach(f=>{const v=Math.round(mx*f);s+=`<line x1="${kiri}" x2="${W-kanan}" y1="${y(v)}" y2="${y(v)}" stroke="var(--garis)" stroke-dasharray="${v?"2 3":"0"}"/><text x="${kiri-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`});
+  if(nilai)s+=`<line x1="${kiri}" x2="${W-kanan}" y1="${y(KKM)}" y2="${y(KKM)}" stroke="var(--emas)" stroke-width="1.4" stroke-dasharray="6 4"/><text x="${W-kanan}" y="${y(KKM)-5}" text-anchor="end" style="fill:var(--emas-teks);font-weight:600">batas tuntas ${KKM}</text>`;
+  slot.forEach((sl,i)=>{const cx=kiri+lb*i+lb/2;[[A,0],[B,1]].forEach(([L,yy])=>{const r=L.find(x=>x.slot===sl);if(!r)return;
+      const w=20,x=BANDING?cx+(yy?6:-26):cx-10,c=yy?"var(--ini)":"var(--lalu)",cm=yy?"var(--ini-muda)":"var(--lalu-muda)",h=Math.max(2,y(+r.p25)-y(+r.p75));
+      s+=`<rect x="${x}" y="${y(+r.p75)}" width="${w}" height="${h}" rx="3" fill="${cm}" stroke="${c}" stroke-width="1.2"><title>${r.ta} · ${r.lb}: P25 ${angka(r.p25)} · median ${angka(r.median)} · P75 ${angka(r.p75)} · ${r.n} siswa</title></rect>`;
+      s+=`<line x1="${x-2}" x2="${x+w+2}" y1="${y(+r.median)}" y2="${y(+r.median)}" stroke="${c}" stroke-width="3"/>`;
+      if(yy)s+=`<text x="${x+w/2}" y="${y(+r.p75)-6}" text-anchor="middle" style="fill:var(--ini);font-weight:700">${angka(r.median)}</text>`});
+    const r=[...A,...B].find(x=>x.slot===sl);s+=`<text x="${cx}" y="${H-12}" text-anchor="middle" style="font-weight:600;fill:var(--tinta)">${esc(r.lb)}</text>`});
+  return s+"</svg>"}
+function grafikDumbbell(a,b,judul){const nama=[...new Set([...Object.keys(b),...Object.keys(a)])].sort((x,y)=>(b[x]??a[x])-(b[y]??a[y]));
+  if(!nama.length)return '<p class="kosong">Belum ada data.</p>';
+  const W=520,bar=32,H=nama.length*bar+30,kiri=Math.min(220,10+Math.max(...nama.map(n=>Math.min(n.length,34)))*6.2),kanan=40,x=v=>kiri+(W-kiri-kanan)*v/100;
+  let s=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(judul)}">`;
+  [0,25,50,75,100].forEach(v=>s+=`<line x1="${x(v)}" x2="${x(v)}" y1="4" y2="${H-22}" stroke="var(--garis)" stroke-dasharray="2 3"/><text x="${x(v)}" y="${H-6}" text-anchor="middle">${v}%</text>`);
+  nama.forEach((n,j)=>{const va=a[n],vb=b[n],cy=16+j*bar,pendek=n.length>34?n.slice(0,33)+"…":n;
+    s+=`<text x="${kiri-10}" y="${cy+4}" text-anchor="end" style="fill:var(--tinta)"><title>${esc(n)}</title>${esc(pendek)}</text>`;
+    if(va!=null&&vb!=null){const c=vb>=va?"var(--baik)":"var(--kurang)";s+=`<line x1="${x(va)}" x2="${x(vb)}" y1="${cy}" y2="${cy}" stroke="${c}" stroke-width="3" stroke-linecap="round"/><text x="${Math.max(x(va),x(vb))+12}" y="${cy+4}" style="font-weight:700;fill:${c}">${vb-va>=0?"+":""}${angka(r1(vb-va))}</text>`}
+    if(va!=null)s+=`<circle cx="${x(va)}" cy="${cy}" r="6" fill="#fff" stroke="var(--lalu)" stroke-width="2.4"><title>${BANDING}: ${angka(va)}% benar</title></circle>`;
+    if(vb!=null)s+=`<circle cx="${x(vb)}" cy="${cy}" r="6.5" fill="var(--ini)"><title>${TA[TA.length-1]}: ${angka(vb)}% benar</title></circle>`;
+    if(va==null&&vb!=null)s+=`<text x="${x(vb)+12}" y="${cy+4}" style="font-weight:700;fill:var(--ini)">${angka(vb)}%</text>`});
+  return s+"</svg>"}
+
+/* ---------------- tampilan ---------------- */
+const pilihan=(denganBanding=true)=>`<div class="row"><label class="f">Kegiatan<select id="p-seri">${daftarSeri().map(([k,n])=>`<option value="${esc(k)}"${k===SERI?" selected":""}>${esc(n)}</option>`).join("")}</select></label>
+  <label class="f">Tingkat<select id="p-tk">${[...new Set(T.map(r=>r.tingkat))].sort(urutID).map(t=>`<option value="${t}"${t===TK?" selected":""}>Kelas ${t}</option>`).join("")}</select></label>
+  ${denganBanding?`<label class="f">Dibandingkan dengan<select id="p-banding"${TA.length>1?"":" disabled"}>${TA.length>1?TA.slice(0,-1).reverse().map(t=>`<option${t===BANDING?" selected":""}>${t}</option>`).join(""):"<option>belum ada tahun sebelumnya</option>"}</select></label>`:""}</div>`;
+const tanpaBanding=()=>TA.length>1?"":`<p class="catatan">Data baru ada untuk tahun ajaran <b>${TA[0]}</b>. Angka-angka di bawah akan menjadi <b>tolok ukur</b> bagi angkatan tahun ajaran berikutnya; perbandingan tampil otomatis begitu tahun berikutnya punya hasil.</p>`;
+
+function vTolok(){const kini=TA[TA.length-1],B=baris(SERI,TK,kini),A=BANDING?baris(SERI,TK,BANDING):[],sm=new Set(A.map(r=>r.slot)),Bs=B.filter(r=>sm.has(r.slot)),As=A.filter(r=>B.some(x=>x.slot===r.slot));
+  const nilai=skalaNilai(SERI),med=L=>gab(L,r=>+r.median),ik=L=>gab(L.filter(r=>r.n_sasaran),r=>100*r.n/r.n_sasaran),tun=L=>gab(L,persenTuntas),namaSeri=(daftarSeri().find(x=>x[0]===SERI)||[0,""])[1];
+  const ubin=!B.length?"":`<div class="ubin">
+    <div><span>Median ${esc(satuan(SERI))}</span><b>${angka(med(B))}</b><span>${A.length?`${beda(med(Bs)-med(As))} dari ${angka(med(As))} (${BANDING})`:`${B.length} pelaksanaan · ${kini}`}</span></div>
+    ${nilai?`<div><span>Hasil tuntas (≥ ${KKM})</span><b>${angka(tun(B),0)}%</b><span>${A.length?`${beda(tun(Bs)-tun(As))} poin dari ${angka(tun(As),0)}%`:"dari semua hasil"}</span></div>`
+      :`<div><span>${SERI.startsWith("matdas")?"Akurasi jawaban":"Rata-rata nilai sub-level"}</span><b>${angka(gab(B,r=>(r.lain||{})[SERI.startsWith("matdas")?"akurasi":"rata_sub"]))}${SERI.startsWith("matdas")?"%":""}</b><span>hari berlatih (median) ${angka(gab(B,r=>(r.lain||{}).hari_median))}</span></div>`}
+    <div><span>Partisipasi</span><b>${angka(ik(B),0)}%</b><span>${A.length?`${beda(ik(Bs)-ik(As))} poin dari ${angka(ik(As),0)}%`:`${B.reduce((a,r)=>a+r.n_siswa,0)} hasil siswa`}</span></div>
+    <div><span>${A.length?"Pelaksanaan di atas angkatan lalu":"Jumlah pelaksanaan"}</span><b>${A.length?`${Bs.filter(r=>+r.median>+(As.find(x=>x.slot===r.slot)||{}).median).length} / ${Bs.length}`:B.length}</b><span>kelas ${TK} · ${kini}</span></div></div>`;
+  const lvA=gabJson(As.length?As:[], "level"),lvB=gabJson(As.length?Bs:B,"level"),sbA=gabJson(As,"sub"),sbB=gabJson(As.length?Bs:B,"sub");
+  const lemah=Object.entries(sbB).sort((a,b)=>a[1]-b[1])[0],lvL=Object.entries(lvB).sort((a,b)=>a[1]-b[1])[0];
+  const naik=A.length?Object.keys(sbB).filter(n=>sbA[n]!=null).map(n=>[n,sbB[n]-sbA[n]]).sort((a,b)=>b[1]-a[1])[0]:null;
+  const semua=daftarSeri().map(([s,n])=>{const b=baris(s,TK,kini);if(!b.length)return "";const a=BANDING?baris(s,TK,BANDING).filter(r=>b.some(x=>x.slot===r.slot)):[],bb=a.length?b.filter(r=>a.some(x=>x.slot===r.slot)):b;
+    return `<tr><td><b>${esc(n)}</b><div class="kecil">${b.length} pelaksanaan · ${esc(satuan(s))}</div></td><td class="n">${a.length?angka(med(a)):"–"}</td><td class="n"><b>${angka(med(b))}</b></td><td class="n">${a.length?beda(med(bb)-med(a)):"–"}</td><td class="n">${skalaNilai(s)?angka(tun(b),0)+"%":"–"}</td><td class="n">${ik(b)==null?"–":angka(ik(b),0)+"%"}</td></tr>`}).join("");
+  return `<section class="card"><div><h2>Apakah angkatan ini lebih baik dari angkatan lalu?</h2><p class="small muted">Tolok ukur = hasil angkatan sebelumnya pada kegiatan dan tingkat yang sama, disimpan permanen di database. Perbandingan tetap ada walaupun rinciannya sudah diarsipkan.</p></div>${pilihan()}${tanpaBanding()}</section>
+  ${B.length?ubin:`<div class="card kosong">Belum ada hasil ${esc(namaSeri)} kelas ${TK} di ${kini}.</div>`}
+  ${B.length||A.length?`<section class="card"><div><h3>Sebaran ${esc(satuan(SERI))} tiap pelaksanaan</h3><p class="small muted">Kotak = 50% siswa di tengah, garis tebal = median. ${A.length?"Kotak biru yang lebih tinggi berarti angkatan ini lebih baik; kotak yang lebih pendek berarti hasilnya lebih merata.":""}</p></div>
+    <div class="leg">${BANDING?`<span><i style="background:var(--lalu-muda);border:1.5px solid var(--lalu)"></i>${BANDING} (tolok ukur)</span>`:""}<span><i style="background:var(--ini-muda);border:1.5px solid var(--ini)"></i>${kini}</span></div>
+    <div class="gulir">${grafikRentang(SERI,TK)}</div></section>`:""}
+  ${Object.keys(lvB).length?`<div class="grid2">
+    <section class="card"><div><h3>Level kognitif${A.length?": mana yang membaik?":""}</h3><p class="small muted">Persentase jawaban benar per level${A.length?`, ${BANDING} (○) ke ${kini} (●)`:""}.</p></div><div class="gulir">${grafikDumbbell(lvA,lvB,"Level kognitif")}</div></section>
+    <section class="card"><div><h3>Sub-materi</h3><p class="small muted">Persentase jawaban benar per sub-materi (dikelompokkan dari kisi-kisi), dari yang paling lemah.${A.length?" Dibandingkan bila namanya sama dengan tahun lalu.":""}</p></div><div class="gulir">${grafikDumbbell(sbA,sbB,"Sub-materi")}</div></section></div>`:""}
+  ${B.length?`<section class="card"><h3>Temuan untuk rapat guru</h3><ul class="temuan">
+    ${A.length?`<li>Median ${esc(namaSeri)} kelas ${TK} <b>${med(Bs)>=med(As)?"naik":"turun"} ${angka(Math.abs(r1(med(Bs)-med(As))))}</b> dibanding ${BANDING} pada ${Bs.length} pelaksanaan yang sama.</li>`:`<li>Median ${esc(namaSeri)} kelas ${TK} di ${kini}: <b>${angka(med(B))}</b> (${B.length} pelaksanaan) — menjadi tolok ukur angkatan berikutnya.</li>`}
+    ${naik&&naik[1]>0?`<li>Kenaikan terbesar: <b>${esc(naik[0])}</b> (+${angka(r1(naik[1]))} poin persentase).</li>`:""}
+    ${lemah?`<li>Sub-materi paling lemah: <b>${esc(lemah[0])}</b>, ${angka(lemah[1])}% jawaban benar — usul bahan pembahasan bersama.</li>`:""}
+    ${lvL?`<li>Level kognitif paling lemah: <b>${esc(lvL[0])}</b> (${angka(lvL[1])}% benar).</li>`:""}
+    ${nilai&&tun(B)!=null?`<li>${angka(tun(B),0)}% hasil mencapai batas tuntas ${KKM}.</li>`:""}</ul><p class="kecil">Kalimat disusun otomatis dari angka di halaman ini.</p></section>`:""}
+  <section class="card"><div><h3>Semua kegiatan kelas ${TK}</h3><p class="small muted">Rata-rata median semua pelaksanaan tahun itu${BANDING?"; perubahan dihitung hanya pada pelaksanaan yang ada di kedua tahun":""}.</p></div>
+    <div class="gulir"><table><thead><tr><th>Kegiatan</th><th class="n">${BANDING||"Tahun lalu"}</th><th class="n">${kini}</th><th class="n">Perubahan</th><th class="n">Tuntas</th><th class="n">Partisipasi</th></tr></thead><tbody>${semua||'<tr><td colspan="6" class="kosong">Belum ada.</td></tr>'}</tbody></table></div></section>`}
+
+let KELAS=null;
+async function vKelas(){const kini=TA[TA.length-1];
+  const kepala=`<section class="card"><div><h2>Kelas mana yang paling berkembang?</h2><p class="small muted">Selisih median tiap kelas terhadap ${BANDING?`tolok ukur angkatan ${BANDING}`:`median tingkatnya di ${kini}`} pada pelaksanaan yang sama. Hijau = di atas ≥ 4, merah = di bawah ≥ 4.</p></div>${pilihan()}${tanpaBanding()}</section>`;
+  if(!KELAS||KELAS.tk!==TK){$("isi").innerHTML=kepala+'<div class="card kosong">Memuat…</div>';ikatPilihan();
+    try{KELAS={tk:TK,L:await rpc("rk_kelas_daftar",{p_pin:PIN,p_tingkat:TK})}}catch(e){$("isi").innerHTML=kepala+`<div class="card kosong">${esc(e.message)}</div>`;ikatPilihan();return}}
+  const L=KELAS.L.map(x=>({...x,...info({...x,label:"",mapel:""})})).filter(x=>x.seri===SERI&&x.ta===kini);
+  const B=baris(SERI,TK,kini),A=BANDING?baris(SERI,TK,BANDING):[],slot=B.map(r=>r.slot),pb=sl=>(A.find(r=>r.slot===sl)||B.find(r=>r.slot===sl)||{}).median;
+  const kelas=[...new Set(L.map(x=>x.kelas))].sort(urutID),warna=d=>d>=4?"var(--baik-muda)":d<=-4?"var(--kurang-muda)":"transparent";
+  $("isi").innerHTML=kepala+(kelas.length?`<section class="card"><div class="gulir"><table><thead><tr><th>Kelas</th>${B.map(r=>`<th class="n">${esc(r.lb)}</th>`).join("")}<th class="n">Rata-rata selisih</th></tr></thead><tbody>
+    ${kelas.map(k=>{const d=slot.map(sl=>{const x=L.find(y=>y.kelas===k&&y.slot===sl);return x?{d:r1(+x.median - +pb(sl)),x}:null}),ad=d.filter(Boolean);
+      return `<tr><td><b>${esc(k)}</b></td>${d.map((v,i)=>v?`<td class="n" style="background:${warna(v.d)}" title="${esc(k)} ${esc(B[i].lb)}: median ${angka(v.x.median)} (${v.x.n} siswa), pembanding ${angka(pb(slot[i]))}">${v.d>0?"+":""}${angka(v.d)}</td>`:'<td class="n kecil">·</td>').join("")}<td class="n">${ad.length?beda(ad.reduce((a,v)=>a+v.d,0)/ad.length):"–"}</td></tr>`}).join("")}
+    <tr><td class="kecil">Pembanding</td>${slot.map(sl=>`<td class="n kecil">${angka(pb(sl))}</td>`).join("")}<td></td></tr></tbody></table></div>
+    <p class="kecil">Kelas dibandingkan dengan tingkatnya, bukan dengan kelas yang sama tahun lalu: susunan kelas berganti tiap tahun.</p></section>`:`<div class="card kosong">Belum ada hasil per kelas untuk kegiatan ini.</div>`);
+  ikatPilihan()}
+
+async function vJejak(){
+  if(!SISWA){$("isi").innerHTML='<div class="card kosong">Memuat daftar siswa…</div>';try{SISWA=await rpc("tka_list_siswa",{p_pin:PIN})}catch(e){$("isi").innerHTML=`<div class="card kosong">${esc(e.message)}</div>`;return}}
+  $("isi").innerHTML=`<section class="card"><div><h2>Jejak siswa</h2><p class="small muted">Satu siswa dari tahun ke tahun, dibandingkan dengan angkatannya pada kegiatan yang sama.</p></div>
+    <div class="row"><label class="f" style="flex:1;min-width:220px">Cari nama atau NISN<input type="text" id="j-cari" placeholder="mis. Alya atau 0081…" autocomplete="off"></label></div><div class="daftar-siswa hidden" id="j-daftar"></div></section><div id="j-isi" class="isi"></div>`;
+  const cari=()=>{const q=$("j-cari").value.trim().toLowerCase(),el=$("j-daftar");if(q.length<2){el.classList.add("hidden");return}
+    const L=SISWA.filter(s=>String(s.nama).toLowerCase().includes(q)||String(s.nisn).includes(q)).slice(0,30);
+    el.innerHTML=L.map(s=>`<button data-nisn="${esc(s.nisn)}"><span><b>${esc(s.nama)}</b> <span class="kecil">${esc(s.nisn)}</span></span><span class="kecil">${esc(s.kelas||"–")}</span></button>`).join("")||'<p class="kosong">Tidak ada yang cocok.</p>';
+    el.classList.remove("hidden");el.querySelectorAll("[data-nisn]").forEach(b=>b.onclick=()=>{el.classList.add("hidden");$("j-cari").value="";bukaJejak(b.dataset.nisn)})};
+  $("j-cari").oninput=cari;if(JEJAK)gambarJejak()}
+async function bukaJejak(nisn){$("j-isi").innerHTML='<div class="card kosong">Memuat…</div>';
+  try{JEJAK={s:SISWA.find(x=>String(x.nisn)===String(nisn))||{nisn,nama:nisn},L:(await rpc("rk_jejak",{p_pin:PIN,p_nisn:nisn})).map(r=>({...r,...info(r)}))};gambarJejak()}catch(e){$("j-isi").innerHTML=`<div class="card kosong">${esc(e.message)}</div>`}}
+function gambarJejak(){const {s,L}=JEJAK,el=$("j-isi");if(!el)return;
+  const ini=String(s.nama||"?").trim().split(/\s+/).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+  const kepala=`<section class="card"><div class="row" style="align-items:center;gap:14px"><div class="ava">${esc(ini)}</div><div style="min-width:0"><h2>${esc(s.nama)}</h2><p class="small muted">NISN ${esc(s.nisn)} · kini kelas ${esc(s.kelas||"–")}</p></div></div></section>`;
+  if(!L.length){el.innerHTML=kepala+'<div class="card kosong">Belum ada hasil siswa ini di rekap tahunan.</div>';return}
+  const seriL=[...new Map(L.map(r=>[r.seri,r.nama])).entries()].sort((a,b)=>L.filter(r=>r.seri===b[0]).length-L.filter(r=>r.seri===a[0]).length);
+  if(!seriL.some(x=>x[0]===JSERI))JSERI=(seriL.find(x=>x[0].startsWith("to|"))||seriL[0])[0];
+  const P=L.filter(r=>r.seri===JSERI).sort((a,b)=>urutID(a.periode+a.slot,b.periode+b.slot)),nilai=skalaNilai(JSERI),awal=P[0],akhir=P[P.length-1];
+  const mx=nilai?100:Math.max(10,Math.ceil(Math.max(...P.map(r=>Math.max(+r.nilai,+r.p75||0)))*1.2/5)*5);
+  const W=Math.max(720,P.length*80+60),H=240,kiri=36,kanan=14,atas=16,bawah=40,x=i=>P.length>1?kiri+(W-kiri-kanan)*i/(P.length-1):(W+kiri)/2,y=v=>atas+(H-atas-bawah)*(1-Math.min(+v,mx)/mx);
+  let g=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Jejak ${esc(s.nama)}">`;
+  [0,.25,.5,.75,1].forEach(f=>{const v=Math.round(mx*f);g+=`<line x1="${kiri}" x2="${W-kanan}" y1="${y(v)}" y2="${y(v)}" stroke="var(--garis)" stroke-dasharray="${v?"2 3":"0"}"/><text x="${kiri-6}" y="${y(v)+4}" text-anchor="end">${v}</text>`});
+  if(P.length>1)g+=`<path d="${P.map((r,i)=>(i?"L":"M")+x(i)+","+y(r.p75)).join(" ")} ${[...P].reverse().map((r,j)=>"L"+x(P.length-1-j)+","+y(r.p25)).join(" ")} Z" fill="var(--lalu-muda)"/><path d="${P.map((r,i)=>(i?"L":"M")+x(i)+","+y(r.median)).join(" ")}" fill="none" stroke="var(--lalu)" stroke-width="1.6" stroke-dasharray="5 4"/>`;
+  else g+=`<rect x="${x(0)-14}" y="${y(P[0].p75)}" width="28" height="${Math.max(2,y(P[0].p25)-y(P[0].p75))}" fill="var(--lalu-muda)"/><line x1="${x(0)-16}" x2="${x(0)+16}" y1="${y(P[0].median)}" y2="${y(P[0].median)}" stroke="var(--lalu)" stroke-dasharray="4 3" stroke-width="2"/>`;
+  P.forEach((r,i)=>{if(i&&r.ta!==P[i-1].ta)g+=`<line x1="${(x(i)+x(i-1))/2}" x2="${(x(i)+x(i-1))/2}" y1="${atas}" y2="${H-bawah}" stroke="var(--garis-2)"/><text x="${(x(i)+x(i-1))/2+6}" y="${atas+10}">${esc(r.ta)}</text>`});
+  if(P.length>1)g+=`<path d="${P.map((r,i)=>(i?"L":"M")+x(i)+","+y(r.nilai)).join(" ")}" fill="none" stroke="var(--ini)" stroke-width="2.6"/>`;
+  P.forEach((r,i)=>g+=`<circle cx="${x(i)}" cy="${y(r.nilai)}" r="${i===P.length-1?6:4.5}" fill="var(--ini)"><title>${esc(r.ta)} ${esc(r.lb)}: ${angka(r.nilai)} (median angkatan ${angka(r.median)}, persentil ${angka(r.persentil,0)})</title></circle><text x="${x(i)}" y="${H-22}" text-anchor="middle">${esc(r.lb)}</text><text x="${x(i)}" y="${H-8}" text-anchor="middle" class="kecil">kls ${esc(r.tingkat)}</text>`);
+  g+="</svg>";
+  const perTA=[...new Set(L.map(r=>r.ta))].sort(),ringkas=seriL.map(([sk,n])=>{const v=perTA.map(t=>{const a=L.filter(r=>r.seri===sk&&r.ta===t);if(!a.length)return null;
+      return sk.startsWith("matdas")||sk.startsWith("er|")?a.reduce((x,r)=>x+ +r.nilai,0):a.reduce((x,r)=>x+ +r.nilai,0)/a.length});
+    return `<tr><td>${esc(n)}<div class="kecil">${sk.startsWith("matdas")||sk.startsWith("er|")?"jumlah "+satuan(sk):"rata-rata "+(sk.startsWith("mandiri")?"semua ujian":"nilai")}</div></td>${v.map(x=>`<td class="n">${x==null?"–":angka(x)}</td>`).join("")}${perTA.length>1?`<td class="n">${v[0]!=null&&v[v.length-1]!=null?beda(v[v.length-1]-v[0]):"–"}</td>`:""}</tr>`}).join("");
+  const md=L.filter(r=>r.jenis==="matdas"),er=L.filter(r=>r.jenis==="er");
+  el.innerHTML=kepala+`<div class="ubin">
+    <div><span>${esc((seriL.find(x=>x[0]===JSERI)||[0,""])[1])} terakhir</span><b>${angka(akhir.nilai)}</b><span>median angkatan ${angka(akhir.median)} · ${esc(akhir.lb)} ${esc(akhir.ta)}</span></div>
+    <div><span>Sejak pertama tercatat</span><b>${P.length>1?beda(akhir.nilai-awal.nilai):"–"}</b><span>${P.length>1?`dari ${angka(awal.nilai)} ke ${angka(akhir.nilai)}`:"baru satu pelaksanaan"}</span></div>
+    <div><span>Posisi di angkatannya</span><b>persentil ${angka(akhir.persentil,0)}</b><span>${P.length>1?`pertama: persentil ${angka(awal.persentil,0)}`:"lebih tinggi dari "+angka(akhir.persentil,0)+"% siswa"}</span></div>
+    <div><span>Matematika Dasar · English Reading</span><b>${md.reduce((a,r)=>a+ +r.nilai,0)} · ${er.reduce((a,r)=>a+ +r.nilai,0)}</b><span>level tuntas · sub-level lulus</span></div></div>
+  <section class="card"><div class="row" style="justify-content:space-between;align-items:flex-end"><div><h3>Bagaimana posisinya dibanding angkatannya?</h3><p class="small muted">Garis biru = ${esc(satuan(JSERI))} siswa. Pita = 50% siswa di tengah angkatannya, garis putus-putus = median.</p></div>
+    <label class="f">Kegiatan<select id="j-seri">${seriL.map(([k,n])=>`<option value="${esc(k)}"${k===JSERI?" selected":""}>${esc(n)}</option>`).join("")}</select></label></div>
+    <div class="leg"><span><i style="background:var(--ini)"></i>${esc(s.nama.split(" ")[0])}</span><span><i style="background:var(--lalu-muda)"></i>50% siswa di tengah</span><span>- - median angkatan</span></div><div class="gulir">${g}</div></section>
+  <section class="card"><h3>Rekap per tahun ajaran</h3><div class="gulir"><table><thead><tr><th>Kegiatan</th>${perTA.map(t=>`<th class="n">${t}</th>`).join("")}${perTA.length>1?'<th class="n">Perubahan</th>':""}</tr></thead><tbody>${ringkas}</tbody></table></div></section>`;
+  $("j-seri").onchange=e=>{JSERI=e.target.value;gambarJejak()}}
+
+function vTutup(){const boleh=PERAN==="operator"||PERAN==="kurikulum",now=new Date(),y=now.getFullYear(),m=now.getMonth()+1,kini=m>=7?`${y}-${y+1}-1`:`${y-1}-${y}-2`;
+  const per=[...new Set([kini,...T.map(r=>r.periode)])].sort().reverse(),nm=p=>{const [a,b,s]=p.split("-");return `${a}/${b} ${SEM[s]}`};
+  $("isi").innerHTML=`<section class="card"><div><h2>Susun rekap semester</h2><p class="small muted">Rekap disusun dari hasil Tryout Umum, Asesmen Bersama, Tryout Mandiri, Matematika Dasar, dan English Reading. Aman diulang: menyusun ulang menimpa rekap semester itu saja. Disusun ulang juga sebelum arsip semester.</p></div>
+    <div class="gulir"><table><thead><tr><th>Semester</th><th class="n">Tolok ukur</th><th class="n">Kegiatan</th><th></th></tr></thead><tbody>
+    ${per.map(p=>{const L=T.filter(r=>r.periode===p);return `<tr><td><b>${nm(p)}</b>${p===kini?' <span class="kecil">berjalan</span>':""}</td><td class="n">${L.length||"–"}</td><td class="n">${new Set(L.map(r=>r.seri)).size||"–"}</td><td>${boleh?`<button class="ghost" data-susun="${p}">${L.length?"Susun ulang":"Susun"}</button>`:""}</td></tr>`}).join("")}</tbody></table></div>
+    ${boleh?"":'<p class="kecil">Menyusun rekap hanya untuk PIN kurikulum atau operator.</p>'}</section>
+  <section class="card"><div><h2>Tutup Tahun Ajaran (setiap Juli)</h2><p class="small muted">Pertama kali Juli 2027. Rekap & tolok ukur tetap di database selamanya; rinciannya disimpan sebagai berkas arsip.</p></div>
+    <ol class="langkah">
+      <li><span class="no">1</span><div><b>Susun ulang rekap kedua semester</b><span class="kecil" style="display:block">Ganjil dan Genap tahun itu, lewat tabel di atas.</span></div></li>
+      <li><span class="no">2</span><div><b>Arsipkan semester Genap di tiap aplikasi</b><span class="kecil" style="display:block">Asesmen Merdeka (Admin → Cadangan), Matematika Dasar dan English Reading (halaman admin masing-masing). Berkas arsip diunduh dan diperiksa otomatis.</span></div></li>
+      <li><span class="no">3</span><div><b>Simpan dua salinan berkas</b><span class="kecil" style="display:block">Komputer sekolah dan Google Drive belajar.id (folder Arsip Sistem).</span></div></li>
+      <li><span class="no">4</span><div><b>Ketik konfirmasi di tiap halaman arsip</b><span class="kecil" style="display:block">Rincian dihapus bertahap; dapat dipulihkan dari berkas bila diperlukan.</span></div></li></ol></section>`;
+  document.querySelectorAll("[data-susun]").forEach(b=>b.onclick=async()=>{const p=b.dataset.susun;b.disabled=true;b.textContent="Menyusun…";
+    try{const r=await rpc("rk_susun",{p_pin:PIN,p_periode:p});toast(`Rekap ${r.nama}: ${r.hasil} hasil, ${r.tolok} tolok ukur`,6000);T=await rpc("rk_tolok_daftar",{p_pin:PIN});KELAS=null;siapkan();vTutup()}
+    catch(e){toast(e.message,7000);b.disabled=false;b.textContent="Coba lagi"}})}
+
+function ikatPilihan(){const s=$("p-seri"),t=$("p-tk"),b=$("p-banding");
+  if(s)s.onchange=()=>{SERI=s.value;lsSet("rt_seri",SERI);gambar()};if(t)t.onchange=()=>{TK=t.value;lsSet("rt_tk",TK);gambar()};if(b&&!b.disabled)b.onchange=()=>{BANDING=b.value;gambar()}}
+function gambar(){document.querySelectorAll("#tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v===V));
+  if(!T.length&&V!=="tutup"){$("isi").innerHTML=`<div class="card kosong">Rekap tahunan belum disusun. ${PERAN==="operator"||PERAN==="kurikulum"?"Buka tab <b>Susun &amp; Tutup Tahun</b> lalu tekan Susun.":"Minta kurikulum menyusunnya."}</div>`;return}
+  if(V==="tolok"){$("isi").innerHTML=vTolok();ikatPilihan()}else if(V==="kelas")vKelas();else if(V==="jejak")vJejak();else vTutup()}
+document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>{V=b.dataset.v;lsSet("rt_v",V);gambar()});
+
+async function masuk(pin){$("pin-pesan").textContent="Memeriksa PIN…";
+  try{const g=await rpc("tka_masuk_guru",{p_pin:pin});T=await rpc("rk_tolok_daftar",{p_pin:pin});PIN=pin;PERAN=g.peran;
+    try{sessionStorage.setItem("tka_v2_pin",JSON.stringify({pin,peran:g.peran}))}catch(e){}
+    if(g.peran==="koordinator")$("ke-menu").href="to-tka.html";
+    $("kartu-pin").classList.add("hidden");$("v-isi").classList.remove("hidden");siapkan();gambar()}
+  catch(e){$("pin-pesan").textContent=e.message}}
+$("btn-pin").onclick=()=>masuk($("pin").value.trim());$("pin").onkeydown=e=>{if(e.key==="Enter")$("btn-pin").click()};
+try{const x=JSON.parse(sessionStorage.getItem("tka_v2_pin")||"null");if(x&&x.pin)masuk(x.pin)}catch(e){}
+</script>
+</body>
+</html>
