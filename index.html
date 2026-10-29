@@ -941,7 +941,8 @@ if(TANAM){document.documentElement.classList.add("tanam");
 async function masukMenu(pin){$("m-msg").textContent="Memeriksa…";
   try{const j=await rpc("tka_masuk_guru",{p_pin:pin});
     // koordinator Tryout Umum hanya punya satu halaman: langsung ke sana sebelum menu sempat tampil (kurikulum punya menu sejak 23 Okt 2026)
-    const satu={koordinator:"to-tka.html"}[j.peran];if(satu){ssSet(CFG.lsPin,{pin,peran:j.peran});$("m-msg").textContent="Membuka halaman…";location.replace(satu);return true}
+    // kecuali mode tanam: koordinator melihat Dasbor Hasil di tab Rekap & Laporan to-tka.html (29 Okt 2026)
+    const satu=TANAM?null:{koordinator:"to-tka.html"}[j.peran];if(satu){ssSet(CFG.lsPin,{pin,peran:j.peran});$("m-msg").textContent="Membuka halaman…";location.replace(satu);return true}
     PIN=pin;GURU=j;setPeran(j.peran);ssSet(CFG.lsPin,{pin,peran:j.peran});$("m-login").classList.add("hidden");$("m-main").classList.remove("hidden");$("m-msg").textContent="";
     aksiHd();$("m-halo").textContent="Selamat datang, "+String(j.nama).split(",")[0];
     $("m-info").innerHTML=`${j.n_siswa} siswa aktif terdaftar`+(j.bersama?'<br><span class="pill warn">PIN guru bersama</span> Mintalah PIN pribadi kepada operator: sesi dan paket yang Anda buat dengan PIN bersama tidak tercatat atas nama Anda.':"");

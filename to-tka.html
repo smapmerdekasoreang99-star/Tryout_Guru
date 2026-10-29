@@ -110,6 +110,9 @@ svg.ch .sumbu{stroke:var(--garis-2);stroke-width:1}svg.ch .kisi{stroke:var(--gar
 .tip.on{opacity:1}.tip b{color:var(--emas)}
 .prog{display:inline-flex;background:#fff;border:1px solid var(--garis-2);border-radius:10px;padding:3px;gap:3px}.prog button{background:none;color:var(--tinta-2);padding:6px 12px;font-size:13px}.prog button.on{background:var(--gelap);color:#fff}
 .baca .tulis{display:none!important}
+/* Analisis hasil: pemilih TO */
+.chip{background:#fff;color:var(--tinta);border:1px solid var(--garis-2);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}.chip:hover{border-color:var(--emas)}
+.chip.on{background:var(--gelap);color:#fff;border-color:var(--gelap)}.chip.on .muted{color:#d9d2c3}
 @media (max-width:640px){.ubin b{font-size:24px}h2{font-size:19px}.to-g{grid-template-columns:1fr}.to-g .to-tgl{display:none}.to-g .baris{grid-template-columns:1fr auto}.to-g .baris .info{grid-column:1/-1;order:3}}
 </style>
 </head>
@@ -744,19 +747,40 @@ function gRekap(){const el=$("tab-rekap"),P=periodeList(R_PROG),kini=isoD(new Da
   const per=P[R_PER-1];
   const sasaranL=R_PROG==="wajib"?["10","11","12"].filter(t=>J.some(j=>j.program==="wajib"&&j.tingkat===t)):[...new Set(J.filter(j=>j.program==="pilihan").flatMap(j=>j.kelas))].sort(urutID);
   el.innerHTML=`<div class="card kolom" style="margin-top:12px"><div class="row" style="align-items:flex-end;justify-content:space-between">
-      <div class="row" style="align-items:flex-end"><div class="prog"><button data-rm="satu" class="${R_MODE==="satu"?"on":""}">Satu periode</button><button data-rm="antar" class="${R_MODE==="antar"?"on":""}">Antar periode</button></div><div class="prog"><button data-rp="wajib" class="${R_PROG==="wajib"?"on":""}">Mapel Wajib</button><button data-rp="pilihan" class="${R_PROG==="pilihan"?"on":""}">Mapel Pilihan</button></div>
+      <div class="row" style="align-items:flex-end"><div class="prog"><button data-rm="satu" class="${R_MODE==="satu"?"on":""}">Satu periode</button><button data-rm="antar" class="${R_MODE==="antar"?"on":""}">Antar periode</button><button data-rm="analisis" class="${R_MODE==="analisis"?"on":""}">Analisis hasil</button></div><div class="prog"><button data-rp="wajib" class="${R_PROG==="wajib"?"on":""}">Mapel Wajib</button><button data-rp="pilihan" class="${R_PROG==="pilihan"?"on":""}">Mapel Pilihan</button></div>
         <label class="f${R_MODE==="antar"?" hidden":""}">Periode<select id="r-per">${P.map(p=>`<option value="${p.no}"${p.no===R_PER?" selected":""}>Periode ${p.no} · ${tglP(tglD(p.dari))}–${tglP(tglD(p.sampai))}</option>`).join("")}</select></label>
         <label class="f">${R_PROG==="wajib"?"Tingkat":"Kelas"}<select id="r-sas"><option value="">Semua</option>${sasaranL.map(x=>`<option value="${x}"${x===R_SAS?" selected":""}>${R_PROG==="wajib"?"Kelas "+x:x}</option>`).join("")}</select></label>
-        <label class="f">Batas tuntas<input type="number" id="r-kkm" min="0" max="100" value="${KKM()}" style="width:90px"></label></div>
-      <div class="row"><button class="ghost" id="r-xlsx">Unduh Excel</button><button id="r-cetak">Cetak laporan</button></div></div>
-    <p class="small muted">Satu periode = ${R_PROG==="wajib"?"3 TO Mapel Wajib (satu putaran BI · MTK · BIng)":"5 TO Mapel Pilihan (satu putaran mapel peminatan)"}.${R_MODE==="antar"?" Antar periode: perkembangan kelas dan tiap siswa dari periode ke periode.":""}</p></div><div id="r-isi"></div>`;
+        <label class="f${R_MODE==="analisis"?" hidden":""}">Batas tuntas<input type="number" id="r-kkm" min="0" max="100" value="${KKM()}" style="width:90px"></label></div>
+      <div class="row${R_MODE==="analisis"?" hidden":""}"><button class="ghost" id="r-xlsx">Unduh Excel</button><button id="r-cetak">Cetak laporan</button></div></div>
+    <p class="small muted">Satu periode = ${R_PROG==="wajib"?"3 TO Mapel Wajib (satu putaran BI · MTK · BIng)":"5 TO Mapel Pilihan (satu putaran mapel peminatan)"}.${R_MODE==="antar"?" Antar periode: perkembangan kelas dan tiap siswa dari periode ke periode.":""}${R_MODE==="analisis"?" Analisis hasil: dasbor hasil per TO, sama dengan Dasbor Hasil Asesmen Merdeka (rekap siswa, analisis butir, sub-materi, belum mengerjakan, riwayat siswa, unduh Excel).":""}</p></div><div id="r-isi"></div>`;
   el.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{R_MODE=b.dataset.rm;lsSet("to_rmode",R_MODE);gRekap()});
   el.querySelectorAll("[data-rp]").forEach(b=>b.onclick=()=>{R_PROG=b.dataset.rp;lsSet("to_rprog",R_PROG);R_PER=null;R_SAS="";gRekap()});
   $("r-per").onchange=()=>{R_PER=+$("r-per").value;gRekap()};$("r-sas").onchange=()=>{R_SAS=$("r-sas").value;gRekap()};
   $("r-kkm").oninput=()=>{const v=parseInt($("r-kkm").value,10);if(v>=0&&v<=100){lsSet("to_kkm",v);R_MODE==="antar"?isiAntar(P):isiRekap(per,P)}};
   $("r-xlsx").onclick=e=>jalankanUnduh(e.target,()=>R_MODE==="antar"?unduhAntar(P):unduhRekap(per));$("r-cetak").onclick=()=>cetakRekap(per,P);
   $("r-cetak").classList.toggle("hidden",R_MODE==="antar");
-  if(R_MODE==="antar")isiAntar(P);else isiRekap(per,P)}
+  if(R_MODE==="antar")isiAntar(P);else if(R_MODE==="analisis")isiAnalisis(per);else isiRekap(per,P)}
+/* Analisis hasil (29 Okt 2026): Dasbor Hasil Asesmen Merdeka (index.html?tanam=1) dalam iframe, dibatasi pada paket TO periode ini.
+   PIN ikut dari sessionStorage tab ini (tka_v2_pin), sama seperti tab Hasil Siswa di Asesmen Bersama (pas.html). */
+let R_AN=null,AN_SRC="",AN_T=null;
+const paketTO=j=>[...new Set([j.paketEff,...j.S.map(s=>s.ujian)])].filter(Boolean);
+function isiAnalisis(per){const el=$("r-isi");AN_SRC="";clearInterval(AN_T);
+  const L=per?J.filter(j=>j.program===R_PROG&&!j.batal&&j.st!=="pra"&&per.tgl.includes(j.mulai)&&(!R_SAS||(R_PROG==="wajib"?j.tingkat===R_SAS:j.kelas.includes(R_SAS)))&&j.H.length&&paketTO(j).length)
+    .sort((a,b)=>urutID(a.mulai,b.mulai)||urutID(a.mapel,b.mapel)||urutID(sasaran(a),sasaran(b))):[];
+  if(!L.length){el.innerHTML='<div class="card kosong">Belum ada TO yang punya hasil pada periode ini.</div>';return}
+  if(!L.some(j=>j.id===R_AN))R_AN=L[L.length-1].id;
+  el.innerHTML=`<div class="card kolom"><div class="kepala"><div><h3>Pilih TO</h3><p class="small muted">Dasbor di bawah menampilkan hasil TO yang dipilih. Di dalam dasbor, gunakan saringan <b>Kelas</b> dan tab <b>Rekapitulasi · Rekap siswa · Analisis butir · Sub-materi · Belum mengerjakan · Riwayat siswa</b>; tombol <b>Unduh rekap</b> menghasilkan Excel lengkap.</p></div></div>
+      <div class="row" id="an-to" style="gap:6px">${L.map(j=>`<button class="chip${j.id===R_AN?" on":""}" data-an="${j.id}">${esc(singkat(j.mapel))} · ${esc(sasaran(j))} · ${tglP(j.d0)} <span class="kecil muted">${j.H.length} hasil</span></button>`).join("")}</div></div>
+    <div class="card" id="an-isi" style="padding:6px"></div>`;
+  el.querySelectorAll("[data-an]").forEach(b=>b.onclick=()=>{R_AN=+b.dataset.an;el.querySelectorAll("[data-an]").forEach(x=>x.classList.toggle("on",x===b));pasangAnalisis(L)});
+  pasangAnalisis(L)}
+function pasangAnalisis(L){const box=$("an-isi"),j=L.find(x=>x.id===R_AN);if(!box||!j)return;
+  const semua=[...new Set(L.flatMap(paketTO))],pk=paketTO(j),utama=pk.find(k=>k===j.paketEff)||pk[0];
+  const src=`index.html?guru&tanam=1&hanya=${encodeURIComponent(semua.join(","))}&dasbor=${encodeURIComponent(utama)}`;
+  if(src===AN_SRC&&box.querySelector("iframe"))return;
+  AN_SRC=src;box.innerHTML=`<iframe id="an-frame" src="${src}" title="Analisis hasil ${esc(j.mapel)} ${esc(sasaran(j))}" style="width:100%;min-height:640px;border:0;display:block"></iframe>`;
+  clearInterval(AN_T);AN_T=setInterval(()=>{const f=$("an-frame");if(!f){clearInterval(AN_T);return}if(TAB!=="rekap")return;
+    try{const h=f.contentDocument.documentElement.scrollHeight;if(h&&Math.abs(h-f.offsetHeight)>8)f.style.height=h+"px"}catch(e){}},700)}
 function dataRekap(per){if(!per)return null;const L=J.filter(j=>j.program===R_PROG&&!j.batal&&j.st!=="pra"&&per.tgl.includes(j.mulai)&&(!R_SAS||(R_PROG==="wajib"?j.tingkat===R_SAS:j.kelas.includes(R_SAS))));
   // kolom TO: Wajib = per tanggal (mapel sama untuk semua tingkat); Pilihan = per minggu × mapel
   const kol=[];L.forEach(j=>{const k=R_PROG==="wajib"?j.mulai:j.mulai+"|"+j.mapel;if(!kol.some(x=>x.k===k))kol.push({k,mapel:j.mapel,tgl:j.mulai,jenis:j.jenis})});kol.sort((a,b)=>urutID(a.k,b.k));
