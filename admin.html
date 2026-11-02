@@ -1262,7 +1262,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     return { ok: errors.length === 0, errors, warnings, kisi };
   }
   root.TKA = { parseDocx, buildPaket, buildKisi, checkKisi, kisiDariPaket, komposisi, normBentuk, normLevel, BENTUK_LABEL,
-    info: { JENIS, JENIS_BAWAAN, setJenis, normJenis, parseTingkat, fmtTingkat, semesterDari, infoBersih } };
+    info: { JENIS, JENIS_DASAR, JENIS_BAWAAN, setJenis, normJenis, parseTingkat, fmtTingkat, semesterDari, infoBersih } };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>/* tka_docgen.js — membangkitkan "Template Soal" (.docx) yang sudah terisi dari kisi-kisi, langsung di browser (JSZip).
@@ -2587,7 +2587,7 @@ function renderPustaka(){const I=TKA.info;
   const lbl=v=>Object.entries(v.lb).sort((a,b)=>b[1]-a[1])[0][0];
   $("pk-mapel").innerHTML=`<span class="lbl">Mata pelajaran</span><button type="button" class="${PKF.mapel?"":"on"}" data-m=""><span>Semua mapel</span><span class="n">${PK.filter(o=>!o.arsip).length}</span></button>`+
     [...mp.entries()].filter(([k,v])=>v.n||PKF.status==="arsip"||PKF.mapel===k).sort((a,b)=>lbl(a[1]).localeCompare(lbl(b[1]))).map(([k,v])=>`<button type="button" class="${PKF.mapel===k?"on":""}" data-m="${esc(k)}"><span>${esc(lbl(v))}</span><span class="n">${v.n}</span></button>`).join("");
-  pkPilihan($("pk-jenis"),"Semua jenis",[...new Set([...I.JENIS.filter(j=>PK.some(o=>o.info.jenis===j)),...PK.map(o=>o.info.jenis).filter(Boolean)])],PKF.jenis);
+  pkPilihan($("pk-jenis"),"Semua jenis",[...new Set([...I.JENIS_DASAR,...I.JENIS.filter(j=>PK.some(o=>o.info.jenis===j)),...PK.map(o=>o.info.jenis).filter(Boolean)])],PKF.jenis);
   pkPilihan($("pk-semester"),"Semua semester",[...new Set(PK.map(pkSemester))].sort(pkUrutSemester),PKF.semester);
   $("pk-kelas").value=PKF.kelas;$("pk-grup").value=PKF.grup;$("pk-urut").value=PKF.urut;if(!$("pk-urut").value){PKF.urut="diubah";$("pk-urut").value="diubah"}
   const dasar=PK.filter(pkCocokDasar),n=s=>dasar.filter(o=>pkCocokStatus(o,s)).length;

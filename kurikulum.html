@@ -342,6 +342,7 @@ document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>keTab(SUB_AKH
 
 const namaGuru=(id,cad)=>(id&&D.guru[id])||cad||id||"—";
 const jenisBaku=j=>j||"Lainnya";
+const JENIS_DASAR=["Asesmen Diagnostik","Asesmen Formatif","Asesmen Sumatif","Tryout Mandiri","Tryout Umum"];   // selalu tampil di saringan Jenis walau belum ada paketnya (2 Nov 2026)
 const tingkatPaket=p=>(Array.isArray(p.tingkat)&&p.tingkat.length?p.tingkat:[String(p.kelas||"").match(/\d+/)?.[0]||String(p.kelas||"")]).join(", ");
 let PK={},SISWA={},KELAS_N={};
 function siapkan(){
@@ -371,14 +372,14 @@ const sesiTersaring=()=>D.sesi.filter(s=>cocokPaket(PK[s.ujian])&&okKeg(s));
 // Saringan tidak diingat antar-kunjungan (22 Okt 2026: saringan Jenis yang terbawa membuat paket baru seolah tidak ada)
 $("f-keg").onchange=()=>gambar();
 ["f-mapel","f-jenis","f-guru"].forEach(id=>$(id).onchange=()=>{if(id==="f-mapel")M_MK=null;isiSaringan();gambar()});
-/* Saringan bertingkat (22 Okt 2026): Mapel → Jenis → Guru. Pilihan Jenis hanya yang ada di mapel terpilih, pilihan Guru hanya
+/* Saringan bertingkat (22 Okt 2026): Mapel → Jenis → Guru. Pilihan Jenis: 5 jenis dasar + jenis lain yang ada di mapel terpilih; pilihan Guru hanya
    penyusun paket di mapel & jenis terpilih. Pilihan yang tidak lagi ada dikembalikan ke "Semua". */
 function isiSaringan(){
   const isi=(id,daftar,semua)=>{const el=$(id),v=el.value;el.innerHTML=`<option value="">${semua}</option>`+daftar.map(x=>`<option value="${esc(x[0])}">${esc(x[1])}</option>`).join("");el.value=daftar.some(x=>x[0]===v)?v:""};
   const semua=[...D.paket,...D.kisi_saja];
   isi("f-mapel",[...new Set(semua.map(p=>p.mapel).filter(Boolean))].sort(urutID).map(m=>[m,m]),"Semua mapel");
   const m=$("f-mapel").value,dalamMapel=semua.filter(p=>!m||p.mapel===m);
-  isi("f-jenis",[...new Set(dalamMapel.map(p=>p.jenisB))].sort(urutID).map(j=>[j,j]),m?"Semua jenis "+m:"Semua jenis");
+  isi("f-jenis",[...new Set([...JENIS_DASAR,...dalamMapel.map(p=>p.jenisB).sort(urutID)])].map(j=>[j,j]),m?"Semua jenis "+m:"Semua jenis");
   const j=$("f-jenis").value,dalamJenis=dalamMapel.filter(p=>!j||p.jenisB===j);
   isi("f-guru",[...new Map(dalamJenis.filter(p=>p.pemilik).map(p=>[p.pemilik,p.guru])).entries()].sort((a,b)=>urutID(a[1],b[1])),m?"Semua guru "+m:"Semua guru")}
 function hapusSaringan(){["f-mapel","f-jenis","f-guru","f-keg"].forEach(id=>$(id).value="");M_MK=null;isiSaringan();gambar()}
