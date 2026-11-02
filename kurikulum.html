@@ -468,7 +468,8 @@ function gGuruPaket(){const el=$("tab-guru"),f=F(),q=($("gp-cari")&&$("gp-cari")
   const L=G.filter(x=>(!f.mapel||x.mapel.includes(f.mapel)||x.pk.some(p=>p.mapel===f.mapel))&&(!q||x.nama.toLowerCase().includes(q)||x.mapel.join(" ").toLowerCase().includes(q)));
   const unggah=L.filter(x=>x.pk.length).length,latih=L.filter(x=>x.dilatih).length,belum=L.filter(x=>x.st==="belum").length;
   // kelompok per mapel; urutan dalam kelompok sesuai pilihan
-  const per=new Map();L.forEach(x=>{const m=(f.mapel&&x.mapel.includes(f.mapel)?f.mapel:x.mapel[0])||"Lainnya";if(!per.has(m))per.set(m,[]);per.get(m).push(x)});
+  // Guru yang mengajar beberapa mapel tampil di setiap kelompok mapelnya.
+  const per=new Map();L.forEach(x=>{(f.mapel&&x.mapel.includes(f.mapel)?[f.mapel]:x.mapel.length?x.mapel:["Lainnya"]).forEach(m=>{if(!per.has(m))per.set(m,[]);per.get(m).push(x)})});
   const urutM=[...per.keys()].sort((a,b)=>(a==="Lainnya")-(b==="Lainnya")||urutID(a,b)),nst={aktif:0,dorong:1,belum:2};
   const urut=GP_URUT==="nama"?(a,b)=>urutID(a.nama,b.nama):GP_URUT==="belum"?(a,b)=>nst[b.st]-nst[a.st]||urutID(a.nama,b.nama):(a,b)=>nst[a.st]-nst[b.st]||(b.akhir||0)-(a.akhir||0)||urutID(a.nama,b.nama);
   if(GP_GURU&&!G.some(x=>x.id===GP_GURU))GP_GURU=null;
