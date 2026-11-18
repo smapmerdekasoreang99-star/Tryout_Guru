@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<script>window.TKA_SUPABASE = { url: "", key: "" };</script>
+<script src="config.js?v=2"></script>
+<title>Tes Kemajuan Matematika Dasar — SMA Plus Merdeka Soreang</title>
+<meta name="description" content="Tes kemajuan Matematika Dasar: masuk dengan NISN, soal sesuai klastermu.">
+<meta property="og:title" content="Tes Kemajuan Matematika Dasar — SMA Plus Merdeka Soreang">
+<meta property="og:description" content="Masuk dengan NISN, soal sesuai klastermu.">
+<meta property="og:image" content="https://smapmerdekasoreang99-star.github.io/Tryout_Guru/assets/pratinjau.jpg?v=3">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/ikon-32.png">
+<link rel="stylesheet" href="assets/dasar.css?v=3">
+<!--
+  Tes kemajuan per klaster (18 Nov 2026). Halaman masuk terpisah dari index.html (aplikasi asesmen utama tidak diubah):
+  siswa cukup mengetik NISN, server (tka_kemajuan_cek / tka_kemajuan_masuk) memilih paket klaster sesuai kelompok MD
+  dan sesi yang sedang dibuka operator. Token pengerjaan diserahkan ke index.html lewat localStorage
+  "tka_v2_sesi_tunggu" (jalur yang sudah dipakai index.html untuk melanjutkan ujian), lalu soal dikerjakan di sana.
+-->
+<style>
+:root{--radius:12px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+body{margin:0;background:var(--kertas);color:var(--tinta)}
+.wrap{max-width:520px;margin:0 auto;padding:16px}
+.hero{text-align:center;padding:24px 8px 8px}
+.hero img{width:56px;height:56px;object-fit:contain}
+.hero .sek{font-size:13px;color:var(--tinta-2);margin-top:6px;letter-spacing:.04em}
+.hero h1{font-size:22px;margin:6px 0 4px;color:var(--gelap)}
+.hero .ket{font-size:14px;color:var(--tinta-2)}
+.card{background:#fff;border:1px solid var(--garis);border-radius:var(--radius);padding:16px;margin:14px 0}
+label{display:block;font-weight:600;font-size:14px;margin:4px 0 6px}
+input{width:100%;box-sizing:border-box;font-size:20px;padding:12px;border:1px solid var(--garis-2);border-radius:10px;letter-spacing:.06em;background:#fff;color:var(--tinta)}
+input:focus{outline:2px solid var(--gelap);outline-offset:1px}
+button{font:inherit;font-weight:700;font-size:16px;border:0;border-radius:10px;padding:12px 16px;cursor:pointer;background:var(--gelap);color:#fff;width:100%;margin-top:12px}
+button.ghost{background:transparent;color:var(--tinta-2);border:1px solid var(--garis-2)}
+button:disabled{opacity:.6;cursor:wait}
+.galat{margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--absen-muda);color:var(--absen-tua);font-size:14px}
+.konfirm{margin-top:4px}
+.konfirm .nm{font-size:20px;font-weight:800;color:var(--gelap)}
+.konfirm .sub{color:var(--tinta-2);font-size:14px;margin-top:2px}
+.tes{margin-top:12px;padding:12px;border-radius:10px;background:var(--hadir-muda);color:var(--hadir-tua)}
+.tes b{display:block;font-size:16px;margin-bottom:2px}
+.catatan{margin-top:10px;font-size:13px;color:var(--emas-teks);background:var(--emas-muda);padding:8px 10px;border-radius:8px}
+.kecil{font-size:13px;color:var(--tinta-2);line-height:1.5}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <img src="assets/logo.png" alt="Logo SMA Plus Merdeka Soreang">
+    <div class="sek">SMA PLUS MERDEKA SOREANG</div>
+    <h1>Tes Kemajuan Matematika Dasar</h1>
+    <div class="ket">Masuk dengan NISN · soal sesuai klastermu</div>
+  </div>
+
+  <div class="card" id="kotak-nisn">
+    <label for="nisn">NISN</label>
+    <input type="text" id="nisn" inputmode="numeric" autocomplete="off" placeholder="10 digit NISN" maxlength="12">
+    <button type="button" id="btn-cek">Lanjut</button>
+    <div id="galat" class="galat hidden" role="alert"></div>
+  </div>
+
+  <div class="card hidden" id="kotak-konfirm">
+    <div class="kecil">Apakah ini kamu?</div>
+    <div class="konfirm">
+      <div class="nm" id="k-nama"></div>
+      <div class="sub" id="k-sub"></div>
+    </div>
+    <div class="tes"><b id="k-tes"></b><span id="k-rinci"></span></div>
+    <div class="catatan hidden" id="k-sisa"></div>
+    <button type="button" id="btn-mulai">Ya, benar — mulai mengerjakan</button>
+    <button type="button" class="ghost" id="btn-bukan">Bukan saya</button>
+    <div id="galat2" class="galat hidden" role="alert"></div>
+  </div>
+
+  <p class="kecil" style="text-align:center">Kerjakan tanpa kalkulator. Setelah menekan "mulai", soal terbuka di halaman ujian
+    Asesmen Merdeka dan waktu mulai berjalan.</p>
+</div>
+<script>
+const $ = (id) => document.getElementById(id);
+const SB = (() => { const c = window.TKA_SUPABASE || {}; const u = (c.url || "").trim().replace(/\/+$/, ""), k = (c.key || "").trim(); return u && k ? { url: u, key: k } : null; })();
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const KUNCI_SESI = "tka_v2_sesi", KUNCI_TUNGGU = "tka_v2_sesi_tunggu";   // sama dengan index.html (CFG.lsKey)
+
+async function rpc(fn, args) {
+  if (!SB) throw new Error("Server belum diatur. Hubungi admin.");
+  const r = await fetch(`${SB.url}/rest/v1/rpc/${fn}`, { method: "POST",
+    headers: { "Content-Type": "application/json", apikey: SB.key, ...(/^eyJ[\w-]*\.[\w-]+\.[\w-]*$/.test(SB.key) ? { Authorization: "Bearer " + SB.key } : {}) },
+    body: JSON.stringify(args || {}) });
+  let j = null; try { j = await r.json(); } catch (e) {}
+  if (!r.ok) throw new Error((j && (j.message || j.hint || j.error)) || "Gagal terhubung ke server (HTTP " + r.status + ").");
+  return j;
+}
+const galat = (id, pesan) => { const el = $(id); el.textContent = pesan; el.classList.toggle("hidden", !pesan); };
+// Ujian lain yang belum selesai di perangkat ini akan didahulukan index.html; minta diselesaikan dulu.
+function ujianTerbuka() { try { const s = JSON.parse(localStorage.getItem(KUNCI_SESI) || "null"); return s && s.pk && !s.submitted && s.deadline > Date.now() ? s : null; } catch (e) { return null; } }
+
+let NISN = "";
+$("btn-cek").onclick = async () => {
+  galat("galat", "");
+  const n = $("nisn").value.replace(/\D/g, "");
+  if (!n) { galat("galat", "Isi NISN dahulu."); $("nisn").focus(); return; }
+  const b = $("btn-cek"); b.disabled = true; b.textContent = "Memeriksa…";
+  try {
+    const c = await rpc("tka_kemajuan_cek", { p_nisn: n });
+    NISN = n;
+    $("k-nama").textContent = c.nama;
+    $("k-sub").textContent = `Kelas ${c.kelas} · kelompok ${c.kelompok_md} · NISN ${c.nisn}`;
+    $("k-tes").textContent = c.ujian.judul;
+    $("k-rinci").textContent = `${c.ujian.n_soal} soal · waktu ${c.ujian.menit} menit`;
+    $("k-sisa").textContent = c.sisa > 1 ? `Kamu mengerjakan ${c.sisa} tes kemajuan. Setelah tes ini selesai, buka lagi halaman ini dan masukkan NISN untuk tes berikutnya.` : "";
+    $("k-sisa").classList.toggle("hidden", !(c.sisa > 1));
+    $("kotak-nisn").classList.add("hidden"); $("kotak-konfirm").classList.remove("hidden"); galat("galat2", "");
+  } catch (e) { galat("galat", e.message); }
+  finally { b.disabled = false; b.textContent = "Lanjut"; }
+};
+$("nisn").addEventListener("keydown", (e) => { if (e.key === "Enter") $("btn-cek").click(); });
+
+$("btn-bukan").onclick = () => { NISN = ""; $("kotak-konfirm").classList.add("hidden"); $("kotak-nisn").classList.remove("hidden"); $("nisn").value = ""; $("nisn").focus(); };
+
+$("btn-mulai").onclick = async () => {
+  galat("galat2", "");
+  const lain = ujianTerbuka();
+  if (lain) { galat("galat2", `Masih ada ujian yang belum selesai di perangkat ini (${lain.nama || "siswa lain"}). Selesaikan dulu di halaman ujian, lalu kembali ke sini.`); return; }
+  const b = $("btn-mulai"); b.disabled = true; b.textContent = "Membuka soal…";
+  try {
+    const m = await rpc("tka_kemajuan_masuk", { p_nisn: NISN });
+    localStorage.setItem(KUNCI_TUNGGU, JSON.stringify({ token: m.token }));
+    location.href = "index.html";
+  } catch (e) { galat("galat2", e.message); b.disabled = false; b.textContent = "Ya, benar — mulai mengerjakan"; }
+};
+if (!SB) galat("galat", "Server belum diatur. Hubungi admin.");
+</script>
+</body>
+</html>
