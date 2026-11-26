@@ -149,6 +149,7 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
         <label class="f">Cakupan kode akses<select id="at-lingkup" style="width:auto"><option value="ruang">Per ruang (paling ketat)</option><option value="mapel">Per mapel</option><option value="tingkat">Per angkatan (10/11/12)</option><option value="semua">Satu kode untuk semua</option></select></label>
         <button id="btn-atur">Simpan aturan</button>
       </div>
+      <div class="notice small" id="at-lingkup-ket" style="margin-top:8px"></div>
       <p class="small muted">Siswa yang terlambat hanya mendapat sisa waktu; semua selesai pada jam akhir sesi (ditambah perpanjangan/jeda bila ada).</p>
       <p class="small muted"><b>Cakupan kode akses</b> (dipilih sebelum terbit): kode selalu dibuat sistem (6 angka acak) dan berganti tiap sesi; siswa tetap harus memakai nomor pesertanya sendiri dan dijadwalkan di sesi itu. <b>Per ruang</b>: kode hanya berlaku di ruang itu — siswa ruang lain/di rumah tidak bisa memakainya. <b>Per mapel / per angkatan</b>: satu ruang bisa punya beberapa kode (pengawas menuliskan semuanya dengan labelnya). <b>Satu kode</b>: paling sederhana, tetapi paling mudah menyebar ke luar ruang.</p>
     </div>
@@ -160,6 +161,9 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
     <div class="card kolom">
       <div class="kepala"><div><h3>1. Unggah peserta per ruang</h3><p class="small muted">Template berisi semua siswa aktif (NISN, nama, kelas). Isi kolom <b>Ruang</b> (mis. R01) dan <b>Kelompok</b> (mis. <code>10</code>, <code>11-IPA</code>, <code>12-IPS</code>; harus sama persis dengan kelompok di jadwal). Siswa yang Ruang-nya kosong tidak ikut.</p></div>
         <button class="ghost" id="btn-tpl-peserta">Unduh template peserta</button></div>
+      <div class="small" style="margin:4px 0 8px" id="p-nomor-pilih"><b>Nomor peserta</b> (dipakai siswa untuk masuk ujian):
+        <label style="display:block;margin-top:4px"><input type="radio" name="p-nomor" value="berkas" checked> Ambil dari kolom <b>No. peserta</b> di berkas <span class="muted">— sel yang kosong dibuat sistem; untuk memakai NISN, salin kolom NISN ke kolom No. peserta</span></label>
+        <label style="display:block"><input type="radio" name="p-nomor" value="sistem"> <b>Dibuat sistem</b> untuk semua siswa <span class="muted">— kolom No. peserta diabaikan; format &lt;ruang&gt;-&lt;urut&gt;, mis. R01-01, R01-02 (urut kelompok, lalu nama)</span></label></div>
       <div class="drop" id="drop-peserta"><p><b>Seret berkas Excel peserta ke sini</b> atau <label>pilih berkas<input type="file" id="file-peserta" accept=".xlsx,.xls,.csv" class="hidden"></label></p></div>
       <div id="p-pratinjau"></div>
       <p class="small muted hidden" id="p-terkunci">Asesmen sudah diterbitkan: peserta tidak bisa diunggah ulang. Pindah ruang dan susulan diatur saat pelaksanaan (Tahap 3).</p>
@@ -434,7 +438,7 @@ async function gRingkas(){
   $("r-angka").innerHTML=[[A.peserta.length,"peserta"],[A.ruang.length,"ruang"],[A.sesi.filter(s=>!s.batal).length,"sesi"],[new Set(A.sesi.map(s=>s.hari)).size,"hari"],
     [`${ns.filter(n=>n.paket).length}/${ns.length}`,"naskah berpaket"],[`${ns.filter(n=>n.status==="terkunci").length}/${ns.length}`,"naskah terkunci"]].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("");
   $("at-pintu").value=at.pintu_menit;$("at-terlambat").value=at.terlambat_menit;$("at-maks").value=at.maks_keluar;$("at-tol").value=at.toleransi_keluar;$("at-kode").value=at.kode_buka||"";
-  $("at-lingkup").value=at.lingkup_kode||"ruang";$("at-lingkup").disabled=!draf();$("at-lingkup").title=draf()?"":"Cakupan kode hanya bisa diubah sebelum terbit (batal terbit dulu).";
+  $("at-lingkup").value=at.lingkup_kode||"ruang";$("at-lingkup").disabled=!draf();$("at-lingkup").title=draf()?"":"Cakupan kode hanya bisa diubah sebelum terbit (batal terbit dulu).";ketLingkup();
   $("r-jejak").innerHTML=A.jejak.map(j=>`<tr><td style="white-space:nowrap">${waktuPendek(j.waktu)}</td><td>${esc(j.oleh)}</td><td>${esc(j.aksi)}</td><td class="small muted">${esc(ringkasRinci(j.rinci))}</td></tr>`).join("")||'<tr><td colspan="4" class="muted">Belum ada.</td></tr>';
   $("r-terbit").innerHTML=draf()?'<button id="btn-terbit">Terbitkan</button><span class="small muted">Membuat kode akses per sesi (sesuai cakupan kode di Aturan) dan sesi ujian. Sesudah terbit, peserta & jadwal tidak bisa diunggah ulang.</span>'
     :`<span class="pill good">Diterbitkan</span><button class="ghost mini" id="btn-batal-terbit">Batal terbit</button><span class="small muted">Batal terbit hanya bisa selama belum ada siswa yang masuk.</span>`;
@@ -513,18 +517,22 @@ $("btn-tpl-peserta").onclick=e=>jalankanUnduh(e.target,async()=>{
     info:[["Cara mengisi","Ruang: kode ruang (mis. R01). Kelompok: 10, 11-IPA, 12-IPS, dst. — sama persis dengan kelompok di jadwal. Ruang kosong = tidak ikut."],["No. peserta","Dipakai siswa untuk MASUK ujian (bersama kode ruang dari pengawas) dan tercetak di kartu peserta. Kosongkan = dibuat otomatis per ruang (R01-01, R01-02, …). Ingin memakai NISN? Salin kolom NISN ke kolom ini. Tiap nomor harus berbeda."],["Jangan ubah","Baris judul tabel (Urut, NISN, Nama, Kelas, Ruang, Kelompok, No. peserta). Kolom Urut hanya untuk pengecekan, tidak ikut disimpan."]],
     // Judul kolom pertama sengaja "Urut", bukan "No": unggahan mencari No. peserta dari judul berawalan "no".
     kolom:[{t:"Urut",w:6,rata:"center"},{t:"NISN",w:14,rata:"left"},{t:"Nama",w:34},{t:"Kelas",w:9},{t:"Ruang",w:9},{t:"Kelompok",w:11},{t:"No. peserta",w:12}],baris,beku:3,melintang:false}]});return nama});
-async function unggahPeserta(file){
+let BERKAS_PESERTA=null;
+document.querySelectorAll('input[name="p-nomor"]').forEach(r=>r.onchange=()=>{if(BERKAS_PESERTA&&PRATINJAU)unggahPeserta(BERKAS_PESERTA)});
+async function unggahPeserta(file){BERKAS_PESERTA=file;const sumberNo=(document.querySelector('input[name="p-nomor"]:checked')||{}).value||"berkas";
   try{const rows=await bacaLembar(file);const pk=petaKolom(rows,["nisn","ruang","kelompok"]);
     if(!pk)return toast("Kolom NISN, Ruang, dan Kelompok tidak ditemukan. Pakai template peserta.",6000);
     const cN=pk.ke("nisn"),cR=pk.ke("ruang"),cK=pk.ke("kelompok"),cP=pk.ke("no");let tanpa=0;
     const data=[];rows.slice(pk.i+1).forEach(r=>{const nisn=String(r[cN]??"").trim();if(!nisn)return;const ruang=String(r[cR]??"").trim();if(!ruang){tanpa++;return}
-      data.push({nisn,ruang,kelompok:String(r[cK]??"").trim(),no_peserta:cP>=0?String(r[cP]??"").trim():""})});
+      data.push({nisn,ruang,kelompok:String(r[cK]??"").trim(),no_peserta:sumberNo==="berkas"&&cP>=0?String(r[cP]??"").trim():""})});
+    const nIsi=data.filter(d=>d.no_peserta).length,nSama=data.filter(d=>d.no_peserta&&d.no_peserta.replace(/\D/g,"")===d.nisn.replace(/\D/g,"")).length;
     if(!data.length)return toast("Tidak ada baris yang Ruang-nya terisi.",5000);
     const h=await rpc("asm_peserta_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_rows:data,p_ganti:true,p_simpan:false});PRATINJAU=data;
     $("p-pratinjau").innerHTML=`<div class="card kolom" style="background:var(--emas-kabut)"><h3>Pratinjau: ${h.n} peserta akan disimpan</h3>
       <div class="row small">${Object.entries(h.per_ruang).sort().map(([r,n])=>`<span class="pill">${esc(r)}: ${n}</span>`).join("")}</div>
       <div class="row small">${Object.entries(h.per_kelompok).sort().map(([k,n])=>`<span class="pill info">${esc(k)}: ${n}</span>`).join("")}</div>
       ${tanpa?`<p class="small muted">${tanpa} siswa tanpa ruang tidak ikut.</p>`:""}
+      <p class="small"><span class="pill info">No. peserta</span> ${sumberNo==="sistem"?`semua <b>${data.length}</b> nomor <b>dibuat sistem</b> (kolom di berkas diabaikan).`:cP<0?`kolom No. peserta tidak ada di berkas — semua nomor <b>dibuat sistem</b>.`:`<b>${nIsi}</b> dari berkas${nSama?` (${nSama===nIsi?"semuanya":nSama} sama dengan NISN)`:""}${data.length-nIsi?`, <b>${data.length-nIsi}</b> kosong → dibuat sistem`:""}.`}</p>
       ${h.tidak_dikenal.length?`<p class="small"><span class="pill bad">${h.tidak_dikenal.length} baris dilewati</span> ${h.tidak_dikenal.slice(0,12).map(x=>`${esc(x.nisn)} (${esc(x.alasan)})`).join("; ")}${h.tidak_dikenal.length>12?" …":""}</p>`:""}
       ${h.ganda.length?`<p class="small"><span class="pill warn">${h.ganda.length} NISN ganda</span> hanya baris pertama yang dipakai.</p>`:""}
       ${(h.no_ganda||[]).length?`<p class="small"><span class="pill bad">${h.no_ganda.length} No. peserta ganda</span> ${h.no_ganda.slice(0,8).map(x=>`${esc(x.no)} (baris ${esc(x.baris)} = baris ${esc(x.sama_dengan)})`).join("; ")}${h.no_ganda.length>8?" …":""} — siswa masuk ujian dengan nomor peserta, jadi perbaiki dulu di xlsx lalu unggah ulang.</p>`:""}
@@ -706,6 +714,14 @@ function gCetak(){
   $("c-hari").innerHTML='<option value="">Semua hari</option>'+H.map((h,i)=>`<option value="${h}">Hari ${i+1} · ${tglPendek(h)}</option>`).join("");
   ["btn-kode","btn-kode-xlsx"].forEach(b=>$(b).disabled=draf());
 }
+// Penjelasan tiap cakupan kode (tampil di bawah pilihan sebelum operator menentukan)
+const LINGKUP_KET={
+  ruang:"<b>Per ruang</b> — satu kode untuk setiap ruang di setiap sesi. <b>Satu ruang boleh berisi beberapa mapel/angkatan</b>: semua siswa di ruang itu memakai kode yang sama, dan soal tiap siswa tetap mengikuti jadwal kelompoknya (mis. kelas 10 Matematika dan kelas 11 Fisika dalam satu ruang). Siswa ruang lain atau yang berada di luar ruang tidak bisa memakai kode ini. <b>Paling ketat — disarankan untuk PAS.</b>",
+  mapel:"<b>Per mapel</b> — satu kode untuk setiap mapel di setiap sesi, <b>berlaku di semua ruang</b> yang mengerjakan mapel itu (siswa Matematika di R01, R02, R03 memakai kode yang sama). Ruang yang berisi dua mapel punya dua kode berlabel; siswa harus memakai kode mapelnya. Kode tidak lagi membuktikan siswa berada di ruangnya — pengawasan lewat daftar siswa di layar pengawas.",
+  tingkat:"<b>Per angkatan</b> — satu kode untuk setiap angkatan (10/11/12) di setiap sesi, <b>berlaku di semua ruang</b>. Ruang campur angkatan punya beberapa kode berlabel. Satu kode dipakai ratusan siswa, sehingga lebih mudah menyebar ke luar ruang.",
+  semua:"<b>Satu kode untuk semua</b> — satu kode per sesi untuk seluruh peserta di semua ruang dan semua mapel. Paling sederhana (cocok untuk simulasi/gladi), tetapi paling mudah menyebar ke luar ruang."};
+function ketLingkup(){const s=$("at-lingkup");$("at-lingkup-ket").innerHTML=(LINGKUP_KET[s.value]||"")+(s.disabled?" <i>Cakupan ini sudah dipakai; ubah hanya lewat batal terbit.</i>":" <i>Siswa tetap harus memakai nomor pesertanya sendiri dan dijadwalkan di sesi itu. Pilih sebelum terbit, lalu Simpan aturan.</i>")}
+$("at-lingkup").onchange=ketLingkup;
 const LINGKUP_TEKS={ruang:"per ruang",mapel:"per mapel",tingkat:"per angkatan",semua:"satu untuk semua peserta"};
 const kodeFmt=k=>String(k||"").replace(/^(\d{3})(\d{3})$/,"$1 $2");
 // Satu kode → "123 456"; beberapa kode (cakupan mapel/angkatan) → satu baris per label
