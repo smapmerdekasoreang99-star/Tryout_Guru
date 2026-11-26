@@ -92,6 +92,33 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
 .umpan{max-height:640px;overflow:auto;padding:0}.umpan .bt{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px}.umpan .bt b{font-size:14px}
 .laci{position:fixed;inset:0;background:rgba(20,24,30,.45);z-index:150;display:flex;justify-content:flex-end}
 .laci>div{background:var(--kertas);width:min(1000px,100%);height:100%;overflow:auto;padding:16px 18px 40px;display:flex;flex-direction:column;gap:12px}
+/* Susun ruang otomatis (26 Nov 2026) — warna tingkat: 10 biru, 11 hijau, 12 emas */
+.t10{background:var(--sakit)}.t11{background:var(--hadir)}.t12{background:var(--emas)}
+.titik{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:5px;vertical-align:0}
+.susun>div{width:min(1080px,100%);gap:14px;padding-bottom:0}
+.sr-blok{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--bayang-1)}
+.sr-langkah{display:flex;align-items:center;gap:10px;font-family:"Fraunces",Georgia,serif;font-size:17px;font-weight:600}
+.sr-langkah span{width:26px;height:26px;border-radius:50%;background:var(--gelap);color:var(--emas);display:grid;place-items:center;font-family:inherit;font-size:14px}
+.pola-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.pola{background:var(--kertas);border:1.5px solid var(--line);border-radius:12px;padding:14px;text-align:left;color:inherit;font-weight:400;display:flex;flex-direction:column;gap:8px;transition:border-color .15s,box-shadow .15s,background .15s}
+.pola:hover{border-color:var(--emas-tua)}.pola.on{background:#fff;border-color:var(--gelap);box-shadow:0 0 0 3px var(--emas-muda)}
+.pola b{font-family:"Fraunces",Georgia,serif;font-size:16px;font-weight:600}.pola .small{color:var(--tinta-2);line-height:1.45}
+.pola-cocok{font-size:12px;font-weight:700;color:var(--emas-teks);margin-top:auto}
+.kursi{display:grid;grid-template-columns:repeat(6,16px);gap:5px;padding:10px;background:#fff;border:1px solid var(--line);border-radius:10px;width:max-content}
+.kursi i{width:16px;height:16px;border-radius:5px}
+.sr-atur{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.sr-atur .f{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+.sr-atur .chip{display:inline-flex;align-items:center;cursor:pointer}.sr-atur .chip.on .titik{box-shadow:0 0 0 2px rgba(255,255,255,.7)}
+.sr-catatan{font-size:13px;padding:8px 12px;border-radius:10px;background:var(--kertas-3);margin:0}.sr-catatan.warn{background:var(--warn-soft);color:var(--warn)}
+.sr-angka{margin-bottom:10px}.sr-legenda{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.sr-ruang{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;max-height:420px;overflow:auto;padding:2px}
+.sr-kartu{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:7px;text-align:left;color:inherit;font-weight:400}
+.sr-kartu:hover{border-color:var(--emas-tua)}.sr-kartu.on{border-color:var(--gelap);box-shadow:0 0 0 3px var(--emas-muda)}
+.sr-kartu .h{display:flex;justify-content:space-between;align-items:baseline}.sr-kartu .h b{font-family:"Fraunces",Georgia,serif;font-size:18px;font-weight:600}
+.sr-kartu .batang{gap:1px}.sr-mini{display:flex;gap:10px;font-size:12px;font-weight:700;color:var(--tinta-2)}
+.sr-kls{font-size:11px;line-height:1.4}
+.sr-aksi{position:sticky;bottom:0;margin:0 -18px;padding:12px 18px;background:rgba(250,247,240,.96);backdrop-filter:blur(6px);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:var(--bayang-atas)}
+@media (max-width:640px){.kursi{grid-template-columns:repeat(6,12px);gap:4px}.kursi i{width:12px;height:12px}.sr-aksi .row{width:100%}.sr-aksi .row button{flex:1}}
 @media (max-width:1000px){.dua{grid-template-columns:minmax(0,1fr)}.ubin{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:640px){.tabs button span{display:none}.ubin{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
@@ -160,7 +187,7 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
   <div id="tab-peserta" class="hidden">
     <div class="card kolom">
       <div class="kepala"><div><h3>1. Unggah peserta per ruang</h3><p class="small muted">Template berisi semua siswa aktif (NISN, nama, kelas). Isi kolom <b>Ruang</b> (mis. R01) dan <b>Kelompok</b> (mis. <code>10</code>, <code>11-IPA</code>, <code>12-IPS</code>; harus sama persis dengan kelompok di jadwal). Siswa yang Ruang-nya kosong tidak ikut.</p></div>
-        <button class="ghost" id="btn-tpl-peserta">Unduh template peserta</button></div>
+        <div class="row"><button class="ghost" id="btn-tpl-peserta">Unduh template peserta</button><button id="btn-susun" title="Sistem membagi siswa ke ruang menurut pola yang Anda pilih">Susun ruang otomatis</button></div></div>
       <div class="small" style="margin:4px 0 8px" id="p-nomor-pilih"><b>Nomor peserta</b> (dipakai siswa untuk masuk ujian):
         <label style="display:block;margin-top:4px"><input type="radio" name="p-nomor" value="berkas" checked> Ambil dari kolom <b>No. peserta</b> di berkas <span class="muted">— sel yang kosong dibuat sistem; untuk memakai NISN, salin kolom NISN ke kolom No. peserta</span></label>
         <label style="display:block"><input type="radio" name="p-nomor" value="sistem"> <b>Dibuat sistem</b> untuk semua siswa <span class="muted">— kolom No. peserta diabaikan; format &lt;ruang&gt;-&lt;urut&gt;, mis. R01-01, R01-02 (urut kelompok, lalu nama)</span></label></div>
@@ -492,7 +519,7 @@ function siapkanDrop(drop,input,fn){input.onchange=e=>{if(e.target.files[0])fn(e
 
 /* ---------------- Peserta & Ruang ---------------- */
 function gPeserta(){
-  $("drop-peserta").classList.toggle("hidden",!draf());$("p-terkunci").classList.toggle("hidden",draf());
+  $("drop-peserta").classList.toggle("hidden",!draf());$("p-terkunci").classList.toggle("hidden",draf());$("btn-susun").classList.toggle("hidden",!draf());$("p-nomor-pilih").classList.toggle("hidden",!draf());
   if(!draf())$("p-pratinjau").innerHTML="";
   const komp={};A.peserta.forEach(p=>{(komp[p.ruang]=komp[p.ruang]||{})[p.kelompok]=((komp[p.ruang]||{})[p.kelompok]||0)+1});
   $("t-ruang").innerHTML=A.ruang.map(r=>`<tr><td><b>${esc(r.kode)}</b></td><td><input type="text" data-rn="${esc(r.kode)}" value="${esc(r.nama||"")}" placeholder="mis. Gd A lt 1" style="width:200px"></td>
@@ -527,12 +554,16 @@ async function unggahPeserta(file){BERKAS_PESERTA=file;const sumberNo=(document.
       data.push({nisn,ruang,kelompok:String(r[cK]??"").trim(),no_peserta:sumberNo==="berkas"&&cP>=0?String(r[cP]??"").trim():""})});
     const nIsi=data.filter(d=>d.no_peserta).length,nSama=data.filter(d=>d.no_peserta&&d.no_peserta.replace(/\D/g,"")===d.nisn.replace(/\D/g,"")).length;
     if(!data.length)return toast("Tidak ada baris yang Ruang-nya terisi.",5000);
+    await pratinjauPeserta(data,{tanpa,catatanNo:sumberNo==="sistem"?`semua <b>${data.length}</b> nomor <b>dibuat sistem</b> (kolom di berkas diabaikan).`:cP<0?`kolom No. peserta tidak ada di berkas — semua nomor <b>dibuat sistem</b>.`:`<b>${nIsi}</b> dari berkas${nSama?` (${nSama===nIsi?"semuanya":nSama} sama dengan NISN)`:""}${data.length-nIsi?`, <b>${data.length-nIsi}</b> kosong → dibuat sistem`:""}.`});
+  }catch(e){toast("Berkas tidak terbaca: "+e.message,6000)}}
+// Pratinjau server (tanpa menyimpan) untuk data peserta dari berkas atau dari Susun ruang otomatis
+async function pratinjauPeserta(data,{tanpa=0,catatanNo="",asal=""}={}){
     const h=await rpc("asm_peserta_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_rows:data,p_ganti:true,p_simpan:false});PRATINJAU=data;
-    $("p-pratinjau").innerHTML=`<div class="card kolom" style="background:var(--emas-kabut)"><h3>Pratinjau: ${h.n} peserta akan disimpan</h3>
+    $("p-pratinjau").innerHTML=`<div class="card kolom" style="background:var(--emas-kabut)"><h3>Pratinjau: ${h.n} peserta akan disimpan</h3>${asal?`<p class="small muted">${asal}</p>`:""}
       <div class="row small">${Object.entries(h.per_ruang).sort().map(([r,n])=>`<span class="pill">${esc(r)}: ${n}</span>`).join("")}</div>
       <div class="row small">${Object.entries(h.per_kelompok).sort().map(([k,n])=>`<span class="pill info">${esc(k)}: ${n}</span>`).join("")}</div>
       ${tanpa?`<p class="small muted">${tanpa} siswa tanpa ruang tidak ikut.</p>`:""}
-      <p class="small"><span class="pill info">No. peserta</span> ${sumberNo==="sistem"?`semua <b>${data.length}</b> nomor <b>dibuat sistem</b> (kolom di berkas diabaikan).`:cP<0?`kolom No. peserta tidak ada di berkas — semua nomor <b>dibuat sistem</b>.`:`<b>${nIsi}</b> dari berkas${nSama?` (${nSama===nIsi?"semuanya":nSama} sama dengan NISN)`:""}${data.length-nIsi?`, <b>${data.length-nIsi}</b> kosong → dibuat sistem`:""}.`}</p>
+      <p class="small"><span class="pill info">No. peserta</span> ${catatanNo}</p>
       ${h.tidak_dikenal.length?`<p class="small"><span class="pill bad">${h.tidak_dikenal.length} baris dilewati</span> ${h.tidak_dikenal.slice(0,12).map(x=>`${esc(x.nisn)} (${esc(x.alasan)})`).join("; ")}${h.tidak_dikenal.length>12?" …":""}</p>`:""}
       ${h.ganda.length?`<p class="small"><span class="pill warn">${h.ganda.length} NISN ganda</span> hanya baris pertama yang dipakai.</p>`:""}
       ${(h.no_ganda||[]).length?`<p class="small"><span class="pill bad">${h.no_ganda.length} No. peserta ganda</span> ${h.no_ganda.slice(0,8).map(x=>`${esc(x.no)} (baris ${esc(x.baris)} = baris ${esc(x.sama_dengan)})`).join("; ")}${h.no_ganda.length>8?" …":""} — siswa masuk ujian dengan nomor peserta, jadi perbaiki dulu di xlsx lalu unggah ulang.</p>`:""}
@@ -540,8 +571,154 @@ async function unggahPeserta(file){BERKAS_PESERTA=file;const sumberNo=(document.
     $("btn-p-batal").onclick=()=>{$("p-pratinjau").innerHTML="";PRATINJAU=null};
     $("btn-p-simpan").onclick=async()=>{try{const r=await rpc("asm_peserta_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_rows:PRATINJAU,p_ganti:true,p_simpan:true});
       toast(`${r.n} peserta tersimpan`);$("p-pratinjau").innerHTML="";muatUlang()}catch(e){toast(e.message,6000)}};
-  }catch(e){toast("Berkas tidak terbaca: "+e.message,6000)}}
+    $("p-pratinjau").scrollIntoView({behavior:"smooth",block:"start"});
+}
 siapkanDrop($("drop-peserta"),$("file-peserta"),unggahPeserta);
+$("btn-susun").onclick=bukaSusun;
+
+/* ---------------- Susun ruang otomatis (26 Nov 2026) ----------------
+   Sistem membagi siswa aktif ke ruang menurut pola yang dipilih operator, menampilkan komposisi tiap ruang,
+   bisa diunduh (xlsx, lembar pertama bisa diunggah ulang), lalu dipakai sebagai daftar peserta lewat pratinjau
+   yang sama dengan unggah berkas. Tidak ada yang tersimpan sebelum operator menekan Simpan di pratinjau. */
+const POLA_RUANG={
+  kelas:{judul:"Satu kelas per ruang",ket:"Siswa satu kelas asal duduk di ruang yang sama. Kelas yang melebihi kapasitas dibagi rata ke beberapa ruang.",cocok:"Ulangan per kelas, simulasi",kursi:k=>"10"},
+  tingkat:{judul:"Campur kelas, satu tingkat",ket:"Satu ruang berisi siswa dari beberapa kelas pada tingkat yang sama. Tempat duduk berselang-seling antarkelas.",cocok:"PAS satu angkatan per ruang",kursi:k=>"10"},
+  lintas:{judul:"Campur tiga tingkat",ket:"Satu ruang berisi siswa kelas 10, 11, dan 12 berimbang. Tempat duduk berselang-seling antartingkat, sehingga siswa yang bersebelahan mengerjakan mapel berbeda.",cocok:"PAS/ASAS — paling kecil peluang mencontek",kursi:k=>["10","11","12"][k%3]},
+  acak:{judul:"Acak penuh",ket:"Siswa diacak sistem tanpa memperhatikan kelas atau tingkat, lalu dibagi rata ke ruang. Tekan Acak ulang untuk susunan lain.",cocok:"Tryout bersama, gladi",kursi:k=>["10","11","12"][(k*7+3)%5%3]}};
+const SR={pola:"lintas",kapasitas:36,awalan:"R",tingkat:{"10":true,"11":true,"12":true},kelompok:"",nomor:"duduk",benih:1,siswa:null,hasil:null,pilih:null};
+const tingkatDari=k=>(String(k||"").match(/^(10|11|12)/)||[])[1]||"";
+const urutKelas=(a,b)=>String(a).localeCompare(String(b),"id",{numeric:true});
+// Gabung beberapa daftar secara proporsional: anggota tiap daftar tersebar merata di sepanjang hasil
+function gabungRata(daftar){const isi=daftar.filter(d=>d.length);return isi.flatMap((d,gi)=>d.map((x,i)=>({x,k:(i+.5)/d.length,gi}))).sort((a,b)=>a.k-b.k||a.gi-b.gi).map(o=>o.x)}
+function acakBenih(benih){let a=benih>>>0;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+// Bagi daftar urut menjadi r ruang: "selang" = anggota ke-i masuk ruang i mod r (komposisi rata); "potong" = potongan berurutan
+function bagi(daftar,r,cara){const R=Array.from({length:r},()=>[]);
+  if(cara==="selang")daftar.forEach((x,i)=>R[i%r].push(x));
+  else{const dasar=Math.floor(daftar.length/r),lebih=daftar.length%r;let i=0;for(let j=0;j<r;j++){const n=dasar+(j<lebih?1:0);R[j]=daftar.slice(i,i+n);i+=n}}
+  return R}
+function susunRuang(){
+  const K=Math.max(1,Math.min(200,parseInt(SR.kapasitas,10)||36));
+  const S=(SR.siswa||[]).filter(s=>s.aktif&&SR.tingkat[tingkatDari(s.kelas)]).sort((a,b)=>urutKelas(a.kelas,b.kelas)||String(a.nama).localeCompare(String(b.nama),"id"));
+  const perKelas={};S.forEach(s=>(perKelas[s.kelas]=perKelas[s.kelas]||[]).push(s));
+  const kelasUrut=Object.keys(perKelas).sort(urutKelas);
+  let ruang=[];
+  if(SR.pola==="kelas")kelasUrut.forEach(k=>{ruang.push(...bagi(perKelas[k],Math.ceil(perKelas[k].length/K),"potong"))});
+  else if(SR.pola==="tingkat")["10","11","12"].forEach(t=>{const kls=kelasUrut.filter(k=>tingkatDari(k)===t);if(!kls.length)return;
+    const L=kls.flatMap(k=>perKelas[k]);ruang.push(...bagi(L,Math.ceil(L.length/K),"selang"))});
+  // Dibagikan bergiliran (anggota ke-i → ruang i mod r) dari daftar urut tingkat lalu kelas: tiap ruang mendapat porsi rata
+  // dari setiap tingkat dan setiap kelas; urutan duduk diselang-seling sesudahnya.
+  else if(SR.pola==="lintas"){const L=["10","11","12"].flatMap(t=>kelasUrut.filter(k=>tingkatDari(k)===t).flatMap(k=>perKelas[k]));
+    ruang=bagi(L,Math.ceil(L.length/K),"selang")}
+  else{const L=[...S],acak=acakBenih(SR.benih*2654435761);for(let i=L.length-1;i>0;i--){const j=Math.floor(acak()*(i+1));[L[i],L[j]]=[L[j],L[i]]}
+    ruang=bagi(L,Math.ceil(L.length/K),"potong")}
+  ruang=ruang.filter(r=>r.length);
+  // Urutan duduk di dalam ruang: selang-seling antarkelas (satu tingkat) atau antartingkat lalu antarkelas (tiga tingkat)
+  const kelompokkan=(isi,kunci)=>{const m={};isi.forEach(s=>(m[kunci(s)]=m[kunci(s)]||[]).push(s));return Object.keys(m).sort(urutKelas).map(k=>m[k])};
+  if(SR.pola==="tingkat")ruang=ruang.map(isi=>gabungRata(kelompokkan(isi,s=>s.kelas)));
+  else if(SR.pola==="lintas")ruang=ruang.map(isi=>gabungRata(kelompokkan(isi,s=>tingkatDari(s.kelas)).map(g=>gabungRata(kelompokkan(g,s=>s.kelas)))));
+  const lebar=ruang.length>99?3:2,lama={};A.peserta.forEach(p=>lama[p.nisn]=p.kelompok);let tanpaLama=0;
+  const hasil=ruang.map((isi,j)=>{const kode=(SR.awalan||"R").toUpperCase().replace(/[^A-Z0-9-]/g,"")+String(j+1).padStart(lebar,"0");
+    return{kode,siswa:isi.map((s,i)=>{const t=tingkatDari(s.kelas);let kel=SR.kelompok==="kelas"?String(s.kelas).toUpperCase().replace(/\s+/g,""):t;
+      if(SR.kelompok==="lama"){if(lama[s.nisn])kel=lama[s.nisn];else tanpaLama++}
+      return{nisn:s.nisn,nama:s.nama,kelas:s.kelas,tingkat:t,kursi:i+1,kelompok:kel,no:SR.nomor==="nisn"?s.nisn:`${kode}-${String(i+1).padStart(2,"0")}`}})}});
+  const ukuran=hasil.map(r=>r.siswa.length);
+  return{ruang:hasil,n:S.length,K,min:Math.min(...ukuran),max:Math.max(...ukuran),tanpaLama,
+    tanpaTingkat:(SR.siswa||[]).filter(s=>s.aktif&&!tingkatDari(s.kelas)).length}}
+// Kelompok di jadwal yang sudah diunggah (untuk peringatan "kelompok tidak ada di jadwal")
+const kelompokJadwal=()=>{const k=new Set();A.sesi.forEach(s=>Object.keys(s.jadwal||{}).forEach(x=>k.add(x)));return k};
+function warnaKelas(kelas){const t=tingkatDari(kelas),kls=[...new Set((SR.siswa||[]).filter(s=>tingkatDari(s.kelas)===t).map(s=>s.kelas))].sort(urutKelas);
+  const i=Math.max(0,kls.indexOf(kelas)),n=Math.max(1,kls.length);return{t,op:(1-.55*i/Math.max(1,n-1)).toFixed(2)}}
+async function bukaSusun(){
+  if(!draf())return toast("Asesmen sudah diterbitkan; peserta tidak bisa diubah.");
+  try{if(!SR.siswa)SR.siswa=await rpc("tka_list_siswa",{p_pin:PIN,p_kelas:null})}catch(e){return toast(e.message,6000)}
+  if(!SR.kelompok){const kj=[...kelompokJadwal()],adaLama=A.peserta.some(p=>!/^(10|11|12)$/.test(p.kelompok)&&!/^(10|11|12)-\d+$/.test(p.kelompok));
+    SR.kelompok=adaLama?"lama":kj.some(k=>/^(10|11|12)-\d+$/.test(k))?"kelas":"tingkat"}
+  let el=$("laci-susun");if(!el){el=document.createElement("div");el.id="laci-susun";el.className="laci susun";document.body.appendChild(el);el.onclick=e=>{if(e.target===el)el.remove()}}
+  const nT=t=>SR.siswa.filter(s=>s.aktif&&tingkatDari(s.kelas)===t).length;
+  el.innerHTML=`<div>
+    <div class="kepala"><div><div class="alis">Peserta &amp; Ruang · ${esc(A.asesmen.nama)}</div><h2>Susun ruang otomatis</h2>
+      <p class="small muted" style="margin-top:4px">Pilih pola, atur kapasitas, periksa hasilnya, lalu pakai sebagai daftar peserta. Belum ada yang tersimpan sampai Anda menekan <b>Simpan</b> di pratinjau.</p></div>
+      <button class="ghost" id="sr-tutup">Tutup</button></div>
+    <section class="sr-blok"><div class="sr-langkah"><span>1</span>Pola ruang</div>
+      <div class="pola-grid">${Object.entries(POLA_RUANG).map(([k,p])=>`<button type="button" class="pola${SR.pola===k?" on":""}" data-pola="${k}" aria-pressed="${SR.pola===k}">
+        <div class="kursi" aria-hidden="true">${Array.from({length:18},(_,i)=>`<i class="t${p.kursi(i)}"${k==="tingkat"?` style="opacity:${[1,.7,.45][i%3]}"`:""}></i>`).join("")}</div>
+        <b>${p.judul}</b><span class="small">${p.ket}</span><span class="pola-cocok">Cocok: ${p.cocok}</span></button>`).join("")}</div></section>
+    <section class="sr-blok"><div class="sr-langkah"><span>2</span>Pengaturan</div>
+      <div class="sr-atur">
+        <div class="f"><span>Tingkat yang ikut</span><div class="chips">${["10","11","12"].map(t=>`<button type="button" class="chip${SR.tingkat[t]?" on":""}" data-tk="${t}"><i class="titik t${t}"></i>Kelas ${t} · ${nT(t)}</button>`).join("")}</div></div>
+        <label class="f">Kapasitas maks. per ruang<input type="number" id="sr-kap" min="1" max="200" value="${SR.kapasitas}" style="width:120px"></label>
+        <label class="f">Awalan nama ruang<input type="text" id="sr-awal" value="${esc(SR.awalan)}" maxlength="6" style="width:110px"></label>
+        <label class="f">Kelompok jadwal<select id="sr-kel"><option value="tingkat">Per tingkat (10, 11, 12)</option><option value="kelas">Per kelas (10-1, 10-2, …)</option><option value="lama"${A.peserta.length?"":" disabled"}>Pertahankan dari peserta tersimpan</option></select></label>
+        <label class="f">Nomor peserta<select id="sr-no"><option value="duduk">Urut tempat duduk (R01-01, …)</option><option value="nisn">Salin NISN</option></select></label>
+        <button type="button" class="ghost${SR.pola==="acak"?"":" hidden"}" id="sr-acak" style="align-self:flex-end">Acak ulang</button>
+      </div><div id="sr-peringatan"></div></section>
+    <section class="sr-blok"><div class="sr-langkah"><span>3</span>Hasil susunan</div><div id="sr-hasil"></div></section>
+    <div class="sr-aksi"><span class="small muted" id="sr-ringkas"></span><div class="row"><button class="ghost" id="sr-unduh">Unduh xlsx</button><button id="sr-pakai">Pakai sebagai daftar peserta</button></div></div>
+  </div>`;
+  $("sr-kel").value=SR.kelompok;$("sr-no").value=SR.nomor;
+  $("sr-tutup").onclick=()=>el.remove();
+  el.querySelectorAll("[data-pola]").forEach(b=>b.onclick=()=>{SR.pola=b.dataset.pola;el.querySelectorAll("[data-pola]").forEach(x=>{x.classList.toggle("on",x===b);x.setAttribute("aria-pressed",x===b)});$("sr-acak").classList.toggle("hidden",SR.pola!=="acak");SR.pilih=null;hitungSusun()});
+  el.querySelectorAll("[data-tk]").forEach(b=>b.onclick=()=>{SR.tingkat[b.dataset.tk]=!SR.tingkat[b.dataset.tk];b.classList.toggle("on",SR.tingkat[b.dataset.tk]);SR.pilih=null;hitungSusun()});
+  $("sr-kap").oninput=()=>{SR.kapasitas=$("sr-kap").value;SR.pilih=null;hitungSusun()};
+  $("sr-awal").oninput=()=>{SR.awalan=$("sr-awal").value;hitungSusun()};
+  $("sr-kel").onchange=()=>{SR.kelompok=$("sr-kel").value;hitungSusun()};
+  $("sr-no").onchange=()=>{SR.nomor=$("sr-no").value;hitungSusun()};
+  $("sr-acak").onclick=()=>{SR.benih++;SR.pilih=null;hitungSusun()};
+  $("sr-unduh").onclick=e=>jalankanUnduh(e.target,unduhSusun);
+  $("sr-pakai").onclick=pakaiSusun;
+  hitungSusun();
+}
+function hitungSusun(){const H=SR.hasil=susunRuang(),box=$("sr-hasil");if(!box)return;
+  const kj=kelompokJadwal(),kelBaru=[...new Set(H.ruang.flatMap(r=>r.siswa.map(s=>s.kelompok)))].sort(urutKelas),
+        tidakDiJadwal=kj.size?kelBaru.filter(k=>!kj.has(k)):[];
+  $("sr-peringatan").innerHTML=[
+    tidakDiJadwal.length?`<p class="sr-catatan warn">Kelompok <b>${tidakDiJadwal.map(esc).join(", ")}</b> belum ada di jadwal yang sudah diunggah (${[...kj].sort(urutKelas).slice(0,8).map(esc).join(", ")}${kj.size>8?", …":""}). Pilih <b>Kelompok jadwal</b> yang sama dengan jadwal, atau unggah ulang jadwal.</p>`:"",
+    H.tanpaLama?`<p class="sr-catatan warn">${H.tanpaLama} siswa belum punya kelompok di peserta tersimpan; kelompoknya diisi tingkat.</p>`:"",
+    H.tanpaTingkat?`<p class="sr-catatan">${H.tanpaTingkat} siswa aktif tanpa kelas 10/11/12 tidak ikut disusun.</p>`:""].join("");
+  if(!H.ruang.length){box.innerHTML='<p class="muted">Tidak ada siswa — pilih minimal satu tingkat.</p>';$("sr-ringkas").textContent="";$("sr-pakai").disabled=true;$("sr-unduh").disabled=true;return}
+  $("sr-pakai").disabled=false;$("sr-unduh").disabled=false;
+  if(!SR.pilih||!H.ruang.some(r=>r.kode===SR.pilih))SR.pilih=H.ruang[0].kode;
+  const komp=r=>{const m={};r.siswa.forEach(s=>m[s.kelas]=(m[s.kelas]||0)+1);return Object.entries(m).sort((a,b)=>urutKelas(a[0],b[0]))};
+  const tk=r=>{const m={};r.siswa.forEach(s=>m[s.tingkat]=(m[s.tingkat]||0)+1);return m};
+  box.innerHTML=`<div class="angka sr-angka"><div><b>${H.n}</b><span>siswa</span></div><div><b>${H.ruang.length}</b><span>ruang</span></div>
+      <div><b>${(H.n/H.ruang.length).toFixed(1).replace(".",",")}</b><span>rata-rata per ruang</span></div><div><b>${H.min===H.max?H.min:H.min+"–"+H.max}</b><span>siswa per ruang (maks. ${H.K})</span></div></div>
+    <div class="sr-legenda small">${["10","11","12"].filter(t=>SR.tingkat[t]).map(t=>`<span><i class="titik t${t}"></i>Kelas ${t}</span>`).join("")}<span class="muted">· warna lebih muda = kelas berikutnya di tingkat yang sama</span></div>
+    <div class="sr-ruang">${H.ruang.map(r=>{const k=komp(r),t=tk(r);return`<button type="button" class="sr-kartu${r.kode===SR.pilih?" on":""}" data-r="${esc(r.kode)}">
+      <div class="h"><b>${esc(r.kode)}</b><span class="small muted">${r.siswa.length} siswa</span></div>
+      <div class="batang">${k.map(([kl,n])=>{const w=warnaKelas(kl);return`<i class="t${w.t}" style="width:${(100*n/r.siswa.length).toFixed(1)}%;opacity:${w.op}" title="${esc(kl)}: ${n}"></i>`}).join("")}</div>
+      <div class="sr-mini">${Object.entries(t).sort().map(([x,n])=>`<span><i class="titik t${x}"></i>${x}: ${n}</span>`).join("")}</div>
+      <div class="sr-kls small muted">${k.map(([kl,n])=>`${esc(kl)} ×${n}`).join(" · ")}</div></button>`}).join("")}</div>
+    <div id="sr-rinci"></div>`;
+  box.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{SR.pilih=b.dataset.r;box.querySelectorAll("[data-r]").forEach(x=>x.classList.toggle("on",x===b));rinciSusun()});
+  rinciSusun();
+  $("sr-ringkas").innerHTML=`<b>${POLA_RUANG[SR.pola].judul}</b> · ${H.n} siswa di ${H.ruang.length} ruang`;
+}
+function rinciSusun(){const r=SR.hasil.ruang.find(x=>x.kode===SR.pilih);if(!r)return;
+  $("sr-rinci").innerHTML=`<div class="kepala" style="margin-top:6px"><h3>Ruang ${esc(r.kode)} <span class="small muted">· urutan tempat duduk</span></h3></div>
+    <div class="gulir" style="max-height:380px;overflow:auto"><table><thead><tr><th>Kursi</th><th>No. peserta</th><th>Nama</th><th>NISN</th><th>Kelas</th><th>Kelompok</th></tr></thead>
+    <tbody>${r.siswa.map(s=>{const w=warnaKelas(s.kelas);return`<tr><td class="n">${s.kursi}</td><td class="kode">${esc(s.no)}</td><td>${esc(s.nama)}</td><td>${esc(s.nisn)}</td><td><i class="titik t${w.t}" style="opacity:${w.op}"></i>${esc(s.kelas)}</td><td>${esc(s.kelompok)}</td></tr>`}).join("")}</tbody></table></div>`}
+function barisSusun(){return SR.hasil.ruang.flatMap(r=>r.siswa.map(s=>({...s,ruang:r.kode})))}
+async function unduhSusun(){const H=SR.hasil,semua=barisSusun();
+  const info=[["Pola",POLA_RUANG[SR.pola].judul],["Kapasitas maks.",`${H.K} siswa per ruang`],["Kelompok jadwal",$("sr-kel").selectedOptions[0].textContent],
+    ["Unggah ulang","Lembar ini bisa diubah lalu diunggah di Peserta & Ruang (kolom Ruang, Kelompok, No. peserta)."]];
+  const kolomSiswa=[{t:"Urut",w:6,rata:"center"},{t:"Ruang",w:9},{t:"Kursi",w:7,rata:"center"},{t:"No. peserta",w:14},{t:"NISN",w:14,rata:"left"},{t:"Nama",w:34},{t:"Kelas",w:9},{t:"Kelompok",w:11}];
+  const lembar=[{nama:"Peserta per ruang",judul:"Daftar peserta per ruang — "+A.asesmen.nama,sub:POLA_RUANG[SR.pola].judul,info,kolom:kolomSiswa,
+      baris:semua.map((s,i)=>[i+1,s.ruang,s.kursi,s.no,s.nisn,s.nama,s.kelas,s.kelompok]),beku:4,melintang:false},
+    {nama:"Rekap ruang",judul:"Rekap komposisi ruang — "+A.asesmen.nama,sub:`${H.n} siswa · ${H.ruang.length} ruang`,
+      kolom:[{t:"Ruang",w:10},{t:"Jumlah",w:9,rata:"center"},{t:"Kelas 10",w:9,rata:"center"},{t:"Kelas 11",w:9,rata:"center"},{t:"Kelas 12",w:9,rata:"center"},{t:"Komposisi kelas",w:60,bungkus:true}],
+      baris:H.ruang.map(r=>{const m={},t={};r.siswa.forEach(s=>{m[s.kelas]=(m[s.kelas]||0)+1;t[s.tingkat]=(t[s.tingkat]||0)+1});
+        return[r.kode,r.siswa.length,t["10"]||0,t["11"]||0,t["12"]||0,Object.entries(m).sort((a,b)=>urutKelas(a[0],b[0])).map(([k,n])=>`${k} (${n})`).join(", ")]}),beku:1,melintang:false}];
+  if(H.ruang.length<=60)H.ruang.forEach(r=>lembar.push({nama:r.kode,judul:`Ruang ${r.kode} — ${A.asesmen.nama}`,sub:`${r.siswa.length} siswa · urutan tempat duduk`,
+    kolom:[{t:"Kursi",w:7,rata:"center"},{t:"No. peserta",w:14},{t:"NISN",w:14,rata:"left"},{t:"Nama",w:36},{t:"Kelas",w:9},{t:"Kelompok",w:11},{t:"Tanda tangan",w:22}],
+    baris:r.siswa.map(s=>[s.kursi,s.no,s.nisn,s.nama,s.kelas,s.kelompok,""]),beku:2,melintang:false}));
+  const nama=`Susunan_Ruang_${potongNama(A.asesmen.nama)}.xlsx`;
+  await unduhBukuXLSX({namaBerkas:nama,judulBuku:"Susunan ruang",lembar});return nama}
+async function pakaiSusun(){const data=barisSusun().map(s=>({nisn:s.nisn,ruang:s.ruang,kelompok:s.kelompok,no_peserta:s.no}));
+  const b=$("sr-pakai");b.disabled=true;
+  try{BERKAS_PESERTA=null;await pratinjauPeserta(data,{catatanNo:SR.nomor==="nisn"?`semua <b>${data.length}</b> nomor = NISN.`:`<b>${data.length}</b> nomor mengikuti urutan tempat duduk (mis. ${esc(data[0].no_peserta)}).`,
+      asal:`Dari <b>Susun ruang otomatis</b> — ${esc(POLA_RUANG[SR.pola].judul)}, ${SR.hasil.ruang.length} ruang. Periksa, lalu tekan <b>Simpan</b>.`});
+    $("laci-susun").remove();toast("Susunan masuk pratinjau. Periksa, lalu tekan Simpan.",5000)}
+  catch(e){toast(e.message,6000)}finally{b.disabled=false}}
 
 /* ---------------- Jadwal ---------------- */
 const NASKAH=id=>A.naskah.find(n=>n.id===id)||{};
