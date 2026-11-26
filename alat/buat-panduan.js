@@ -17,7 +17,7 @@ const PAS = process.argv.includes("--pas"), KUR = process.argv.includes("--kurik
 const SUBJUDUL = TO ? "Tryout Umum: jadwal, soal dari guru, sesi & link CBT, serta rekap per periode — langkah demi langkah" : KUR ? "Cara membaca informasi dan grafik pemantauan asesmen sekolah" : PAS ? "Menyiapkan, mengawasi, dan menyelesaikan ujian bersama (PAS, tryout bersama)" : "Menyusun paket soal, membuka latihan/tryout, dan membaca hasil";
 const UNTUK = TO ? "koordinator Tryout Umum (dan kurikulum)" : KUR ? "tim kurikulum" : PAS ? "kurikulum, operator, dan pengawas ruang" : "guru, kurikulum, operator, dan pengawas";
 const AKAR = path.join(__dirname, ".."), NAMA = TO ? "Panduan_Koordinator_TO_TKA" : KUR ? "Panduan_Pantau_Kurikulum" : PAS ? "Panduan_Asesmen_Bersama" : "Panduan_Guru_Asesmen_Merdeka";
-const JUDUL = TO ? "Panduan Tryout Umum (Koordinator)" : KUR ? "Panduan Pantau Kurikulum" : PAS ? "Panduan Asesmen Bersama" : "Panduan Guru Asesmen Merdeka", VERSI = TO ? "22 Oktober 2026" : KUR ? "22 Oktober 2026" : PAS ? "21 Oktober 2026" : "15 Oktober 2026";
+const JUDUL = TO ? "Panduan Tryout Umum (Koordinator)" : KUR ? "Panduan Pantau Kurikulum" : PAS ? "Panduan Asesmen Bersama" : "Panduan Guru Asesmen Merdeka", VERSI = TO ? "22 Oktober 2026" : KUR ? "22 Oktober 2026" : PAS ? "26 November 2026" : "15 Oktober 2026";
 
 /* ================= Isi panduan =================
    Blok: H1/H2/H3 (judul, dinomori otomatis), P (paragraf), UL/OL (daftar), TB (tabel: kepala, baris, lebar relatif),
