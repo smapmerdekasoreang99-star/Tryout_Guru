@@ -400,18 +400,18 @@ button.ns-salin.ok{background:var(--good-soft);color:var(--good);border-color:va
   <div class="card form">
     <div id="srv-status" class="muted small"></div>
     <div id="f-siswa">
-      <label class="f" for="nisn">NISN</label><input type="text" id="nisn" inputmode="numeric" autocomplete="off" placeholder="10 digit NISN">
+      <label class="f" for="nisn">NISN / No. peserta</label><input type="text" id="nisn" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="NISN · Asesmen Bersama: nomor peserta">
     </div>
     <div id="f-tamu" class="hidden">
       <label class="f" for="nama">Nama lengkap</label><input type="text" id="nama" autocomplete="name" placeholder="Nama sesuai absen">
       <label class="f" for="kelas">Kelas</label><input type="text" id="kelas" placeholder="Contoh: XI-1" autocomplete="off">
     </div>
-    <label class="f" for="akses">Kode akses (dari guru atau pengawas)</label><input type="text" id="akses" class="kode-akses" inputmode="numeric" autocomplete="off" maxlength="7" placeholder="6 angka"><div class="hidden" id="akses-qr" style="color:var(--good);margin-top:4px;font-size:13px;font-weight:600">✓ Kode akses dari QR sudah terisi. Tinggal ketik NISN-mu.</div>
+    <label class="f" for="akses">Kode akses (dari guru atau pengawas)</label><input type="text" id="akses" class="kode-akses" inputmode="numeric" autocomplete="off" maxlength="7" placeholder="6 angka"><div class="hidden" id="akses-qr" style="color:var(--good);margin-top:4px;font-size:13px;font-weight:600">✓ Kode akses dari QR sudah terisi. Tinggal ketik NISN atau nomor pesertamu.</div>
     <p class="muted small"><a href="#" id="lnk-tamu" style="color:var(--muted)">Belum terdaftar? Masuk sebagai tamu</a><a href="#" id="lnk-siswa" class="hidden" style="color:var(--muted)">Kembali masuk dengan NISN</a></p>
     <div id="login-info" class="notice hidden" style="background:var(--good-soft);color:var(--good)"></div>
     <h3>Petunjuk</h3>
     <ol class="small" style="padding-left:20px;margin:4px 0">
-      <li>Masukkan <b>NISN</b> dan <b>kode akses</b> yang diumumkan guru atau pengawas di kelas.</li>
+      <li>Masukkan <b>NISN</b> dan <b>kode akses</b> yang diumumkan guru atau pengawas di kelas. Pada <b>Asesmen Bersama</b>, isi <b>nomor peserta</b> dari kartu peserta, bukan NISN.</li>
       <li>Urutan soal, pilihan jawaban, dan variasi soal <b>berbeda untuk setiap siswa</b>. Kerjakan sendiri.</li>
       <li>Skor tiap nomor: 1 jika seluruh jawaban pada nomor itu tepat, selain itu 0.</li>
       <li>PGK: pilih <b>semua</b> jawaban yang benar. Kategori: isi <b>setiap baris</b>. Menjodohkan: pilih huruf untuk <b>setiap istilah</b>. Isian: tulis jawaban singkat (angka: gunakan koma/titik).</li>
@@ -785,7 +785,7 @@ function tungguSoal(ident){lsSet(KUNCI_TUNGGU,{token:ident.token});$("login-info
   const f=async()=>{const sisa=(mulai-(Date.now()+off))/1000;$("tg-hitung").textContent=sisa>0?fmtJ(sisa):"Membuka soal…";$("tg-jam").textContent="Soal terbuka pukul "+jamWIB(mulai)+" WIB";
     if(++n%15===0){try{const r=await rpc("tka_status",{p_token:ident.token});if(r&&r.ada){off=Date.parse(r.sekarang)-Date.now();if(r.mulai_soal)mulai=Date.parse(r.mulai_soal);
       if(r.pesan){$("tg-pesan").classList.remove("hidden");$("tg-pesan").textContent="Pesan pengawas: "+r.pesan}
-      if(r.dilepas||r.buka===false){berhentiTunggu();show("v-start");galatMasuk(r.dilepas?"Kamu dilepas pengawas. Masuk lagi dengan NISN dan kode akses.":"Sesi ini sudah ditutup.")}}}catch(e){}}
+      if(r.dilepas||r.buka===false){berhentiTunggu();show("v-start");galatMasuk(r.dilepas?"Kamu dilepas pengawas. Masuk lagi dengan NISN/nomor peserta dan kode akses.":"Sesi ini sudah ditutup.")}}}catch(e){}}
     if(sisa<=0&&!ambil&&Date.now()+off>=mulai+sebar){ambil=true;try{const j=await rpc("tka_lanjut_siswa",{p_token:ident.token});if(j.paket&&j.paket.publik)mulaiUjian(j);else{ambil=false;if(j.pas&&j.pas.mulai_soal)mulai=Date.parse(j.pas.mulai_soal)}}catch(e){ambil=false}}};
   f();TUNGGU_T=setInterval(f,1000)}
 function tandaSimpan(){const el=$("simpan-st");if(!el||!S||!S.sesi||S.ujicoba)return;const t=S.disimpanServer,blm=(S.ubahKe||0)!==(S.tersimpanKe||0);
@@ -1587,14 +1587,14 @@ window.addEventListener("DOMContentLoaded",()=>{
     const kode=kodeAkses();if(kode.length!==6&&(kode.length||MODE!=="siswa")){galatMasuk(MODE==="siswa"?"Kode akses harus 6 angka. Kosongkan bila gurumu bilang tanpa kode.":"Isi kode akses 6 angka yang diumumkan guru atau pengawas.");$("akses").focus();return}
     $("btn-start").disabled=true;
     try{
-      if(MODE==="siswa"){const nisn=$("nisn").value.replace(/\D/g,"");if(!nisn){galatMasuk("Isi NISN dahulu.");$("nisn").focus();return}
+      if(MODE==="siswa"){const nisn=$("nisn").value.replace(/\s+/g,"").toUpperCase();if(!nisn){galatMasuk("Isi NISN (atau nomor peserta untuk Asesmen Bersama) dahulu.");$("nisn").focus();return}
         const c=await rpc("tka_cek_masuk",{p_nisn:nisn,p_kode_akses:kode});PENDING={nisn,kode};
         const box=$("login-info");box.classList.remove("hidden");box.style.background="var(--good-soft)";box.style.color="var(--good)";
-        box.innerHTML=`<b>Apakah ini kamu?</b><div class="konfirm"><span class="nm">${esc(c.nama)}</span><span>Kelas <b>${esc(c.kelas)}</b> · NISN ${esc(c.nisn)}</span>`+
+        box.innerHTML=`<b>Apakah ini kamu?</b><div class="konfirm"><span class="nm">${esc(c.nama)}</span><span>Kelas <b>${esc(c.kelas)}</b> · ${c.pas&&c.pas.no_peserta?`No. peserta <b>${esc(c.pas.no_peserta)}</b>`:`NISN ${esc(c.nisn)}`}</span>`+
           `<div class="uj"><b>${esc(c.ujian.judul)}</b><br>${[c.ujian.mapel,c.ujian.n_soal+" soal","waktu "+c.ujian.menit+" menit"].filter(Boolean).map(esc).join(" · ")}${c.pas?`<br>Ruang <b>${esc(c.pas.ruang)}</b> · Sesi ${esc(c.pas.sesi)} · ${esc(c.pas.mapel||"")} · soal terbuka pukul <b>${jamWIB(c.pas.mulai_soal)}</b> WIB`:""}</div></div>`+
           `<div class="row"><button id="btn-ya" class="grow">Ya, benar — mulai mengerjakan</button><button id="btn-bukan" class="ghost">Bukan saya</button></div>`;
         $("btn-ya").onclick=async()=>{const b=$("btn-ya");b.disabled=true;try{mulaiUjian(await rpc("tka_masuk",{p_nisn:PENDING.nisn,p_kode_akses:PENDING.kode}))}catch(e){galatMasuk(e.message)}finally{b.disabled=false}};
-        $("btn-bukan").onclick=()=>{PENDING=null;box.classList.add("hidden");$("nisn").value="";$("nisn").focus();toast("Periksa kembali NISN-mu, atau minta bantuan guru")};
+        $("btn-bukan").onclick=()=>{PENDING=null;box.classList.add("hidden");$("nisn").value="";$("nisn").focus();toast("Periksa kembali NISN atau nomor pesertamu, atau minta bantuan guru")};
         box.scrollIntoView({behavior:"smooth"})}
       else{const n=$("nama").value.trim(),kl=$("kelas").value.trim();if(n.length<3||!kl){galatMasuk("Isi nama lengkap dan kelas dahulu.");return}
         mulaiUjian(await rpc("tka_masuk_tamu",{p_nama:n,p_kelas:kl,p_kode_akses:kode}))}

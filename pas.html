@@ -146,9 +146,11 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
         <label class="f">Batas keluar halaman (kali)<input type="number" id="at-maks" min="0" max="20" style="width:110px"></label>
         <label class="f">Abaikan keluar &lt; (detik)<input type="number" id="at-tol" min="0" max="120" style="width:110px"></label>
         <label class="f">Kode buka kunci (kosong = PIN pengawas)<input type="text" id="at-kode" style="width:160px" autocomplete="off"></label>
+        <label class="f">Cakupan kode akses<select id="at-lingkup" style="width:auto"><option value="ruang">Per ruang (paling ketat)</option><option value="mapel">Per mapel</option><option value="tingkat">Per angkatan (10/11/12)</option><option value="semua">Satu kode untuk semua</option></select></label>
         <button id="btn-atur">Simpan aturan</button>
       </div>
       <p class="small muted">Siswa yang terlambat hanya mendapat sisa waktu; semua selesai pada jam akhir sesi (ditambah perpanjangan/jeda bila ada).</p>
+      <p class="small muted"><b>Cakupan kode akses</b> (dipilih sebelum terbit): kode selalu dibuat sistem (6 angka acak) dan berganti tiap sesi; siswa tetap harus memakai nomor pesertanya sendiri dan dijadwalkan di sesi itu. <b>Per ruang</b>: kode hanya berlaku di ruang itu — siswa ruang lain/di rumah tidak bisa memakainya. <b>Per mapel / per angkatan</b>: satu ruang bisa punya beberapa kode (pengawas menuliskan semuanya dengan labelnya). <b>Satu kode</b>: paling sederhana, tetapi paling mudah menyebar ke luar ruang.</p>
     </div>
     <div class="card kolom"><h3>Jejak perubahan</h3><div class="gulir"><table><thead><tr><th>Waktu</th><th>Oleh</th><th>Tindakan</th><th>Rincian</th></tr></thead><tbody id="r-jejak"></tbody></table></div></div>
   </div>
@@ -261,7 +263,7 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
         <button id="btn-kode">Lembar kode akses</button>
         <button class="ghost" id="btn-kode-xlsx">Semua kode (Excel)</button>
       </div>
-      <p class="small muted">Kartu peserta: 8 kartu per halaman A4 berisi nama, NISN, ruang, nomor peserta, dan jadwal mapel siswa itu. Daftar hadir: per ruang per sesi. Lembar kode (RAHASIA): per ruang per hari, untuk amplop berita acara — sama dengan kode yang tampil di layar pengawas. Kode baru ada setelah asesmen diterbitkan.</p>
+      <p class="small muted">Kartu peserta: 8 kartu per halaman A4 berisi nama, NISN, ruang, nomor peserta, dan jadwal mapel siswa itu. Daftar hadir: per ruang per sesi. Lembar kode (RAHASIA): per ruang per hari, untuk amplop berita acara — sama dengan kode yang tampil di layar pengawas (cakupan mapel/angkatan: semua kode yang dipakai di ruang itu, berlabel). Kode baru ada setelah asesmen diterbitkan.</p>
     </div>
   </div>
 </section>
@@ -432,8 +434,9 @@ async function gRingkas(){
   $("r-angka").innerHTML=[[A.peserta.length,"peserta"],[A.ruang.length,"ruang"],[A.sesi.filter(s=>!s.batal).length,"sesi"],[new Set(A.sesi.map(s=>s.hari)).size,"hari"],
     [`${ns.filter(n=>n.paket).length}/${ns.length}`,"naskah berpaket"],[`${ns.filter(n=>n.status==="terkunci").length}/${ns.length}`,"naskah terkunci"]].map(([v,l])=>`<div><b>${v}</b><span>${l}</span></div>`).join("");
   $("at-pintu").value=at.pintu_menit;$("at-terlambat").value=at.terlambat_menit;$("at-maks").value=at.maks_keluar;$("at-tol").value=at.toleransi_keluar;$("at-kode").value=at.kode_buka||"";
+  $("at-lingkup").value=at.lingkup_kode||"ruang";$("at-lingkup").disabled=!draf();$("at-lingkup").title=draf()?"":"Cakupan kode hanya bisa diubah sebelum terbit (batal terbit dulu).";
   $("r-jejak").innerHTML=A.jejak.map(j=>`<tr><td style="white-space:nowrap">${waktuPendek(j.waktu)}</td><td>${esc(j.oleh)}</td><td>${esc(j.aksi)}</td><td class="small muted">${esc(ringkasRinci(j.rinci))}</td></tr>`).join("")||'<tr><td colspan="4" class="muted">Belum ada.</td></tr>';
-  $("r-terbit").innerHTML=draf()?'<button id="btn-terbit">Terbitkan</button><span class="small muted">Membuat kode ruang per sesi dan sesi ujian. Sesudah terbit, peserta & jadwal tidak bisa diunggah ulang.</span>'
+  $("r-terbit").innerHTML=draf()?'<button id="btn-terbit">Terbitkan</button><span class="small muted">Membuat kode akses per sesi (sesuai cakupan kode di Aturan) dan sesi ujian. Sesudah terbit, peserta & jadwal tidak bisa diunggah ulang.</span>'
     :`<span class="pill good">Diterbitkan</span><button class="ghost mini" id="btn-batal-terbit">Batal terbit</button><span class="small muted">Batal terbit hanya bisa selama belum ada siswa yang masuk.</span>`;
   if(draf())$("btn-terbit").onclick=terbitkan;else $("btn-batal-terbit").onclick=batalTerbit;
   await periksa();
@@ -454,13 +457,13 @@ async function periksa(manual){const btn=$("btn-periksa"),box=$("r-periksa");
   finally{box.style.opacity="";if(manual===true){btn.disabled=false;btn.textContent="Periksa ulang"}}}
 $("btn-periksa").onclick=()=>periksa(true);
 async function terbitkan(){
-  if(!await tanya("Terbitkan asesmen?",`Kode akses dibuat untuk setiap ruang di setiap sesi, dan sesi ujian disiapkan untuk naskah yang sudah punya paket. Pada hari H setiap sesi <b>terbuka sendiri</b> sesuai jadwal.<br><br>Sesudah terbit, peserta dan jadwal tidak bisa diunggah ulang.`,"Terbitkan"))return;
-  try{const r=await rpc("asm_terbitkan",{p_pin:PIN,p_id:A.asesmen.id});toast(`Diterbitkan: ${r.tugas} tugas siswa, ${r.kode_ruang} kode ruang, ${r.sesi_ujian} sesi ujian.`,5000);muatUlang()}catch(e){toast(e.message,6000)}}
+  if(!await tanya("Terbitkan asesmen?",`Kode akses dibuat <b>${LINGKUP_TEKS[A.asesmen.atur.lingkup_kode||"ruang"]}</b> di setiap sesi, dan sesi ujian disiapkan untuk naskah yang sudah punya paket. Pada hari H setiap sesi <b>terbuka sendiri</b> sesuai jadwal.<br><br>Sesudah terbit, peserta dan jadwal tidak bisa diunggah ulang.`,"Terbitkan"))return;
+  try{const r=await rpc("asm_terbitkan",{p_pin:PIN,p_id:A.asesmen.id});toast(`Diterbitkan: ${r.tugas} tugas siswa, ${r.kode_ruang} kode akses, ${r.sesi_ujian} sesi ujian.`,5000);muatUlang()}catch(e){toast(e.message,6000)}}
 async function batalTerbit(){
-  if(!await tanya("Batal terbit?","Kode ruang dan sesi ujian PAS ini dihapus, asesmen kembali menjadi draf. Hanya bisa bila belum ada siswa yang masuk.","Batal terbit"))return;
+  if(!await tanya("Batal terbit?","Kode akses dan sesi ujian PAS ini dihapus, asesmen kembali menjadi draf. Hanya bisa bila belum ada siswa yang masuk.","Batal terbit"))return;
   try{await rpc("asm_batal_terbit",{p_pin:PIN,p_id:A.asesmen.id});toast("Kembali menjadi draf");muatUlang()}catch(e){toast(e.message,6000)}}
 $("btn-atur").onclick=async()=>{const n=id=>Math.max(0,parseInt($(id).value||"0",10));
-  try{await rpc("asm_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_nama:"",p_atur:{pintu_menit:n("at-pintu"),terlambat_menit:n("at-terlambat"),maks_keluar:n("at-maks"),toleransi_keluar:n("at-tol"),kode_buka:$("at-kode").value.trim()}});
+  try{await rpc("asm_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_nama:"",p_atur:{pintu_menit:n("at-pintu"),terlambat_menit:n("at-terlambat"),maks_keluar:n("at-maks"),toleransi_keluar:n("at-tol"),kode_buka:$("at-kode").value.trim(),...(draf()?{lingkup_kode:$("at-lingkup").value}:{})}});
     toast("Aturan tersimpan"+(draf()?"":". Berlaku untuk sesi yang disiapkan sesudah ini."));muatUlang()}catch(e){toast(e.message)}};
 
 /* ---------------- Excel: baca ---------------- */
@@ -507,7 +510,7 @@ $("btn-tpl-peserta").onclick=e=>jalankanUnduh(e.target,async()=>{
     .map((s,i)=>{const p=ada[s.nisn];return[i+1,s.nisn,s.nama,s.kelas,p?p.ruang:"",p?p.kelompok:(String(s.kelas).match(/^(10|11|12)/)||[""])[0],p?p.no:""]});
   const nama=`Template_Peserta_PAS_${potongNama(A.asesmen.nama)}.xlsx`;
   await unduhBukuXLSX({namaBerkas:nama,judulBuku:"Peserta PAS",lembar:[{nama:"Peserta",judul:"Peserta per ruang — "+A.asesmen.nama,sub:"isi kolom Ruang & Kelompok",
-    info:[["Cara mengisi","Ruang: kode ruang (mis. R01). Kelompok: 10, 11-IPA, 12-IPS, dst. — sama persis dengan kelompok di jadwal. Ruang kosong = tidak ikut."],["Jangan ubah","Baris judul tabel (Urut, NISN, Nama, Kelas, Ruang, Kelompok, No. peserta). Kolom Urut hanya untuk pengecekan, tidak ikut disimpan."]],
+    info:[["Cara mengisi","Ruang: kode ruang (mis. R01). Kelompok: 10, 11-IPA, 12-IPS, dst. — sama persis dengan kelompok di jadwal. Ruang kosong = tidak ikut."],["No. peserta","Dipakai siswa untuk MASUK ujian (bersama kode ruang dari pengawas) dan tercetak di kartu peserta. Kosongkan = dibuat otomatis per ruang (R01-01, R01-02, …). Ingin memakai NISN? Salin kolom NISN ke kolom ini. Tiap nomor harus berbeda."],["Jangan ubah","Baris judul tabel (Urut, NISN, Nama, Kelas, Ruang, Kelompok, No. peserta). Kolom Urut hanya untuk pengecekan, tidak ikut disimpan."]],
     // Judul kolom pertama sengaja "Urut", bukan "No": unggahan mencari No. peserta dari judul berawalan "no".
     kolom:[{t:"Urut",w:6,rata:"center"},{t:"NISN",w:14,rata:"left"},{t:"Nama",w:34},{t:"Kelas",w:9},{t:"Ruang",w:9},{t:"Kelompok",w:11},{t:"No. peserta",w:12}],baris,beku:3,melintang:false}]});return nama});
 async function unggahPeserta(file){
@@ -524,7 +527,8 @@ async function unggahPeserta(file){
       ${tanpa?`<p class="small muted">${tanpa} siswa tanpa ruang tidak ikut.</p>`:""}
       ${h.tidak_dikenal.length?`<p class="small"><span class="pill bad">${h.tidak_dikenal.length} baris dilewati</span> ${h.tidak_dikenal.slice(0,12).map(x=>`${esc(x.nisn)} (${esc(x.alasan)})`).join("; ")}${h.tidak_dikenal.length>12?" …":""}</p>`:""}
       ${h.ganda.length?`<p class="small"><span class="pill warn">${h.ganda.length} NISN ganda</span> hanya baris pertama yang dipakai.</p>`:""}
-      <div class="row"><button id="btn-p-simpan">Simpan (ganti semua peserta)</button><button class="ghost" id="btn-p-batal">Batal</button></div></div>`;
+      ${(h.no_ganda||[]).length?`<p class="small"><span class="pill bad">${h.no_ganda.length} No. peserta ganda</span> ${h.no_ganda.slice(0,8).map(x=>`${esc(x.no)} (baris ${esc(x.baris)} = baris ${esc(x.sama_dengan)})`).join("; ")}${h.no_ganda.length>8?" …":""} — siswa masuk ujian dengan nomor peserta, jadi perbaiki dulu di xlsx lalu unggah ulang.</p>`:""}
+      <div class="row"><button id="btn-p-simpan"${(h.no_ganda||[]).length?" disabled":""}>Simpan (ganti semua peserta)</button><button class="ghost" id="btn-p-batal">Batal</button></div></div>`;
     $("btn-p-batal").onclick=()=>{$("p-pratinjau").innerHTML="";PRATINJAU=null};
     $("btn-p-simpan").onclick=async()=>{try{const r=await rpc("asm_peserta_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_rows:PRATINJAU,p_ganti:true,p_simpan:true});
       toast(`${r.n} peserta tersimpan`);$("p-pratinjau").innerHTML="";muatUlang()}catch(e){toast(e.message,6000)}};
@@ -546,7 +550,7 @@ function gJadwal(){
   const perRuang={};A.peserta.forEach(p=>(perRuang[p.ruang]=perRuang[p.ruang]||[]).push(p));
   $("t-isi-ruang").innerHTML=`<thead><tr><th>Ruang</th><th>Peserta</th>${S.map(s=>`<th>Sesi ${s.ke}</th>`).join("")}</tr></thead><tbody>`+
     Object.keys(perRuang).sort().map(r=>`<tr><td><b>${esc(r)}</b></td><td>${perRuang[r].length}</td>${S.map(s=>{const m={};perRuang[r].forEach(p=>{const n=s.jadwal[p.kelompok];if(n){const nm=NASKAH(n).mapel+" "+NASKAH(n).tingkat;m[nm]=(m[nm]||0)+1}});
-      const kd=(s.ruang.find(x=>x.ruang===r)||{}).kode;return`<td><div class="sel-mapel">${Object.entries(m).map(([a,b])=>`<span><b>${esc(a)}</b><em>${b}</em></span>`).join("")||'<span class="muted">—</span>'}${kd?`<span>kode <b class="kode">${kd}</b></span>`:""}</div></td>`}).join("")}</tr>`).join("")+"</tbody>";
+      const kd=esc((s.ruang.find(x=>x.ruang===r)||{}).kode||"");return`<td><div class="sel-mapel">${Object.entries(m).map(([a,b])=>`<span><b>${esc(a)}</b><em>${b}</em></span>`).join("")||'<span class="muted">—</span>'}${kd?`<span>kode <b class="kode">${kd}</b></span>`:""}</div></td>`}).join("")}</tr>`).join("")+"</tbody>";
 }
 $("btn-tpl-jadwal").onclick=e=>jalankanUnduh(e.target,async()=>{
   let baris=[];A.sesi.filter(s=>s.jenis==="jadwal").forEach(s=>Object.entries(s.jadwal).forEach(([k,n])=>baris.push([s.hari,s.ke,jam(s.mulai).replace(".",":"),s.durasi,k,NASKAH(n).mapel])));
@@ -702,6 +706,10 @@ function gCetak(){
   $("c-hari").innerHTML='<option value="">Semua hari</option>'+H.map((h,i)=>`<option value="${h}">Hari ${i+1} · ${tglPendek(h)}</option>`).join("");
   ["btn-kode","btn-kode-xlsx"].forEach(b=>$(b).disabled=draf());
 }
+const LINGKUP_TEKS={ruang:"per ruang",mapel:"per mapel",tingkat:"per angkatan",semua:"satu untuk semua peserta"};
+const kodeFmt=k=>String(k||"").replace(/^(\d{3})(\d{3})$/,"$1 $2");
+// Satu kode → "123 456"; beberapa kode (cakupan mapel/angkatan) → satu baris per label
+const kodeHTML=x=>{const d=(x&&x.kode_daftar)||[];return d.length>1?d.map(e=>`<div><span style="font-size:10pt;font-weight:500;letter-spacing:0">${esc(e.label)}</span> ${kodeFmt(e.kode)}</div>`).join(""):(kodeFmt(x&&x.kode)||"—")};
 const ruangNama=k=>{const r=A.ruang.find(x=>x.kode===k);return r&&r.nama?`${k} · ${r.nama}`:k};
 const sesiAktif=()=>A.sesi.filter(s=>!s.batal).sort((a,b)=>a.mulai.localeCompare(b.mulai));
 function jadwalSiswa(p){return sesiAktif().filter(s=>s.jadwal[p.kelompok]).map(s=>({s,mapel:NASKAH(s.jadwal[p.kelompok]).mapel}))}
@@ -740,12 +748,12 @@ $("btn-kode").onclick=()=>{
   const r=$("c-ruang").value,h=$("c-hari").value;const R=r?[r]:A.ruang.map(x=>x.kode);const H=[...new Set(sesiAktif().map(s=>s.hari))].filter(x=>!h||x===h);
   let isi="";R.forEach(rk=>H.forEach(hr=>{const S=sesiAktif().filter(s=>s.hari===hr&&s.ruang.some(x=>x.ruang===rk));if(!S.length)return;
     isi+=`<div class="lembar">${kop("RAHASIA · Kode akses ruang "+ruangNama(rk),tglPanjang(hr))}<table><thead><tr><th>Sesi</th><th>Jam soal terbuka</th><th>Kode akses</th></tr></thead><tbody>
-    ${S.map(s=>`<tr><td>Sesi ${s.ke}</td><td>${jam(s.mulai)}–${jam(s.akhir)} WIB</td><td class="kd">${s.ruang.find(x=>x.ruang===rk).kode.replace(/(\d{3})(\d{3})/,"$1 $2")}</td></tr>`).join("")}</tbody></table>
-    <p class="kecil">Dipakai hanya bila layar pengawas tidak bisa dibuka. Kode berlaku sejak pintu dibuka sampai sesi berakhir, hanya untuk siswa ruang ini.</p></div>`}));
+    ${S.map(s=>`<tr><td>Sesi ${s.ke}</td><td>${jam(s.mulai)}–${jam(s.akhir)} WIB</td><td class="kd">${kodeHTML(s.ruang.find(x=>x.ruang===rk))}</td></tr>`).join("")}</tbody></table>
+    <p class="kecil">Dipakai hanya bila layar pengawas tidak bisa dibuka. Kode berlaku sejak pintu dibuka sampai sesi berakhir, ${(A.asesmen.atur.lingkup_kode||"ruang")==="ruang"?"hanya untuk siswa ruang ini":"untuk siswa yang mapel/angkatannya sesuai label kode"}.</p></div>`}));
   if(!isi)return toast("Tidak ada data untuk ruang/hari itu.");
   bukaCetak("Lembar kode akses",isi,`.lembar{border:2px dashed #8B8173;border-radius:6px;padding:5mm;margin-bottom:6mm;break-inside:avoid}.kd{font-family:Consolas,monospace;font-size:16pt;font-weight:700;letter-spacing:2px}`)};
 $("btn-kode-xlsx").onclick=e=>jalankanUnduh(e.target,async()=>{
-  const baris=[];sesiAktif().forEach(s=>s.ruang.forEach(x=>baris.push([s.hari,s.ke,jam(s.mulai)+"–"+jam(s.akhir),x.ruang,ruangNama(x.ruang).replace(/^[^·]*·\s*/,""),x.kode])));
+  const baris=[];sesiAktif().forEach(s=>s.ruang.forEach(x=>baris.push([s.hari,s.ke,jam(s.mulai)+"–"+jam(s.akhir),x.ruang,ruangNama(x.ruang).replace(/^[^·]*·\s*/,""),x.kode||""])));
   const nama=`Kode_Akses_PAS_${potongNama(A.asesmen.nama)}.xlsx`;
   await unduhBukuXLSX({namaBerkas:nama,judulBuku:"Kode akses PAS",lembar:[{nama:"Kode",judul:"Kode akses per ruang per sesi — RAHASIA",sub:A.asesmen.nama,
     kolom:[{t:"Tanggal",w:12},{t:"Sesi",w:7},{t:"Jam",w:14},{t:"Ruang",w:9},{t:"Nama ruang",w:22},{t:"Kode akses",w:13,tebal:true}],baris,beku:1,melintang:false,

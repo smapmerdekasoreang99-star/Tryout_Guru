@@ -82,7 +82,7 @@ tr.perlu td{background:var(--bad-soft)}
         <p class="small muted" id="l-pesan-terakhir"></p>
       </div>
       <div class="kodebox" id="kodebox">
-        <div class="small">Kode akses ruang ini</div>
+        <div class="small" id="l-kode-j">Kode akses ruang ini</div>
         <div class="kd" id="l-kode">— — —</div>
         <div class="qr hidden" id="l-qr" title="Ketuk untuk layar penuh"></div>
         <button class="ghost mini" id="btn-penuh" style="background:transparent;color:#fff;border-color:rgba(255,255,255,.5)">Tampilkan layar penuh</button>
@@ -159,7 +159,10 @@ function gambar(){const r=DATA;$("l-asesmen").textContent=r.asesmen?r.asesmen.na
   if(!r.sesi){$("l-tahap").textContent="Tidak ada sesi";$("l-jam").textContent="—";$("l-ket").innerHTML=r.berikut&&r.berikut.length?"Sesi berikutnya: "+r.berikut.map(s=>`${new Date(s.mulai).toLocaleDateString("id-ID",{weekday:"short",day:"numeric",month:"short",timeZone:"Asia/Jakarta"})} Sesi ${s.ke} ${jam(s.mulai)}`).join(" · "):"Tidak ada sesi lagi untuk ruang ini.";
     $("l-kode").textContent="— — —";$("l-qr").classList.add("hidden");$("l-siswa").innerHTML="";$("l-angka").innerHTML="";return}
   $("l-tahap").className="pill "+(r.jeda?"p-terkunci":"p-kerja");
-  $("l-kode").textContent=r.kode?r.kode.replace(/(\d{3})(\d{3})/,"$1 $2"):"tampil "+jam(r.kode_pada);
+  const KD=r.kode_daftar||[],banyak=KD.length>1;
+  $("l-kode-j").textContent={mapel:"Kode akses (per mapel)",tingkat:"Kode akses (per angkatan)",semua:"Kode akses (sama untuk semua ruang)"}[r.lingkup_kode]||"Kode akses ruang ini";
+  if(banyak)$("l-kode").innerHTML=KD.map(e=>`<div style="font-size:30px;margin:4px 0"><span style="font-size:14px;font-weight:600;letter-spacing:0;color:#fff">${esc(e.label)} · ${e.n} siswa</span><br>${kodeFmt(e.kode)}</div>`).join("");
+  else $("l-kode").textContent=r.kode?kodeFmt(r.kode):"tampil "+jam(r.kode_pada);
   if(r.kode&&QR_KODE!==r.kode){QR_KODE=r.kode;buatQR($("l-qr"),r.kode);$("l-qr").classList.remove("hidden")}else if(!r.kode)$("l-qr").classList.add("hidden");
   $("btn-jeda").textContent=r.jeda?"Lanjutkan ruang":"Jeda ruang";$("btn-jeda").className=r.jeda?"":"ghost";
   $("l-pesan-terakhir").textContent=r.pesan?`Pesan terakhir (${jam(r.pesan_pada)}): ${r.pesan}`:"";
@@ -183,7 +186,7 @@ function gambar(){const r=DATA;$("l-asesmen").textContent=r.asesmen?r.asesmen.na
   document.querySelectorAll("#l-siswa [data-a]").forEach(b=>b.onclick=()=>aksi(b.dataset.a,b.dataset.n));
 }
 const JUDUL={buka_kunci:"Buka kunci",lepas:"Lepas",tambah:"Tambah 5 menit",izin:"Izinkan masuk terlambat",tidak_hadir:"Tandai tidak hadir",hadir:"Batalkan tidak hadir",tutup:"Tutup ujian siswa"};
-const PENJELASAN={lepas:"Siswa bisa masuk lagi dari HP lain dengan NISN dan kode ruang; jawaban yang tersimpan ikut pindah, waktu tetap berjalan.",
+const PENJELASAN={lepas:"Siswa bisa masuk lagi dari HP lain dengan nomor peserta dan kode ruang; jawaban yang tersimpan ikut pindah, waktu tetap berjalan.",
   tutup:"Ujian siswa ini langsung diakhiri dan jawaban yang tersimpan dinilai. Pakai hanya untuk kecurangan yang terbukti.",
   tidak_hadir:"Siswa otomatis masuk daftar susulan. Bila ternyata datang, tekan Batalkan.",izin:"Siswa boleh masuk walau pintu sudah ditutup; waktunya hanya sisa waktu sesi."};
 async function aksi(a,nisn){const x=DATA.siswa.find(s=>s.nisn===nisn);
@@ -197,8 +200,11 @@ $("btn-pesan").onclick=async()=>{const t=$("pesan").value.trim();if(!t||!DATA||!
   try{await rpc("asm_aksi",{p_pin:PIN,p_sesi:DATA.sesi.id,p_ruang:RUANG,p_aksi:"pesan",p_nisn:null,p_menit:null,p_teks:t});$("pesan").value="";toast("Pesan terkirim ke layar siswa (sampai dalam ±30 detik)");muat()}catch(e){toast(e.message)}};
 $("pesan").onkeydown=e=>{if(e.key==="Enter")$("btn-pesan").click()};
 function buatQR(el,kode){el.innerHTML="";try{new QRCode(el,{text:new URL("index.html",location.href).href.split("#")[0]+"#kode="+kode,width:512,height:512,correctLevel:QRCode.CorrectLevel.L});el.removeAttribute("title")}catch(e){}}
-function layarPenuh(){if(!DATA||!DATA.kode)return toast("Kode belum tampil.");$("penuh").classList.remove("hidden");$("pn-j").textContent=`Ruang ${DATA.ruang} · Sesi ${DATA.sesi.ke}`;
-  $("pn-kode").textContent=DATA.kode.replace(/(\d{3})(\d{3})/,"$1 $2");buatQR($("pn-qr"),DATA.kode);detak();try{document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}}
+const kodeFmt=k=>String(k||"").replace(/^(\d{3})(\d{3})$/,"$1 $2");
+// Beberapa kode (cakupan mapel/angkatan): layar penuh menampilkan semuanya berlabel, tanpa QR
+function layarPenuh(){const KD=(DATA&&DATA.kode_daftar)||[];if(!DATA||(!DATA.kode&&KD.length<2))return toast("Kode belum tampil.");$("penuh").classList.remove("hidden");$("pn-j").textContent=`Ruang ${DATA.ruang} · Sesi ${DATA.sesi.ke}`;
+  if(KD.length>1){$("pn-kode").innerHTML=KD.map(e=>`<div style="margin:6px 0"><span style="font-size:.3em;letter-spacing:0">${esc(e.label)}</span><br>${kodeFmt(e.kode)}</div>`).join("");$("pn-qr").innerHTML=""}
+  else{$("pn-kode").textContent=kodeFmt(DATA.kode);buatQR($("pn-qr"),DATA.kode)}detak();try{document.documentElement.requestFullscreen().catch(()=>{})}catch(e){}}
 $("btn-penuh").onclick=layarPenuh;$("l-qr").onclick=layarPenuh;
 $("pn-tutup").onclick=()=>{$("penuh").classList.add("hidden");try{if(document.fullscreenElement)document.exitFullscreen()}catch(e){}};
 </script>
