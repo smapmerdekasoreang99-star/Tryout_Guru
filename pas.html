@@ -168,7 +168,7 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
     </div>
     <div class="card kolom">
       <div class="kepala"><h3>Daftar peserta <span class="muted small" id="p-n"></span></h3><input type="text" id="p-cari" placeholder="Cari nama / NISN / ruang"></div>
-      <div class="gulir" style="max-height:520px;overflow:auto"><table><thead><tr><th>No. peserta</th><th>Nama</th><th>NISN</th><th>Kelas</th><th>Ruang</th><th>Kelompok</th></tr></thead><tbody id="t-peserta"></tbody></table></div>
+      <div class="gulir" style="max-height:520px;overflow:auto"><table><thead><tr><th>No</th><th>No. peserta</th><th>Nama</th><th>NISN</th><th>Kelas</th><th>Ruang</th><th>Kelompok</th></tr></thead><tbody id="t-peserta"></tbody></table></div>
     </div>
   </div>
 
@@ -497,18 +497,19 @@ function gPeserta(){
 function gambarPeserta(){const q=$("p-cari").value.trim().toLowerCase();
   const L=A.peserta.filter(p=>!q||[p.nama,p.nisn,p.ruang,p.kelas,p.kelompok,p.no].join(" ").toLowerCase().includes(q));
   $("p-n").textContent=`(${L.length} dari ${A.peserta.length})`;
-  $("t-peserta").innerHTML=L.slice(0,800).map(p=>`<tr><td>${esc(p.no)}</td><td>${esc(p.nama||"?")}${p.aktif?"":' <span class="pill bad">nonaktif</span>'}</td><td>${esc(p.nisn)}</td><td>${esc(p.kelas||"")}</td><td>${esc(p.ruang)}</td><td>${esc(p.kelompok)}</td></tr>`).join("")||'<tr><td colspan="6" class="muted">Belum ada peserta.</td></tr>'}
+  $("t-peserta").innerHTML=L.slice(0,800).map((p,i)=>`<tr><td class="n">${i+1}</td><td>${esc(p.no)}</td><td>${esc(p.nama||"?")}${p.aktif?"":' <span class="pill bad">nonaktif</span>'}</td><td>${esc(p.nisn)}</td><td>${esc(p.kelas||"")}</td><td>${esc(p.ruang)}</td><td>${esc(p.kelompok)}</td></tr>`).join("")||'<tr><td colspan="7" class="muted">Belum ada peserta.</td></tr>'}
 $("p-cari").oninput=gambarPeserta;
 $("btn-ruang-simpan").onclick=async()=>{const rows=A.ruang.map(r=>({kode:r.kode,nama:document.querySelector(`[data-rn="${r.kode}"]`).value,kapasitas:document.querySelector(`[data-rk="${r.kode}"]`).value}));
   try{await rpc("asm_ruang_simpan",{p_pin:PIN,p_id:A.asesmen.id,p_rows:rows});toast("Ruang tersimpan");muatUlang()}catch(e){toast(e.message)}};
 $("btn-tpl-peserta").onclick=e=>jalankanUnduh(e.target,async()=>{
   const S=await rpc("tka_list_siswa",{p_pin:PIN,p_kelas:null});const ada={};A.peserta.forEach(p=>ada[p.nisn]=p);
   const baris=S.filter(s=>s.aktif).sort((a,b)=>a.kelas.localeCompare(b.kelas,"id",{numeric:true})||a.nama.localeCompare(b.nama,"id"))
-    .map(s=>{const p=ada[s.nisn];return[s.nisn,s.nama,s.kelas,p?p.ruang:"",p?p.kelompok:(String(s.kelas).match(/^(10|11|12)/)||[""])[0],p?p.no:""]});
+    .map((s,i)=>{const p=ada[s.nisn];return[i+1,s.nisn,s.nama,s.kelas,p?p.ruang:"",p?p.kelompok:(String(s.kelas).match(/^(10|11|12)/)||[""])[0],p?p.no:""]});
   const nama=`Template_Peserta_PAS_${potongNama(A.asesmen.nama)}.xlsx`;
   await unduhBukuXLSX({namaBerkas:nama,judulBuku:"Peserta PAS",lembar:[{nama:"Peserta",judul:"Peserta per ruang — "+A.asesmen.nama,sub:"isi kolom Ruang & Kelompok",
-    info:[["Cara mengisi","Ruang: kode ruang (mis. R01). Kelompok: 10, 11-IPA, 12-IPS, dst. — sama persis dengan kelompok di jadwal. Ruang kosong = tidak ikut."],["Jangan ubah","Baris judul tabel (NISN, Nama, Kelas, Ruang, Kelompok, No. peserta)."]],
-    kolom:[{t:"NISN",w:14,rata:"left"},{t:"Nama",w:34},{t:"Kelas",w:9},{t:"Ruang",w:9},{t:"Kelompok",w:11},{t:"No. peserta",w:12}],baris,beku:2,melintang:false}]});return nama});
+    info:[["Cara mengisi","Ruang: kode ruang (mis. R01). Kelompok: 10, 11-IPA, 12-IPS, dst. — sama persis dengan kelompok di jadwal. Ruang kosong = tidak ikut."],["Jangan ubah","Baris judul tabel (Urut, NISN, Nama, Kelas, Ruang, Kelompok, No. peserta). Kolom Urut hanya untuk pengecekan, tidak ikut disimpan."]],
+    // Judul kolom pertama sengaja "Urut", bukan "No": unggahan mencari No. peserta dari judul berawalan "no".
+    kolom:[{t:"Urut",w:6,rata:"center"},{t:"NISN",w:14,rata:"left"},{t:"Nama",w:34},{t:"Kelas",w:9},{t:"Ruang",w:9},{t:"Kelompok",w:11},{t:"No. peserta",w:12}],baris,beku:3,melintang:false}]});return nama});
 async function unggahPeserta(file){
   try{const rows=await bacaLembar(file);const pk=petaKolom(rows,["nisn","ruang","kelompok"]);
     if(!pk)return toast("Kolom NISN, Ruang, dan Kelompok tidak ditemukan. Pakai template peserta.",6000);
