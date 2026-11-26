@@ -554,8 +554,9 @@ $("btn-tpl-jadwal").onclick=e=>jalankanUnduh(e.target,async()=>{
     baris=kk.map(k=>["2026-12-01",1,"07:30",90,k,"(isi mapel)"]).concat(kk.map(k=>["2026-12-01",2,"09:30",90,k,"(isi mapel)"]))}
   const nama=`Template_Jadwal_PAS_${potongNama(A.asesmen.nama)}.xlsx`;
   await unduhBukuXLSX({namaBerkas:nama,judulBuku:"Jadwal PAS",lembar:[{nama:"Jadwal",judul:"Jadwal — "+A.asesmen.nama,sub:"satu baris = satu kelompok di satu sesi",
-    info:[["Tanggal","YYYY-MM-DD, mis. 2026-12-01"],["Jam mulai","jam soal terbuka (HH:MM); pintu masuk dibuka beberapa menit sebelumnya"],["Kelompok","sama persis dengan kolom Kelompok di berkas peserta"]],
-    kolom:[{t:"Tanggal",w:13},{t:"Sesi ke-",w:9},{t:"Jam mulai",w:11},{t:"Durasi (menit)",w:13},{t:"Kelompok",w:12},{t:"Mapel",w:30}],baris,beku:1,melintang:false}]});return nama});
+    // Label diawali "Cara isi" agar tidak dikira isian tanggal (26 Nov 2026); baris keterangan tidak dibaca saat unggah.
+    info:[["Cara isi Tanggal","YYYY-MM-DD, mis. 2026-12-01 — semua tanggal di lembar ini, satu tabel"],["Cara isi Jam mulai","jam soal terbuka (HH:MM); pintu masuk dibuka beberapa menit sebelumnya"],["Cara isi Kelompok","sama persis dengan kolom Kelompok di berkas peserta"]],
+    kolom:[{t:"Tanggal",w:13},{t:"Sesi ke-",w:17},{t:"Jam mulai",w:11},{t:"Durasi (menit)",w:13},{t:"Kelompok",w:12},{t:"Mapel",w:30}],baris,beku:1,melintang:false}]});return nama});
 async function unggahJadwal(file){
   try{const rows=await bacaLembar(file);const pk=petaKolom(rows,["tanggal","sesi","jam","durasi","kelompok","mapel"]);
     if(!pk)return toast("Kolom Tanggal, Sesi ke-, Jam mulai, Durasi, Kelompok, Mapel tidak ditemukan. Pakai template jadwal.",6000);
