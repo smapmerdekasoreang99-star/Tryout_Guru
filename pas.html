@@ -228,6 +228,8 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
     <div class="card kolom">
       <div class="kepala"><div><h3>Folder Soal PAS</h3><p class="small muted">Satu laci per mapel × tingkat. Pasang <b>paket</b> dari bank soal — <b>penyusun</b> otomatis diisi guru yang mengunggah paket itu (bisa diganti), lalu ubah status menjadi <b>Terkunci</b> setelah ditinjau. Sesi ujian untuk laci baru dibuat saat paketnya dipasang (boleh sesudah terbit).</p></div>
         <span class="pill" id="s-progres"></span></div>
+      <div class="row small" style="justify-content:space-between"><span id="s-saring"></span>
+        <label style="display:inline-flex;gap:6px;align-items:center;cursor:pointer"><input type="checkbox" id="s-semua-paket"> Tampilkan semua paket di bank soal</label></div>
       <div class="gulir naskah"><table><thead><tr><th>Mapel</th><th>Kelas</th><th>Dipakai</th><th>Penyusun <span class="small muted" style="font-weight:400">(otomatis: pengunggah paket)</span></th><th>Paket soal</th><th>Status</th></tr></thead><tbody id="t-naskah"></tbody></table></div>
     </div>
   </div>
@@ -761,6 +763,8 @@ async function unggahJadwal(file){
 siapkanDrop($("drop-jadwal"),$("file-jadwal"),unggahJadwal);
 
 /* ---------------- Folder Soal ---------------- */
+const jenisKunci=s=>String(s||"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+$("s-semua-paket").onchange=()=>gSoal();
 const ST_NASKAH={belum:["Belum diunggah","bad"],diunggah:["Diunggah","warn"],ditinjau:["Ditinjau","info"],terkunci:["Terkunci","good"]};
 async function gSoal(){
   const ns=A.naskah;$("s-progres").textContent=`${ns.filter(n=>n.status==="terkunci").length} / ${ns.length} terkunci`;
@@ -768,8 +772,12 @@ async function gSoal(){
     try{const [g,p]=await Promise.all([rpc("tka_daftar_penyusun",{p_pin:PIN}),rpc("tka_list_paket",{p_pin:PIN})]);
       GURU=(g||[]).map(x=>({id:x.id,nama:x.nama})).sort((a,b)=>a.nama.localeCompare(b.nama,"id"));PAKET=p}catch(e){toast(e.message)}}
   const opsiGuru=sel=>`<option value="">— belum —</option>`+(GURU||[]).map(g=>`<option value="${esc(g.id)}" ${g.id===sel?"selected":""}>${esc(g.nama)}</option>`).join("");
+  // Bawaan: hanya paket berjenis nama asesmen ini (jenis dipilih guru saat unggah); paket yang sudah terpasang selalu tampil
+  const semua=$("s-semua-paket").checked,nmA=jenisKunci(A.asesmen.nama),jenisCocok=p=>jenisKunci(p.info&&p.info.jenis)===nmA;
+  const nCocok=(PAKET||[]).filter(p=>!p.arsip&&jenisCocok(p)).length;
+  $("s-saring").innerHTML=semua?`Menampilkan <b>semua</b> paket di bank soal.`:`Menampilkan <b>${nCocok}</b> paket berjenis <b>${esc(A.asesmen.nama)}</b>.${nCocok?"":` <span class="pill warn">belum ada</span> Minta guru memilih jenis <i>${esc(A.asesmen.nama)}</i> saat mengunggah paket, atau centang <b>Tampilkan semua paket</b>.`}`;
   const opsiPaket=(n)=>{const cocok=p=>(p.mapel||"").toLowerCase().includes(n.mapel.toLowerCase().split(" ")[0])||(p.judul||"").toLowerCase().includes(n.mapel.toLowerCase());
-    const L=(PAKET||[]).filter(p=>!p.arsip).sort((a,b)=>(cocok(b)-cocok(a))||String(b.diubah).localeCompare(String(a.diubah)));
+    const L=(PAKET||[]).filter(p=>!p.arsip&&(semua||jenisCocok(p)||p.kode===n.paket)).sort((a,b)=>(cocok(b)-cocok(a))||String(b.diubah).localeCompare(String(a.diubah)));
     return`<option value="">— belum —</option>`+L.map(p=>`<option value="${esc(p.kode)}" ${p.kode===n.paket?"selected":""}>${esc(p.kode)} · ${esc(p.judul)} (${p.n_soal} soal${p.pemilik_nama?", oleh "+esc(p.pemilik_nama):""})</option>`).join("")};
   $("t-naskah").innerHTML=ns.map(n=>`<tr><td><b>${esc(n.mapel)}</b></td><td>${esc(n.tingkat)}</td>
     <td class="small">${n.dipakai.map(d=>`${tglPendek(d.hari)} S${d.ke} (${esc(d.kelompok)})`).join("<br>")||'<span class="muted">tidak dipakai</span>'}</td>

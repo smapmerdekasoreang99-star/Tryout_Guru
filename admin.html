@@ -755,13 +755,27 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   }
   // Tahun ajaran mulai Juli: Juli–Desember = Ganjil, Januari–Juni = Genap
   function semesterDari(d) { let t = d ? new Date(d) : new Date(); if (isNaN(t)) t = new Date(); const y = t.getFullYear(); return t.getMonth() >= 6 ? `Ganjil ${y}/${y + 1}` : `Genap ${y - 1}/${y}`; }
+  // Isian semester di kisi-kisi berupa teks bebas ("1", "1 (Ganjil) 2026/2027", "Semester 2", "1 dan 2" …) → baku
+  // "Ganjil 2026/2027" / "Genap 2025/2026". Tanpa tahun → tahun ajaran saat paket dibuat; tidak jelas → semester saat dibuat.
+  // Paket berjenis Tryout (Umum, Mandiri, TKA, UTBK) tidak terikat Ganjil/Genap → selalu "TA 2026/2027" (keputusan user
+  // 26 Nov 2026). Tulisan Ganjil/Genap pada paket tryout lama diabaikan: dulu semester kosong diisi sistem dari tanggal unggah.
+  const jenisTryout = j => /tryout|utbk|\btka\b/i.test(String(j || ''));
+  function normSemester(s, d, jenisPaket) {
+    const dasar = semesterDari(d), t = String(s || '').toLowerCase(), tahunDasar = dasar.split(' ')[1];
+    const th = t.match(/(20\d{2})\s*[\/\-–]\s*(20\d{2})/), angka = t.match(/\b[12]\b/g) || [], tahun = th ? th[1] + '/' + th[2] : tahunDasar;
+    const kata = /ganjil|gasal/.test(t) ? 'Ganjil' : /genap/.test(t) ? 'Genap' : null;
+    if (jenisTryout(jenisPaket)) return `TA ${tahun}`;
+    const jenis = kata || (angka.includes('1') && !angka.includes('2') ? 'Ganjil' : angka.includes('2') && !angka.includes('1') ? 'Genap' : null);
+    if (!jenis) return dasar;
+    return `${jenis} ${tahun}`;
+  }
   function infoBersih(o) { const r = {}; Object.entries(o || {}).forEach(([k, v]) => { if (Array.isArray(v) ? v.length : String(v ?? '').trim()) r[k] = Array.isArray(v) ? v : String(v).replace(/\s+/g, ' ').trim(); }); return r; }
   // Dari tabel INFORMASI UJIAN. Tingkat peserta kosong → ditebak dari isian Kelas; semester kosong → dari hari ini;
   // cakupan materi yang sama dengan tingkat peserta tidak disimpan (artinya "sama").
   function infoDariTabel(T, kelas) {
     let tingkat = parseTingkat(T('tingkat peserta')); if (!tingkat.length) tingkat = parseTingkat(kelas);
     let cakupan = parseTingkat(T('cakupan materi')); if (cakupan.join() === tingkat.join()) cakupan = [];
-    return infoBersih({ jenis: normJenis(T('jenis')), semester: T('semester') || semesterDari(), penyusun: T('guru penyusun'), tingkat, cakupan });
+    return infoBersih({ jenis: normJenis(T('jenis')), semester: normSemester(T('semester'), null, normJenis(T('jenis'))), penyusun: T('guru penyusun'), tingkat, cakupan });
   }
   // label kolom kiri → bentuk baku (huruf kecil, tanpa keterangan dalam kurung, sinonim disatukan)
   function canonLabel(s) {
@@ -1262,7 +1276,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     return { ok: errors.length === 0, errors, warnings, kisi };
   }
   root.TKA = { parseDocx, buildPaket, buildKisi, checkKisi, kisiDariPaket, komposisi, normBentuk, normLevel, BENTUK_LABEL,
-    info: { JENIS, JENIS_DASAR, JENIS_BAWAAN, setJenis, normJenis, parseTingkat, fmtTingkat, semesterDari, infoBersih } };
+    info: { JENIS, JENIS_DASAR, JENIS_BAWAAN, setJenis, normJenis, parseTingkat, fmtTingkat, semesterDari, normSemester, infoBersih } };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>/* tka_docgen.js — membangkitkan "Template Soal" (.docx) yang sudah terisi dari kisi-kisi, langsung di browser (JSZip).
@@ -2026,7 +2040,7 @@ function tombolMuat(id,fn,status){const b=document.getElementById(id);if(!b)retu
 // Paket lama tanpa keterangan: tingkat ditebak dari isian Kelas, semester dari tanggal dibuat.
 function infoRingkas(r){const I=TKA.info,i=r.info||{},p=[];if(i.jenis)p.push(esc(i.jenis));
   const tk=(i.tingkat||[]).length?i.tingkat:I.parseTingkat(r.kelas);if(tk.length)p.push("peserta kelas "+I.fmtTingkat(tk));
-  if((i.cakupan||[]).length)p.push("materi kelas "+I.fmtTingkat(i.cakupan));p.push(esc(i.semester||I.semesterDari(r.dibuat)));if(i.penyusun)p.push(esc(i.penyusun));
+  if((i.cakupan||[]).length)p.push("materi kelas "+I.fmtTingkat(i.cakupan));p.push(esc(I.normSemester(i.semester,r.dibuat,i.jenis)));if(i.penyusun)p.push(esc(i.penyusun));
   const kurang=!i.jenis||!i.penyusun||!(i.tingkat||[]).length;
   return `<div class="muted small">${p.join(" · ")}${kurang?' · <span style="color:var(--warn)">keterangan belum lengkap</span>':""}</div>`}
 let INFO_KODE=null,INFO_LAMA=null;
@@ -2073,7 +2087,7 @@ async function sinkronMapel(){if(PERAN!=="operator"||!INDUK||!INDUK.url||!INDUK.
     const j=await r.json();if(r.ok&&Array.isArray(j)&&j.length)await rpc("tka_mapel_sinkron",{p_pin:PIN(),p_rows:j})}catch(e){/* daftar lama tetap dipakai */}
   await muatMapel()}
 function bukaKeterangan(r){if(!r)return;if(!PIN()){toast("Isi PIN dahulu");return}const I=TKA.info,i=r.info||{};INFO_KODE=r.kode;INFO_LAMA=i;
-  $("di-kode").textContent=r.kode;$("di-judul").value=r.judul||"";isiPilihMapel($("di-mapel"),r.mapel);$("di-semester").value=i.semester||I.semesterDari(r.dibuat);$("di-penyusun").value=r.pemilik_nama||i.penyusun||"belum ditetapkan";
+  $("di-kode").textContent=r.kode;$("di-judul").value=r.judul||"";isiPilihMapel($("di-mapel"),r.mapel);$("di-semester").value=I.normSemester(i.semester,r.dibuat,i.jenis);$("di-penyusun").value=r.pemilik_nama||i.penyusun||"belum ditetapkan";
   {const lama=i.jenis&&!I.JENIS.includes(i.jenis)?i.jenis:"";  // mis. nama asesmen PAS yang sudah dihapus tetap tampil
    $("di-jenis").innerHTML=(lama?[lama]:[]).concat(I.JENIS).map(j=>`<option value="${esc(j)}">${esc(j)}</option>`).join("");$("di-jenis").value=lama||I.normJenis(i.jenis)}
   const y=new Date().getFullYear();$("di-semester-list").innerHTML=[y-1,y,y+1].flatMap(t=>[`Ganjil ${t}/${t+1}`,`Genap ${t}/${t+1}`]).map(v=>`<option value="${v}">`).join("");
@@ -2516,9 +2530,9 @@ function muatDaftar(){clearTimeout(PK_JADWAL);PK_JADWAL=setTimeout(muatPustaka,0
 function muatDaftarKisi(){muatDaftar()}
 const pkKunciMapel=m=>String(m||"").trim().replace(/\s+/g," ").toLowerCase();
 const pkTingkat=o=>(o.info.tingkat||[]).length?o.info.tingkat:TKA.info.parseTingkat(o.kelas);
-const pkSemester=o=>o.info.semester||TKA.info.semesterDari(o.dibuat);
+const pkSemester=o=>TKA.info.normSemester(o.info.semester,o.dibuat,o.info.jenis);
 const pkKurang=o=>!o.info.jenis||!o.info.penyusun||!(o.info.tingkat||[]).length;
-const pkNilaiSemester=s=>{const m=String(s).match(/(ganjil|genap)\D*(\d{4})/i);return m?(+m[2])*10+(m[1].toLowerCase()==="genap"?2:1):0};
+const pkNilaiSemester=s=>{const m=String(s).match(/(ganjil|genap|ta)\D*(\d{4})/i);return m?(+m[2])*10+({genap:2,ganjil:1,ta:0}[m[1].toLowerCase()]):0};
 const pkUrutSemester=(a,b)=>pkNilaiSemester(b)-pkNilaiSemester(a)||a.localeCompare(b);
 
 async function muatPustaka(){const el=$("pk-daftar");if(!PK.length)el.innerHTML='<p class="muted">Memuat…</p>';
