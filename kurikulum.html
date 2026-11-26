@@ -342,7 +342,7 @@ document.querySelectorAll("#tabs button").forEach(b=>b.onclick=()=>keTab(SUB_AKH
 
 const namaGuru=(id,cad)=>(id&&D.guru[id])||cad||id||"—";
 const jenisBaku=j=>j||"Lainnya";
-const JENIS_DASAR=["Asesmen Diagnostik","Asesmen Formatif","Asesmen Sumatif","Tryout Mandiri","Tryout Umum"];   // selalu tampil di saringan Jenis walau belum ada paketnya (2 Nov 2026)
+const JENIS_DASAR=["Asesmen Diagnostik","Asesmen Formatif","Asesmen Sumatif","Tryout Mandiri","Tryout Umum","Asesmen Bersama"];   // selalu tampil di saringan Jenis walau belum ada paketnya (2 Nov 2026)
 const tingkatPaket=p=>(Array.isArray(p.tingkat)&&p.tingkat.length?p.tingkat:[String(p.kelas||"").match(/\d+/)?.[0]||String(p.kelas||"")]).join(", ");
 let PK={},SISWA={},KELAS_N={};
 function siapkan(){

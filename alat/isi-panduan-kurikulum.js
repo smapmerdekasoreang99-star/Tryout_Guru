@@ -77,7 +77,7 @@ module.exports = ({ H1, H2, H3, P, UL, OL, TB, KOTAK, STAT }) => [
   H2("Empat grafik"),
   TB(["Grafik", "Cara membaca", "Yang perlu diperhatikan"], [
     ["**Seberapa tinggi tingkat berpikir soal kita?**", "Satu batang per mapel (baris pertama = semua mapel), terbagi LOTS | MOTS | HOTS.", "Mapel dengan bagian biru tua sempit = soalnya masih dominan LOTS/MOTS."],
-    ["**Jenis paket apa saja yang disusun?**", "Banyak paket per jenis (Asesmen Formatif, Sumatif, Tryout, nama asesmen PAS).", "Bila hampir semua Tryout, asesmen formatif harian belum banyak memakai aplikasi."],
+    ["**Jenis paket apa saja yang disusun?**", "Banyak paket per jenis (Asesmen Formatif, Sumatif, Tryout, Asesmen Bersama).", "Bila hampir semua Tryout, asesmen formatif harian belum banyak memakai aplikasi."],
     ["**Kapan paket soal diunggah?**", "Kolom = paket baru per minggu.", "Minggu kosong panjang = penyusunan soal berhenti."],
     ["**Seberapa aktif asesmen berjalan?**", "Kolom = jawaban siswa yang dikumpulkan per minggu.", "Lonjakan = minggu tryout/ujian; minggu kosong = tidak ada asesmen di aplikasi."],
   ], [2.1, 2.6, 2.4]),

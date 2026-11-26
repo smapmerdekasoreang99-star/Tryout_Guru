@@ -309,13 +309,12 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     <div class="info-grid">
       <label class="small">Judul<input type="text" id="di-judul" maxlength="150"></label>
       <label class="small">Mata pelajaran <span class="muted">(daftar dari Data Induk)</span><select id="di-mapel"></select></label>
-      <label class="small">Jenis <span class="muted">(ditentukan sistem; bertambah bila ada asesmen baru di PAS)</span><select id="di-jenis"></select></label>
-      <label class="small">Semester<input type="text" id="di-semester" list="di-semester-list"></label>
+      <label class="small">Jenis <span class="muted">(ditentukan sistem)</span><select id="di-jenis"></select></label>
+      <label class="small">Semester <span class="muted">(ditentukan sistem: menurut tanggal unggah; paket Tryout = tahun ajaran)</span><input type="text" id="di-semester" readonly tabindex="-1" style="background:var(--bg);cursor:default"></label>
       <label class="small">Guru penyusun <span class="muted">(mengikuti penyusun paket; operator menggantinya lewat tombol <b>Atur</b>)</span><input type="text" id="di-penyusun" readonly tabindex="-1" style="background:var(--bg);cursor:default"></label>
       <div class="small">Tingkat peserta <span class="muted">(kelas yang mengerjakan)</span><div class="chips" id="di-tingkat"></div></div>
       <div class="small">Cakupan materi <span class="muted">(pilih hanya bila berbeda dari tingkat peserta, mis. tryout TKA kelas 12 dengan materi kelas 10–12)</span><div class="chips" id="di-cakupan"></div></div>
     </div>
-    <datalist id="di-semester-list"></datalist>
     <div class="row" style="margin-top:12px"><button id="btn-di-simpan" class="good">Simpan keterangan</button><button class="ghost" id="btn-di-batal">Tutup</button></div><div id="di-status" class="small" style="margin-top:8px"></div></div>
   <div class="card hidden" id="daftar-lihat-card"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Pratinjau paket <span id="dl-kode" class="pill"></span></h3><span class="row"><button class="btn-unduh" data-fmt="docx" id="btn-dl-docx-kunci">Unduh soal &amp; pembahasan</button><button class="btn-unduh" data-fmt="docx" id="btn-dl-docx-siswa">Unduh naskah siswa</button><button class="ghost" id="btn-dl-tutup" style="padding:8px 12px;font-size:13px">Tutup</button></span></div>
     <div id="dl-info" class="small muted" style="margin:6px 0"></div><div id="dl-prev"></div></div>
@@ -726,9 +725,10 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   }
   const kids = (el, ns, name) => Array.from(el.childNodes).filter(n => n.nodeType === 1 && n.localName === name && n.namespaceURI === ns);
   // ---- Keterangan paket (meta.info): jenis, semester, guru penyusun, tingkat peserta, cakupan materi ----
-  // Jenis ditentukan sistem (20 Okt 2026; 22 Okt: Tryout Mandiri & Tryout Umum; 23 Okt: Asesmen Diagnostik): 5 pilihan tetap + Nama Asesmen dari PAS / Ujian Bersama
+  // Jenis ditentukan sistem (20 Okt 2026; 22 Okt: Tryout Mandiri & Tryout Umum; 23 Okt: Asesmen Diagnostik; 26 Nov: satu jenis
+  // "Asesmen Bersama" untuk semua PAS/ASAS/ujian bersama — bukan lagi nama tiap asesmen, agar daftar tidak terus bertambah)
   // (dimuat lewat tka_jenis_daftar → setJenis). Server juga menjaganya (pemicu tka_jenis_ikut_daftar).
-  const JENIS_DASAR = ['Asesmen Diagnostik', 'Asesmen Formatif', 'Asesmen Sumatif', 'Tryout Mandiri', 'Tryout Umum'];
+  const JENIS_DASAR = ['Asesmen Diagnostik', 'Asesmen Formatif', 'Asesmen Sumatif', 'Tryout Mandiri', 'Tryout Umum', 'Asesmen Bersama'];
   const JENIS_BAWAAN = 'Asesmen Formatif';
   const JENIS = JENIS_DASAR.slice();
   function setJenis(a) { JENIS.length = 0; JENIS.push(...JENIS_DASAR, ...(a || []).filter(j => j && !JENIS_DASAR.includes(j))); }
@@ -738,7 +738,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     if (typeof modeKO === 'function' && modeKO()) return 'Tryout Umum';
     s = String(s || '').trim().replace(/\s+/g, ' '); if (!s) return JENIS_BAWAAN;
     const l = s.toLowerCase();
-    return JENIS.find(j => j.toLowerCase() === l) || (/diagnos/.test(l) ? 'Asesmen Diagnostik' : /\bumum\b/.test(l) ? 'Tryout Umum' : /\b(tka|utbk|snbt|asas|tryout|to|mandiri)\b/.test(l) ? 'Tryout Mandiri'
+    return JENIS.find(j => j.toLowerCase() === l) || (/(asesmen|ujian) bersama/.test(l) ? 'Asesmen Bersama' : /diagnos/.test(l) ? 'Asesmen Diagnostik' : /\bumum\b/.test(l) ? 'Tryout Umum' : /\b(tka|utbk|snbt|asas|tryout|to|mandiri)\b/.test(l) ? 'Tryout Mandiri'
       : /formatif|latihan/.test(l) ? 'Asesmen Formatif' : /sumatif|ulangan|semester|\b(uh|pts|sts|pas|sas|pat|sat)\b/.test(l) ? 'Asesmen Sumatif' : JENIS_BAWAAN);
   }
   // "12", "XII", "10–12", "X s.d. XII", "10, 12" → ["12"], ["10","11","12"], ["10","12"]
@@ -2090,7 +2090,8 @@ function bukaKeterangan(r){if(!r)return;if(!PIN()){toast("Isi PIN dahulu");retur
   $("di-kode").textContent=r.kode;$("di-judul").value=r.judul||"";isiPilihMapel($("di-mapel"),r.mapel);$("di-semester").value=I.normSemester(i.semester,r.dibuat,i.jenis);$("di-penyusun").value=r.pemilik_nama||i.penyusun||"belum ditetapkan";
   {const lama=i.jenis&&!I.JENIS.includes(i.jenis)?i.jenis:"";  // mis. nama asesmen PAS yang sudah dihapus tetap tampil
    $("di-jenis").innerHTML=(lama?[lama]:[]).concat(I.JENIS).map(j=>`<option value="${esc(j)}">${esc(j)}</option>`).join("");$("di-jenis").value=lama||I.normJenis(i.jenis)}
-  const y=new Date().getFullYear();$("di-semester-list").innerHTML=[y-1,y,y+1].flatMap(t=>[`Ganjil ${t}/${t+1}`,`Genap ${t}/${t+1}`]).map(v=>`<option value="${v}">`).join("");
+  // Semester mengikuti jenis (Tryout → TA) dan tanggal unggah; tidak bisa diketik (keputusan user 26 Nov 2026)
+  $("di-jenis").onchange=()=>{$("di-semester").value=I.normSemester(i.semester,r.dibuat,$("di-jenis").value)};$("di-jenis").onchange();
   chipTingkat($("di-tingkat"),(i.tingkat||[]).length?i.tingkat:I.parseTingkat(r.kelas));chipTingkat($("di-cakupan"),i.cakupan||[]);
   $("di-status").textContent="";const c=$("daftar-info-card");c.classList.remove("hidden");c.scrollIntoView({behavior:"smooth"});$("di-judul").focus()}
 async function simpanKeterangan(){if(!INFO_KODE)return;const i0=INFO_LAMA||{},I=TKA.info,judul=$("di-judul").value.trim();

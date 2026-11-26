@@ -772,10 +772,12 @@ async function gSoal(){
     try{const [g,p]=await Promise.all([rpc("tka_daftar_penyusun",{p_pin:PIN}),rpc("tka_list_paket",{p_pin:PIN})]);
       GURU=(g||[]).map(x=>({id:x.id,nama:x.nama})).sort((a,b)=>a.nama.localeCompare(b.nama,"id"));PAKET=p}catch(e){toast(e.message)}}
   const opsiGuru=sel=>`<option value="">— belum —</option>`+(GURU||[]).map(g=>`<option value="${esc(g.id)}" ${g.id===sel?"selected":""}>${esc(g.nama)}</option>`).join("");
-  // Bawaan: hanya paket berjenis nama asesmen ini (jenis dipilih guru saat unggah); paket yang sudah terpasang selalu tampil
-  const semua=$("s-semua-paket").checked,nmA=jenisKunci(A.asesmen.nama),jenisCocok=p=>jenisKunci(p.info&&p.info.jenis)===nmA;
+  // Bawaan: paket berjenis "Asesmen Bersama" (dipilih guru saat unggah) yang dibuat pada tahun ajaran asesmen ini;
+  // paket yang sudah terpasang selalu tampil. Tahun ajaran mulai Juli.
+  const ta=d=>{const t=new Date(d||Date.now());return t.getMonth()>=6?t.getFullYear():t.getFullYear()-1},taA=ta(A.asesmen.dibuat),taTeks=`${taA}/${taA+1}`;
+  const semua=$("s-semua-paket").checked,jenisCocok=p=>jenisKunci(p.info&&p.info.jenis)==="asesmen bersama"&&ta(p.dibuat)===taA;
   const nCocok=(PAKET||[]).filter(p=>!p.arsip&&jenisCocok(p)).length;
-  $("s-saring").innerHTML=semua?`Menampilkan <b>semua</b> paket di bank soal.`:`Menampilkan <b>${nCocok}</b> paket berjenis <b>${esc(A.asesmen.nama)}</b>.${nCocok?"":` <span class="pill warn">belum ada</span> Minta guru memilih jenis <i>${esc(A.asesmen.nama)}</i> saat mengunggah paket, atau centang <b>Tampilkan semua paket</b>.`}`;
+  $("s-saring").innerHTML=semua?`Menampilkan <b>semua</b> paket di bank soal.`:`Menampilkan <b>${nCocok}</b> paket berjenis <b>Asesmen Bersama</b> tahun ajaran ${taTeks}.${nCocok?"":` <span class="pill warn">belum ada</span> Minta guru memilih jenis <i>Asesmen Bersama</i> saat mengunggah paket, atau centang <b>Tampilkan semua paket</b>.`}`;
   const opsiPaket=(n)=>{const cocok=p=>(p.mapel||"").toLowerCase().includes(n.mapel.toLowerCase().split(" ")[0])||(p.judul||"").toLowerCase().includes(n.mapel.toLowerCase());
     const L=(PAKET||[]).filter(p=>!p.arsip&&(semua||jenisCocok(p)||p.kode===n.paket)).sort((a,b)=>(cocok(b)-cocok(a))||String(b.diubah).localeCompare(String(a.diubah)));
     return`<option value="">— belum —</option>`+L.map(p=>`<option value="${esc(p.kode)}" ${p.kode===n.paket?"selected":""}>${esc(p.kode)} · ${esc(p.judul)} (${p.n_soal} soal${p.pemilik_nama?", oleh "+esc(p.pemilik_nama):""})</option>`).join("")};
