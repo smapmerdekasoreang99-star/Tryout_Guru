@@ -1442,13 +1442,15 @@ function bukuHasil({ExcelJS,paket,rows,kelas,logoBase64,sekolah,waktu}){
   function kop(ws,judul,kolomAkhir){
     ws.getRow(1).height=8;ws.getRow(2).height=20;ws.getRow(3).height=15;ws.getRow(4).height=18;ws.getRow(5).height=6;
     for(let r=1;r<=5;r++)for(let c=1;c<=kolomAkhir;c++)ws.getCell(r,c).fill=isi(XL.putih);
-    // kop rata kiri: logo di tepi kiri kolom A, tulisan mulai kolom A digeser dengan spasi (27 Nov 2026; lihat assets/excel.js)
-    const depan=(pt,tebal)=>" ".repeat(Math.ceil(41/(pt*96/72*(tebal?0.24:0.226))));
-    if(logoId!==null){try{ws.addImage(logoId,{tl:{nativeCol:0,nativeColOff:4*9525,nativeRow:0,nativeRowOff:3*9525},ext:{width:34,height:48}})}catch(e){}}
-    const mulai=1;if(kolomAkhir>mulai){ws.mergeCells(2,mulai,2,kolomAkhir);ws.mergeCells(3,mulai,3,kolomAkhir);ws.mergeCells(4,mulai,4,kolomAkhir)}
-    sel(ws,2,mulai,depan(14,1)+sekolah,{size:14,bold:true,warna:XL.gelap});
-    sel(ws,3,mulai,depan(9)+`Asesmen Merdeka · ${paket.kode} — ${paket.judul}${subJudul?"  ·  "+subJudul:""}`,{size:9,warna:XL.tinta2});
-    sel(ws,4,mulai,depan(12,1)+judul.toUpperCase(),{size:12,bold:true,warna:XL.emasTeks});
+    // kop rata kiri: logo 40×56 px di tepi kiri, di tengah baris 2–4; tulisan didorong 17 spasi 10 pt yang sama (rich text) agar
+    // ketiga baris sejajar di layar & cetakan (27 Nov 2026; lihat assets/excel.js)
+    const DORONG={text:" ".repeat(17),font:{name:XL.font,size:10}};
+    const kopTeks=(r,teks,o)=>{const x=sel(ws,r,1,teks,o);x.value={richText:[DORONG,{text:teks,font:{...x.font}}]}};
+    if(logoId!==null){const atas=Math.round(((20+15+18)*96/72-56)/2);try{ws.addImage(logoId,{tl:{nativeCol:0,nativeColOff:4*9525,nativeRow:1,nativeRowOff:atas*9525},ext:{width:40,height:56}})}catch(e){}}
+    if(kolomAkhir>1){ws.mergeCells(2,1,2,kolomAkhir);ws.mergeCells(3,1,3,kolomAkhir);ws.mergeCells(4,1,4,kolomAkhir)}
+    kopTeks(2,sekolah,{size:14,bold:true,warna:XL.gelap});
+    kopTeks(3,`Asesmen Merdeka · ${paket.kode} — ${paket.judul}${subJudul?"  ·  "+subJudul:""}`,{size:9,warna:XL.tinta2});
+    kopTeks(4,judul.toUpperCase(),{size:12,bold:true,warna:XL.emasTeks});
     for(let c=1;c<=kolomAkhir;c++)ws.getCell(5,c).border={bottom:{style:"medium",color:{argb:XL.emas}}};
     ws.getRow(6).height=8;return 7}
   function catatanKaki(ws,r,kolomAkhir,teks){ws.getRow(r).height=6;ws.mergeCells(r+1,1,r+1,kolomAkhir);
