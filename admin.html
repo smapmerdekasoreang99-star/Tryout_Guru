@@ -731,10 +731,18 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
   const JENIS_DASAR = ['Asesmen Diagnostik', 'Asesmen Formatif', 'Asesmen Sumatif', 'Tryout Mandiri', 'Tryout Umum', 'Asesmen Bersama'];
   const JENIS_BAWAAN = 'Asesmen Formatif';
   const JENIS = JENIS_DASAR.slice();
-  function setJenis(a) { JENIS.length = 0; JENIS.push(...JENIS_DASAR, ...(a || []).filter(j => j && !JENIS_DASAR.includes(j))); }
+  // 27 Nov 2026: "Asesmen Bersama" hanya bisa dipilih TPK dan PIN operator (tka_masuk_guru.tpk). Selain TPK pilihan ini tidak muncul,
+  // dan tulisan "Asesmen Bersama" di Word dibaca sebagai Asesmen Sumatif. Paket yang sudah berjenis ini tetap tampil apa adanya.
+  let BOLEH_BERSAMA = true;
+  function setJenis(a) { if (a !== undefined) setJenis.ekstra = a || []; JENIS.length = 0; JENIS.push(...JENIS_DASAR, ...(setJenis.ekstra || []).filter(j => j && !JENIS_DASAR.includes(j))); if (!BOLEH_BERSAMA) JENIS.splice(JENIS.indexOf('Asesmen Bersama'), 1); }
+  function setBolehBersama(b) { BOLEH_BERSAMA = !!b; setJenis(); }
   // teks bebas (Word, nama lama) → jenis baku; tidak dikenali → Asesmen Formatif. Tryout TKA/ASAS/UTBK lama → Tryout Mandiri;
   // koordinator selalu Tryout Umum (server juga menetapkannya)
   function normJenis(s) {
+    const j = normJenis0(s);
+    return j === 'Asesmen Bersama' && !BOLEH_BERSAMA ? 'Asesmen Sumatif' : j;
+  }
+  function normJenis0(s) {
     if (typeof modeKO === 'function' && modeKO()) return 'Tryout Umum';
     s = String(s || '').trim().replace(/\s+/g, ' '); if (!s) return JENIS_BAWAAN;
     const l = s.toLowerCase();
@@ -1276,7 +1284,7 @@ table[data-beku] .fz-akhir { box-shadow: 4px 0 6px -4px rgba(29, 42, 58, .25); }
     return { ok: errors.length === 0, errors, warnings, kisi };
   }
   root.TKA = { parseDocx, buildPaket, buildKisi, checkKisi, kisiDariPaket, komposisi, normBentuk, normLevel, BENTUK_LABEL,
-    info: { JENIS, JENIS_DASAR, JENIS_BAWAAN, setJenis, normJenis, parseTingkat, fmtTingkat, semesterDari, normSemester, infoBersih } };
+    info: { JENIS, JENIS_DASAR, JENIS_BAWAAN, setJenis, setBolehBersama, normJenis, parseTingkat, fmtTingkat, semesterDari, normSemester, infoBersih } };
 })(typeof window !== 'undefined' ? window : globalThis);
 </script>
 <script>/* tka_docgen.js — membangkitkan "Template Soal" (.docx) yang sudah terisi dari kisi-kisi, langsung di browser (JSZip).
@@ -2088,7 +2096,7 @@ async function sinkronMapel(){if(PERAN!=="operator"||!INDUK||!INDUK.url||!INDUK.
   await muatMapel()}
 function bukaKeterangan(r){if(!r)return;if(!PIN()){toast("Isi PIN dahulu");return}const I=TKA.info,i=r.info||{};INFO_KODE=r.kode;INFO_LAMA=i;
   $("di-kode").textContent=r.kode;$("di-judul").value=r.judul||"";isiPilihMapel($("di-mapel"),r.mapel);$("di-semester").value=I.normSemester(i.semester,r.dibuat,i.jenis);$("di-penyusun").value=r.pemilik_nama||i.penyusun||"belum ditetapkan";
-  {const lama=i.jenis&&!I.JENIS.includes(i.jenis)?i.jenis:"";  // mis. nama asesmen PAS yang sudah dihapus tetap tampil
+  {const lama=i.jenis&&!I.JENIS.includes(i.jenis)?i.jenis:"";  // mis. nama asesmen PAS yang sudah dihapus, atau Asesmen Bersama pada paket guru non-TPK, tetap tampil
    $("di-jenis").innerHTML=(lama?[lama]:[]).concat(I.JENIS).map(j=>`<option value="${esc(j)}">${esc(j)}</option>`).join("");$("di-jenis").value=lama||I.normJenis(i.jenis)}
   // Semester mengikuti jenis (Tryout → TA) dan tanggal unggah; tidak bisa diketik (keputusan user 26 Nov 2026)
   $("di-jenis").onchange=()=>{$("di-semester").value=I.normSemester(i.semester,r.dibuat,$("di-jenis").value)};$("di-jenis").onchange();
@@ -2602,7 +2610,7 @@ function renderPustaka(){const I=TKA.info;
   const lbl=v=>Object.entries(v.lb).sort((a,b)=>b[1]-a[1])[0][0];
   $("pk-mapel").innerHTML=`<span class="lbl">Mata pelajaran</span><button type="button" class="${PKF.mapel?"":"on"}" data-m=""><span>Semua mapel</span><span class="n">${PK.filter(o=>!o.arsip).length}</span></button>`+
     [...mp.entries()].filter(([k,v])=>v.n||PKF.status==="arsip"||PKF.mapel===k).sort((a,b)=>lbl(a[1]).localeCompare(lbl(b[1]))).map(([k,v])=>`<button type="button" class="${PKF.mapel===k?"on":""}" data-m="${esc(k)}"><span>${esc(lbl(v))}</span><span class="n">${v.n}</span></button>`).join("");
-  pkPilihan($("pk-jenis"),"Semua jenis",[...new Set([...I.JENIS_DASAR,...I.JENIS.filter(j=>PK.some(o=>o.info.jenis===j)),...PK.map(o=>o.info.jenis).filter(Boolean)])],PKF.jenis);
+  pkPilihan($("pk-jenis"),"Semua jenis",[...new Set([...I.JENIS_DASAR.filter(j=>I.JENIS.includes(j)),...I.JENIS.filter(j=>PK.some(o=>o.info.jenis===j)),...PK.map(o=>o.info.jenis).filter(Boolean)])],PKF.jenis);
   pkPilihan($("pk-semester"),"Semua semester",[...new Set(PK.map(pkSemester))].sort(pkUrutSemester),PKF.semester);
   $("pk-kelas").value=PKF.kelas;$("pk-grup").value=PKF.grup;$("pk-urut").value=PKF.urut;if(!$("pk-urut").value){PKF.urut="diubah";$("pk-urut").value="diubah"}
   const dasar=PK.filter(pkCocokDasar),n=s=>dasar.filter(o=>pkCocokStatus(o,s)).length;
@@ -2737,7 +2745,7 @@ window.addEventListener("DOMContentLoaded",()=>{
   $("kl-tutup").onclick=()=>$("kartu-lihat").classList.add("hidden");$("kartu-lihat").onclick=e=>{if(e.target.id==="kartu-lihat")e.target.classList.add("hidden")};
   $("btn-c-unduh").onclick=unduhCadangan;$("btn-ars-muat").onclick=muatArsipSemester;$("ars-buka").href=new URL("../matematika_dasar/arsip.html",location.href).href;$("c-file").onchange=e=>{if(e.target.files[0])bacaCadangan(e.target.files[0])};$("btn-c-pulihkan").onclick=pulihkanCadangan;
   $("btn-cek").onclick=async()=>{try{localStorage.setItem("tka_admin_pin",$("pin-ingat").checked?PIN():"")}catch(e){}
-    try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});document.documentElement.classList.remove("pin-otomatis");MASUK=j;setPeran(j.peran);cekHakMenu(j.peran);
+    try{const j=await rpc("tka_masuk_guru",{p_pin:PIN()});document.documentElement.classList.remove("pin-otomatis");MASUK=j;TKA.info.setBolehBersama(j.tpk===true);setPeran(j.peran);cekHakMenu(j.peran);
       try{sessionStorage.setItem("tka_v2_pin",JSON.stringify({pin:PIN(),peran:j.peran}))}catch(e){}
       $("pin-baris").classList.add("hidden");$("pin-card").classList.add("masuk");
       $("pin-status").innerHTML=`<span class="pill good">PIN benar · ${esc(j.nama)}</span> <span class="pill">${j.peran==="operator"?"operator/kurikulum — akses penuh":j.peran==="guru"?"guru — unggah paket, kelola paket sendiri (data siswa hanya lihat)":j.peran==="koordinator"?"koordinator Tryout Umum — unggah soal mapel TO atas nama guru penyusun":j.peran==="kurikulum"?(modeKO()?"kurikulum — unggah soal Tryout Umum atas nama guru penyusun":"kurikulum — melihat bank soal semua guru"):"pengawas — hanya lihat"}</span>`+
