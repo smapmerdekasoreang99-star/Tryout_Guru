@@ -89,7 +89,7 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
 .kr .mp{display:flex;flex-wrap:wrap;gap:3px}.kr .mp span{font-size:11px;font-weight:600;background:var(--kertas-3);border-radius:6px;padding:1px 6px}
 .tanda{display:flex;gap:4px;flex-wrap:wrap;min-height:18px}.tanda span{font-size:11px;font-weight:700;border-radius:6px;padding:1px 6px}
 .t-kunci{background:var(--bad-soft);color:var(--bad)}.t-diam{background:#e9e5dc;color:#5E5548}.t-keluar{background:var(--warn-soft);color:var(--warn)}.t-belum{background:var(--info-soft);color:var(--info)}
-.umpan{max-height:640px;overflow:auto;padding:0}.umpan .bt{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px}.umpan .bt b{font-size:14px}
+.umpan-wadah{position:relative;align-self:stretch;min-height:260px}.umpan{position:absolute;inset:0;margin:0;overflow:auto;padding:0}.umpan .bt.kepala-umpan{position:sticky;top:0;z-index:1;background:#fff;display:flex;justify-content:space-between}.umpan .bt{padding:10px 14px;border-bottom:1px solid var(--line);font-size:13px}.umpan .bt b{font-size:14px}
 .laci{position:fixed;inset:0;background:rgba(20,24,30,.45);z-index:150;display:flex;justify-content:flex-end}
 .laci>div{background:var(--kertas);width:min(1000px,100%);height:100%;overflow:auto;padding:16px 18px 40px;display:flex;flex-direction:column;gap:12px}
 /* Susun ruang otomatis (26 Nov 2026) — warna tingkat: 10 biru, 11 hijau, 12 emas */
@@ -119,7 +119,7 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
 .sr-kls{font-size:11px;line-height:1.4}
 .sr-aksi{position:sticky;bottom:0;margin:0 -18px;padding:12px 18px;background:rgba(250,247,240,.96);backdrop-filter:blur(6px);border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;box-shadow:var(--bayang-atas)}
 @media (max-width:640px){.kursi{grid-template-columns:repeat(6,12px);gap:4px}.kursi i{width:12px;height:12px}.sr-aksi .row{width:100%}.sr-aksi .row button{flex:1}}
-@media (max-width:1000px){.dua{grid-template-columns:minmax(0,1fr)}.ubin{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:1000px){.dua{grid-template-columns:minmax(0,1fr)}.umpan-wadah{position:static;min-height:0}.umpan{position:static;max-height:420px}.ubin{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:640px){.tabs button span{display:none}.ubin{grid-template-columns:repeat(2,minmax(0,1fr))}}
 </style>
 </head>
@@ -276,7 +276,7 @@ td{padding:7px 9px;border-bottom:1px solid var(--line);vertical-align:top}tr:las
     <div class="card kolom"><div class="batang" id="pt-batang"></div><div class="row small muted" id="pt-legenda"></div></div>
     <div class="dua">
       <div class="kisi-ruang" id="pt-ruang"></div>
-      <div class="card umpan"><div class="bt" style="position:sticky;top:0;background:#fff;display:flex;justify-content:space-between"><b>Perlu tindakan</b><span class="pill bad" id="pt-n-umpan">0</span></div><div id="pt-umpan"></div></div>
+      <div class="umpan-wadah"><div class="card umpan"><div class="bt kepala-umpan"><b>Perlu tindakan</b><span class="pill bad" id="pt-n-umpan">0</span></div><div id="pt-umpan"></div></div></div>
     </div>
     <div class="card kolom">
       <div class="kepala"><h3>Susulan</h3><button class="ghost mini" id="btn-susulan-muat">Muat daftar belum mengerjakan</button></div>
