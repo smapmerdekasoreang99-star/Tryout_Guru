@@ -33,8 +33,29 @@ input[type=password],input[type=text]{padding:8px 10px;font-size:15px;border:1px
 .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
 .p-kerja{background:var(--good-soft);color:var(--good)}.p-selesai{background:var(--info-soft);color:var(--info)}.p-terkunci,.p-ditutup{background:var(--bad-soft);color:var(--bad)}
 .p-keluar{background:var(--warn-soft);color:var(--warn)}.p-tunggu{background:var(--info-soft);color:var(--info)}.p-diam{background:#e9e5dc;color:#5E5548}.p-kirim{background:var(--info-soft);color:var(--info)}
-.pilih{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
-.pilih button{background:#fff;color:var(--ink);border:1px solid var(--garis-2);padding:14px 8px;font-size:17px}
+/* Kotak ruang di layar Pilih ruang (27 Nov 2026): angka belum masuk / mengerjakan / terkunci per ruang dari asm_pantau */
+.pilih{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(250px,100%),1fr));gap:12px}
+.pilih .kr{--st:var(--garis-2);background:#fff;color:var(--ink);border:1px solid var(--garis);border-top:5px solid var(--st);border-radius:14px;padding:14px;
+  text-align:left;display:flex;flex-direction:column;gap:10px;font-weight:400;font-size:14px;box-shadow:var(--bayang-2);transition:transform .15s,box-shadow .15s}
+.pilih .kr:hover{transform:translateY(-2px);box-shadow:0 2px 4px rgba(34,30,23,.06),0 10px 24px rgba(34,30,23,.09)}
+.pilih .kr:focus-visible{outline:3px solid var(--emas);outline-offset:2px}
+.kr.s-merah{--st:var(--absen);background:linear-gradient(180deg,var(--absen-muda),#fff 46%)}.kr.s-kuning{--st:var(--emas)}.kr.s-hijau{--st:var(--hadir)}.kr.s-biru{--st:var(--sakit)}.kr.s-abu{--st:var(--garis-2)}
+.kr .kh{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.kr .kode{font-family:"Fraunces",Georgia,serif;font-size:26px;font-weight:600;line-height:1;font-variant-numeric:lining-nums}
+.kr .nm{font-size:12px;color:var(--muted);margin-top:3px}
+.kr .lb{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;background:var(--netral-muda);color:var(--tinta-2)}
+.kr.s-merah .lb{background:var(--absen);color:#fff}.kr.s-kuning .lb{background:var(--emas-muda);color:var(--emas-teks)}.kr.s-hijau .lb{background:var(--hadir-muda);color:var(--hadir)}.kr.s-biru .lb{background:var(--sakit-muda);color:var(--sakit)}
+.kr .tiga{display:grid;width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.kr .tiga>span{display:block;border-radius:10px;padding:8px 4px 7px;text-align:center}
+.kr .tiga b{display:block;font-size:28px;font-weight:700;line-height:1.05;font-variant-numeric:tabular-nums}
+.kr .tiga .a{display:block;font-size:11px;font-weight:600;line-height:1.25}
+.kr .v-belum{background:var(--emas-kabut);color:var(--emas-teks)}.kr .v-kerja{background:var(--hadir-muda);color:var(--hadir)}.kr .v-kunci{background:var(--absen-muda);color:var(--absen)}
+.kr .tiga .nol{background:var(--kertas-3);color:var(--tinta-3)}
+.kr .bt{display:flex;height:8px;border-radius:999px;overflow:hidden;background:var(--netral-muda);gap:1px}.kr .bt i{display:block;min-width:3px}
+.kr .kk{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--muted);align-items:center}
+.kr .kk .ttk{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px;vertical-align:1px;background:var(--tinta-3)}.kr .kk .ok{background:var(--hadir)}
+.kr .kk .awas{color:var(--emas-teks);font-weight:700}
+.ringkas-pilih{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:2px 0 12px}
 .atas-layar{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px;align-items:stretch}
 .kodebox{background:var(--gelap);color:#fff;border-radius:14px;padding:16px;text-align:center;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center}
 .kodebox .kd{font-family:ui-monospace,Consolas,monospace;font-size:52px;font-weight:700;letter-spacing:.08em;line-height:1;color:var(--emas)}
@@ -65,7 +86,7 @@ tr.perlu td{background:var(--bad-soft)}
     <p class="small muted" id="pin-pesan" style="margin-top:6px">Masukkan PIN pengawas. Layar ini menampilkan kode akses ruang dan keadaan setiap siswa.</p></div>
 
   <section id="v-pilih" class="hidden">
-    <div class="card"><h2 id="p-judul">Pilih ruang</h2><p class="small muted" id="p-ket" style="margin:4px 0 10px"></p><div class="pilih" id="p-ruang"></div></div>
+    <div class="card"><h2 id="p-judul">Pilih ruang</h2><p class="small muted" id="p-ket" style="margin:4px 0 8px"></p><div class="ringkas-pilih" id="p-ringkas"></div><div class="pilih" id="p-ruang"></div></div>
   </section>
 
   <section id="v-layar" class="hidden">
@@ -134,9 +155,48 @@ try{const s=JSON.parse(sessionStorage.getItem("tka_v2_pin")||"null");if(s&&s.pin
 
 function pilihRuang(){clearInterval(T);clearInterval(DETIK);$("v-layar").classList.add("hidden");$("v-pilih").classList.remove("hidden");$("btn-ganti").classList.add("hidden");
   $("p-judul").textContent="Pilih ruang Anda";$("p-ket").textContent=AS.nama+(AS.hari_ini?" · ada sesi hari ini":"");$("h-sub").textContent=AS.nama;
-  $("p-ruang").innerHTML=AS.ruang.map(r=>`<button data-r="${esc(r.kode)}"><b>${esc(r.kode)}</b>${r.nama?`<div class="small muted">${esc(r.nama)}</div>`:""}</button>`).join("");
-  document.querySelectorAll("#p-ruang button").forEach(b=>b.onclick=()=>bukaRuang(b.dataset.r))}
+  PILIH=null;gambarPilih();muatPilih();T=setInterval(()=>{if(!document.hidden&&!$("v-pilih").classList.contains("hidden"))muatPilih()},20000)}
 $("btn-ganti").onclick=pilihRuang;
+// Angka per ruang memakai asm_pantau (sama dengan Dasbor Pantau operator; boleh untuk PIN pengawas/operator). Gagal → kotak tetap bisa dipilih.
+let PILIH=null;
+async function muatPilih(){try{const P=await rpc("asm_pantau",{p_pin:PIN,p_asesmen:AS.id,p_sesi:null});OFF=Date.parse(P.sekarang)-Date.now();PILIH=P}catch(e){PILIH={gagal:e.message}}
+  if(!$("v-pilih").classList.contains("hidden"))gambarPilih()}
+const WARNA_ST={kerja:"var(--hadir)",keluar:"var(--emas)",terkunci:"var(--absen)",diam:"#8B8173",tunggu:"#9DBBD0",kirim:"var(--sakit)",selesai:"var(--sakit)",ditutup:"var(--absen-tua)",belum:"var(--garis-2)",tidak_hadir:"var(--netral-muda)"};
+const URUT_BT=["selesai","kirim","ditutup","kerja","tunggu","keluar","diam","terkunci","belum","tidak_hadir"];
+function gambarPilih(){const P=PILIH,s=P&&P.sesi,kini=Date.now()+OFF;
+  const tahap=!s?"":s.batal?"Dibatalkan":kini<Date.parse(s.pintu)?"Belum dibuka":kini<Date.parse(s.mulai)?"Pintu dibuka":kini<Date.parse(s.akhir)?"Berjalan":"Selesai";
+  const sebelum=s&&kini<Date.parse(s.mulai),berjalan=tahap==="Berjalan"||tahap==="Pintu dibuka";
+  const per={};(P&&P.siswa||[]).forEach(x=>(per[x.ruang]=per[x.ruang]||[]).push(x));
+  const rs={};(P&&P.ruang||[]).forEach(r=>rs[r.ruang]=r);
+  const hit=L=>{const h={};L.forEach(x=>h[x.status]=(h[x.status]||0)+1);return h};
+  const tiga=h=>[h.belum||0,(h.tunggu||0)+(h.kerja||0)+(h.keluar||0)+(h.diam||0),h.terkunci||0];
+  // keterangan sesi + jumlah seluruh ruang
+  if(P&&P.gagal)$("p-ringkas").innerHTML=`<span class="small muted">Angka per ruang belum bisa dimuat (${esc(P.gagal)}). Ruang tetap bisa dipilih.</span>`;
+  else if(!P)$("p-ringkas").innerHTML='<span class="small muted">Memuat keadaan ruang…</span>';
+  else if(!s)$("p-ringkas").innerHTML='<span class="small muted">Belum ada sesi ujian.</span>';
+  else{const [b,k,t]=tiga(hit(P.siswa));
+    $("p-ringkas").innerHTML=`<span class="small"><b>Sesi ${esc(s.ke)}</b> · ${new Date(s.mulai).toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"short",timeZone:"Asia/Jakarta"})} · ${jam(s.mulai)}–${jam(s.akhir)} · <b>${tahap}</b></span>
+      <span class="pill">Belum masuk ${b}</span><span class="pill p-kerja">${sebelum?"Sudah masuk":"Mengerjakan"} ${k}</span><span class="pill ${t?"p-terkunci":""}">Terkunci ${t}</span>
+      <span class="small muted" style="margin-left:auto">diperbarui ${new Date().toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit",second:"2-digit"}).replace(/:/g,".")}</span>`}
+  $("p-ruang").innerHTML=AS.ruang.map(r=>{const R=rs[r.kode],L=per[r.kode]||[],h=hit(L),[b,k,t]=tiga(h),sls=(h.selesai||0)+(h.kirim||0)+(h.ditutup||0);
+    let kls="s-abu",lb=P&&!P.gagal?"Tidak ada sesi":"";
+    if(P&&!P.gagal&&s&&R){
+      if(t){kls="s-merah";lb=t+" terkunci"}else if(R.jeda){kls="s-merah";lb="Dijeda"}
+      else if(berjalan&&(h.diam||h.keluar)){kls="s-kuning";lb="Perlu dicek"}
+      else if(tahap==="Selesai"||(L.length&&sls+(h.tidak_hadir||0)===L.length)){kls="s-biru";lb="Selesai"}
+      else if(berjalan){kls="s-hijau";lb=tahap==="Berjalan"?"Lancar":"Pintu dibuka"}
+      else{kls="s-abu";lb=tahap}}
+    const ada=P&&!P.gagal&&s&&R,kosong=v=>v?"":" nol";
+    const pgOk=R&&R.pengawas_kabar&&kini-Date.parse(R.pengawas_kabar)<180000;
+    const kk=ada?[`<span>${L.length} siswa</span>`,sls?`<span>Selesai ${sls}</span>`:"",h.tidak_hadir?`<span>Tidak hadir ${h.tidak_hadir}</span>`:"",
+      h.diam?`<span class="awas">${h.diam} tidak aktif</span>`:"",h.keluar?`<span class="awas">${h.keluar} keluar halaman</span>`:"",R.tambah?`<span>+${R.tambah} mnt</span>`:"",
+      `<span><i class="ttk ${pgOk?"ok":""}"></i>${pgOk?"pengawas terhubung":"layar pengawas belum terbuka"}</span>`].join(""):"";
+    return`<button class="kr ${kls}" data-r="${esc(r.kode)}" aria-label="Ruang ${esc(r.kode)}${ada?`: ${b} belum masuk, ${k} ${sebelum?"sudah masuk":"mengerjakan"}, ${t} terkunci`:""}">
+      <span class="kh"><span><span class="kode">${esc(r.kode)}</span>${r.nama?`<span class="nm" style="display:block">${esc(r.nama)}</span>`:""}</span>${lb?`<span class="lb">${esc(lb)}</span>`:""}</span>
+      ${ada?`<span class="tiga"><span class="v-belum${kosong(b)}"><b>${b}</b><span class="a">Belum masuk</span></span><span class="v-kerja${kosong(k)}"><b>${k}</b><span class="a">${sebelum?"Sudah masuk":"Mengerjakan"}</span></span><span class="v-kunci${kosong(t)}"><b>${t}</b><span class="a">Terkunci</span></span></span>
+      <span class="bt">${URUT_BT.filter(x=>h[x]).map(x=>`<i style="flex:${h[x]};background:${WARNA_ST[x]}"></i>`).join("")}</span>
+      <span class="kk">${kk}</span>`:`<span class="small muted">${P?"":"Memuat…"}</span>`}</button>`}).join("");
+  document.querySelectorAll("#p-ruang .kr").forEach(b=>b.onclick=()=>bukaRuang(b.dataset.r))}
 
 function bukaRuang(ru){RUANG=ru;try{localStorage.setItem("pas_ruang",JSON.stringify({a:AS.id,ruang:ru}))}catch(e){}
   $("v-pilih").classList.add("hidden");$("v-layar").classList.remove("hidden");$("btn-ganti").classList.remove("hidden");
