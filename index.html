@@ -1442,11 +1442,12 @@ function bukuHasil({ExcelJS,paket,rows,kelas,logoBase64,sekolah,waktu}){
   function kop(ws,judul,kolomAkhir){
     ws.getRow(1).height=8;ws.getRow(2).height=20;ws.getRow(3).height=15;ws.getRow(4).height=18;ws.getRow(5).height=6;
     for(let r=1;r<=5;r++)for(let c=1;c<=kolomAkhir;c++)ws.getCell(r,c).fill=isi(XL.putih);
-    if(logoId!==null){try{ws.addImage(logoId,{tl:{col:0.1,row:0.3},ext:{width:34,height:48}})}catch(e){}}
+    // logo di sisi kanan kolom A, menempel ke tulisan di kolom B; jarak ±2–3 mm berapa pun lebar kolom A (27 Nov 2026)
+    if(logoId!==null){const pxA=Math.floor((ws.getColumn(1).width||8.43)*7+5),x=Math.max(2,pxA-34-6);try{ws.addImage(logoId,{tl:{nativeCol:0,nativeColOff:x*9525,nativeRow:0,nativeRowOff:3*9525},ext:{width:34,height:48}})}catch(e){}}
     const mulai=2;if(kolomAkhir>mulai){ws.mergeCells(2,mulai,2,kolomAkhir);ws.mergeCells(3,mulai,3,kolomAkhir);ws.mergeCells(4,mulai,4,kolomAkhir)}
-    sel(ws,2,mulai,sekolah,{size:14,bold:true,warna:XL.gelap,indent:1});
-    sel(ws,3,mulai,`Asesmen Merdeka · ${paket.kode} — ${paket.judul}${subJudul?"  ·  "+subJudul:""}`,{size:9,warna:XL.tinta2,indent:1});
-    sel(ws,4,mulai,judul.toUpperCase(),{size:12,bold:true,warna:XL.emasTeks,indent:1});
+    sel(ws,2,mulai,sekolah,{size:14,bold:true,warna:XL.gelap});
+    sel(ws,3,mulai,`Asesmen Merdeka · ${paket.kode} — ${paket.judul}${subJudul?"  ·  "+subJudul:""}`,{size:9,warna:XL.tinta2});
+    sel(ws,4,mulai,judul.toUpperCase(),{size:12,bold:true,warna:XL.emasTeks});
     for(let c=1;c<=kolomAkhir;c++)ws.getCell(5,c).border={bottom:{style:"medium",color:{argb:XL.emas}}};
     ws.getRow(6).height=8;return 7}
   function catatanKaki(ws,r,kolomAkhir,teks){ws.getRow(r).height=6;ws.mergeCells(r+1,1,r+1,kolomAkhir);
